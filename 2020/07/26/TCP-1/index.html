@@ -17,19 +17,23 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>TEST | Hexo</title>
-  <meta property="og:type" content="article">
-<meta property="og:title" content="TEST">
-<meta property="og:url" content="http://xboom.github.io/2020/07/26/TEST/index.html">
+  <title>TCP(1)-传输控制协议 | Hexo</title>
+  <meta name="description" content="引言 TCP提供一种面向连接的，可靠的字节流服务 TCP将用户数据打包构成报文段；它发送数据后启动一个定时器；另一端对收到的数据进行确认，对失序的数据重新排序，丢弃重复数据；TCP提供端到端的流量控制，并计算和验证一个强制性的端到端检验和  TCP数据结构  源端口(Source Port, 2B &#x3D; 16bit)和目的端口(Destination Port, 2B &#x3D; 16bit)加上IP层源">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP(1)-传输控制协议">
+<meta property="og:url" content="http://xboom.github.io/2020/07/26/TCP-1/index.html">
 <meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="引言 TCP提供一种面向连接的，可靠的字节流服务 TCP将用户数据打包构成报文段；它发送数据后启动一个定时器；另一端对收到的数据进行确认，对失序的数据重新排序，丢弃重复数据；TCP提供端到端的流量控制，并计算和验证一个强制性的端到端检验和  TCP数据结构  源端口(Source Port, 2B &#x3D; 16bit)和目的端口(Destination Port, 2B &#x3D; 16bit)加上IP层源">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-07-26T08:33:26.000Z">
-<meta property="article:modified_time" content="2020-07-26T09:14:02.904Z">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh4jbpfeizj30lr0bcaa7.jpg">
+<meta property="article:published_time" content="2020-07-26T09:25:09.000Z">
+<meta property="article:modified_time" content="2020-07-26T10:38:18.260Z">
 <meta property="article:author" content="XBoom Dove">
-<meta property="article:tag" content="linux">
+<meta property="article:tag" content="TCP&#x2F;IP">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh4jbpfeizj30lr0bcaa7.jpg">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://xboom.github.io/2020/07/26/TEST/index.html">
+  <link rel="canonical" href="http://xboom.github.io/2020/07/26/TCP-1/index.html">
   
   
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -291,21 +295,21 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text"> 引言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcp数据结构"><span class="toc-number">2.</span> <span class="toc-text"> TCP数据结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcp三次握手"><span class="toc-number">3.</span> <span class="toc-text"> TCP三次握手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcp四次挥手"><span class="toc-number">4.</span> <span class="toc-text"> TCP四次挥手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-TEST" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-TCP-1" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      TEST
+      TCP(1)-传输控制协议
     </h1>
   
 
@@ -313,20 +317,20 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2020/07/26/TEST/" class="article-date">
-	  <time datetime="2020-07-26T08:33:26.000Z" itemprop="datePublished">2020-07-26</time>
+	<a href="/2020/07/26/TCP-1/" class="article-date">
+	  <time datetime="2020-07-26T09:25:09.000Z" itemprop="datePublished">2020-07-26</time>
 	</a>
 </span>
         
   <span class="article-category">
     <i class="icon icon-folder"></i>
-    <a class="article-category-link" href="/categories/linux/">linux</a>
+    <a class="article-category-link" href="/categories/TCP-IP/">TCP/IP</a>
   </span>
 
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/tags/linux/" rel="tag">linux</a>
+	<a class="article-tag-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a>
   </span>
 
 
@@ -334,13 +338,13 @@
 
 	<span class="article-read hidden-xs">
     	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2020/07/26/TEST/" class="leancloud_visitors"  data-flag-title="TEST">0</span>
+    	<span id="/2020/07/26/TCP-1/" class="leancloud_visitors"  data-flag-title="TCP(1)-传输控制协议">0</span>
     </span>
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/07/26/TEST/#comments" class="article-comment-link">Comments</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/07/26/TCP-1/#comments" class="article-comment-link">Comments</a></span>
         
 	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 0(words)</span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 304(words)</span>
 	
 	
 		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Count: 1(minutes)</span>
@@ -350,7 +354,21 @@
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        
+        <h3 id="引言"><a class="markdownIt-Anchor" href="#引言"></a> 引言</h3>
+<p>TCP提供一种面向连接的，可靠的字节流服务</p>
+<p>TCP将用户数据打包构成报文段；它发送数据后启动一个定时器；另一端对收到的数据进行确认，对失序的数据重新排序，丢弃重复数据；TCP提供端到端的流量控制，并计算和验证一个强制性的端到端检验和</p>
+<h3 id="tcp数据结构"><a class="markdownIt-Anchor" href="#tcp数据结构"></a> TCP数据结构</h3>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh4jbpfeizj30lr0bcaa7.jpg" alt="" /></p>
+<p><strong>源端口</strong>(Source Port, 2B = 16bit)和<strong>目的端口</strong>(Destination Port, 2B = 16bit)加上IP层源IP和目的IP唯一确定一个TCP连接，一个IP地址和一个端口号称为一个**插口(**socket)。</p>
+<p><strong>序列号</strong>(Sequence Number, 4B = 32bit)指定了当前数据分片中分配给第一字节数据的序列号。在TCP传输流中每一个字节为一个序号。如果TCP报文中flags标志位为SYN，该序列号表示初始化序列号(ISN)，此时<em>第一个数据应该是从序列号ISN+1开始</em>。序号是32bit的无符号数，序号到达最大值 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mn>2</mn><mn>3</mn></msup><mn>2</mn><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">2^32  - 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.897438em;vertical-align:-0.08333em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>后又从0开始。</p>
+<h3 id="tcp三次握手"><a class="markdownIt-Anchor" href="#tcp三次握手"></a> TCP三次握手</h3>
+<h3 id="tcp四次挥手"><a class="markdownIt-Anchor" href="#tcp四次挥手"></a> TCP四次挥手</h3>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ul>
+<li><a href="http://docs.52im.net/extend/docs/book/tcpip/vol1/17/" target="_blank" rel="noopener">TCP:传输控制协议</a></li>
+<li><a href="https://www.pianshen.com/article/2872927776/" target="_blank" rel="noopener">TCP的三次握手和四次挥手</a></li>
+</ul>
+
       
     </div>
     <div class="article-footer">
@@ -392,13 +410,9 @@
   
   <ul class="pager pull-left">
     
-    <li class="prev">
-      <a href="/2020/07/26/TCP-1/" title="TCP(1)-传输控制协议"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
-    </li>
-    
     
     <li class="next">
-      <a href="/2020/07/25/hello-world/" title="Hello World"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2020/07/26/TEST/" title="TEST"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     

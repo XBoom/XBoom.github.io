@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://xboom.github.io/2020/07/26/TCP-1/</loc>
+    
+    <lastmod>2020-07-26T10:38:18.260Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://xboom.github.io/2020/07/26/TEST/</loc>
     
     <lastmod>2020-07-26T09:14:02.904Z</lastmod>
@@ -33,20 +40,6 @@
     <loc>http://xboom.github.io/repository/index.html</loc>
     
     <lastmod>2020-07-26T08:03:06.650Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/books/index.html</loc>
-    
-    <lastmod>2020-07-26T06:54:21.008Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/search/index.html</loc>
-    
-    <lastmod>2020-07-26T02:33:42.068Z</lastmod>
     
   </url>
   

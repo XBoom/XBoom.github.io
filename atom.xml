@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://xboom.github.io/"/>
-  <updated>2020-07-26T09:14:02.904Z</updated>
+  <updated>2020-07-26T10:38:18.260Z</updated>
   <id>http://xboom.github.io/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>TCP(1)-传输控制协议</title>
+    <link href="http://xboom.github.io/2020/07/26/TCP-1/"/>
+    <id>http://xboom.github.io/2020/07/26/TCP-1/</id>
+    <published>2020-07-26T09:25:09.000Z</published>
+    <updated>2020-07-26T10:38:18.260Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="引言"><a class="markdownIt-Anchor" href="#引言"></a> 引言</h3><p>TCP提供一种面向连接的，可靠的字节流服务</p><p>TCP将用户数据打包构成报文段；它发送数据后启动一个定时器；另一端对收到的数据进行确认，对失序的数据重新排序，丢弃重复数据；TCP提供端到端的流量控制，并计算和验证一个强制性的端到端检验和</p><h3 id="tcp数据结构"><a class="markdownIt-Anchor" href="#tcp数据结构"></a> TCP数据结构</h3><p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh4jbpfeizj30lr0bcaa7.jpg" alt="" /></p><p><strong>源端口</strong>(Source Port, 2B = 16bit)和<strong>目的端口</strong>(Destination Port, 2B = 16bit)加上IP层源IP和目的IP唯一确定一个TCP连接，一个IP地址和一个端口号称为一个**插口(**socket)。</p><p><strong>序列号</strong>(Sequence Number, 4B = 32bit)指定了当前数据分片中分配给第一字节数据的序列号。在TCP传输流中每一个字节为一个序号。如果TCP报文中flags标志位为SYN，该序列号表示初始化序列号(ISN)，此时<em>第一个数据应该是从序列号ISN+1开始</em>。序号是32bit的无符号数，序号到达最大值 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mn>2</mn><mn>3</mn></msup><mn>2</mn><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">2^32  - 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.897438em;vertical-align:-0.08333em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>后又从0开始。</p><h3 id="tcp三次握手"><a class="markdownIt-Anchor" href="#tcp三次握手"></a> TCP三次握手</h3><h3 id="tcp四次挥手"><a class="markdownIt-Anchor" href="#tcp四次挥手"></a> TCP四次挥手</h3><h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3><ul><li><a href="http://docs.52im.net/extend/docs/book/tcpip/vol1/17/" target="_blank" rel="noopener">TCP:传输控制协议</a></li><li><a href="https://www.pianshen.com/article/2872927776/" target="_blank" rel="noopener">TCP的三次握手和四次挥手</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;引言&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href=&quot;#引言&quot;&gt;&lt;/a&gt; 引言&lt;/h3&gt;
+&lt;p&gt;TCP提供一种面向连接的，可靠的字节流服务&lt;/p&gt;
+&lt;p&gt;TCP将用户数据打包构成报文段；它发送数据后启动一个定时器；另一端对收到的数据进行确认
+      
+    
+    </summary>
+    
+    
+      <category term="TCP/IP" scheme="http://xboom.github.io/categories/TCP-IP/"/>
+    
+    
+      <category term="TCP/IP" scheme="http://xboom.github.io/tags/TCP-IP/"/>
+    
+  </entry>
   
   <entry>
     <title>TEST</title>
