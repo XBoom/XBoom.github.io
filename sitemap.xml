@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://xboom.github.io/2020/07/26/TEST/</loc>
+    
+    <lastmod>2020-07-26T08:43:45.255Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://xboom.github.io/about/index.html</loc>
     
     <lastmod>2020-07-26T08:42:00.952Z</lastmod>
@@ -19,13 +26,6 @@
     <loc>http://xboom.github.io/tags/index.html</loc>
     
     <lastmod>2020-07-26T08:41:09.242Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2020/07/26/TEST/</loc>
-    
-    <lastmod>2020-07-26T08:35:29.053Z</lastmod>
     
   </url>
   
