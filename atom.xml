@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://xboom.github.io/"/>
-  <updated>2020-07-26T08:23:25.769Z</updated>
+  <updated>2020-07-26T08:35:29.053Z</updated>
   <id>http://xboom.github.io/</id>
   
   <author>
@@ -20,8 +20,8 @@
     <title>TEST</title>
     <link href="http://xboom.github.io/2020/07/26/TEST/"/>
     <id>http://xboom.github.io/2020/07/26/TEST/</id>
-    <published>2020-07-26T08:21:40.000Z</published>
-    <updated>2020-07-26T08:23:25.769Z</updated>
+    <published>2020-07-26T08:33:26.000Z</published>
+    <updated>2020-07-26T08:35:29.053Z</updated>
     
     <summary type="html">
     
@@ -29,7 +29,7 @@
     
     
     
-      <category term="-linux" scheme="http://xboom.github.io/tags/linux/"/>
+      <category term="linux" scheme="http://xboom.github.io/tags/linux/"/>
     
   </entry>
   
