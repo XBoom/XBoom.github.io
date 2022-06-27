@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>MySql入门2-文件 | XBoom Dove</title>
+  <meta name="description" content="构成Mysql和InnoDB存储引擎表的各类文件包括：  参数文件：初始化参数、内存结构大小等设置 日志文件：记录MySql实例的各种类型活动 socket文件：当用UNIX域套接字方式进行连接时所需要的文件 pid文件：MySql实例的进程ID文件(作用是？) 存储引擎文件：每个引擎会有自己的文件保存数据(如记录和索引)   参数文件 当MySql实例启动时，会先读参数文件(如果没有则使用默认值">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySql入门2-文件">
+<meta property="og:url" content="http://xboom.github.io/2021/07/24/MySql/MySql%E5%85%A5%E9%97%A82-%E6%96%87%E4%BB%B6/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="构成Mysql和InnoDB存储引擎表的各类文件包括：  参数文件：初始化参数、内存结构大小等设置 日志文件：记录MySql实例的各种类型活动 socket文件：当用UNIX域套接字方式进行连接时所需要的文件 pid文件：MySql实例的进程ID文件(作用是？) 存储引擎文件：每个引擎会有自己的文件保存数据(如记录和索引)   参数文件 当MySql实例启动时，会先读参数文件(如果没有则使用默认值">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210627130047.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210627130956.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210627133153.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210627140222.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210724093815.png">
+<meta property="article:published_time" content="2021-07-24T02:44:44.000Z">
+<meta property="article:modified_time" content="2022-06-25T07:00:00.112Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="MySql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210627130047.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2021/07/24/MySql/MySql%E5%85%A5%E9%97%A82-%E6%96%87%E4%BB%B6/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Acwing/">Acwing</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm-Applied/">Algorithm Applied</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/FrameWork/">FrameWork</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Acwing/" rel="tag">Acwing</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FrameWork/" rel="tag">FrameWork</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Acwing/" style="font-size: 13.25px;">Acwing</a> <a href="/tags/Algorithm/" style="font-size: 13.63px;">Algorithm</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.38px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/FrameWork/" style="font-size: 13.38px;">FrameWork</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.38px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.25px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.5px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/MySql/" style="font-size: 13.88px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.75px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.5px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.13px;">gRPC</a> <a href="/tags/k8s/" style="font-size: 13.5px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/13/ETCD/ETCD%E5%85%A5%E9%97%A83-RAFT%E5%8D%8F%E8%AE%AE/" class="title">ETCD入门3-RAFT协议</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-13T02:25:38.000Z" itemprop="datePublished">2022-03-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/12/ETCD/ETCD%E5%85%A5%E9%97%A82-ETCD%E6%9E%B6%E6%9E%84/" class="title">ETCD入门2-ETCD架构</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-12T09:31:19.000Z" itemprop="datePublished">2022-03-12</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/12/ETCD/ETCD%E5%85%A5%E9%97%A81-ETCD%E6%A6%82%E8%BF%B0/" class="title">ETCD入门1-ETCD概述</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-12T07:33:07.000Z" itemprop="datePublished">2022-03-12</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/FrameWork/">FrameWork</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/04/FrameWork/%E6%9E%B6%E6%9E%846-%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" class="title">架构6-分布式缓存</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-03T16:30:33.000Z" itemprop="datePublished">2022-03-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/02/23/ETCD/ETCD%E5%85%A5%E9%97%A86-%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" class="title">ETCD入门6-多版本控制</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-02-22T16:41:29.000Z" itemprop="datePublished">2022-02-23</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#参数文件"><span class="toc-number">1.</span> <span class="toc-text"> 参数文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志文件"><span class="toc-number">2.</span> <span class="toc-text"> 日志文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#慢查询日志"><span class="toc-number">2.1.</span> <span class="toc-text"> 慢查询日志</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二进制日志"><span class="toc-number">2.2.</span> <span class="toc-text"> 二进制日志</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#删除binlog"><span class="toc-number">2.2.1.</span> <span class="toc-text"> 删除binlog</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#其他文件"><span class="toc-number">2.3.</span> <span class="toc-text"> 其他文件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#innodb存储引擎文件"><span class="toc-number">3.</span> <span class="toc-text"> InnoDB存储引擎文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#表空间文件"><span class="toc-number">3.1.</span> <span class="toc-text"> 表空间文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#重做日志文件"><span class="toc-number">3.2.</span> <span class="toc-text"> 重做日志文件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#写入过程"><span class="toc-number">4.</span> <span class="toc-text"> 写入过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#binlog的写入机制"><span class="toc-number">4.1.</span> <span class="toc-text"> binlog的写入机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#redo-log的写入机制"><span class="toc-number">4.2.</span> <span class="toc-text"> redo log的写入机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#问题"><span class="toc-number">4.3.</span> <span class="toc-text"> 问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-MySql/MySql入门2-文件" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySql入门2-文件
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/07/24/MySql/MySql%E5%85%A5%E9%97%A82-%E6%96%87%E4%BB%B6/" class="article-date">
+	  <time datetime="2021-07-24T02:44:44.000Z" itemprop="datePublished">2021-07-24</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/MySql/">MySql</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/MySql/" rel="tag">MySql</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/07/24/MySql/MySql%E5%85%A5%E9%97%A82-%E6%96%87%E4%BB%B6/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 3.9k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 14(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>构成Mysql和InnoDB存储引擎表的各类文件包括：</p>
+<ol>
+<li>参数文件：初始化参数、内存结构大小等设置</li>
+<li>日志文件：记录MySql实例的各种类型活动</li>
+<li>socket文件：当用UNIX域套接字方式进行连接时所需要的文件</li>
+<li>pid文件：MySql实例的进程ID文件(作用是？)</li>
+<li>存储引擎文件：每个引擎会有自己的文件保存数据(如记录和索引)</li>
+</ol>
+<h3 id="参数文件"><a class="markdownIt-Anchor" href="#参数文件"></a> 参数文件</h3>
+<p>当MySql实例启动时，会先读参数文件(如果没有则使用默认值)，用来初始化数据库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 1. 查看数据库参数文件</span><br><span class="line">mysql --help |grep my.cnf</span><br><span class="line"># 2. 查看数据库参数</span><br><span class="line">SHOW VARIABLES</span><br></pre></td></tr></table></figure>
+<h3 id="日志文件"><a class="markdownIt-Anchor" href="#日志文件"></a> 日志文件</h3>
+<p>MySql常见的日志文件有：</p>
+<ul>
+<li>错误日志文件(error log)</li>
+<li>二进制日志文件(binlog)</li>
+<li>慢查询日志文件(slow query log)</li>
+<li>查询日志文件(log)</li>
+</ul>
+<h4 id="慢查询日志"><a class="markdownIt-Anchor" href="#慢查询日志"></a> 慢查询日志</h4>
+<p>开启慢查询日志，可以让MySQL记录下查询超过指定时间的语句，通过定位分析性能的瓶颈，才能更好的优化数据库系统的性能</p>
+<p>可用于定位可能存在问题的SQL语句，默认情况下并不启动慢查询日志</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查询慢查询阀值(等于阀值的并不会记录)</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">VARIABLES</span> <span class="keyword">LIKE</span> <span class="string">'long_query_time'</span></span><br><span class="line"><span class="comment">#查询慢查询开关</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">VARIABLES</span> <span class="keyword">LIKE</span> <span class="string">'log_slow_queries'</span></span><br><span class="line"><span class="comment">#慢查询没有使用索引(如果运行SQL而没有使用索引)</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">VARIABLES</span> <span class="keyword">LIKE</span> <span class="string">'log_queries_not_using_indexes'</span></span><br><span class="line"><span class="comment">#表示每分钟允许记录到slow log且未使用索引的SQL语句(默认为0，防止语句频繁记录到slow log导致文件不断增大)</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">VARIABLES</span> <span class="keyword">LIKE</span> <span class="string">'log_throttle_queries_not_using_indexes'</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">查看慢查询日志</span></span><br><span class="line">mysqldumpslow nh122-190-slow.log</span><br></pre></td></tr></table></figure>
+<p>MySQL5.1 开始 可以将慢查询的日志记录放入一张表中，名为 slow_log</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#指定慢查询输出的格式，默认为FILE</span><br><span class="line">#TABLE则将日志写入slow_log表中</span><br><span class="line">SHOW VARIABLES LIKE &#39;log_output&#39;</span><br><span class="line"></span><br><span class="line">#指定逻辑IO次数超过的记录写入slow log(默认100)</span><br><span class="line">SHOW VARIABLES LIKE &#39;long_query_io&#39;</span><br><span class="line"></span><br><span class="line">SHOW VARIABLES LIKE &#39;slow_query_type&#39; #表示slow log的启动方式</span><br><span class="line">#0 表示不将sql语句记录到slow log</span><br><span class="line">#1 表示根据运行时间将sql语句记录到slow log</span><br><span class="line">#2 表示根据逻辑IO次数将sql语句记录到slow log</span><br><span class="line">#3 表示根据运行时间及逻辑IO次数将sql语句记录到slow log</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>逻辑IO：包含所有的读取，不管是磁盘还是缓冲池</p>
+<p>物理IO：指从磁盘进行IO读取的次数</p>
+</blockquote>
+<p>查看日志文件：记录了对MySql数据库<strong>所有请求</strong>的信息，无论这些请求是否得到正确的执行。默认文件名为：主机名.log。和慢查询日志一样，可以将查询日志放入mysql架构下的general_log表中</p>
+<h4 id="二进制日志"><a class="markdownIt-Anchor" href="#二进制日志"></a> 二进制日志</h4>
+<p>记录了对MySql数据库<strong>执行更改的所有操作</strong>，<strong>但不包括<code>select</code>和<code>show</code>这类操作</strong>，因为这类对数据本身并没有修改</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SHOW</span> <span class="keyword">BINLOG</span> <span class="keyword">EVENTS</span> <span class="comment">#查看二进制日志</span></span><br></pre></td></tr></table></figure>
+<p>主要有以下几点作用：</p>
+<ul>
+<li><strong>恢复(recovery)</strong>：某些数据的恢复需要二进制日志。例如在一个数据库全备文件恢复后，用户可通过二进制日志进行point-in-time的恢复</li>
+<li><strong>复制(replication)</strong>：通过复制和执行二进制日志使一台远程MySql数据库(一般为slave或standby)与一台MySql数据库(master或primary)进行实时同步</li>
+<li><strong>审计(audit)</strong>：用户可以通过二进制日志中的信息来进行审计，判断是否有对数据库进行注入攻击</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#启动二进制文件my.cnf</span></span><br><span class="line">log-bin[=name]</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果不指定name，则默认二进制日志文件名为主机名，后缀为二进制日志的序列号(bin_log.00001)，所在路径为数据库所在目录(datadir)</p>
+</blockquote>
+<p>其他影响二进制日志记录的参数：</p>
+<ul>
+<li><strong>max_binlog_size</strong>：指定单个二进制日志文件的最大值，超过则新建二进制日志文件，后缀序列号+1 并记录到.index文件中(默认1G)</li>
+<li><strong>binlog_cache_size</strong>：
+<ul>
+<li>当使用事务的表，所有未提交的二进制日志会被记录到一个缓存中，等该事务提交再将缓冲写入二进制日志文件。缓存大小由binlog_cache_size决定(默认32K)</li>
+<li>binlog_cache_size是基于会话的，但一个线程开始一个事务，就会自动分配一个binlog_cache_size</li>
+<li>当事务记录大小大于缓冲时，回将缓冲中的日志写入一个临时文件中</li>
+<li>缓冲区大小的设置可以通过 <code>SHOW GLOBASL STATUS</code>命令查看
+<ul>
+<li>binlog_cache_use：记录使用缓冲区二进制日志的次数</li>
+<li>binlog_cache_disk_use：记录使用临时文件写二进制日志的次数</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>binlog-do-db</strong>：表示需要写入哪些库的日志</li>
+<li><strong>binlog-ignore-db</strong>：表示需要忽略写入哪些库的日志</li>
+<li><strong>log-slave-update</strong>：如果是slave角色，则不会将从master取得并执行的二进制日志写入自己的二进制日志文件中。如果需要写入，则设置log–slave-update。如果搭建master=&gt;slae=&gt;slave架构复制，必须设置该值</li>
+<li><strong>Binlog-format</strong>：日志存储的不同格式(STATEMENT/ROW/MIX)</li>
+</ul>
+<h5 id="删除binlog"><a class="markdownIt-Anchor" href="#删除binlog"></a> 删除binlog</h5>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看过期时间(单位day)</span></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">variable</span> <span class="keyword">like</span> <span class="string">'expire_logs_days'</span></span><br></pre></td></tr></table></figure>
+<p><code>expire_logs_days = 0</code>:  表示所有binlog日志永久都不会失效，不会自动删除</p>
+<p>触发条件：</p>
+<ul>
+<li>当 binlog大小超过max_binlog_size的时候</li>
+<li>手动<code>flush logs</code></li>
+</ul>
+<p>其他操作可参考<a href="https://www.cnblogs.com/Presley-lpc/p/9619571.html" target="_blank" rel="noopener">链接</a></p>
+<h4 id="其他文件"><a class="markdownIt-Anchor" href="#其他文件"></a> 其他文件</h4>
+<ol>
+<li>套接字文件：UNIX系统下本地连接MySql可采用UNIX域套接字方式，需要一个套接字文件，</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查看套接字文件位置</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">VARIABLES</span> <span class="keyword">LIKE</span> <span class="string">'socket'</span></span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>PID文件：当MySQL实例启动，会将自己的进程ID写入到pid文件</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查看PID文件位置</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">VARIABLES</span> <span class="keyword">LIKE</span> <span class="string">'pid_file'</span></span><br></pre></td></tr></table></figure>
+<h3 id="innodb存储引擎文件"><a class="markdownIt-Anchor" href="#innodb存储引擎文件"></a> InnoDB存储引擎文件</h3>
+<h4 id="表空间文件"><a class="markdownIt-Anchor" href="#表空间文件"></a> 表空间文件</h4>
+<p>InnoDB将存储的数据按表空间进行存放。默认配置下会有一个初始大小为10MB的默认表空间文件，名为ibdata1的文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Innodb_data_file_path = /db/ibdata1:2000M;/dr2/db/ibdata2:2000M:autoextend</span><br></pre></td></tr></table></figure>
+<p>将/db/ibdata1和/dr2/db/ibdata2两个文件组成表空间。</p>
+<ul>
+<li>若两个文件处于不同的磁盘上，磁盘的负载可能被平均。可以提供数据库的整体性能</li>
+<li>如果文件ibdata2用完了，则可以继续自动增长(autoextend)</li>
+<li>设置innodb_data_file_path之后，所有基于InnoDB存储引擎的表数据都会记录到该共享表空间</li>
+<li>设置innodb_file_per_table,将每个基于InnoDB的表都产生一个独立表空间，命令规则为：表名.ibd</li>
+</ul>
+<blockquote>
+<p>注意：单独表空间文件仅存储该表的数据、索引和插入缓冲BITMAP等信息，其余信息还存放在默认表空间中</p>
+</blockquote>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210627130047.png" alt="image-20210627130047312" style="zoom:50%;" />
+<h4 id="重做日志文件"><a class="markdownIt-Anchor" href="#重做日志文件"></a> 重做日志文件</h4>
+<p>默认情况下，在InnoDB存储引擎的数据目录下会有两个名为ib_logfile0和ib_logfile1的文件，称为重做日志文件(redo log file)。用于记录对于InnoDB存储引擎的事务日志。</p>
+<p>每个InnoDB存储引擎至少有1个重做日志文件组(group)，每个文件组至少有2个重做日志文件，如默认的ib_logfile0和ib_logfile1。</p>
+<blockquote>
+<p>为了得到更高的可靠性，可设置多个镜像日志组(mirrored log groups)，将不同的文件组放在不同的磁盘上</p>
+</blockquote>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210627130956.png" alt="image-20210627130956222" style="zoom:50%;" />
+<p>采用循环写入的方式运行：在三个重做日志文件的重做日志文件组中，InnoDB存储引擎先写重写日志文件ib_logfile0，当到达文件最后时，会切换直重做日志文件1，当文件1也满了切到文件2，最后回到文件0，重复循环</p>
+<ul>
+<li>innodb_log_file_size：指定每个日志文件大小(&lt;512GB)</li>
+<li>innodb_log_files_in_group：日志文件组中重做日志文件的数量，默认为2</li>
+<li>innodb_mirrored_log_groups：指定日志镜像文件组的数量，默认为1(若磁盘高可用，如磁盘阵列，可不开)</li>
+<li>Innodb_log_group_home_dir：指定日志文件组所在的目录</li>
+</ul>
+<blockquote>
+<p>重做日志文件不能设置的太大，如果设置太大，恢复时需要太长时间，如果设置太小，可能导致一个事务的日志需要多次切换重做日志文件，会导致频繁的发生 async checkpoint</p>
+</blockquote>
+<p>重做日志文件与二进制日志区别：</p>
+<ol>
+<li>二进制日志记录所有与数据库相关的日志，而InnoDB存储的重做日志只记录该InnoDB本身的<strong>事务日志</strong></li>
+<li>二进制日志记录的都是关于一个事务的具体操作内容，即该日志为逻辑日志。而重做日志记录的是关于每个页(Page)的更改的物理情况</li>
+<li>写入时间不同，二进制日志仅在事务提交前进行提交，即只写磁盘一次，不论事务多大。而在事务进行的过程中，会不断有重做日志条目(redo entry)被写入到重做日志文件中</li>
+</ol>
+<p>重做日志由四部分组成：</p>
+<ol>
+<li>redo_log_type占用1字节，表示重做日志的类型</li>
+<li>space表示空间的ID，但采用压缩的方式，占用空间可能小于4字节</li>
+<li>page_no表示页的偏移量，铜梁采用压缩的方式</li>
+<li>redo_log_body表示每个重做日志的数据部分，恢复时需要调用相应的函数进行解析</li>
+</ol>
+<p>重做日志文件的操作不是直接写，而是先写入一个重做日志缓冲(redo log buffer)，再按照一定的条件顺序地写入日志文件</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210627133153.png" alt="image-20210627133153148" style="zoom:50%;" />
+<p>重做日志缓冲进行磁盘写入时，是按512字节也就是一个扇区的大小进行写入。因为扇区是写入的最小单位，因此可以保证写入必定是成功的</p>
+<p>写入条件：</p>
+<ol>
+<li>
+<p><strong>主线程中</strong>每秒会将重做日志缓冲写入磁盘的重做日志文件中，<strong>不论事务是否已经提交</strong></p>
+</li>
+<li>
+<p>另外一个由参数 <code>innodb_flush_log_at_trx_commit</code>控制，表示提交(commit)操作时，处理重做日志方式</p>
+<ul>
+<li>0 代表等待主线程每秒的刷新</li>
+<li>1 表示执行commit时将重做日志缓冲同步写到磁盘，伴有fsync的调用</li>
+<li>2 表示重做日志异步写到磁盘，即写到文件系统的缓存中，不能保证在执行commit时肯定会写入重做日志文件</li>
+</ul>
+<blockquote>
+<p>为了保证事务的持久性，必须将innodb_flush_log_at_trx_commit设置为1，即使宕机也能通过重做日志文件恢复</p>
+<p>0和2都有可能恢复时部分事务丢失，不同在于，为2时如果数据库宕机而操作系统没有宕机，此时日志保存在文件系统缓存中，恢复时同样能保证数据不丢失</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="写入过程"><a class="markdownIt-Anchor" href="#写入过程"></a> 写入过程</h3>
+<p>只要redo log和binlog保证持久化到磁盘，就能确保MySql异常重启后，数据可以恢复</p>
+<h4 id="binlog的写入机制"><a class="markdownIt-Anchor" href="#binlog的写入机制"></a> binlog的写入机制</h4>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210627140222.png" alt="img" style="zoom:50%;" />
+<ol>
+<li>
+<p>事务执行过程中，先把日志写到binlog cache，事务提交的时候，再把binlog cache写到binlog文件中</p>
+</li>
+<li>
+<p>系统为每个线程分配了一片binlog cache内存，但<strong>共用一份binlog</strong>文件</p>
+</li>
+<li>
+<p>参数<code>binlog_cache_size</code>控制单个线程内binlog cache大小，一个事务的binlog是不能拆分的(不论事务多大，都要确保一次性写入)，如果超过这个大小就要暂存到磁盘</p>
+</li>
+<li>
+<p>事务提交的时候，执行器把binlog cache 里完整的事务写入binlog中，并清空binlog cache</p>
+</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">write</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">const</span> <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> count)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fsync</span><span class="params">(<span class="keyword">int</span> fd)</span></span>;</span><br></pre></td></tr></table></figure>
+<p><code>write</code> 是把日志写入到文件系统的page cache，内存中，没有持久化到磁盘，所以速度比较快，函数返回并不代表已经写入磁盘</p>
+<p><code>fsync</code> 是将数据持久化到磁盘，占用磁盘的IOPS，通知内核将数据写到硬盘中</p>
+<p><code>write</code> 和 <code>fsync</code> 的时机，是由参数 <code>sync_binlog</code> 控制的</p>
+<ol>
+<li><code>sync_binlog=0</code> 的时候，表示每次提交事务都只 <code>write</code>，不 <code>fsync</code>；</li>
+<li><code>sync_binlog=1</code> 的时候，表示每次提交事务都会执行 <code>fsync</code>；</li>
+<li><code>sync_binlog=N(N&gt;1)</code> 的时候，表示每次提交事务都 <code>write</code>，但累积 N 个事务后才 <code>fsync</code>(如果主机发生异常重启，会丢失最近 N 个事务的 binlog 日志)</li>
+</ol>
+<h4 id="redo-log的写入机制"><a class="markdownIt-Anchor" href="#redo-log的写入机制"></a> redo log的写入机制</h4>
+<p>redo log存在三种状态：</p>
+<ol>
+<li>存在redo log buffer中，物理上是在MySql进程内存中</li>
+<li>写到磁盘(write)，但是没有持久化(fsync)，物理上是在文件系统的page cache</li>
+<li>持久化到磁盘，对应的是hard disk</li>
+</ol>
+<p>为了控制redo log的写入策略，InnoDB提供了<code>innodb_flush_log_at_trx_commit</code>参数</p>
+<ul>
+<li>0 表示每次事务提交时都只是把 redo log 留在 redo log buffer 中，等待主线程每秒刷新</li>
+<li>1 表示每次事务提交时都将 redo log 直接持久化到磁盘(fsync)；</li>
+<li>2 表示每次事务提交时都只是把 redo log 写到 page cache(文件系统缓存)</li>
+</ul>
+<p>另外InnoDB有一个后台线程，每隔1s把redo log buffer中的日志，调用write写到文件系统的page cache,然后调用fsync持久化到磁盘</p>
+<blockquote>
+<p>注意，事务执行中间过程的 redo log 也是直接写在 redo log buffer 中的，这些 redo log 也会被后台线程一起持久化到磁盘。也就是说，一个没有提交的事务的 redo log，也可能已经持久化到磁盘的</p>
+</blockquote>
+<p>实际上，除了后台线程没每秒一次的轮询操作，还有两种场景会让一个没有提交的事务的redo log写入到磁盘中</p>
+<ol>
+<li>redo log buffer 占用的空间即将达到 <code>innodb_log_buffer_size</code> 一半的时候，后台线程会主动写盘。注意，由于这个事务并没有提交，所以这个写盘动作只是 write，而没有调用 fsync，也就是只留在了文件系统的 page cache</li>
+<li>并行的事务提交的时候，顺带将这个事务的 redo log buffer 持久化到磁盘。假设一个事务 A 执行到一半，已经写了一些 redo log 到 buffer 中，这时候有另外一个线程的事务 B 提交，如果 <code>innodb_flush_log_at_trx_commit</code> 设置的是 1，那么按照这个参数的逻辑，事务 B 要把 redo log buffer 里的日志全部持久化到磁盘。这时候，就会带上事务 A 在 redo log buffer 里的日志一起持久化到磁盘</li>
+</ol>
+<p>一条update语句的执行过程：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210724093815.png" alt="img" style="zoom:50%;" />
+<ol>
+<li>执行器先找引擎取 ID=2 这一行
+<ul>
+<li>如果 ID=2 这一行所在的数据页本来就在内存中，就直接返回给执行器</li>
+<li>否则，需要先从磁盘读入内存，然后再返回</li>
+</ul>
+</li>
+<li>执行器拿到引擎给的行数据，更新行得到新的一行数据，再调用引擎接口写入这行新数据</li>
+<li>引擎将这行新数据更新到内存中，同时将这个更新操作记录到 redo log 里面，此时 redo log 处于 prepare 状态。然后告知执行器执行完成了，随时可以提交事务</li>
+<li>执行器生成这个操作的 binlog，并把 binlog 写入磁盘</li>
+<li>执行器调用引擎的提交事务接口，引擎把刚刚写入的 redo log 改成提交（commit）状态，更新完成</li>
+</ol>
+<h4 id="问题"><a class="markdownIt-Anchor" href="#问题"></a> 问题</h4>
+<ol>
+<li>
+<p>为什么 binlog cache 是每个线程自己维护的，而 redo log buffer 是全局共用的</p>
+<p>一个事务的 binlog 必须连续写，整个事务完成后，再一起写到文件里。而 redo log 记录的是，中间有生成的日志可以写到 redo log buffer 中。其他事务提交的时候可以被一起写到磁盘中</p>
+</li>
+<li>
+<p>为什么执行器更新数据之后不直接提交事务接口，而是和引擎有一个交互(这里是redo log)，其他引擎并没有redo log</p>
+</li>
+<li>
+<p>更新的时候数据量太大，内存放不下怎么办</p>
+<p>LRU</p>
+</li>
+</ol>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li>
+<p>《MySql技术内幕》</p>
+</li>
+<li>
+<p><a href="https://time.geekbang.org/column/article/76161" target="_blank" rel="noopener">https://time.geekbang.org/column/article/76161</a></p>
+</li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/07/25/MySql/MySql%E5%85%A5%E9%97%A84-%E9%94%81/" title="MySql入门4-锁"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A81-%E6%9E%B6%E6%9E%84/" title="MySql入门1-架构"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">
+        <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>

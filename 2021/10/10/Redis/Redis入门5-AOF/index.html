@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Redis入门5-AOF | XBoom Dove</title>
+  <meta name="description" content="除了RDB持久功能之外，Redis还提供了AOF(Append Only File)持久化功能。  RDB 持久化通过保存数据库中的键值对来记录数据库状态 AOF持久化是通过保存Redis 服务器锁执行的写命令来记录数据库状态   被写入AOF文件的命令是以Redis的命令请求协议格式保存的，Redis的命令请求协议是纯文本格式，直接打开AOF文件，观察内容  AOF 持久化的实现 AOF持久化功">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis入门5-AOF">
+<meta property="og:url" content="http://xboom.github.io/2021/10/10/Redis/Redis%E5%85%A5%E9%97%A85-AOF/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="除了RDB持久功能之外，Redis还提供了AOF(Append Only File)持久化功能。  RDB 持久化通过保存数据库中的键值对来记录数据库状态 AOF持久化是通过保存Redis 服务器锁执行的写命令来记录数据库状态   被写入AOF文件的命令是以Redis的命令请求协议格式保存的，Redis的命令请求协议是纯文本格式，直接打开AOF文件，观察内容  AOF 持久化的实现 AOF持久化功">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010193031.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010200827.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010202741.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010203018.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010203744.png">
+<meta property="article:published_time" content="2021-10-10T12:42:44.000Z">
+<meta property="article:modified_time" content="2022-06-25T07:00:00.113Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010193031.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2021/10/10/Redis/Redis%E5%85%A5%E9%97%A85-AOF/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Acwing/">Acwing</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm-Applied/">Algorithm Applied</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/FrameWork/">FrameWork</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Acwing/" rel="tag">Acwing</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FrameWork/" rel="tag">FrameWork</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Acwing/" style="font-size: 13.25px;">Acwing</a> <a href="/tags/Algorithm/" style="font-size: 13.63px;">Algorithm</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.38px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/FrameWork/" style="font-size: 13.38px;">FrameWork</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.38px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.25px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.5px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/MySql/" style="font-size: 13.88px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.75px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.5px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.13px;">gRPC</a> <a href="/tags/k8s/" style="font-size: 13.5px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/13/ETCD/ETCD%E5%85%A5%E9%97%A83-RAFT%E5%8D%8F%E8%AE%AE/" class="title">ETCD入门3-RAFT协议</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-13T02:25:38.000Z" itemprop="datePublished">2022-03-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/12/ETCD/ETCD%E5%85%A5%E9%97%A82-ETCD%E6%9E%B6%E6%9E%84/" class="title">ETCD入门2-ETCD架构</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-12T09:31:19.000Z" itemprop="datePublished">2022-03-12</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/12/ETCD/ETCD%E5%85%A5%E9%97%A81-ETCD%E6%A6%82%E8%BF%B0/" class="title">ETCD入门1-ETCD概述</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-12T07:33:07.000Z" itemprop="datePublished">2022-03-12</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/FrameWork/">FrameWork</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/04/FrameWork/%E6%9E%B6%E6%9E%846-%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" class="title">架构6-分布式缓存</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-03T16:30:33.000Z" itemprop="datePublished">2022-03-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/02/23/ETCD/ETCD%E5%85%A5%E9%97%A86-%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" class="title">ETCD入门6-多版本控制</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-02-22T16:41:29.000Z" itemprop="datePublished">2022-02-23</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#aof-持久化的实现"><span class="toc-number">1.</span> <span class="toc-text"> AOF 持久化的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#命令追加"><span class="toc-number">1.1.</span> <span class="toc-text"> 命令追加</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#文件的写入与同步"><span class="toc-number">1.2.</span> <span class="toc-text"> 文件的写入与同步</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#aof文件的载入与数据还原"><span class="toc-number">2.</span> <span class="toc-text"> AOF文件的载入与数据还原</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#aof-重写"><span class="toc-number">3.</span> <span class="toc-text"> AOF 重写</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#aof文件重写的实现"><span class="toc-number">3.1.</span> <span class="toc-text"> AOF文件重写的实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#aof后台重写"><span class="toc-number">3.2.</span> <span class="toc-text"> AOF后台重写</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文献"><span class="toc-number">5.</span> <span class="toc-text"> 参考文献</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Redis/Redis入门5-AOF" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Redis入门5-AOF
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/10/10/Redis/Redis%E5%85%A5%E9%97%A85-AOF/" class="article-date">
+	  <time datetime="2021-10-10T12:42:44.000Z" itemprop="datePublished">2021-10-10</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Redis/">Redis</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Redis/" rel="tag">Redis</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/10/10/Redis/Redis%E5%85%A5%E9%97%A85-AOF/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 2.5k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 8(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>除了RDB持久功能之外，Redis还提供了AOF(Append Only File)持久化功能。</p>
+<ul>
+<li>RDB 持久化通过保存数据库中的键值对来记录数据库状态</li>
+<li>AOF持久化是通过保存Redis 服务器锁执行的写命令来记录数据库状态</li>
+</ul>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010193031.png" alt="image-20211010193031845" /></p>
+<p>被写入AOF文件的命令是以Redis的命令请求协议格式保存的，Redis的命令请求协议是纯文本格式，直接打开AOF文件，观察内容</p>
+<h3 id="aof-持久化的实现"><a class="markdownIt-Anchor" href="#aof-持久化的实现"></a> AOF 持久化的实现</h3>
+<p>AOF持久化功能的实现可以分为命令的追加(append)、文件写入、文件同步(sync)三个步骤</p>
+<h4 id="命令追加"><a class="markdownIt-Anchor" href="#命令追加"></a> 命令追加</h4>
+<p>当AOF持久化功能处于打开状态时，服务器在执行一个写命令之后，会以协议格式将被执行的写命令追加到服务器状态的aof_buf缓冲区的末尾</p>
+<h4 id="文件的写入与同步"><a class="markdownIt-Anchor" href="#文件的写入与同步"></a> 文件的写入与同步</h4>
+<blockquote>
+<p>这里的同步是操作系统在write 写入文件时,通常将数据保存在一个内存缓冲区，然后将缓冲区中的数据写入到磁盘的过程</p>
+</blockquote>
+<p>Redis的服务器进程就是一个事件循环(loop)，这个循环中的文件事件负责接收客户端的命令请求以及回复，时间事件则负责执行像serverCron函数这样需要定时运行的函数</p>
+<p>服务器在处理文件事件时可能会执行写命令，使得一些内容被追加到aof_buf缓冲区里面，所以每次结束一个事件循环之前，都会调用 <code>flushAppendOnlyFile</code> 函数，考虑是否将aof_buf缓冲区中的内容写入和保存到AOF文件里面</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">def <span class="title">eventLoop</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">	<span class="keyword">while</span> True:</span></span><br><span class="line">	# 处理文件时间，接收命令请求以及发送命令回复</span><br><span class="line">	# 处理命令请求时可能会有新内容被追加到 aof_buf 缓冲区中</span><br><span class="line">	processFileEvents()</span><br><span class="line">  </span><br><span class="line">  # 处理时间事件</span><br><span class="line">  processTimeEvents()</span><br><span class="line">    </span><br><span class="line">  # 考虑是否将 aof_buf 中的内容写入和保存到 AOF 文件里面</span><br><span class="line">  flushAppendOnlyFile()</span><br></pre></td></tr></table></figure>
+<p>通过服务器配置的 appendfsync选型的值来决定AOF持久化行为</p>
+<table>
+<thead>
+<tr>
+<th>Appendfsync</th>
+<th>flushAppendOnlyFile 函数的行为</th>
+<th>效率</th>
+<th>安全</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>always</td>
+<td>将aof_buf缓冲区中的所有内容写入并同步到AOF文件</td>
+<td>最慢</td>
+<td>最高</td>
+</tr>
+<tr>
+<td>everysec</td>
+<td>将aof_buf缓冲区的所有内容写入到AOF文件，如果上次同步AOF文件的时间距离现在超过1秒钟，那么子进程对AOF文件进行同步，并且这个同步操作是由换一个线程专门负责执行的</td>
+<td>适中</td>
+<td>适中</td>
+</tr>
+<tr>
+<td>no</td>
+<td>将aof_buf缓冲区的中的所有内容写入到AOF文件，但并不对AOF文件进行同步，何时同步由操作系统自己决定</td>
+<td>最快</td>
+<td>最低</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>为了提高文件的写入效率，在现代操作系统中，用户调用write函数，将一些数据写入到文件的时候，操作系统通常会将写入数据暂时保存在一个内存缓冲区里面，等到缓冲区的空间被填满，或者超过了指定的时限之后，才真正地将缓冲区中的数据写入到磁盘里面</p>
+<p>导致当计算机发生停机的时候，内存缓冲区的写入数据可能会丢失。为此，系统提供了 fsync 和 fdatashync 两个同步函数，强制操作系统立即将缓冲区中的数据写入到硬盘</p>
+</blockquote>
+<h3 id="aof文件的载入与数据还原"><a class="markdownIt-Anchor" href="#aof文件的载入与数据还原"></a> AOF文件的载入与数据还原</h3>
+<p>由于AOF 文件里包含了重建数据库状态所需的所有写命令，所以服务器只要读入并重新执行一遍AOF文件里面保存的写命令</p>
+<p>Redis 读取AFO文件并还原数据库状态的详细步骤如下：</p>
+<ol>
+<li>创建一个不带网络链接的伪客户端(fake client)：因为 Redis 的命令智能在客户端上下文中执行，而载入AOF文件时锁使用的命令直接来源于AOF 文件而不是网络连接，所以服务器使用一个伪客户端来执行AOF文件保存的写命令</li>
+<li>从AOF文件中分析并读取出一条写命令</li>
+<li>使用伪客户端执行被读出的谢命令</li>
+<li>一直执行步骤2和步骤3，直到AOF文件中的所有写命令都被处理完毕为止</li>
+</ol>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010200827.png" alt="image-20211010200827302" style="zoom:67%;" />
+<h3 id="aof-重写"><a class="markdownIt-Anchor" href="#aof-重写"></a> AOF 重写</h3>
+<p>因为AOF持久化是通过保存被执行的写命令来记录数据库状态，随着服务器运行时间的流逝，AOF文件中的内容会越来越多。为了解决AOF文件体积膨胀的问题，Redis提供的AOF文件重写(rewrite)功能</p>
+<h4 id="aof文件重写的实现"><a class="markdownIt-Anchor" href="#aof文件重写的实现"></a> AOF文件重写的实现</h4>
+<p>Redis 将生成新AOF文件替换旧AOF文件的功能命令为 “AOF文件重写”。但实际上，AOF文件重写并不需要对现有的AOF文件进行任何读取、分析或写入操作，是通过读取服务器当前的数据库状态来实现的</p>
+<p>例如：</p>
+<p>保存当前list键(含有6个value)的状态，须在AOF文件中写六条命令，如果服务器想尽量少的命令来记录list键的状态，最简单高效的办法不是去读取和分析现有AOF文件，而是直接从数据库中读取键list的值，用 一条 <code>RPUSH key value...</code> 来代替保存在AOF文件中的六条命令</p>
+<p>这就是 AOF 重写功能的实现原理，因为新AOF文件只包含还原当前数据库状态所必须的命令，所以AOF文件不会浪费任何硬盘空间</p>
+<blockquote>
+<p>在实际执行过程中，为了避免执行命令时造成客户端输入缓冲区溢出，会检查键锁包含的元素数理那个，如果数据超过 redis.h/REDIS_AOF_REWRITE_ITEMS_PRE_CMD 敞亮的值，那么重写程序将使用多条命令来记录键的值，而不单单使用一条命令</p>
+</blockquote>
+<h4 id="aof后台重写"><a class="markdownIt-Anchor" href="#aof后台重写"></a> AOF后台重写</h4>
+<p>AOF重写程序 aof_rewrite 函数可以很好地完成创建一个新AOF文件的任务，但这个函数进行了大量的写入操作，所以调用这个函数的线程将会被长时间阻塞。将其放到子进程里执行可以达到两个目的：</p>
+<ol>
+<li>子进程进行AOF重写期间，服务器进程(父进程)可以继续处理命令请求</li>
+<li>子进程带有服务器进程的数据副本，使用子进程而不是线程，避免使用锁的情况下，保证数据安全性</li>
+</ol>
+<p>子进程在处理AOF重写期间，服务器还需要继续处理命令请求，可能导致新的数据库状态与AOF文件所保存的数据库状态不一致</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010202741.png" alt="image-20211010202741411" style="zoom:67%;" />
+<p>如图：新的AOF文件只保存了k1一个键的数据，而服务器数据库现在却有k1、k2、k3、k4 四个键</p>
+<p>为了解决这种数据不一致的问题，Redis服务器设置了一个AOF重写缓冲区，这个缓冲区在服务器创建子进程之后开始使用</p>
+<p>当Redis服务器执行完一个写命令之后，它会同时将这个写命令发送给AOF缓冲区和AOF重写缓冲区</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010203018.png" alt="image-20211010203018195" style="zoom:67%;" />
+<p>步骤如下：</p>
+<ol>
+<li>执行客户端发来的命令</li>
+<li>将执行后的写命令追加到AOF缓冲区</li>
+<li>将执行后的写命令追加到AOF重写缓冲区</li>
+</ol>
+<p>这样可以保证：</p>
+<ul>
+<li>AOF缓冲区的内容讲定期被写入和同步到AOF文件，对现有AOF文件的处理工作正常进行</li>
+<li>从创建子进程开始，服务器执行的所有写命令都会被记录到AOF重写缓冲区里面</li>
+</ul>
+<p>当子进程完成AOF重写工作之后，它会向父进程发送一个信号，父进程在接到该信号之后，会调用一个信号处理函数，并执行以下工作：</p>
+<ol>
+<li>将AOF重写缓冲区中的所有内容写入到新AOF文件中，这时新AOF文件所保存的数据库状态将和服务器当前的数据库状态一致</li>
+<li>对新的AOF文件进行改名，原子地(atomic)覆盖现有的AOF文件，完成新旧两个AOF文件的替换</li>
+</ol>
+<p>这个信号处理函数执行完毕之后，父进程就可以像往常一样接受命令请求</p>
+<p>整个AOF后台重写过程，只有信号处理函数执行时会对服务器进程(父进程)造成阻塞，在其他时候，AOF后台重写都不会阻塞父进程</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010203744.png" alt="image-20211010203744239" style="zoom:67%;" />
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<ol>
+<li>
+<p>AOF文件通过保存所有修改数据库的写命令请求来记录服务器的数据库状态</p>
+</li>
+<li>
+<p>AOF文件中国暖的所有命令都以Redis命令请求协议的格式保存</p>
+</li>
+<li>
+<p>命令请求会先保存到AOF缓冲区，之后再定期写入并同步到AOF文件</p>
+</li>
+<li>
+<p>appendfsync选项的不同值对AOF持久化功能的安全性以及Redis服务器的性能有很大的影响</p>
+</li>
+<li>
+<p>服务器只要载入并重新执行保存在AOF文件中的命令，就可以还原数据库状态</p>
+</li>
+<li>
+<p>AOF重写可以产生一个新的AOF文件，新的AOF文件和原有的AOF文件所保存的数据库状态一样。但体积更小</p>
+</li>
+<li>
+<p>AOF重写是有歧义的名字，该功能是通过读取数据库中的键值对来实现的，程序无需对现有AOF文件进行任何读入、分析或写入操作</p>
+</li>
+<li>
+<p>执行BGREWRITEAOF命令时，服务器会将重写缓冲区中的所有内容追加到新AOF文件的末尾，是的新旧两个AOF文件所保存的数据库状态一致。最后通过新的AOF替换旧的AOF文件，以此来完成AOF文件重写操作</p>
+</li>
+</ol>
+<h3 id="参考文献"><a class="markdownIt-Anchor" href="#参考文献"></a> 参考文献</h3>
+<ol>
+<li>《Redis 设计与实现》</li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/10/31/gRPC/gRPC%E5%85%A5%E9%97%A81-gRPC%E4%BB%8B%E7%BB%8D/" title="gRPC入门1-gRPC相关介绍"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/10/10/Redis/Redis%E5%85%A5%E9%97%A84-RDB/" title="Redis入门4-RDB"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">
+        <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Go入门4-Select | XBoom Dove</title>
+  <meta name="description" content="select 实例 实例1与实例2有什么不同？ 123456789101112131415161718192021222324252627282930313233func main()&amp;#123;	var count int	for &amp;#123;		select &amp;#123;		case &lt;-time.Tick(time.Millisecond * 500):			fmt.Println(">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go入门4-Select">
+<meta property="og:url" content="http://xboom.github.io/2021/09/09/Go/Go%E5%85%A5%E9%97%A84-Select/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="select 实例 实例1与实例2有什么不同？ 123456789101112131415161718192021222324252627282930313233func main()&amp;#123;	var count int	for &amp;#123;		select &amp;#123;		case &lt;-time.Tick(time.Millisecond * 500):			fmt.Println(">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704150937.png">
+<meta property="article:published_time" content="2021-09-08T16:08:10.000Z">
+<meta property="article:modified_time" content="2022-06-25T07:00:00.113Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704150937.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2021/09/09/Go/Go%E5%85%A5%E9%97%A84-Select/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Acwing/">Acwing</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm-Applied/">Algorithm Applied</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/FrameWork/">FrameWork</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Acwing/" rel="tag">Acwing</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FrameWork/" rel="tag">FrameWork</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Acwing/" style="font-size: 13.25px;">Acwing</a> <a href="/tags/Algorithm/" style="font-size: 13.63px;">Algorithm</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.38px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/FrameWork/" style="font-size: 13.38px;">FrameWork</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.38px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.25px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.5px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/MySql/" style="font-size: 13.88px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.75px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.5px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.13px;">gRPC</a> <a href="/tags/k8s/" style="font-size: 13.5px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/13/ETCD/ETCD%E5%85%A5%E9%97%A83-RAFT%E5%8D%8F%E8%AE%AE/" class="title">ETCD入门3-RAFT协议</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-13T02:25:38.000Z" itemprop="datePublished">2022-03-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/12/ETCD/ETCD%E5%85%A5%E9%97%A82-ETCD%E6%9E%B6%E6%9E%84/" class="title">ETCD入门2-ETCD架构</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-12T09:31:19.000Z" itemprop="datePublished">2022-03-12</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/12/ETCD/ETCD%E5%85%A5%E9%97%A81-ETCD%E6%A6%82%E8%BF%B0/" class="title">ETCD入门1-ETCD概述</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-12T07:33:07.000Z" itemprop="datePublished">2022-03-12</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/FrameWork/">FrameWork</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/04/FrameWork/%E6%9E%B6%E6%9E%846-%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" class="title">架构6-分布式缓存</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-03T16:30:33.000Z" itemprop="datePublished">2022-03-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/02/23/ETCD/ETCD%E5%85%A5%E9%97%A86-%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" class="title">ETCD入门6-多版本控制</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-02-22T16:41:29.000Z" itemprop="datePublished">2022-02-23</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#select-实例"><span class="toc-number">1.</span> <span class="toc-text"> select 实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#select原理"><span class="toc-number">2.</span> <span class="toc-text"> select原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">3.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Go/Go入门4-Select" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Go入门4-Select
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/09/09/Go/Go%E5%85%A5%E9%97%A84-Select/" class="article-date">
+	  <time datetime="2021-09-08T16:08:10.000Z" itemprop="datePublished">2021-09-09</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Go/">Go</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Go/" rel="tag">Go</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/09/09/Go/Go%E5%85%A5%E9%97%A84-Select/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 1.3k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 7(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="select-实例"><a class="markdownIt-Anchor" href="#select-实例"></a> select 实例</h3>
+<p>实例1与实例2有什么不同？</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">var</span> count <span class="keyword">int</span></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-time.Tick(time.Millisecond * <span class="number">500</span>):</span><br><span class="line">			fmt.Println(<span class="string">"hello"</span>)</span><br><span class="line">			count++</span><br><span class="line">			fmt.Println(<span class="string">"count---&gt;"</span> , count)</span><br><span class="line">		<span class="keyword">case</span> &lt;-time.Tick(time.Millisecond * <span class="number">499</span>) :</span><br><span class="line">			fmt.Println(<span class="string">"world"</span>)</span><br><span class="line">			count++</span><br><span class="line">			fmt.Println(<span class="string">"count---&gt;"</span> , count)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	t1 := time.Tick(time.Second)</span><br><span class="line">	t2 := time.Tick(time.Second)</span><br><span class="line">	<span class="keyword">var</span> count <span class="keyword">int</span></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-t1:</span><br><span class="line">			fmt.Println(<span class="string">"hello"</span>)</span><br><span class="line">			count++</span><br><span class="line">			fmt.Println(<span class="string">"count---&gt;"</span> , count)</span><br><span class="line">		<span class="keyword">case</span> &lt;-t2 :</span><br><span class="line">			fmt.Println(<span class="string">"world"</span>)</span><br><span class="line">			count++</span><br><span class="line">			fmt.Println(<span class="string">"count---&gt;"</span> , count)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果为：</p>
+<p>实例1：只会输出含有<code>world</code>日志的case</p>
+<p>实例2：交替执行t1与t2</p>
+<h3 id="select原理"><a class="markdownIt-Anchor" href="#select原理"></a> select原理</h3>
+<p><code>select</code>通过<code>select.go</code>实现</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	cas0 为*scase指针 指向[ncases]*scase的数组</span></span><br><span class="line"><span class="comment">	order0 *uint16 </span></span><br><span class="line"><span class="comment">	ncases 记录case个数</span></span><br><span class="line"><span class="comment">	</span></span><br><span class="line"><span class="comment">	返回选中第几个case以及是否收到值</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">selectgo</span><span class="params">(cas0 *scase, order0 *<span class="keyword">uint16</span>, ncases <span class="keyword">int</span>)</span> <span class="params">(<span class="keyword">int</span>, <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">//debug</span></span><br><span class="line">  </span><br><span class="line">	<span class="comment">// <span class="doctag">NOTE:</span> In order to maintain a lean stack size, the number of scases</span></span><br><span class="line">	<span class="comment">// is capped at 65536.</span></span><br><span class="line">	cas1 := (*[<span class="number">1</span> &lt;&lt; <span class="number">16</span>]scase)(unsafe.Pointer(cas0))</span><br><span class="line">	order1 := (*[<span class="number">1</span> &lt;&lt; <span class="number">17</span>]<span class="keyword">uint16</span>)(unsafe.Pointer(order0))</span><br><span class="line"></span><br><span class="line">	scases := cas1[:ncases:ncases]</span><br><span class="line">	pollorder := order1[:ncases:ncases]</span><br><span class="line">	lockorder := order1[ncases:][:ncases:ncases]</span><br><span class="line"></span><br><span class="line">  <span class="comment">//遍历case如果chan为空且不是default则置位空case对象 scase&#123;&#125;</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> scases &#123;</span><br><span class="line">		cas := &amp;scases[i]</span><br><span class="line">		<span class="keyword">if</span> cas.c == <span class="literal">nil</span> &amp;&amp; cas.kind != caseDefault &#123;</span><br><span class="line">			*cas = scase&#123;&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// generate permuted order</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">1</span>; i &lt; ncases; i++ &#123;</span><br><span class="line">		j := fastrandn(<span class="keyword">uint32</span>(i + <span class="number">1</span>))</span><br><span class="line">		pollorder[i] = pollorder[j]</span><br><span class="line">		pollorder[j] = <span class="keyword">uint16</span>(i)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// sort the cases by Hchan address to get the locking order.</span></span><br><span class="line">	<span class="comment">// simple heap sort, to guarantee n log n time and constant stack footprint.</span></span><br><span class="line">  <span class="comment">//根据chan的地址进行重新排序</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; ncases; i++ &#123;</span><br><span class="line">		j := i</span><br><span class="line">		<span class="comment">// Start with the pollorder to permute cases on the same channel.</span></span><br><span class="line">		c := scases[pollorder[i]].c</span><br><span class="line">		<span class="keyword">for</span> j &gt; <span class="number">0</span> &amp;&amp; scases[lockorder[(j<span class="number">-1</span>)/<span class="number">2</span>]].c.sortkey() &lt; c.sortkey() &#123;</span><br><span class="line">			k := (j - <span class="number">1</span>) / <span class="number">2</span></span><br><span class="line">			lockorder[j] = lockorder[k]</span><br><span class="line">			j = k</span><br><span class="line">		&#125;</span><br><span class="line">		lockorder[j] = pollorder[i]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i := ncases - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">		o := lockorder[i]</span><br><span class="line">		c := scases[o].c</span><br><span class="line">		lockorder[i] = lockorder[<span class="number">0</span>]</span><br><span class="line">		j := <span class="number">0</span></span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			k := j*<span class="number">2</span> + <span class="number">1</span></span><br><span class="line">			<span class="keyword">if</span> k &gt;= i &#123;</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> k+<span class="number">1</span> &lt; i &amp;&amp; scases[lockorder[k]].c.sortkey() &lt; scases[lockorder[k+<span class="number">1</span>]].c.sortkey() &#123;</span><br><span class="line">				k++</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> c.sortkey() &lt; scases[lockorder[k]].c.sortkey() &#123;</span><br><span class="line">				lockorder[j] = lockorder[k]</span><br><span class="line">				j = k</span><br><span class="line">				<span class="keyword">continue</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		lockorder[j] = o</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// lock all the channels involved in the select</span></span><br><span class="line">	sellock(scases, lockorder)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> (</span><br><span class="line">		gp     *g</span><br><span class="line">		sg     *sudog</span><br><span class="line">		c      *hchan</span><br><span class="line">		k      *scase</span><br><span class="line">		sglist *sudog</span><br><span class="line">		sgnext *sudog</span><br><span class="line">		qp     unsafe.Pointer</span><br><span class="line">		nextp  **sudog</span><br><span class="line">	)</span><br><span class="line"></span><br><span class="line">loop:</span><br><span class="line">	<span class="comment">// pass 1 - look for something already waiting</span></span><br><span class="line">	<span class="keyword">var</span> dfli <span class="keyword">int</span></span><br><span class="line">	<span class="keyword">var</span> dfl *scase</span><br><span class="line">	<span class="keyword">var</span> casi <span class="keyword">int</span></span><br><span class="line">	<span class="keyword">var</span> cas *scase</span><br><span class="line">	<span class="keyword">var</span> recvOK <span class="keyword">bool</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; ncases; i++ &#123;</span><br><span class="line">		casi = <span class="keyword">int</span>(pollorder[i])</span><br><span class="line">		cas = &amp;scases[casi]</span><br><span class="line">		c = cas.c</span><br><span class="line"></span><br><span class="line">		<span class="keyword">switch</span> cas.kind &#123;</span><br><span class="line">		<span class="keyword">case</span> caseNil:</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">		<span class="keyword">case</span> caseRecv:</span><br><span class="line">			sg = c.sendq.dequeue()</span><br><span class="line">			<span class="keyword">if</span> sg != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">goto</span> recv</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> c.qcount &gt; <span class="number">0</span> &#123;</span><br><span class="line">				<span class="keyword">goto</span> bufrecv</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> c.closed != <span class="number">0</span> &#123;</span><br><span class="line">				<span class="keyword">goto</span> rclose</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">case</span> caseSend:</span><br><span class="line">			<span class="keyword">if</span> c.closed != <span class="number">0</span> &#123;</span><br><span class="line">				<span class="keyword">goto</span> sclose</span><br><span class="line">			&#125;</span><br><span class="line">			sg = c.recvq.dequeue()</span><br><span class="line">			<span class="keyword">if</span> sg != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">goto</span> send</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> c.qcount &lt; c.dataqsiz &#123;</span><br><span class="line">				<span class="keyword">goto</span> bufsend</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">case</span> caseDefault:</span><br><span class="line">			dfli = casi</span><br><span class="line">			dfl = cas</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> dfl != <span class="literal">nil</span> &#123;</span><br><span class="line">		selunlock(scases, lockorder)</span><br><span class="line">		casi = dfli</span><br><span class="line">		cas = dfl</span><br><span class="line">		<span class="keyword">goto</span> retc</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// pass 2 - enqueue on all chans</span></span><br><span class="line">	gp = getg()</span><br><span class="line">	<span class="keyword">if</span> gp.waiting != <span class="literal">nil</span> &#123;</span><br><span class="line">		throw(<span class="string">"gp.waiting != nil"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	nextp = &amp;gp.waiting</span><br><span class="line">	<span class="keyword">for</span> _, casei := <span class="keyword">range</span> lockorder &#123;</span><br><span class="line">		casi = <span class="keyword">int</span>(casei)</span><br><span class="line">		cas = &amp;scases[casi]</span><br><span class="line">		<span class="keyword">if</span> cas.kind == caseNil &#123;</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		c = cas.c</span><br><span class="line">		sg := acquireSudog()</span><br><span class="line">		sg.g = gp</span><br><span class="line">		sg.isSelect = <span class="literal">true</span></span><br><span class="line">		<span class="comment">// No stack splits between assigning elem and enqueuing</span></span><br><span class="line">		<span class="comment">// sg on gp.waiting where copystack can find it.</span></span><br><span class="line">		sg.elem = cas.elem</span><br><span class="line">		sg.releasetime = <span class="number">0</span></span><br><span class="line">		<span class="keyword">if</span> t0 != <span class="number">0</span> &#123;</span><br><span class="line">			sg.releasetime = <span class="number">-1</span></span><br><span class="line">		&#125;</span><br><span class="line">		sg.c = c</span><br><span class="line">		<span class="comment">// Construct waiting list in lock order.</span></span><br><span class="line">		*nextp = sg</span><br><span class="line">		nextp = &amp;sg.waitlink</span><br><span class="line"></span><br><span class="line">		<span class="keyword">switch</span> cas.kind &#123;</span><br><span class="line">		<span class="keyword">case</span> caseRecv:</span><br><span class="line">			c.recvq.enqueue(sg)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">case</span> caseSend:</span><br><span class="line">			c.sendq.enqueue(sg)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// wait for someone to wake us up</span></span><br><span class="line">	gp.param = <span class="literal">nil</span></span><br><span class="line">	<span class="comment">// Signal to anyone trying to shrink our stack that we're about</span></span><br><span class="line">	<span class="comment">// to park on a channel. The window between when this G's status</span></span><br><span class="line">	<span class="comment">// changes and when we set gp.activeStackChans is not safe for</span></span><br><span class="line">	<span class="comment">// stack shrinking.</span></span><br><span class="line">	atomic.Store8(&amp;gp.parkingOnChan, <span class="number">1</span>)</span><br><span class="line">	gopark(selparkcommit, <span class="literal">nil</span>, waitReasonSelect, traceEvGoBlockSelect, <span class="number">1</span>)</span><br><span class="line">	gp.activeStackChans = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">	sellock(scases, lockorder)</span><br><span class="line"></span><br><span class="line">	gp.selectDone = <span class="number">0</span></span><br><span class="line">	sg = (*sudog)(gp.param)</span><br><span class="line">	gp.param = <span class="literal">nil</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// pass 3 - dequeue from unsuccessful chans</span></span><br><span class="line">	<span class="comment">// otherwise they stack up on quiet channels</span></span><br><span class="line">	<span class="comment">// record the successful case, if any.</span></span><br><span class="line">	<span class="comment">// We singly-linked up the SudoGs in lock order.</span></span><br><span class="line">	casi = <span class="number">-1</span></span><br><span class="line">	cas = <span class="literal">nil</span></span><br><span class="line">	sglist = gp.waiting</span><br><span class="line">	<span class="comment">// Clear all elem before unlinking from gp.waiting.</span></span><br><span class="line">	<span class="keyword">for</span> sg1 := gp.waiting; sg1 != <span class="literal">nil</span>; sg1 = sg1.waitlink &#123;</span><br><span class="line">		sg1.isSelect = <span class="literal">false</span></span><br><span class="line">		sg1.elem = <span class="literal">nil</span></span><br><span class="line">		sg1.c = <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	gp.waiting = <span class="literal">nil</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, casei := <span class="keyword">range</span> lockorder &#123;</span><br><span class="line">		k = &amp;scases[casei]</span><br><span class="line">		<span class="keyword">if</span> k.kind == caseNil &#123;</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> sglist.releasetime &gt; <span class="number">0</span> &#123;</span><br><span class="line">			k.releasetime = sglist.releasetime</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> sg == sglist &#123;</span><br><span class="line">			<span class="comment">// sg has already been dequeued by the G that woke us up.</span></span><br><span class="line">			casi = <span class="keyword">int</span>(casei)</span><br><span class="line">			cas = k</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			c = k.c</span><br><span class="line">			<span class="keyword">if</span> k.kind == caseSend &#123;</span><br><span class="line">				c.sendq.dequeueSudoG(sglist)</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				c.recvq.dequeueSudoG(sglist)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		sgnext = sglist.waitlink</span><br><span class="line">		sglist.waitlink = <span class="literal">nil</span></span><br><span class="line">		releaseSudog(sglist)</span><br><span class="line">		sglist = sgnext</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> cas == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// We can wake up with gp.param == nil (so cas == nil)</span></span><br><span class="line">		<span class="comment">// when a channel involved in the select has been closed.</span></span><br><span class="line">		<span class="comment">// It is easiest to loop and re-run the operation;</span></span><br><span class="line">		<span class="comment">// we'll see that it's now closed.</span></span><br><span class="line">		<span class="comment">// Maybe some day we can signal the close explicitly,</span></span><br><span class="line">		<span class="comment">// but we'd have to distinguish close-on-reader from close-on-writer.</span></span><br><span class="line">		<span class="comment">// It's easiest not to duplicate the code and just recheck above.</span></span><br><span class="line">		<span class="comment">// We know that something closed, and things never un-close,</span></span><br><span class="line">		<span class="comment">// so we won't block again.</span></span><br><span class="line">		<span class="keyword">goto</span> loop</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	c = cas.c</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> cas.kind == caseRecv &#123;</span><br><span class="line">		recvOK = <span class="literal">true</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	selunlock(scases, lockorder)</span><br><span class="line">	<span class="keyword">goto</span> retc</span><br><span class="line"></span><br><span class="line">bufrecv:</span><br><span class="line">	recvOK = <span class="literal">true</span></span><br><span class="line">	qp = chanbuf(c, c.recvx)</span><br><span class="line">	<span class="keyword">if</span> cas.elem != <span class="literal">nil</span> &#123;</span><br><span class="line">		typedmemmove(c.elemtype, cas.elem, qp)</span><br><span class="line">	&#125;</span><br><span class="line">	typedmemclr(c.elemtype, qp)</span><br><span class="line">	c.recvx++</span><br><span class="line">	<span class="keyword">if</span> c.recvx == c.dataqsiz &#123;</span><br><span class="line">		c.recvx = <span class="number">0</span></span><br><span class="line">	&#125;</span><br><span class="line">	c.qcount--</span><br><span class="line">	selunlock(scases, lockorder)</span><br><span class="line">	<span class="keyword">goto</span> retc</span><br><span class="line"></span><br><span class="line">bufsend:</span><br><span class="line">	<span class="comment">// can send to buffer</span></span><br><span class="line">	typedmemmove(c.elemtype, chanbuf(c, c.sendx), cas.elem)</span><br><span class="line">	c.sendx++</span><br><span class="line">	<span class="keyword">if</span> c.sendx == c.dataqsiz &#123;</span><br><span class="line">		c.sendx = <span class="number">0</span></span><br><span class="line">	&#125;</span><br><span class="line">	c.qcount++</span><br><span class="line">	selunlock(scases, lockorder)</span><br><span class="line">	<span class="keyword">goto</span> retc</span><br><span class="line"></span><br><span class="line">recv:</span><br><span class="line">	<span class="comment">// can receive from sleeping sender (sg)</span></span><br><span class="line">	recv(c, sg, cas.elem, <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; selunlock(scases, lockorder) &#125;, <span class="number">2</span>)</span><br><span class="line">	recvOK = <span class="literal">true</span></span><br><span class="line">	<span class="keyword">goto</span> retc</span><br><span class="line"></span><br><span class="line">rclose:</span><br><span class="line">	<span class="comment">// read at end of closed channel</span></span><br><span class="line">	selunlock(scases, lockorder)</span><br><span class="line">	recvOK = <span class="literal">false</span></span><br><span class="line">	<span class="keyword">if</span> cas.elem != <span class="literal">nil</span> &#123;</span><br><span class="line">		typedmemclr(c.elemtype, cas.elem)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">goto</span> retc</span><br><span class="line"></span><br><span class="line">send:</span><br><span class="line">	<span class="comment">// can send to a sleeping receiver (sg)</span></span><br><span class="line">	send(c, sg, cas.elem, <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; selunlock(scases, lockorder) &#125;, <span class="number">2</span>)</span><br><span class="line">	<span class="keyword">if</span> debugSelect &#123;</span><br><span class="line">		<span class="built_in">print</span>(<span class="string">"syncsend: cas0="</span>, cas0, <span class="string">" c="</span>, c, <span class="string">"\n"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">goto</span> retc</span><br><span class="line"></span><br><span class="line">retc:</span><br><span class="line">	<span class="keyword">if</span> cas.releasetime &gt; <span class="number">0</span> &#123;</span><br><span class="line">		blockevent(cas.releasetime-t0, <span class="number">1</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> casi, recvOK</span><br><span class="line"></span><br><span class="line">sclose:</span><br><span class="line">	<span class="comment">// send on closed channel</span></span><br><span class="line">	selunlock(scases, lockorder)</span><br><span class="line">	<span class="built_in">panic</span>(plainError(<span class="string">"send on closed channel"</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>流程图如下：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704150937.png" alt="20180831011529435" style="zoom:80%;" />
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://blog.csdn.net/u011957758/article/details/82230316" target="_blank" rel="noopener">https://blog.csdn.net/u011957758/article/details/82230316</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/09/09/Go/Go%E5%85%A5%E9%97%A86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" title="Go入门6-内存管理"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/09/05/Go/Go%E5%85%A5%E9%97%A812-Interface/" title="Go入门12-Interface"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">
+        <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Linux深入2-事件模型 | XBoom Dove</title>
+  <meta name="description" content="基础知识   同步与异步：关注的是消息通信机制 (synchronous communication&#x2F; asynchronous communication) 所谓同步，调用在发出后，在没有得到结果之前该调用不返回。一旦调用返回，就得到返回值 换句话说，就是由调用者主动等待这个调用的结果 所谓异步，调用在发出后，这个调用直接返回了，没有返回结果。而是被调用者通过状态、通知来通知调用者，或通过回调">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux深入2-事件模型">
+<meta property="og:url" content="http://xboom.github.io/2021/07/04/Linux/Linux%E6%B7%B1%E5%85%A52-%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="基础知识   同步与异步：关注的是消息通信机制 (synchronous communication&#x2F; asynchronous communication) 所谓同步，调用在发出后，在没有得到结果之前该调用不返回。一旦调用返回，就得到返回值 换句话说，就是由调用者主动等待这个调用的结果 所谓异步，调用在发出后，这个调用直接返回了，没有返回结果。而是被调用者通过状态、通知来通知调用者，或通过回调">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704160313.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704160845">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704160955">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704164720.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704162746.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704162456.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722075714">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722075726">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704174820.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704175554.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704175632.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704180316.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704181124.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704181303.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704181833.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704181907.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704182012.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704182358.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704182623.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704182752.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183005.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183205.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183347.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183435.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183557.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183747.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704192053.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704192623.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704222952.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704223226.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704171540.png">
+<meta property="article:published_time" content="2021-07-04T14:39:18.000Z">
+<meta property="article:modified_time" content="2022-06-25T07:00:00.112Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Event">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704160313.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2021/07/04/Linux/Linux%E6%B7%B1%E5%85%A52-%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9E%8B/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Acwing/">Acwing</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm-Applied/">Algorithm Applied</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/FrameWork/">FrameWork</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Acwing/" rel="tag">Acwing</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FrameWork/" rel="tag">FrameWork</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Acwing/" style="font-size: 13.25px;">Acwing</a> <a href="/tags/Algorithm/" style="font-size: 13.63px;">Algorithm</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.38px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/FrameWork/" style="font-size: 13.38px;">FrameWork</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.38px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.25px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.5px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/MySql/" style="font-size: 13.88px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.75px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.5px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.13px;">gRPC</a> <a href="/tags/k8s/" style="font-size: 13.5px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/13/ETCD/ETCD%E5%85%A5%E9%97%A83-RAFT%E5%8D%8F%E8%AE%AE/" class="title">ETCD入门3-RAFT协议</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-13T02:25:38.000Z" itemprop="datePublished">2022-03-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/12/ETCD/ETCD%E5%85%A5%E9%97%A82-ETCD%E6%9E%B6%E6%9E%84/" class="title">ETCD入门2-ETCD架构</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-12T09:31:19.000Z" itemprop="datePublished">2022-03-12</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/12/ETCD/ETCD%E5%85%A5%E9%97%A81-ETCD%E6%A6%82%E8%BF%B0/" class="title">ETCD入门1-ETCD概述</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-12T07:33:07.000Z" itemprop="datePublished">2022-03-12</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/FrameWork/">FrameWork</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/04/FrameWork/%E6%9E%B6%E6%9E%846-%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" class="title">架构6-分布式缓存</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-03T16:30:33.000Z" itemprop="datePublished">2022-03-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/02/23/ETCD/ETCD%E5%85%A5%E9%97%A86-%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" class="title">ETCD入门6-多版本控制</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-02-22T16:41:29.000Z" itemprop="datePublished">2022-02-23</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基础知识"><span class="toc-number">1.</span> <span class="toc-text"> 基础知识</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本类型"><span class="toc-number">2.</span> <span class="toc-text"> 基本类型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#阻塞io模型"><span class="toc-number">2.1.</span> <span class="toc-text"> 阻塞IO模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#非阻塞io模型"><span class="toc-number">2.2.</span> <span class="toc-text"> 非阻塞IO模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#io复用模型"><span class="toc-number">2.3.</span> <span class="toc-text"> IO复用模型</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#select"><span class="toc-number">2.3.1.</span> <span class="toc-text"> select</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#poll"><span class="toc-number">2.3.2.</span> <span class="toc-text"> poll</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#epoll"><span class="toc-number">2.3.3.</span> <span class="toc-text"> epoll</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#select-poll-epoll区别总结"><span class="toc-number">2.3.4.</span> <span class="toc-text"> select、poll、epoll区别总结</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#信号驱动io模型"><span class="toc-number">2.4.</span> <span class="toc-text"> 信号驱动IO模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#异步io模型"><span class="toc-number">2.5.</span> <span class="toc-text"> 异步IO模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5种io模型比较"><span class="toc-number">2.6.</span> <span class="toc-text"> 5种IO模型比较</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现原理"><span class="toc-number">3.</span> <span class="toc-text"> 实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#接收数据"><span class="toc-number">3.1.</span> <span class="toc-text"> 接收数据</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#工作队列"><span class="toc-number">3.1.1.</span> <span class="toc-text"> 工作队列</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#等待队列"><span class="toc-number">3.1.2.</span> <span class="toc-text"> 等待队列</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#唤醒进程"><span class="toc-number">3.1.3.</span> <span class="toc-text"> 唤醒进程</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#监视多个socket"><span class="toc-number">3.2.</span> <span class="toc-text"> 监视多个socket</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#select-2"><span class="toc-number">3.2.1.</span> <span class="toc-text"> select</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#epoll-2"><span class="toc-number">3.2.2.</span> <span class="toc-text"> epoll</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码分析还没看懂"><span class="toc-number">4.</span> <span class="toc-text"> 代码分析(还没看懂)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#epoll-3"><span class="toc-number">4.1.</span> <span class="toc-text"> epoll</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Linux/Linux深入2-事件模型" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Linux深入2-事件模型
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/07/04/Linux/Linux%E6%B7%B1%E5%85%A52-%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9E%8B/" class="article-date">
+	  <time datetime="2021-07-04T14:39:18.000Z" itemprop="datePublished">2021-07-04</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Linux-Depth/">Linux Depth</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Event/" rel="tag">Event</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/07/04/Linux/Linux%E6%B7%B1%E5%85%A52-%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9E%8B/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 8.4k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 35(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="基础知识"><a class="markdownIt-Anchor" href="#基础知识"></a> 基础知识</h3>
+<ol>
+<li>
+<p>同步与异步：关注的是<strong>消息通信机制</strong> (synchronous communication/ asynchronous communication)</p>
+<p>所谓<strong>同步</strong>，调用在发出后，在没有得到结果之前该调用不返回。一旦调用返回，就得到返回值</p>
+<p>换句话说，就是由调用者主动等待这个调用的结果</p>
+<p>所谓<strong>异步</strong>，调用在发出后，这个调用直接返回了，没有返回结果。而是被调用者通过状态、通知来通知调用者，或通过回调函数处理这个调用</p>
+</li>
+<li>
+<p>阻塞与非阻塞：关注的是程序在等待调用结果消息返回值时的状态</p>
+<p>阻塞调用是指调用结果返回之前，当前线程会被挂起。调用线程只有在得到结果之后才会返回。</p>
+<p>非阻塞调用指在不能立刻得到结果之前，该调用不会阻塞当前线程</p>
+</li>
+<li>
+<p>用户空间和内核空间</p>
+<p>操作系统的核心是内核，可访问受保护的内存空间和底层硬件设备。为了保证用户进程不能直接操作内核（kernel），将<strong>虚拟空间划分为内核空间和用户空间</strong>。针对32位linux操作系统而言，寻址空间（虚拟存储空间）为4G（2的32次方），将最高的1G字节（从虚拟地址0xC0000000到0xFFFFFFFF），供内核使用，称为内核空间，而将较低的3G字节（从虚拟地址0x00000000到0xBFFFFFFF），供各个进程使用，称为用户空间。</p>
+<blockquote>
+<p>补充：地址空间就是一个非负整数地址的有序集合。如{0,1,2…}</p>
+</blockquote>
+</li>
+<li>
+<p>用户态与核心态的切换，一共有三种方式</p>
+<ul>
+<li>系统调用：用户态进程通过系统调用申请使用操作系统的服务完成工作，系统调用其实是通过中断来实现</li>
+<li>异常：当CPU在执行运行在用户态下的程序时，发生异常会触发由当前运行进程切换到处理此异常的内核相关程序中，也就转到了内核态，比如缺页异常</li>
+<li>外围设备中断：当外围设备向CPU发出中断信号，CPU会暂停执行下一条即将要执行的指令转而去执行对应的处理程序，如果先前执行的指令是用户态下的程序，那么这个转换的过程自然也就发生了由用户态到内核态的切换。比如硬盘读写操作完成，系统会切换到硬盘读写的中断处理程序中执行后续操作等</li>
+</ul>
+</li>
+<li>
+<p>进程切换：内核挂起正在CPU上运行的进程，并恢复以前挂起的某个进程的执行</p>
+<ul>
+<li>保存处理机上下文，包括程序计数器和其他寄存器</li>
+<li>更新PCB信息</li>
+<li>把进程的PCB移入相应的队列，如就绪、在某事件阻塞等队列</li>
+<li>选择另一个进程执行，并更新其PCB</li>
+<li>更新内存管理的数据结构。</li>
+<li>恢复处理机上下文</li>
+</ul>
+<blockquote>
+<p>系统中存放进程的管理和控制信息的数据结构称为进程控制块（<em>PCB</em> Process Control Block)</p>
+<p>当进程被阻塞，它是不占用CPU资源的</p>
+</blockquote>
+</li>
+<li>
+<p>文件描述符：文件描述符在形式上是一个非负整数。实际上，它是一个索引值，指向内核为每一个进程所维护的该进程打开文件的记录表。当程序打开一个现有文件或者创建一个新文件时，内核向进程返回一个文件描述符。在程序设计中，一些涉及底层的程序编写往往会围绕着文件描述符展开。但是文件描述符这一概念往往只适用于UNIX、Linux这样的操作系统</p>
+</li>
+<li>
+<p>缓冲IO：缓存IO又被称作标准IO，在Linux的缓存IO 机制中，操作系统会将 IO 的数据缓存在文件系统的页缓存（ page cache ）中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。导致数据在传输过程中需要在应用程序地址空间和内核进行多次数据拷贝操作</p>
+</li>
+</ol>
+<h3 id="基本类型"><a class="markdownIt-Anchor" href="#基本类型"></a> 基本类型</h3>
+<p>《UNIX网络编程：卷一》第六章——I/O复用，书中提及了5种类UNIX下可用的I/O模型：</p>
+<ul>
+<li>阻塞式I/O</li>
+<li>非阻塞式I/O</li>
+<li>I/O复用（select，poll，epoll…）</li>
+<li>信号驱动式I/O（SIGIO）</li>
+<li>异步I/O（POSIX的aio_系列函数）</li>
+</ul>
+<h4 id="阻塞io模型"><a class="markdownIt-Anchor" href="#阻塞io模型"></a> 阻塞IO模型</h4>
+<p>进程会一直阻塞，直到数据拷贝完成 应用程序调用一个IO函数，导致应用程序阻塞，等待数据准备好。数据准备好后，从内核拷贝到用户空间，IO函数返回成功指示</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704160313.png" alt="img" /></p>
+<h4 id="非阻塞io模型"><a class="markdownIt-Anchor" href="#非阻塞io模型"></a> 非阻塞IO模型</h4>
+<p>通过进程反复调用IO函数，在数据拷贝过程中，进程是阻塞的</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704160845" alt="640_副本" style="zoom:80%;" />
+<h4 id="io复用模型"><a class="markdownIt-Anchor" href="#io复用模型"></a> IO复用模型</h4>
+<p>主要是select和epoll。一个线程可以对多个IO端口进行监听，当socket有读写事件时分发到具体的线程进行处理</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704160955" alt="640_副本" style="zoom:80%;" />
+<p>虽然I/O多路复用的函数也是阻塞的，但是其与以上两种还是有不同的，I/O多路复用是阻塞在select，epoll这样的系统调用之上，而没有阻塞在真正的I/O系统调用如recvfrom之上。</p>
+<h5 id="select"><a class="markdownIt-Anchor" href="#select"></a> select</h5>
+<p>select本质是通过设置或检查存放fd标志位的数据结构来进行下一步处理。缺点是：</p>
+<ol>
+<li>单个进程可监视的fd数量被限制，即能监听端口的大小有限。一般来说和系统内存有关，具体数目可以cat /proc/sys/fs/file-max察看。32位默认是1024个，64位默认为2048个</li>
+<li>对socket进行扫描时是线性扫描，即采用轮询方法，效率低。当套接字比较多的时候，每次select()都要遍历FD_SETSIZE个socket来完成调度，不管socket是否活跃都遍历一遍。会浪费很多CPU时间。如果能给套接字注册某个回调函数，当他们活跃时，自动完成相关操作，就避免了轮询，这正是epoll与kqueue做的</li>
+<li>需要维护一个用来存放大量fd的数据结构，会使得用户空间和内核空间在传递该结构时复制开销大</li>
+</ol>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704164720.png" alt="640_副本" style="zoom:80%;" />
+<h5 id="poll"><a class="markdownIt-Anchor" href="#poll"></a> poll</h5>
+<p>poll本质和select相同，将用户传入的数据拷贝到内核空间，然后查询每个fd对应的设备状态，如果设备就绪则在设备等待队列中加入一项并继续遍历，如果遍历所有fd后没有发现就绪设备，则挂起当前进程，直到设备就绪或主动超时，被唤醒后又要再次遍历fd。它没有最大连接数的限制，原因是它是基于链表来存储的，但缺点是：</p>
+<ol>
+<li>大量的fd的数组被整体复制到用户态和内核空间之间，不管有无意义</li>
+<li>poll还有一个特点“水平触发”，如果报告了fd后，没有被处理，那么下次poll时再次报告该ffd。</li>
+</ol>
+<h5 id="epoll"><a class="markdownIt-Anchor" href="#epoll"></a> epoll</h5>
+<p>epoll支持水平触发和边缘触发，最大特点在于边缘触发，只告诉哪些fd刚刚变为就绪态，并且只通知一次。还有一特点是，epoll使用“事件”的就绪通知方式，通过epoll_ctl注册fd，一量该fd就绪，内核就会采用类似callback的回调机制来激活该fd，epoll_wait便可以收到通知。epoll的优点：</p>
+<ol>
+<li>没有最大并发连接的限制。</li>
+<li>效率提升，只有活跃可用的FD才会调用callback函数。</li>
+<li>内存拷贝，利用mmap()文件映射内存加速与内核空间的消息传递。</li>
+</ol>
+<p>水平触发与垂直触发</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704162746.png" alt="img" /></p>
+<h5 id="select-poll-epoll区别总结"><a class="markdownIt-Anchor" href="#select-poll-epoll区别总结"></a> select、poll、epoll区别总结</h5>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704162456.png" alt="image-20210704162456467" style="zoom:50%;" />
+<h4 id="信号驱动io模型"><a class="markdownIt-Anchor" href="#信号驱动io模型"></a> 信号驱动IO模型</h4>
+<p>首先允许Socket进行信号驱动IO,并安装一个信号处理函数，进程继续运行并不阻塞。当数据准备好时，进程会收到一个SIGIO信号，可以在信号处理函数中调用I/O操作函数处理数据</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722075714" alt="sigio" style="zoom:50%;" />
+<h4 id="异步io模型"><a class="markdownIt-Anchor" href="#异步io模型"></a> 异步IO模型</h4>
+<p>相对于同步IO，异步IO不是顺序执行。用户进程进行aio_read系统调用之后，无论内核数据是否准备好，都会直接返回给用户进程，然后用户态进程可以去做别的事情。等到socket数据准备好了，内核直接复制数据给进程，然后从内核向进程发送通知。IO两个阶段，进程都是非阻塞的</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722075726" alt="aio" style="zoom:50%;" />
+<h4 id="5种io模型比较"><a class="markdownIt-Anchor" href="#5种io模型比较"></a> 5种IO模型比较</h4>
+<p>阻塞与非阻塞IO的区别是：调用阻塞IO后进程会一直等待对应的进程完成，而非阻塞IO不会等待对应的进程完成，在kernel还在准备数据的情况下直接返回</p>
+<p>前四种I/O模型都是同步I/O操作，区别在于第一阶段，第二阶段是一样的：在数据从内核复制到应用缓冲区期间（用户空间），进程阻塞于recvfrom调用。相反，异步I/O模型在这两个阶段都要处理。</p>
+<ul>
+<li>阻塞IO和非阻塞IO的区别：数据准备的过程中,进程是否阻塞。</li>
+<li>同步IO和异步IO的区别：数据拷贝的过程中,进程是否阻塞</li>
+</ul>
+<h3 id="实现原理"><a class="markdownIt-Anchor" href="#实现原理"></a> 实现原理</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建socket</span></span><br><span class="line"><span class="keyword">int</span> s = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);   </span><br><span class="line"><span class="comment">//绑定</span></span><br><span class="line">bind(s, ...)</span><br><span class="line"><span class="comment">//监听</span></span><br><span class="line"><span class="built_in">listen</span>(s, ...)</span><br><span class="line"><span class="comment">//接受客户端连接</span></span><br><span class="line"><span class="keyword">int</span> c = accept(s, ...)</span><br><span class="line"><span class="comment">//接收客户端数据</span></span><br><span class="line">recv(c, ...);</span><br><span class="line"><span class="comment">//将数据打印出来</span></span><br><span class="line"><span class="built_in">printf</span>(...)</span><br></pre></td></tr></table></figure>
+<h4 id="接收数据"><a class="markdownIt-Anchor" href="#接收数据"></a> 接收数据</h4>
+<ol>
+<li>
+<p>网卡收到网线传来的数据</p>
+</li>
+<li>
+<p>通过硬件电路传输，将数据写入到内存中的某个地址上</p>
+</li>
+<li>
+<p>由硬件产生的信号CPU会中断掉正在执行的程序而做出响应。执行完毕再重新执行用户程序。中断过程和函数调用差不多。只不过函数调用是事先定好位置，而中断的位置由“信号”决定</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704174820.jpg" alt="img" /></p>
+<blockquote>
+<p>以键盘为例，当用户按下键盘某个按键时，键盘会给cpu的中断引脚发出一个高电平。cpu能够捕获这个信号，然后执行键盘中断程序。</p>
+</blockquote>
+</li>
+<li>
+<p>当网卡把数据写入到内存后，<strong>网卡向cpu发出一个中断信号，操作系统便能得知有新数据到来</strong>，再通过网卡<strong>中断程序</strong>去处理数据。</p>
+<ul>
+<li>先将网络数据写入到对应socket的接收缓冲区里</li>
+<li>再唤醒进程A，重新将进程A放入工作队列中</li>
+</ul>
+</li>
+</ol>
+<h5 id="工作队列"><a class="markdownIt-Anchor" href="#工作队列"></a> 工作队列</h5>
+<p>当程序运行到recv时，程序会从运行状态变为等待状态，接收到数据后又变回运行状态</p>
+<p>计算机中运行着A、B、C三个进程，其中进程A执行着上述基础网络程序，一开始，这3个进程都被操作系统的工作队列所引用，处于运行状态，会分时执行</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704175554.jpg" alt="img" style="zoom:30%;" />
+<h5 id="等待队列"><a class="markdownIt-Anchor" href="#等待队列"></a> 等待队列</h5>
+<p>当进程A执行创建socket语句时，操作系统会创建一个由文件系统管理的socket对象（如下图）。</p>
+<p>socket对象包含了</p>
+<ul>
+<li>发送缓冲区</li>
+<li>接收缓冲区</li>
+<li>等待队列：指向所有需要等待该socket事件的进程</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704175632.jpg" alt="img" style="zoom:30%;" />
+<p>当程序执行到recv时，操作系统会将进程A从工作队列移动到该socket的等待队列中（如下图）。由于工作队列只剩下了进程B和C，依据进程调度，cpu会轮流执行这两个进程的程序，不会执行进程A的程序。<strong>所以进程A被阻塞，不会往下执行代码，也不会占用cpu资源</strong></p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704180316.jpg" alt="img" style="zoom:104%;" />
+<blockquote>
+<p>操作系统添加等待队列只是添加了对这个“等待中”进程的引用，以便在接收到数据时获取进程对象、将其唤醒，而非直接将进程管理纳入自己之下。上图为了方便说明，直接将进程挂到等待队列之下</p>
+</blockquote>
+<h5 id="唤醒进程"><a class="markdownIt-Anchor" href="#唤醒进程"></a> 唤醒进程</h5>
+<p>当socket接收到数据后，操作系统将该socket等待队列上的进程重新放回到工作队列，该进程变成运行状态，继续执行代码。也由于socket的接收缓冲区已经有了数据，recv可以返回接收到的数据</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704181124.jpg" alt="img" style="zoom:33%;" />
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704181303.jpg" alt="img" style="zoom:30%;" />
+<p>问题1：操作系统如何知道网络数据对应于哪个socket？</p>
+<p>因为一个socket对应着一个端口号，而网络数据包中包含了ip和端口的信息，内核可以通过端口号找到对应的socket。当然，为了提高处理速度，操作系统会维护端口号到socket的索引结构，以快速读取</p>
+<p>问题2：如何同时监视多个socket的数据？</p>
+<p>多路复用</p>
+<h4 id="监视多个socket"><a class="markdownIt-Anchor" href="#监视多个socket"></a> 监视多个socket</h4>
+<h5 id="select-2"><a class="markdownIt-Anchor" href="#select-2"></a> select</h5>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> s = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);  </span><br><span class="line">bind(s, ...)</span><br><span class="line"><span class="built_in">listen</span>(s, ...)</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> fds[] =  存放需要监听的socket</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">    <span class="keyword">int</span> n = select(..., fds, ...)</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i &lt; fds.count; i++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(FD_ISSET(fds[i], ...))&#123;</span><br><span class="line">            <span class="comment">//fds[i]的数据处理</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>假如程序同时监视如下图的sock1、sock2和sock3三个socket，那么在调用select之后，操作系统把进程A分别加入这三个socket的等待队列中</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704181833.jpg" alt="img" style="zoom:30%;" />
+<p>当任何一个socket收到数据后，中断程序将唤起进程。下图展示了sock2接收到了数据的处理流程</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704181907.jpg" alt="img" style="zoom:90%;" />
+<p>所谓唤起进程，就是将进程从所有的等待队列中移除，加入到工作队列里面。如下图所示</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704182012.jpg" alt="img" style="zoom:30%;" />
+<p>经由这些步骤，当进程A被唤醒后，它知道至少有一个socket接收了数据。程序只需遍历一遍socket列表，就可以得到就绪的socket</p>
+<blockquote>
+<p>当程序调用select时，内核会先遍历一遍socket，如果有一个以上的socket接收缓冲区有数据，那么select直接返回，不会阻塞。这也是为什么select的返回值有可能大于1的原因之一。如果没有socket有数据，进程才会阻塞</p>
+</blockquote>
+<p>缺点：</p>
+<p>其一，每次调用select都需要将进程加入到所有监视socket的等待队列，每次唤醒都需要从每个队列中移除。这里涉及了两次遍历，而且每次都要将整个fds列表传递给内核，有一定的开销。正是因为遍历操作开销大，出于效率的考量，才会规定select的最大监视数量，默认只能监视1024个socket。</p>
+<p>其二，进程被唤醒后，程序并不知道哪些socket收到数据，还需要遍历一次</p>
+<h5 id="epoll-2"><a class="markdownIt-Anchor" href="#epoll-2"></a> epoll</h5>
+<p><strong>epoll改进措施</strong></p>
+<p>措施一：功能分离</p>
+<p>select低效的原因之一是将“维护等待队列”和“阻塞进程”两个步骤合二为一，epoll将这两个操作分开，先用<code>epoll_ctl</code>维护等待队列，再调用<code>epoll_wait</code>阻塞进程</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704182358.jpg" alt="img" style="zoom:20%;" />
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> s = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);   </span><br><span class="line">bind(s, ...)</span><br><span class="line"><span class="built_in">listen</span>(s, ...)</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> epfd = epoll_create(...);</span><br><span class="line">epoll_ctl(epfd, ...); <span class="comment">//将所有需要监听的socket添加到epfd中</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">    <span class="keyword">int</span> n = epoll_wait(...)</span><br><span class="line">    <span class="keyword">for</span>(接收到数据的socket)&#123;</span><br><span class="line">        <span class="comment">//处理</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>措施二：就绪列表</p>
+<p>select低效的另一个原因在于程序不知道哪些socket收到数据，只能一个个遍历。如果内核维护一个“就绪列表”，引用收到数据的socket，就能避免遍历。如下图所示，计算机共有三个socket，收到数据的sock2和sock3被rdlist（就绪列表）所引用。当进程被唤醒后，只要获取rdlist的内容，就能够知道哪些socket收到数据</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704182623.jpg" alt="img" style="zoom:30%;" />
+<p><strong>创建epoll对象</strong></p>
+<p>当某个进程调用<code>epoll_create</code>方法时，内核会创建一个eventpoll对象（也就是程序中epfd所代表的对象）。eventpoll对象也是文件系统中的一员，和socket一样，它也会有等待队列</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704182752.jpg" alt="img" style="zoom:30%;" />
+<p><strong>维护监视列表</strong></p>
+<p>创建epoll对象后，可以用epoll_ctl添加或删除所要监听的socket。以添加socket为例，如下图，如果通过epoll_ctl添加sock1、sock2和sock3的监视，内核会将eventpoll添加到这三个socket的等待队列中</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183005.jpg" alt="img" style="zoom:30%;" />
+<p>当socket收到数据后，中断程序会操作eventpoll对象，而不是直接操作进程</p>
+<p><strong>接收数据</strong></p>
+<p>当socket收到数据后，中断程序会给eventpoll的“就绪列表”添加socket引用。如下图展示的是sock2和sock3收到数据后，中断程序让rdlist引用这两个socket</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183205.jpg" alt="img" style="zoom:80%;" />
+<p>eventpoll对象相当于是socket和进程之间的中介，socket的数据接收并不直接影响进程，而是通过改变eventpoll的就绪列表来改变进程状态。</p>
+<p>当程序执行到epoll_wait时，如果rdlist已经引用了socket，那么epoll_wait直接返回，如果rdlist为空，阻塞进程</p>
+<p><strong>阻塞和唤醒进程</strong></p>
+<p>假设计算机中正在运行进程A和进程B，在某时刻进程A运行到了epoll_wait语句。如下图所示，内核会将进程A放入eventpoll的等待队列中，阻塞进程</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183347.jpg" alt="img" style="zoom:80%;" />
+<p>当socket接收到数据，中断程序一方面修改rdlist，另一方面唤醒eventpoll等待队列中的进程，进程A再次进入运行状态（如下图）。也因为rdlist的存在，进程A可以知道哪些socket发生了变化</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183435.jpg" alt="img" style="zoom:30%;" />
+<p><strong>实现细节</strong></p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183557.jpg" alt="img" style="zoom:30%;" />
+<p><strong>就绪列表</strong>引用着就绪的socket，所以它应能够快速的插入数据。</p>
+<p>程序可能随时调用epoll_ctl添加监视socket，也可能随时删除。当删除时，若该socket已经存放在就绪列表中，它也应该被移除。</p>
+<p>所以就绪列表应是一种能够快速插入和删除的数据结构。双向链表就是这样一种数据结构，epoll使用双向链表来实现就绪队列（对应上图的rdllist)</p>
+<p><strong>索引结构</strong>既然epoll将“维护监视队列”和“进程阻塞”分离，也意味着需要有个数据结构来保存监视的socket。至少要方便的添加和移除，还要便于搜索，以避免重复添加。红黑树是一种自平衡二叉查找树，搜索、插入和删除时间复杂度都是O(log(N))，效率较好。epoll使用了红黑树作为索引结构</p>
+<blockquote>
+<p>因为操作系统要兼顾多种功能，以及由更多需要保存的数据，rdlist并非直接引用socket，而是通过epitem间接引用，红黑树的节点也是epitem对象。同样，文件系统也并非直接引用着socket。为方便理解，本文中省略了一些间接结构</p>
+</blockquote>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704183747.jpg" alt="img" style="zoom:50%;" />
+<h3 id="代码分析还没看懂"><a class="markdownIt-Anchor" href="#代码分析还没看懂"></a> 代码分析(还没看懂)</h3>
+<h4 id="epoll-3"><a class="markdownIt-Anchor" href="#epoll-3"></a> epoll</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">init_reactor</span><span class="params">(<span class="keyword">int</span> listen_fd,<span class="keyword">int</span> worker_count)</span></span>&#123;</span><br><span class="line">	......</span><br><span class="line">	<span class="comment">// 创建多个epoll fd，以充分利用多核</span></span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;worker_count;i++)&#123;</span><br><span class="line">		reactor-&gt;worker_fd = epoll_create(EPOLL_MAX_EVENTS);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">/* epoll add listen_fd and accept */</span></span><br><span class="line">	<span class="comment">// 将accept后的事件加入到对应的epoll fd中</span></span><br><span class="line">	<span class="keyword">int</span> client_fd = accept(listen_fd,(struct sockaddr *)&amp;client_addr,&amp;client_len)));</span><br><span class="line">	<span class="comment">// 将连接描述符注册到对应的worker里面</span></span><br><span class="line">	epoll_ctl(reactor-&gt;client_fd,EPOLL_CTL_ADD,epifd,&amp;event);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// reactor的worker线程</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span>* <span class="title">rw_thread_func</span><span class="params">(<span class="keyword">void</span>* arg)</span></span>&#123;</span><br><span class="line">	......</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span>(;;)&#123;</span><br><span class="line">		  <span class="comment">// epoll_wait等待事件触发</span></span><br><span class="line">        <span class="keyword">int</span> retval = epoll_wait(epfd,events,EPOLL_MAX_EVENTS,<span class="number">500</span>);</span><br><span class="line">        <span class="keyword">if</span>(retval &gt; <span class="number">0</span>)&#123;</span><br><span class="line">        	<span class="keyword">for</span>(j=<span class="number">0</span>; j &lt; retval; j++)&#123;</span><br><span class="line">        		<span class="comment">// 处理读事件</span></span><br><span class="line">        	   <span class="keyword">if</span>(event &amp; EPOLLIN)&#123;</span><br><span class="line">                 handle_ready_read_connection(conn);</span><br><span class="line">                 <span class="keyword">continue</span>;</span><br><span class="line">             &#125;</span><br><span class="line">             <span class="comment">/* 处理其它事件 */</span></span><br><span class="line">        	&#125;</span><br><span class="line">        &#125;</span><br><span class="line">	&#125;</span><br><span class="line">	......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li><code>eventpoll</code> 核心结构</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// epoll的核心实现对应于一个epoll描述符  </span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span> &#123;</span>  </span><br><span class="line">    <span class="keyword">spinlock_t</span> lock;  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mutex</span> <span class="title">mtx</span>;</span>  </span><br><span class="line">    <span class="keyword">wait_queue_head_t</span> wq; <span class="comment">// sys_epoll_wait() 等待在这里  </span></span><br><span class="line">    <span class="comment">// f_op-&gt;poll()  使用的, 被其他事件通知机制利用的wait_address  </span></span><br><span class="line">    <span class="keyword">wait_queue_head_t</span> poll_wait;  </span><br><span class="line">    <span class="comment">//已就绪的需要检查的epitem 列表 </span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">rdllist</span>;</span>  </span><br><span class="line">    <span class="comment">//保存所有加入到当前epoll的文件对应的epitem  </span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rb_root</span> <span class="title">rbr</span>;</span>  </span><br><span class="line">    <span class="comment">// 当正在向用户空间复制数据时, 产生的可用文件  </span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">epitem</span> *<span class="title">ovflist</span>;</span>  </span><br><span class="line">    <span class="comment">/* The user that created the eventpoll descriptor */</span>  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_struct</span> *<span class="title">user</span>;</span>  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">file</span>;</span>  </span><br><span class="line">    <span class="comment">//优化循环检查，避免循环检查中重复的遍历</span></span><br><span class="line">    <span class="keyword">int</span> visited;  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">visited_list_link</span>;</span>  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li><code>epitem</code>对应一个接入到epoll的文件</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 对应于一个加入到epoll的文件  </span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epitem</span> &#123;</span>  </span><br><span class="line">    <span class="comment">// 挂载到eventpoll 的红黑树节点  </span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> <span class="title">rbn</span>;</span>  </span><br><span class="line">    <span class="comment">// 挂载到eventpoll.rdllist 的节点  </span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">rdllink</span>;</span>  </span><br><span class="line">    <span class="comment">// 连接到ovflist 的指针  </span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">epitem</span> *<span class="title">next</span>;</span>  </span><br><span class="line">    <span class="comment">/* 文件描述符信息fd + file, 红黑树的key */</span>  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">epoll_filefd</span> <span class="title">ffd</span>;</span>  </span><br><span class="line">    <span class="comment">/* Number of active wait queue attached to poll operations */</span>  </span><br><span class="line">    <span class="keyword">int</span> nwait;  </span><br><span class="line">    <span class="comment">// 当前文件的等待队列(eppoll_entry)列表  </span></span><br><span class="line">    <span class="comment">// 同一个文件上可能会监视多种事件,  </span></span><br><span class="line">    <span class="comment">// 这些事件可能属于不同的wait_queue中  </span></span><br><span class="line">    <span class="comment">// (取决于对应文件类型的实现),  </span></span><br><span class="line">    <span class="comment">// 所以需要使用链表  </span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">pwqlist</span>;</span>  </span><br><span class="line">    <span class="comment">// 当前epitem 的所有者  </span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span> *<span class="title">ep</span>;</span>  </span><br><span class="line">    <span class="comment">/* List header used to link this item to the &amp;quot;struct file&amp;quot; items list */</span>  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">fllink</span>;</span>  </span><br><span class="line">    <span class="comment">/* epoll_ctl 传入的用户数据 */</span>  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">event</span>;</span>  </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li><code>eppoll_entry</code>与一个文件上的一个wait_queue_head 相关联，因为同一文件可能有多个等待的事件</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">eppoll_entry</span> &#123;</span>  </span><br><span class="line">    <span class="comment">// List struct epitem.pwqlist  </span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">llink</span>;</span>  </span><br><span class="line">    <span class="comment">// 所有者  </span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">epitem</span> *<span class="title">base</span>;</span>  </span><br><span class="line">    <span class="comment">// 添加到wait_queue 中的节点  </span></span><br><span class="line">    <span class="keyword">wait_queue_t</span> wait;  </span><br><span class="line">    <span class="comment">// 文件wait_queue 头  </span></span><br><span class="line">    <span class="keyword">wait_queue_head_t</span> *whead;  </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>epoll_create() 返回一个文件描述符，此描述符挂载在<code>anon_inode_fs</code>(匿名inode文件系统)的根目录下面</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//先进行判断size是否&gt;=0，若是则直接调用epoll_create1</span></span><br><span class="line">SYSCALL_DEFINE1(epoll_create, <span class="keyword">int</span>, <span class="built_in">size</span>)</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">size</span> &lt;= <span class="number">0</span>)	<span class="comment">//当 size&lt;=0 的时候直接直接退出</span></span><br><span class="line">                <span class="keyword">return</span> -EINVAL;</span><br><span class="line">        <span class="keyword">return</span> sys_epoll_create1(<span class="number">0</span>); <span class="comment">//参数也没有意义</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>SYSCALL_DEFINE1</code>是宏用于定义有一个参数的系统调用函数，展开后为： <code>int sys_epoll_create(int size)</code>，即<code>epoll_create</code>系统调用的入口。</p>
+<blockquote>
+<p>为何要用宏而不是直接声明，主要是因为系统调用的参数个数、传参方式都有严格限制，受限于寄存器数量的限制，(80x86下的)kernel限制系统调用最多有6个参数</p>
+</blockquote>
+<ol start="5">
+<li>epoll_create1() 真正的系统调用</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">SYSCALL_DEFINE1(epoll_create1, <span class="keyword">int</span>, flags)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">int</span> error, fd;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span> *<span class="title">ep</span> = <span class="title">NULL</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">file</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (flags &amp; ~EPOLL_CLOEXEC)</span><br><span class="line">		<span class="keyword">return</span> -EINVAL;</span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Create the internal data structure ("struct eventpoll").</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  <span class="comment">// kzalloc(sizeof(*ep), GFP_KERNEL),用的是内核空间</span></span><br><span class="line">	error = ep_alloc(&amp;ep);</span><br><span class="line">	<span class="keyword">if</span> (error &lt; <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">return</span> error;</span><br><span class="line">  <span class="comment">//获取尚未被使用的文件描述符，即描述符数组的槽位</span></span><br><span class="line">	fd = get_unused_fd_flags(O_RDWR | (flags &amp; O_CLOEXEC));</span><br><span class="line">	<span class="keyword">if</span> (fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">		error = fd;</span><br><span class="line">		<span class="keyword">goto</span> out_free_ep;</span><br><span class="line">	&#125;</span><br><span class="line">  <span class="comment">// 在匿名inode文件系统中分配一个inode,并得到其file结构体</span></span><br><span class="line">	<span class="comment">// 且file-&gt;f_op = &amp;eventpoll_fops</span></span><br><span class="line">	<span class="comment">// 且file-&gt;private_data = ep;</span></span><br><span class="line">	file = anon_inode_getfile(<span class="string">"[eventpoll]"</span>, &amp;eventpoll_fops, ep,</span><br><span class="line">				 O_RDWR | (flags &amp; O_CLOEXEC));<span class="comment">//在fd_array中获取一个槽位</span></span><br><span class="line">	<span class="keyword">if</span> (IS_ERR(file)) &#123;</span><br><span class="line">		error = PTR_ERR(file);</span><br><span class="line">		<span class="keyword">goto</span> out_free_fd;</span><br><span class="line">	&#125;</span><br><span class="line">	ep-&gt;file = file;</span><br><span class="line">  <span class="comment">// 将file填入到对应的文件描述符数组的槽里面(下图中files_struct的fd_array)</span></span><br><span class="line">	fd_install(fd, file);</span><br><span class="line">	<span class="keyword">return</span> fd;</span><br><span class="line"></span><br><span class="line">out_free_fd:</span><br><span class="line">	put_unused_fd(fd);</span><br><span class="line">out_free_ep:</span><br><span class="line">	ep_free(ep);</span><br><span class="line">	<span class="keyword">return</span> error;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后<code>epoll_create</code>生成的文件描述符如下</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704192053.jpg" alt="img" style="zoom:80%;" />
+<ol start="6">
+<li>所有的epoll系统调用都是围绕eventpoll结构体做操作,现简要描述下其中的成员:</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 此结构体存储在file-&gt;private_data中</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span> &#123;</span></span><br><span class="line">	<span class="comment">// 自旋锁，在kernel内部用自旋锁加锁，就可以同时多线(进)程对此结构体进行操作</span></span><br><span class="line">	<span class="comment">// 主要是保护ready_list</span></span><br><span class="line">	<span class="keyword">spinlock_t</span> lock;</span><br><span class="line">	<span class="comment">// 这个互斥锁是为了保证在eventloop使用对应的文件描述符的时候，文件描述符不会被移除掉</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">mutex</span> <span class="title">mtx</span>;</span></span><br><span class="line">	<span class="comment">// epoll_wait使用的等待队列，和进程唤醒有关</span></span><br><span class="line">	<span class="keyword">wait_queue_head_t</span> wq;</span><br><span class="line">	<span class="comment">// file-&gt;poll使用的等待队列，和进程唤醒有关</span></span><br><span class="line">	<span class="keyword">wait_queue_head_t</span> poll_wait;</span><br><span class="line">	<span class="comment">// 就绪的描述符队列 双向链表</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">rdllist</span>;</span></span><br><span class="line">	<span class="comment">// 通过红黑树来组织当前epoll关注的文件描述符 红黑树</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_root</span> <span class="title">rbr</span>;</span> </span><br><span class="line">	<span class="comment">// 在向用户空间传输就绪事件的时候，将同时发生事件的文件描述符链入到这个链表里面</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">epitem</span> *<span class="title">ovflist</span>;</span></span><br><span class="line">	<span class="comment">// 对应的user</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">user_struct</span> *<span class="title">user</span>;</span></span><br><span class="line">	<span class="comment">// 对应的文件描述符</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">file</span>;</span></span><br><span class="line">	<span class="comment">// 下面两个是用于环路检测的优化</span></span><br><span class="line">	<span class="keyword">int</span> visited;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">visited_list_link</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ol start="7">
+<li>epoll_ctl(add)</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * The following function implements the controller interface for</span></span><br><span class="line"><span class="comment"> * the eventpoll file that enables the insertion/removal/change of</span></span><br><span class="line"><span class="comment"> * file descriptors inside the interest set.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">SYSCALL_DEFINE4(epoll_ctl, <span class="keyword">int</span>, epfd, <span class="keyword">int</span>, op, <span class="keyword">int</span>, fd,</span><br><span class="line">		struct epoll_event __user *, event)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">int</span> error;</span><br><span class="line">	<span class="keyword">int</span> full_check = <span class="number">0</span>;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">fd</span> <span class="title">f</span>, <span class="title">tf</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span> *<span class="title">ep</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">epitem</span> *<span class="title">epi</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">epds</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span> *<span class="title">tep</span> = <span class="title">NULL</span>;</span></span><br><span class="line"></span><br><span class="line">	error = -EFAULT;</span><br><span class="line">	<span class="keyword">if</span> (ep_op_has_event(op) &amp;&amp;</span><br><span class="line">	    copy_from_user(&amp;epds, event, <span class="keyword">sizeof</span>(struct epoll_event)))</span><br><span class="line">		<span class="keyword">goto</span> error_return;</span><br><span class="line"></span><br><span class="line">	error = -EBADF;</span><br><span class="line">	f = fdget(epfd);</span><br><span class="line">	<span class="keyword">if</span> (!f.file)</span><br><span class="line">		<span class="keyword">goto</span> error_return;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Get the "struct file *" for the target file */</span></span><br><span class="line">	tf = fdget(fd);</span><br><span class="line">	<span class="keyword">if</span> (!tf.file)</span><br><span class="line">		<span class="keyword">goto</span> error_fput;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* The target file descriptor must support poll */</span></span><br><span class="line">	error = -EPERM;</span><br><span class="line">	<span class="keyword">if</span> (!tf.file-&gt;f_op-&gt;poll)</span><br><span class="line">		<span class="keyword">goto</span> error_tgt_fput;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Check if EPOLLWAKEUP is allowed */</span></span><br><span class="line">	<span class="keyword">if</span> (ep_op_has_event(op))</span><br><span class="line">		ep_take_care_of_epollwakeup(&amp;epds);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * We have to check that the file structure underneath the file descriptor</span></span><br><span class="line"><span class="comment">	 * the user passed to us _is_ an eventpoll file. And also we do not permit</span></span><br><span class="line"><span class="comment">	 * adding an epoll file descriptor inside itself.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	error = -EINVAL;</span><br><span class="line">	<span class="keyword">if</span> (f.file == tf.file || !is_file_epoll(f.file))</span><br><span class="line">		<span class="keyword">goto</span> error_tgt_fput;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * At this point it is safe to assume that the "private_data" contains</span></span><br><span class="line"><span class="comment">	 * our own data structure.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	ep = f.file-&gt;private_data;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * When we insert an epoll file descriptor, inside another epoll file</span></span><br><span class="line"><span class="comment">	 * descriptor, there is the change of creating closed loops, which are</span></span><br><span class="line"><span class="comment">	 * better be handled here, than in more critical paths. While we are</span></span><br><span class="line"><span class="comment">	 * checking for loops we also determine the list of files reachable</span></span><br><span class="line"><span class="comment">	 * and hang them on the tfile_check_list, so we can check that we</span></span><br><span class="line"><span class="comment">	 * haven't created too many possible wakeup paths.</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * We do not need to take the global 'epumutex' on EPOLL_CTL_ADD when</span></span><br><span class="line"><span class="comment">	 * the epoll file descriptor is attaching directly to a wakeup source,</span></span><br><span class="line"><span class="comment">	 * unless the epoll file descriptor is nested. The purpose of taking the</span></span><br><span class="line"><span class="comment">	 * 'epmutex' on add is to prevent complex toplogies such as loops and</span></span><br><span class="line"><span class="comment">	 * deep wakeup paths from forming in parallel through multiple</span></span><br><span class="line"><span class="comment">	 * EPOLL_CTL_ADD operations.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">  </span><br><span class="line">	<span class="comment">/* 校验epfd是否是epoll的描述符 */</span></span><br><span class="line">	<span class="comment">// 此处的互斥锁是为了防止并发调用epoll_ctl,即保护内部数据结构</span></span><br><span class="line">	<span class="comment">// 不会被并发的添加修改删除破坏</span></span><br><span class="line">	mutex_lock_nested(&amp;ep-&gt;mtx, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span> (op == EPOLL_CTL_ADD) &#123;</span><br><span class="line">		<span class="keyword">if</span> (!list_empty(&amp;f.file-&gt;f_ep_links) ||</span><br><span class="line">						is_file_epoll(tf.file)) &#123;</span><br><span class="line">			full_check = <span class="number">1</span>;</span><br><span class="line">			mutex_unlock(&amp;ep-&gt;mtx);</span><br><span class="line">			mutex_lock(&amp;epmutex);</span><br><span class="line">			<span class="keyword">if</span> (is_file_epoll(tf.file)) &#123;</span><br><span class="line">				error = -ELOOP;</span><br><span class="line">				<span class="keyword">if</span> (ep_loop_check(ep, tf.file) != <span class="number">0</span>) &#123;</span><br><span class="line">					clear_tfile_check_list();</span><br><span class="line">					<span class="keyword">goto</span> error_tgt_fput;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125; <span class="keyword">else</span></span><br><span class="line">				list_add(&amp;tf.file-&gt;f_tfile_llink,</span><br><span class="line">							&amp;tfile_check_list);</span><br><span class="line">			mutex_lock_nested(&amp;ep-&gt;mtx, <span class="number">0</span>);</span><br><span class="line">			<span class="keyword">if</span> (is_file_epoll(tf.file)) &#123;</span><br><span class="line">				tep = tf.file-&gt;private_data;</span><br><span class="line">				mutex_lock_nested(&amp;tep-&gt;mtx, <span class="number">1</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Try to lookup the file inside our RB tree, Since we grabbed "mtx"</span></span><br><span class="line"><span class="comment">	 * above, we can be sure to be able to use the item looked up by</span></span><br><span class="line"><span class="comment">	 * ep_find() till we release the mutex.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	epi = ep_find(ep, tf.file, fd);</span><br><span class="line"></span><br><span class="line">	error = -EINVAL;</span><br><span class="line">	<span class="keyword">switch</span> (op) &#123;</span><br><span class="line">	<span class="keyword">case</span> EPOLL_CTL_ADD:</span><br><span class="line">		<span class="keyword">if</span> (!epi) &#123;</span><br><span class="line">			epds.events |= POLLERR | POLLHUP;</span><br><span class="line">      <span class="comment">// 插入到红黑树中</span></span><br><span class="line">			error = ep_insert(ep, &amp;epds, tf.file, fd, full_check);</span><br><span class="line">		&#125; <span class="keyword">else</span></span><br><span class="line">			error = -EEXIST;</span><br><span class="line">		<span class="keyword">if</span> (full_check)</span><br><span class="line">			clear_tfile_check_list();</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> EPOLL_CTL_DEL:</span><br><span class="line">		<span class="keyword">if</span> (epi)</span><br><span class="line">			error = ep_remove(ep, epi);</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			error = -ENOENT;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> EPOLL_CTL_MOD:</span><br><span class="line">		<span class="keyword">if</span> (epi) &#123;</span><br><span class="line">			epds.events |= POLLERR | POLLHUP;</span><br><span class="line">			error = ep_modify(ep, epi, &amp;epds);</span><br><span class="line">		&#125; <span class="keyword">else</span></span><br><span class="line">			error = -ENOENT;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (tep != <span class="literal">NULL</span>)</span><br><span class="line">		mutex_unlock(&amp;tep-&gt;mtx);</span><br><span class="line">	mutex_unlock(&amp;ep-&gt;mtx);</span><br><span class="line"></span><br><span class="line">error_tgt_fput:</span><br><span class="line">	<span class="keyword">if</span> (full_check)</span><br><span class="line">		mutex_unlock(&amp;epmutex);</span><br><span class="line"></span><br><span class="line">	fdput(tf);</span><br><span class="line">error_fput:</span><br><span class="line">	fdput(f);</span><br><span class="line">error_return:</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> error;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704192623.jpg" alt="img" style="zoom:80%;" />
+<ol start="9">
+<li>
+<p>ep_insert</p>
+<p>在ep_insert中初始化了epitem，然后初始化了本文关注的焦点,即事件就绪时候的回调函数</p>
+</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ep_insert</span><span class="params">(struct eventpoll *ep, struct epoll_event *event,</span></span></span><br><span class="line"><span class="function"><span class="params">		     struct file *tfile, <span class="keyword">int</span> fd, <span class="keyword">int</span> full_check)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> error, revents, pwake = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> flags;</span><br><span class="line">	<span class="keyword">long</span> user_watches;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">epitem</span> *<span class="title">epi</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">ep_pqueue</span> <span class="title">epq</span>;</span></span><br><span class="line"></span><br><span class="line">	user_watches = atomic_long_read(&amp;ep-&gt;user-&gt;epoll_watches);</span><br><span class="line">	<span class="keyword">if</span> (unlikely(user_watches &gt;= max_user_watches))</span><br><span class="line">		<span class="keyword">return</span> -ENOSPC;</span><br><span class="line">	<span class="keyword">if</span> (!(epi = kmem_cache_alloc(epi_cache, GFP_KERNEL)))</span><br><span class="line">		<span class="keyword">return</span> -ENOMEM;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Item initialization follow here ... */</span></span><br><span class="line">	INIT_LIST_HEAD(&amp;epi-&gt;rdllink);</span><br><span class="line">	INIT_LIST_HEAD(&amp;epi-&gt;fllink);</span><br><span class="line">	INIT_LIST_HEAD(&amp;epi-&gt;pwqlist);</span><br><span class="line">	epi-&gt;ep = ep;</span><br><span class="line">	ep_set_ffd(&amp;epi-&gt;ffd, tfile, fd);</span><br><span class="line">	epi-&gt;event = *event;</span><br><span class="line">	epi-&gt;nwait = <span class="number">0</span>;</span><br><span class="line">	epi-&gt;next = EP_UNACTIVE_PTR;</span><br><span class="line">	<span class="keyword">if</span> (epi-&gt;event.events &amp; EPOLLWAKEUP) &#123;</span><br><span class="line">		error = ep_create_wakeup_source(epi);</span><br><span class="line">		<span class="keyword">if</span> (error)</span><br><span class="line">			<span class="keyword">goto</span> error_create_wakeup_source;</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		RCU_INIT_POINTER(epi-&gt;ws, <span class="literal">NULL</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Initialize the poll table using the queue callback */</span></span><br><span class="line">  <span class="comment">/* 初始化epitem */</span></span><br><span class="line">	<span class="comment">// &amp;epq.pt-&gt;qproc = ep_ptable_queue_proc</span></span><br><span class="line">	epq.epi = epi;</span><br><span class="line">	init_poll_funcptr(&amp;epq.pt, ep_ptable_queue_proc);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Attach the item to the poll hooks and get current event bits.</span></span><br><span class="line"><span class="comment">	 * We can safely use the file* here because its usage count has</span></span><br><span class="line"><span class="comment">	 * been increased by the caller of this function. Note that after</span></span><br><span class="line"><span class="comment">	 * this operation completes, the poll callback can start hitting</span></span><br><span class="line"><span class="comment">	 * the new item.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	revents = ep_item_poll(epi, &amp;epq.pt);</span><br><span class="line">  <span class="comment">// 在这里将回调函数注入</span></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * We have to check if something went wrong during the poll wait queue</span></span><br><span class="line"><span class="comment">	 * install process. Namely an allocation for a wait queue failed due</span></span><br><span class="line"><span class="comment">	 * high memory pressure.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	error = -ENOMEM;</span><br><span class="line">	<span class="keyword">if</span> (epi-&gt;nwait &lt; <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">goto</span> error_unregister;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Add the current item to the list of active epoll hook for this file */</span></span><br><span class="line">	spin_lock(&amp;tfile-&gt;f_lock);</span><br><span class="line">	list_add_tail_rcu(&amp;epi-&gt;fllink, &amp;tfile-&gt;f_ep_links);</span><br><span class="line">	spin_unlock(&amp;tfile-&gt;f_lock);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Add the current item to the RB tree. All RB tree operations are</span></span><br><span class="line"><span class="comment">	 * protected by "mtx", and ep_insert() is called with "mtx" held.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	ep_rbtree_insert(ep, epi);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* now check if we've created too many backpaths */</span></span><br><span class="line">	error = -EINVAL;</span><br><span class="line">	<span class="keyword">if</span> (full_check &amp;&amp; reverse_path_check())</span><br><span class="line">		<span class="keyword">goto</span> error_remove_epi;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* We have to drop the new item inside our item list to keep track of it */</span></span><br><span class="line">	spin_lock_irqsave(&amp;ep-&gt;lock, flags);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* If the file is already "ready" we drop it inside the ready list */</span></span><br><span class="line">	<span class="comment">// 如果当前有事件已经就绪，那么一开始就会被加入到ready list</span></span><br><span class="line">	<span class="comment">// 例如可写事件</span></span><br><span class="line">	<span class="comment">// 另外，在tcp内部ack之后调用tcp_check_space,最终调用sock_def_write_space来唤醒对应的epoll_wait下的进程</span></span><br><span class="line">  <span class="keyword">if</span> ((revents &amp; event-&gt;events) &amp;&amp; !ep_is_linked(&amp;epi-&gt;rdllink)) &#123;</span><br><span class="line">		list_add_tail(&amp;epi-&gt;rdllink, &amp;ep-&gt;rdllist);</span><br><span class="line">		ep_pm_stay_awake(epi);</span><br><span class="line"></span><br><span class="line">		<span class="comment">/* Notify waiting tasks that events are available */</span></span><br><span class="line">    <span class="comment">// wake_up ep对应在epoll_wait下的进程</span></span><br><span class="line">		<span class="keyword">if</span> (waitqueue_active(&amp;ep-&gt;wq))</span><br><span class="line">			wake_up_locked(&amp;ep-&gt;wq);</span><br><span class="line">		<span class="keyword">if</span> (waitqueue_active(&amp;ep-&gt;poll_wait))</span><br><span class="line">			pwake++;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	spin_unlock_irqrestore(&amp;ep-&gt;lock, flags);</span><br><span class="line"></span><br><span class="line">	atomic_long_inc(&amp;ep-&gt;user-&gt;epoll_watches);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* We have to call this outside the lock */</span></span><br><span class="line">	<span class="keyword">if</span> (pwake)</span><br><span class="line">		ep_poll_safewake(&amp;ep-&gt;poll_wait);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">error_remove_epi:</span><br><span class="line">	spin_lock(&amp;tfile-&gt;f_lock);</span><br><span class="line">	list_del_rcu(&amp;epi-&gt;fllink);</span><br><span class="line">	spin_unlock(&amp;tfile-&gt;f_lock);</span><br><span class="line"></span><br><span class="line">	rb_erase(&amp;epi-&gt;rbn, &amp;ep-&gt;rbr);</span><br><span class="line"></span><br><span class="line">error_unregister:</span><br><span class="line">	ep_unregister_pollwait(ep, epi);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * We need to do this because an event could have been arrived on some</span></span><br><span class="line"><span class="comment">	 * allocated wait queue. Note that we don't care about the ep-&gt;ovflist</span></span><br><span class="line"><span class="comment">	 * list, since that is used/cleaned only inside a section bound by "mtx".</span></span><br><span class="line"><span class="comment">	 * And ep_insert() is called with "mtx" held.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	spin_lock_irqsave(&amp;ep-&gt;lock, flags);</span><br><span class="line">	<span class="keyword">if</span> (ep_is_linked(&amp;epi-&gt;rdllink))</span><br><span class="line">		list_del_init(&amp;epi-&gt;rdllink);</span><br><span class="line">	spin_unlock_irqrestore(&amp;ep-&gt;lock, flags);</span><br><span class="line"></span><br><span class="line">	wakeup_source_unregister(ep_wakeup_source(epi));</span><br><span class="line"></span><br><span class="line">error_create_wakeup_source:</span><br><span class="line">	kmem_cache_free(epi_cache, epi);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> error;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中 <code>tfile-&gt;f_op-&gt;poll</code>的实现，向kernel更底层注册回调函数的是tfile-&gt;f_op-&gt;poll(tfile, &amp;<a href="http://epq.pt" target="_blank" rel="noopener">epq.pt</a>)这一句，我们来看一下对于对应的socket文件描述符，其fd=&gt;file-&gt;f_op-&gt;poll的初始化过程</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将accept后的事件加入到对应的epoll fd中</span></span><br><span class="line"><span class="keyword">int</span> client_fd = accept(listen_fd,(struct sockaddr *)&amp;client_addr,&amp;client_len)));</span><br><span class="line"><span class="comment">// 将连接描述符注册到对应的worker里面</span></span><br><span class="line">epoll_ctl(reactor-&gt;client_fd,EPOLL_CTL_ADD,epifd,&amp;event);</span><br></pre></td></tr></table></figure>
+<ol start="10">
+<li>epoll_wait</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">SYSCALL_DEFINE4(epoll_wait, int, epfd, struct epoll_event __user *, events,</span><br><span class="line">		int, maxevents, int, timeout)</span><br><span class="line">&#123;</span><br><span class="line">	int error;</span><br><span class="line">	struct fd f;</span><br><span class="line">	struct eventpoll *ep;</span><br><span class="line"></span><br><span class="line">	&#x2F;* The maximum number of event must be greater than zero *&#x2F;</span><br><span class="line">	if (maxevents &lt;&#x3D; 0 || maxevents &gt; EP_MAX_EVENTS)</span><br><span class="line">		return -EINVAL;</span><br><span class="line"></span><br><span class="line">	&#x2F;* Verify that the area passed by the user is writeable *&#x2F;</span><br><span class="line">	if (!access_ok(VERIFY_WRITE, events, maxevents * sizeof(struct epoll_event)))</span><br><span class="line">		return -EFAULT;</span><br><span class="line"></span><br><span class="line">	&#x2F;* Get the &quot;struct file *&quot; for the eventpoll file *&#x2F;</span><br><span class="line">	f &#x3D; fdget(epfd);</span><br><span class="line">	if (!f.file)</span><br><span class="line">		return -EBADF;</span><br><span class="line"></span><br><span class="line">	&#x2F;*</span><br><span class="line">	 * We have to check that the file structure underneath the fd</span><br><span class="line">	 * the user passed to us _is_ an eventpoll file.</span><br><span class="line">	 *&#x2F;</span><br><span class="line">	error &#x3D; -EINVAL;</span><br><span class="line">	if (!is_file_epoll(f.file))</span><br><span class="line">		goto error_fput;</span><br><span class="line"></span><br><span class="line">	&#x2F;*</span><br><span class="line">	 * At this point it is safe to assume that the &quot;private_data&quot; contains</span><br><span class="line">	 * our own data structure.</span><br><span class="line">	 *&#x2F;</span><br><span class="line">	ep &#x3D; f.file-&gt;private_data;</span><br><span class="line"></span><br><span class="line">	&#x2F;* Time to fish for events ... *&#x2F;</span><br><span class="line">	&#x2F;* 检查epfd是否是epoll\_create创建的fd *&#x2F;</span><br><span class="line">	&#x2F;&#x2F; 调用ep_poll</span><br><span class="line">	error &#x3D; ep_poll(ep, events, maxevents, timeout);</span><br><span class="line"></span><br><span class="line">error_fput:</span><br><span class="line">	fdput(f);</span><br><span class="line">	return error;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>紧接着，我们看下ep_poll函数:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">tatic <span class="keyword">int</span> <span class="title">ep_poll</span><span class="params">(struct eventpoll *ep, struct epoll_event __user *events,</span></span></span><br><span class="line"><span class="function"><span class="params">		   <span class="keyword">int</span> maxevents, <span class="keyword">long</span> timeout)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> res = <span class="number">0</span>, eavail, timed_out = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> flags;</span><br><span class="line">	<span class="keyword">long</span> slack = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">wait_queue_t</span> wait;</span><br><span class="line">	<span class="keyword">ktime_t</span> expires, *to = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (timeout &gt; <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">timespec</span> <span class="title">end_time</span> = <span class="title">ep_set_mstimeout</span>(<span class="title">timeout</span>);</span></span><br><span class="line"></span><br><span class="line">		slack = select_estimate_accuracy(&amp;end_time);</span><br><span class="line">		to = &amp;expires;</span><br><span class="line">		*to = timespec_to_ktime(end_time);</span><br><span class="line">	&#125; <span class="keyword">else</span> <span class="keyword">if</span> (timeout == <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="comment">/*</span></span><br><span class="line"><span class="comment">		 * Avoid the unnecessary trip to the wait queue loop, if the</span></span><br><span class="line"><span class="comment">		 * caller specified a non blocking operation.</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		timed_out = <span class="number">1</span>;</span><br><span class="line">		spin_lock_irqsave(&amp;ep-&gt;lock, flags);</span><br><span class="line">		<span class="keyword">goto</span> check_events;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">fetch_events:</span><br><span class="line">  <span class="comment">// 获取spinlock</span></span><br><span class="line">	spin_lock_irqsave(&amp;ep-&gt;lock, flags);</span><br><span class="line">	<span class="keyword">if</span> (!ep_events_available(ep)) &#123;</span><br><span class="line">		<span class="comment">/*</span></span><br><span class="line"><span class="comment">		 * We don't have any available event to return to the caller.</span></span><br><span class="line"><span class="comment">		 * We need to sleep here, and we will be wake up by</span></span><br><span class="line"><span class="comment">		 * ep_poll_callback() when events will become available.</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">    <span class="comment">// 将当前task_struct写入到waitqueue中以便唤醒</span></span><br><span class="line">	  <span class="comment">// wq_entry-&gt;func = default_wake_function;</span></span><br><span class="line">		init_waitqueue_entry(&amp;wait, current);</span><br><span class="line">		__add_wait_queue_exclusive(&amp;ep-&gt;wq, &amp;wait);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> (;;) &#123;</span><br><span class="line">			<span class="comment">/*</span></span><br><span class="line"><span class="comment">			 * We don't want to sleep if the ep_poll_callback() sends us</span></span><br><span class="line"><span class="comment">			 * a wakeup in between. That's why we set the task state</span></span><br><span class="line"><span class="comment">			 * to TASK_INTERRUPTIBLE before doing the checks.</span></span><br><span class="line"><span class="comment">			 */</span></span><br><span class="line">			set_current_state(TASK_INTERRUPTIBLE);</span><br><span class="line">			<span class="keyword">if</span> (ep_events_available(ep) || timed_out)</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">if</span> (signal_pending(current)) &#123;</span><br><span class="line">				res = -EINTR;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			spin_unlock_irqrestore(&amp;ep-&gt;lock, flags);</span><br><span class="line">			<span class="keyword">if</span> (!schedule_hrtimeout_range(to, slack, HRTIMER_MODE_ABS))</span><br><span class="line">				timed_out = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">			spin_lock_irqsave(&amp;ep-&gt;lock, flags);</span><br><span class="line">		&#125;</span><br><span class="line">		__remove_wait_queue(&amp;ep-&gt;wq, &amp;wait);</span><br><span class="line"></span><br><span class="line">		set_current_state(TASK_RUNNING);</span><br><span class="line">	&#125;</span><br><span class="line">check_events:</span><br><span class="line">	<span class="comment">/* Is it worth to try to dig for events ? */</span></span><br><span class="line">	eavail = ep_events_available(ep);</span><br><span class="line"></span><br><span class="line">	spin_unlock_irqrestore(&amp;ep-&gt;lock, flags);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * Try to transfer events to user space. In case we get 0 events and</span></span><br><span class="line"><span class="comment">	 * there's still timeout left over, we go trying again in search of</span></span><br><span class="line"><span class="comment">	 * more luck.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">if</span> (!res &amp;&amp; eavail &amp;&amp;</span><br><span class="line">	    !(res = ep_send_events(ep, events, maxevents)) &amp;&amp; !timed_out)</span><br><span class="line">		<span class="keyword">goto</span> fetch_events;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704222952.jpg" alt="img" style="zoom:33%;" />
+<ol start="11">
+<li>ep_send_events</li>
+</ol>
+<p>ep_send_events函数主要就是调用了ep_scan_ready_list,顾名思义ep_scan_ready_list就是扫描就绪列表:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ep_scan_ready_list</span><span class="params">(struct eventpoll *ep,</span></span></span><br><span class="line"><span class="function"><span class="params">			      <span class="keyword">int</span> (*sproc)(struct eventpoll *,</span></span></span><br><span class="line"><span class="function"><span class="params">					   struct list_head *, <span class="keyword">void</span> *),</span></span></span><br><span class="line"><span class="function"><span class="params">			      <span class="keyword">void</span> *priv,</span></span></span><br><span class="line"><span class="function"><span class="params">			      <span class="keyword">int</span> depth)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	...</span><br><span class="line">	<span class="comment">// 将epfd的rdllist链入到txlist</span></span><br><span class="line">	list_splice_init(&amp;ep-&gt;rdllist, &amp;txlist);</span><br><span class="line">	...</span><br><span class="line">	<span class="comment">/* sproc = ep_send_events_proc */</span></span><br><span class="line">	error = (*sproc)(ep, &amp;txlist, priv);</span><br><span class="line">	...</span><br><span class="line">	<span class="comment">// 处理ovflist,即在上面sproc过程中又到来的事件</span></span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其主要调用了ep_send_events_proc:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ep_send_events_proc</span><span class="params">(struct eventpoll *ep, struct list_head *head,</span></span></span><br><span class="line"><span class="function"><span class="params">			       <span class="keyword">void</span> *priv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">for</span> (eventcnt = <span class="number">0</span>, uevent = esed-&gt;events;</span><br><span class="line">	     !list_empty(head) &amp;&amp; eventcnt &lt; esed-&gt;maxevents;) &#123;</span><br><span class="line">	   <span class="comment">// 遍历ready list </span></span><br><span class="line">		epi = list_first_entry(head, struct epitem, rdllink);</span><br><span class="line">		list_del_init(&amp;epi-&gt;rdllink);</span><br><span class="line">		<span class="comment">// readylist只是表明当前epi有事件，具体的事件信息还是得调用对应file的poll</span></span><br><span class="line">		<span class="comment">// 这边的poll即是tcp_poll,根据tcp本身的信息设置掩码(mask)等信息 &amp; 上兴趣事件掩码，则可以得知当前事件是否是epoll_wait感兴趣的事件</span></span><br><span class="line">		revents = epi-&gt;ffd.file-&gt;f_op-&gt;poll(epi-&gt;ffd.file, <span class="literal">NULL</span>) &amp;</span><br><span class="line">			epi-&gt;event.events;</span><br><span class="line">		<span class="keyword">if</span>(revents)&#123;</span><br><span class="line">			<span class="comment">/* 将event放入到用户空间 */</span></span><br><span class="line">			<span class="comment">/* 处理ONESHOT逻辑 */</span></span><br><span class="line">			<span class="comment">// 如果不是边缘触发，则将当前的epi重新加回到可用列表中，这样就可以下一次继续触发poll,如果下一次poll的revents不为0，那么用户空间依旧能感知 */</span></span><br><span class="line">			<span class="keyword">else</span> <span class="keyword">if</span> (!(epi-&gt;event.events &amp; EPOLLET))&#123;</span><br><span class="line">				list_add_tail(&amp;epi-&gt;rdllink, &amp;ep-&gt;rdllist);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">/* 如果是边缘触发，那么就不加回可用列表，因此只能等到下一个可用事件触发的时候才会将对应的epi放到可用列表里面*/</span></span><br><span class="line">			eventcnt++</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">/* 如poll出来的revents事件epoll_wait不感兴趣(或者本来就没有事件)，那么也不会加回到可用列表 */</span></span><br><span class="line">		......</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> eventcnt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704223226.jpg" alt="img" style="zoom:33%;" />
+<ol>
+<li>eventpoll_init 文件系统初始化</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> __init <span class="title">eventpoll_init</span><span class="params">(<span class="keyword">void</span>)</span>  </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sysinfo</span> <span class="title">si</span>;</span>  </span><br><span class="line">  </span><br><span class="line">    si_meminfo(&amp;si);  </span><br><span class="line">    <span class="comment">// 限制可添加到epoll的最多的描述符数量  </span></span><br><span class="line">  </span><br><span class="line">    max_user_watches = (((si.totalram - si.totalhigh) / <span class="number">25</span>) &lt;&lt; PAGE_SHIFT) /  </span><br><span class="line">                       EP_ITEM_COST;  </span><br><span class="line">    BUG_ON(max_user_watches &lt; <span class="number">0</span>);  </span><br><span class="line">  </span><br><span class="line">    <span class="comment">// 初始化递归检查队列  </span></span><br><span class="line">    ep_nested_calls_init(&amp;poll_loop_ncalls);  </span><br><span class="line">    ep_nested_calls_init(&amp;poll_safewake_ncalls);  </span><br><span class="line">    ep_nested_calls_init(&amp;poll_readywalk_ncalls);  </span><br><span class="line">    <span class="comment">// epoll 使用的slab分配器分别用来分配epitem和eppoll_entry  </span></span><br><span class="line">    epi_cache = kmem_cache_create(<span class="string">"eventpoll_epi"</span>, <span class="keyword">sizeof</span>(struct epitem),  </span><br><span class="line">                                  <span class="number">0</span>, SLAB_HWCACHE_ALIGN | SLAB_PANIC, <span class="literal">NULL</span>);  </span><br><span class="line">    pwq_cache = kmem_cache_create(<span class="string">"eventpoll_pwq"</span>,  </span><br><span class="line">                                  <span class="keyword">sizeof</span>(struct eppoll_entry), <span class="number">0</span>, SLAB_PANIC, <span class="literal">NULL</span>);  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704171540.png" alt="这里写图片描述" /></p>
+<p>1.epoll_create中的size参数有什么作用？<br />
+答：size这个参数其实没有任何用处，它只是为了保持兼容，因为之前的fd使用hash表保存，size表示hash表的大小，而现在使用红黑树保存，所以size就没用了。</p>
+<p>2.LT和ET的区别（源码级别）？<br />
+答：在源码中，两种模式的区别是一个if判断语句，通过ep_send_events_proc()函数实现，如果没有标上EPOLLET(即默认的LT)且“事件被关注”的fd就会被重新放回了rdllist。那么下次epoll_wait当然会又把rdllist里的fd拿来拷给用户了</p>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://www.cnblogs.com/Yunya-Cnblogs/p/13246517.html" target="_blank" rel="noopener">https://www.cnblogs.com/Yunya-Cnblogs/p/13246517.html</a></li>
+<li><a href="https://mp.weixin.qq.com/s/4xqJGsjiSxRHdI80OERHmQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/4xqJGsjiSxRHdI80OERHmQ</a></li>
+<li><a href="https://blog.csdn.net/baiye_xing/article/details/76352935" target="_blank" rel="noopener">https://blog.csdn.net/baiye_xing/article/details/76352935</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/63179839" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/63179839</a></li>
+<li><a href="https://my.oschina.net/alchemystar/blog/3008840" target="_blank" rel="noopener">https://my.oschina.net/alchemystar/blog/3008840</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/07/05/Algorithm/%E7%AE%97%E6%B3%952-%E5%A0%86%E6%8E%92%E5%BA%8F/" title="算法2-堆排序"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/07/03/Go/Go%E5%85%A5%E9%97%A810-defer/" title="Go入门10-defer"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">
+        <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>

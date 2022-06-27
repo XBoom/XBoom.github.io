@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Go入门2-Slice | XBoom Dove</title>
+  <meta name="description" content="Go 语言的函数参数传递，只有值传递，没有引用传递  数组与切片 在 Go 中，与 C 数组变量隐式作为指针使用不同，Go 数组是值类型，赋值和函数传参操作都会复制整个数组数据 123456789101112131415161718192021222324252627func main() &amp;#123;	arrayA :&#x3D; [2]int&amp;#123;100, 200&amp;#125;	var arrayB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go入门2-Slice">
+<meta property="og:url" content="http://xboom.github.io/2020/12/12/Go/Go%E5%85%A5%E9%97%A82-Slice/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="Go 语言的函数参数传递，只有值传递，没有引用传递  数组与切片 在 Go 中，与 C 数组变量隐式作为指针使用不同，Go 数组是值类型，赋值和函数传参操作都会复制整个数组数据 123456789101112131415161718192021222324252627func main() &amp;#123;	arrayA :&#x3D; [2]int&amp;#123;100, 200&amp;#125;	var arrayB">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-12-12T08:39:51.000Z">
+<meta property="article:modified_time" content="2021-01-10T03:45:36.683Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Go">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2020/12/12/Go/Go%E5%85%A5%E9%97%A82-Slice/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Acwing/">Acwing</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm-Applied/">Algorithm Applied</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/FrameWork/">FrameWork</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Acwing/" rel="tag">Acwing</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FrameWork/" rel="tag">FrameWork</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Acwing/" style="font-size: 13.25px;">Acwing</a> <a href="/tags/Algorithm/" style="font-size: 13.63px;">Algorithm</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.38px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/FrameWork/" style="font-size: 13.38px;">FrameWork</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.38px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.25px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.5px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/MySql/" style="font-size: 13.88px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.75px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.5px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.13px;">gRPC</a> <a href="/tags/k8s/" style="font-size: 13.5px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/13/ETCD/ETCD%E5%85%A5%E9%97%A83-RAFT%E5%8D%8F%E8%AE%AE/" class="title">ETCD入门3-RAFT协议</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-13T02:25:38.000Z" itemprop="datePublished">2022-03-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/12/ETCD/ETCD%E5%85%A5%E9%97%A82-ETCD%E6%9E%B6%E6%9E%84/" class="title">ETCD入门2-ETCD架构</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-12T09:31:19.000Z" itemprop="datePublished">2022-03-12</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/12/ETCD/ETCD%E5%85%A5%E9%97%A81-ETCD%E6%A6%82%E8%BF%B0/" class="title">ETCD入门1-ETCD概述</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-12T07:33:07.000Z" itemprop="datePublished">2022-03-12</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/FrameWork/">FrameWork</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/03/04/FrameWork/%E6%9E%B6%E6%9E%846-%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" class="title">架构6-分布式缓存</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-03-03T16:30:33.000Z" itemprop="datePublished">2022-03-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/ETCD/">ETCD</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/02/23/ETCD/ETCD%E5%85%A5%E9%97%A86-%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" class="title">ETCD入门6-多版本控制</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-02-22T16:41:29.000Z" itemprop="datePublished">2022-02-23</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#数组与切片"><span class="toc-number">1.</span> <span class="toc-text"> 数组与切片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#切片数据结构"><span class="toc-number">2.</span> <span class="toc-text"> 切片数据结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#切片创建"><span class="toc-number">3.</span> <span class="toc-text"> 切片创建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#make与字面量切片"><span class="toc-number">3.1.</span> <span class="toc-text"> make与字面量切片</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#空切片与nil切片"><span class="toc-number">3.2.</span> <span class="toc-text"> 空切片与nil切片</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#切片扩容"><span class="toc-number">4.</span> <span class="toc-text"> 切片扩容</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#扩容原理"><span class="toc-number">4.1.</span> <span class="toc-text"> 扩容原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#扩容实例"><span class="toc-number">4.2.</span> <span class="toc-text"> 扩容实例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#切片拷贝"><span class="toc-number">5.</span> <span class="toc-text"> 切片拷贝</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#拷贝原理"><span class="toc-number">5.1.</span> <span class="toc-text"> 拷贝原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#拷贝实例"><span class="toc-number">5.2.</span> <span class="toc-text"> 拷贝实例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文献"><span class="toc-number">6.</span> <span class="toc-text"> 参考文献</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Go/Go入门2-Slice" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Go入门2-Slice
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2020/12/12/Go/Go%E5%85%A5%E9%97%A82-Slice/" class="article-date">
+	  <time datetime="2020-12-12T08:39:51.000Z" itemprop="datePublished">2020-12-12</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Go/">Go</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Go/" rel="tag">Go</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/12/12/Go/Go%E5%85%A5%E9%97%A82-Slice/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 3.9k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 19(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p><strong>Go 语言的函数参数传递，只有值传递，没有引用传递</strong></p>
+<h3 id="数组与切片"><a class="markdownIt-Anchor" href="#数组与切片"></a> 数组与切片</h3>
+<p>在 Go 中，与 C 数组变量隐式作为指针使用不同，<strong>Go 数组是值类型，赋值和函数传参操作都会复制整个数组数据</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	arrayA := [<span class="number">2</span>]<span class="keyword">int</span>&#123;<span class="number">100</span>, <span class="number">200</span>&#125;</span><br><span class="line">	<span class="keyword">var</span> arrayB [<span class="number">2</span>]<span class="keyword">int</span></span><br><span class="line"></span><br><span class="line">	arrayB = arrayA</span><br><span class="line"></span><br><span class="line">	fmt.Printf(<span class="string">"arrayA : %p , %p, %p, %v\n"</span>, &amp;arrayA, &amp;arrayA[<span class="number">0</span>], &amp;arrayA[<span class="number">1</span>], arrayA)</span><br><span class="line">	fmt.Printf(<span class="string">"arrayB : %p , %p, %p, %v\n"</span>, &amp;arrayB, &amp;arrayB[<span class="number">0</span>], &amp;arrayB[<span class="number">1</span>], arrayB)</span><br><span class="line">	arrayA[<span class="number">0</span>] = <span class="number">200</span></span><br><span class="line">	testArray(arrayA)</span><br><span class="line">	fmt.Println(arrayA)</span><br><span class="line">	fmt.Println(arrayB)</span><br><span class="line">	testArray(arrayB)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">testArray</span><span class="params">(x [2]<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">"func Array : %p , %p, %p, %v\n"</span>, &amp;x, &amp;x[<span class="number">0</span>], &amp;x[<span class="number">1</span>], x)</span><br><span class="line">	x[<span class="number">0</span>] = <span class="number">300</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//运行结果为：</span></span><br><span class="line">arrayA : <span class="number">0xc00010c010</span> , <span class="number">0xc00010c010</span>, <span class="number">0xc00010c018</span>, [<span class="number">100</span> <span class="number">200</span>]</span><br><span class="line">arrayB : <span class="number">0xc00010c020</span> , <span class="number">0xc00010c020</span>, <span class="number">0xc00010c028</span>, [<span class="number">100</span> <span class="number">200</span>]</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Array</span> : 0<span class="title">xc00010c060</span> , 0<span class="title">xc00010c060</span>, 0<span class="title">xc00010c068</span>, [200 200]</span></span><br><span class="line">[<span class="number">200</span> <span class="number">200</span>]</span><br><span class="line">[<span class="number">100</span> <span class="number">200</span>]</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Array</span> : 0<span class="title">xc00010c0a0</span> , 0<span class="title">xc00010c0a0</span>, 0<span class="title">xc00010c0a8</span>, [100 200]</span></span><br></pre></td></tr></table></figure>
+<p>分析：</p>
+<ol>
+<li>当直接使用 arrayB = arrayA 进行的是值复制，也就是说Go数组是值类型</li>
+<li>将数组赋值给函数的时候，也是对整个数组进行复制，函数内改变值并不会改变外面的数组</li>
+</ol>
+<p>上面的例子换成切片会怎么样？</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	arrayA := []<span class="keyword">int</span>&#123;<span class="number">100</span>, <span class="number">200</span>, <span class="number">300</span>&#125;</span><br><span class="line">	arrayB := arrayA[<span class="number">0</span>:<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">	fmt.Printf(<span class="string">"arrayA : %p , %p, %p, %v\n"</span>, &amp;arrayA, &amp;arrayA[<span class="number">0</span>], &amp;arrayA[<span class="number">1</span>], arrayA)</span><br><span class="line">	fmt.Printf(<span class="string">"arrayB : %p , %p, %p, %v, %d\n"</span>, &amp;arrayB, &amp;arrayB[<span class="number">0</span>], &amp;arrayB[<span class="number">1</span>], arrayB, <span class="built_in">cap</span>(arrayB))</span><br><span class="line">	arrayA[<span class="number">0</span>] = <span class="number">200</span></span><br><span class="line">	testArray(arrayB)</span><br><span class="line">	fmt.Printf(<span class="string">"arrayA : %p , %p, %p, %v\n"</span>, &amp;arrayA, &amp;arrayA[<span class="number">0</span>], &amp;arrayA[<span class="number">1</span>], arrayA)</span><br><span class="line">	fmt.Printf(<span class="string">"arrayB : %p , %p, %p, %v, %d\n"</span>, &amp;arrayB, &amp;arrayB[<span class="number">0</span>], &amp;arrayB[<span class="number">1</span>], arrayB, <span class="built_in">cap</span>(arrayB))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">testArray</span><span class="params">(x []<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">"func Array : %p , %p, %p, %v %d\n"</span>, &amp;x, &amp;x[<span class="number">0</span>], &amp;x[<span class="number">1</span>], x, <span class="built_in">cap</span>(x))</span><br><span class="line">	x[<span class="number">0</span>] = <span class="number">300</span></span><br><span class="line">	x = <span class="built_in">append</span>(x, <span class="number">400</span>)</span><br><span class="line">	fmt.Printf(<span class="string">"func Array : %p , %p, %p, %v %d\n"</span>, &amp;x, &amp;x[<span class="number">0</span>], &amp;x[<span class="number">1</span>], x, <span class="built_in">cap</span>(x))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//运行结果为:</span></span><br><span class="line">arrayA : <span class="number">0xc00000c060</span> , <span class="number">0xc000014140</span>, <span class="number">0xc000014148</span>, [<span class="number">100</span> <span class="number">200</span> <span class="number">300</span>]</span><br><span class="line">arrayB : <span class="number">0xc00000c080</span> , <span class="number">0xc000014140</span>, <span class="number">0xc000014148</span>, [<span class="number">100</span> <span class="number">200</span>], <span class="number">3</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Array</span> : 0<span class="title">xc00000c0e0</span> , 0<span class="title">xc000014140</span>, 0<span class="title">xc000014148</span>, [200 200] 3</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Array</span> : 0<span class="title">xc00000c0e0</span> , 0<span class="title">xc000014140</span>, 0<span class="title">xc000014148</span>, [300 200 400] 3</span></span><br><span class="line">arrayA : <span class="number">0xc00000c060</span> , <span class="number">0xc000014140</span>, <span class="number">0xc000014148</span>, [<span class="number">300</span> <span class="number">200</span> <span class="number">400</span>]</span><br><span class="line">arrayB : <span class="number">0xc00000c080</span> , <span class="number">0xc000014140</span>, <span class="number">0xc000014148</span>, [<span class="number">300</span> <span class="number">200</span>], <span class="number">3</span></span><br></pre></td></tr></table></figure>
+<p>分析：</p>
+<ol>
+<li>当直接使用 arrayB = arrayA 进行的是其实是值复制，地址空间不一致，但是指向的内存空间一致</li>
+<li>切片做参数传递的时候,但函数内容修改切片内容并不会影响外部切片，改变底层数组会影响外部切片</li>
+</ol>
+<h3 id="切片数据结构"><a class="markdownIt-Anchor" href="#切片数据结构"></a> 切片数据结构</h3>
+<p>切片（slice）切片是一个引用类型，是对数组一个连续片段的引用。这个片段是由起始和终止索引标识的一些项的子集。终止索引标识的项不包括在切片内(<strong>左闭右开</strong>)。切片提供了一个与指向数组的动态窗口。</p>
+<p>给定项的切片索引可能比相关数组的相同元素的索引小。和数组不同的是，切片的长度可以在运行时修改，最小为 0 最大为相关数组的长度：<strong>切片是一个长度可变的数组</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> slice <span class="keyword">struct</span> &#123;</span><br><span class="line">	array unsafe.Pointer		<span class="comment">//指向数组的指针</span></span><br><span class="line">	<span class="built_in">len</span>   <span class="keyword">int</span>								<span class="comment">//当前切片长度</span></span><br><span class="line">	<span class="built_in">cap</span>   <span class="keyword">int</span>								<span class="comment">//当前切片容量</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>uintptr</code> is an integer type that is large enough to hold the bit pattern of any pointer</p>
+<p><code>unsafe.Pointer</code> 通用指针,类似C中的 <code>void *</code></p>
+</blockquote>
+<h3 id="切片创建"><a class="markdownIt-Anchor" href="#切片创建"></a> 切片创建</h3>
+<p>首先这里会有一个常见函数，<code>math.MulUintptr</code> 将两个参数相乘来判断是否溢出</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//MulUintptr返回a * b以及乘法是否溢出。在受支持的平台上，这是编译器固有的功能。</span></span><br><span class="line"><span class="comment">//true 越界;false 没有越界</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MulUintptr</span><span class="params">(a, b <span class="keyword">uintptr</span>)</span> <span class="params">(<span class="keyword">uintptr</span>, <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> a|b &lt; <span class="number">1</span>&lt;&lt;(<span class="number">4</span>*sys.PtrSize) || a == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> a * b, <span class="literal">false</span></span><br><span class="line">	&#125;</span><br><span class="line">	overflow := b &gt; MaxUintptr/a</span><br><span class="line">	<span class="keyword">return</span> a * b, overflow</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解析：</p>
+<ol>
+<li>
+<p><code>sys.PtrSize</code> 在64位机器中为8</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> PtrSize = <span class="number">4</span> &lt;&lt; (^<span class="keyword">uintptr</span>(<span class="number">0</span>) &gt;&gt; <span class="number">63</span>)           <span class="comment">// unsafe.Sizeof(uintptr(0)) but an ideal const</span></span><br><span class="line"><span class="keyword">const</span> MaxUintptr = ^<span class="keyword">uintptr</span>(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>&lt; 1&lt;&lt;(4*sys.PtrSize)</code>相当于<code>&lt; 1&lt;&lt;32</code> ,而8位计算机中最大的是 <code>2^64-1</code>,所以判断a和b都小于<code>2^32</code>即可</p>
+</li>
+<li>
+<p>否则 <code>b &gt; MaxUintptr/a</code> 如果 b 大于最大值除以a,则说明 <code>a*b</code> 超过最大值即越界</p>
+</li>
+</ol>
+<h4 id="make与字面量切片"><a class="markdownIt-Anchor" href="#make与字面量切片"></a> make与字面量切片</h4>
+<p>支持通过make或字面量的方式进行创建切片</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">slice1 := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">4</span>, <span class="number">6</span>)	<span class="comment">//make</span></span><br><span class="line">slice2 := []<span class="keyword">int</span>&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>&#125;		<span class="comment">//字面量，注意[]内不要写容量，否则是数组</span></span><br></pre></td></tr></table></figure>
+<p>再来看分片函数 <code>makeslice</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeslice</span><span class="params">(et *_type, <span class="built_in">len</span>, <span class="built_in">cap</span> <span class="keyword">int</span>)</span> <span class="title">unsafe</span>.<span class="title">Pointer</span></span> &#123;</span><br><span class="line">	mem, overflow := math.MulUintptr(et.size, <span class="keyword">uintptr</span>(<span class="built_in">cap</span>))</span><br><span class="line">	<span class="keyword">if</span> overflow || mem &gt; maxAlloc || <span class="built_in">len</span> &lt; <span class="number">0</span> || <span class="built_in">len</span> &gt; <span class="built_in">cap</span> &#123;</span><br><span class="line">		mem, overflow := math.MulUintptr(et.size, <span class="keyword">uintptr</span>(<span class="built_in">len</span>))</span><br><span class="line">		<span class="keyword">if</span> overflow || mem &gt; maxAlloc || <span class="built_in">len</span> &lt; <span class="number">0</span> &#123;</span><br><span class="line">			panicmakeslicelen()</span><br><span class="line">		&#125;</span><br><span class="line">		panicmakeslicecap()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 分配内存 </span></span><br><span class="line">  <span class="comment">// 小对象从当前P 的cache中空闲数据中分配</span></span><br><span class="line">  <span class="comment">// 大的对象 (size &gt; 32KB) 直接从heap中分配</span></span><br><span class="line">  <span class="comment">// runtime/malloc.go</span></span><br><span class="line">	<span class="keyword">return</span> mallocgc(mem, et, <span class="literal">true</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解析：</p>
+<ol>
+<li>
+<p>根据 <code>数据类型大小</code> x <code>切片容量</code> 判断是否会越界</p>
+</li>
+<li>
+<p>如果 越界或超过最大分配长度maxAlloc(32位与64位不一致)，长度大于容器。则尝试 根据 <code>数据类型大小</code> x <code>切片长度</code> 判断溢出</p>
+</li>
+<li>
+<p>如果 长度溢出则 <code>panicmakeslicelen</code>: panic报错 “makeslice: len out of range”</p>
+</li>
+<li>
+<p>如果 容量溢出则 <code>panicmakeslicecap</code>: panic报错 “makeslice: cap out of range”</p>
+</li>
+<li>
+<p>否则分配内存：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">mallocgc</span><span class="params">(size <span class="keyword">uintptr</span>, typ *_type, needzero <span class="keyword">bool</span>)</span> <span class="title">unsafe</span>.<span class="title">Pointer</span></span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>所以切片其实分配了容量大小的内存，只是访问不到，也被初始化</p>
+</li>
+</ol>
+<h4 id="空切片与nil切片"><a class="markdownIt-Anchor" href="#空切片与nil切片"></a> 空切片与nil切片</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> slice []<span class="keyword">int</span>						 <span class="comment">//nil切片</span></span><br><span class="line">silce := <span class="built_in">make</span>( []<span class="keyword">int</span> , <span class="number">0</span> ) <span class="comment">//空切片</span></span><br><span class="line">slice := []<span class="keyword">int</span>&#123; &#125;          <span class="comment">//空切片</span></span><br></pre></td></tr></table></figure>
+<p>空切片和 nil 切片的区别在于：空切片指向的地址不是nil，指向的是一个内存地址，但是它没有分配任何内存空间，即底层元素包含0个元素。</p>
+<p>不管是使用 nil 切片还是空切片，对其调用内置函数 append，len 和 cap 的效果都是一样的</p>
+<h3 id="切片扩容"><a class="markdownIt-Anchor" href="#切片扩容"></a> 切片扩容</h3>
+<h4 id="扩容原理"><a class="markdownIt-Anchor" href="#扩容原理"></a> 扩容原理</h4>
+<p><code>growslice</code>用来处理在使用<code>append</code>时候的切片扩容，那么它的规则如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">growslice</span><span class="params">(et *_type, old slice, <span class="built_in">cap</span> <span class="keyword">int</span>)</span> <span class="title">slice</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> raceenabled &#123;</span><br><span class="line">		callerpc := getcallerpc()</span><br><span class="line">		racereadrangepc(old.array, <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>*<span class="keyword">int</span>(et.size)), callerpc, funcPC(growslice))</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> msanenabled &#123;</span><br><span class="line">		msanread(old.array, <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>*<span class="keyword">int</span>(et.size)))</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//当新容量比旧容量还有小的时候，直接panic报错</span></span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">cap</span> &lt; old.<span class="built_in">cap</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(errorString(<span class="string">"growslice: cap out of range"</span>))</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> et.size == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="comment">//如果切片元素大小为0，还调用了扩容方法，那么就新生成一个新的容量的切片返回</span></span><br><span class="line">		<span class="keyword">return</span> slice&#123;unsafe.Pointer(&amp;zerobase), old.<span class="built_in">len</span>, <span class="built_in">cap</span>&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	newcap := old.<span class="built_in">cap</span></span><br><span class="line">	doublecap := newcap + newcap</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">cap</span> &gt; doublecap &#123;  		<span class="comment">//1. 当指定容量大于旧切片2倍，则使用指定容量</span></span><br><span class="line">		newcap = <span class="built_in">cap</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123; 									<span class="comment">//2. 指定容量小于旧切片2倍</span></span><br><span class="line">		<span class="keyword">if</span> old.<span class="built_in">len</span> &lt; <span class="number">1024</span> &#123;			</span><br><span class="line">			newcap = doublecap		<span class="comment">//2.1. 如果旧切片长度小于1024，则使用容量为旧容量两倍</span></span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">//2.2. 如果旧切片长度大于1024且小于指定容量，则新容量循环增加自身的四分之一直到大于指定容量</span></span><br><span class="line">			<span class="keyword">for</span> <span class="number">0</span> &lt; newcap &amp;&amp; newcap &lt; <span class="built_in">cap</span> &#123;</span><br><span class="line">				newcap += newcap / <span class="number">4</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> newcap &lt;= <span class="number">0</span> &#123;			<span class="comment">//2.3. 如果旧切片长度等于0，则新容量等于旧容量</span></span><br><span class="line">				newcap = <span class="built_in">cap</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> overflow <span class="keyword">bool</span></span><br><span class="line">	<span class="keyword">var</span> lenmem, newlenmem, capmem <span class="keyword">uintptr</span></span><br><span class="line">	<span class="comment">// Specialize for common values of et.size.</span></span><br><span class="line">	<span class="comment">// For 1 we don't need any division/multiplication.</span></span><br><span class="line">	<span class="comment">// For sys.PtrSize, compiler will optimize division/multiplication into a shift by a constant.</span></span><br><span class="line">	<span class="comment">// For powers of 2, use a variable shift.</span></span><br><span class="line">	<span class="keyword">switch</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> et.size == <span class="number">1</span>:</span><br><span class="line">		lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>)</span><br><span class="line">		newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>)</span><br><span class="line">		capmem = roundupsize(<span class="keyword">uintptr</span>(newcap))</span><br><span class="line">		overflow = <span class="keyword">uintptr</span>(newcap) &gt; maxAlloc</span><br><span class="line">		newcap = <span class="keyword">int</span>(capmem)</span><br><span class="line">	<span class="keyword">case</span> et.size == sys.PtrSize:</span><br><span class="line">		lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>) * sys.PtrSize</span><br><span class="line">		newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>) * sys.PtrSize</span><br><span class="line">		capmem = roundupsize(<span class="keyword">uintptr</span>(newcap) * sys.PtrSize)</span><br><span class="line">		overflow = <span class="keyword">uintptr</span>(newcap) &gt; maxAlloc/sys.PtrSize</span><br><span class="line">		newcap = <span class="keyword">int</span>(capmem / sys.PtrSize)</span><br><span class="line">	<span class="keyword">case</span> isPowerOfTwo(et.size):</span><br><span class="line">		<span class="keyword">var</span> shift <span class="keyword">uintptr</span></span><br><span class="line">		<span class="keyword">if</span> sys.PtrSize == <span class="number">8</span> &#123;</span><br><span class="line">			<span class="comment">// Mask shift for better code generation.</span></span><br><span class="line">			shift = <span class="keyword">uintptr</span>(sys.Ctz64(<span class="keyword">uint64</span>(et.size))) &amp; <span class="number">63</span></span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			shift = <span class="keyword">uintptr</span>(sys.Ctz32(<span class="keyword">uint32</span>(et.size))) &amp; <span class="number">31</span></span><br><span class="line">		&#125;</span><br><span class="line">		lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>) &lt;&lt; shift</span><br><span class="line">		newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>) &lt;&lt; shift</span><br><span class="line">		capmem = roundupsize(<span class="keyword">uintptr</span>(newcap) &lt;&lt; shift)</span><br><span class="line">		overflow = <span class="keyword">uintptr</span>(newcap) &gt; (maxAlloc &gt;&gt; shift)</span><br><span class="line">		newcap = <span class="keyword">int</span>(capmem &gt;&gt; shift)</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>) * et.size</span><br><span class="line">		newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>) * et.size</span><br><span class="line">		capmem, overflow = math.MulUintptr(et.size, <span class="keyword">uintptr</span>(newcap))</span><br><span class="line">		capmem = roundupsize(capmem)</span><br><span class="line">		newcap = <span class="keyword">int</span>(capmem / et.size)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> overflow || capmem &gt; maxAlloc &#123;</span><br><span class="line">		<span class="built_in">panic</span>(errorString(<span class="string">"growslice: cap out of range"</span>))</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> p unsafe.Pointer</span><br><span class="line">	<span class="keyword">if</span> et.ptrdata == <span class="number">0</span> &#123;</span><br><span class="line">    <span class="comment">//先将 P 地址加上新的容量得到新切片容量的地址，然后将新切片容量地址后面的 capmem-newlenmem 个 bytes 这块内存初始化。为之后继续 append() 操作腾出空间</span></span><br><span class="line">		p = mallocgc(capmem, <span class="literal">nil</span>, <span class="literal">false</span>)</span><br><span class="line">    <span class="comment">// memclrNoHeapPointers clears n bytes starting at ptr</span></span><br><span class="line">		memclrNoHeapPointers(add(p, newlenmem), capmem-newlenmem)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="comment">// 重新申请 capmen 这个大的内存地址，并且初始化为0值</span></span><br><span class="line">		p = mallocgc(capmem, et, <span class="literal">true</span>)</span><br><span class="line">		<span class="keyword">if</span> lenmem &gt; <span class="number">0</span> &amp;&amp; writeBarrier.enabled &#123;</span><br><span class="line">			<span class="comment">// Only shade the pointers in old.array since we know the destination slice p</span></span><br><span class="line">			<span class="comment">// only contains nil pointers because it has been cleared during alloc.</span></span><br><span class="line">			bulkBarrierPreWriteSrcOnly(<span class="keyword">uintptr</span>(p), <span class="keyword">uintptr</span>(old.array), lenmem-et.size+et.ptrdata)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">  <span class="comment">//将 lenmem 这个多个 bytes 从 old.array地址 拷贝到 p 的地址处</span></span><br><span class="line">	memmove(p, old.array, lenmem)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> slice&#123;p, old.<span class="built_in">len</span>, newcap&#125; <span class="comment">//返回新切片</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述就是扩容的实现。主要需要关注的有两点:</p>
+<ol>
+<li>扩容时候的策略
+<ul>
+<li>首先判断，如果新申请容量（cap）大于2倍的旧容量（old.cap），最终容量（newcap）就是新申请的容量（cap）</li>
+<li>否则判断，如果旧切片的长度小于1024，则最终容量(newcap)就是旧容量(old.cap)的两倍，即（newcap=doublecap）</li>
+<li>否则判断，如果旧切片长度大于等于1024，则最终容量（newcap）从旧容量（old.cap）开始循环增加原来的 1/4，即（newcap=old.cap,for {newcap += newcap/4}）直到最终容量（newcap）大于等于新申请的容量(cap)，即（newcap &gt;= cap）</li>
+<li>如果最终容量（cap）计算值溢出，则最终容量（cap）就是新申请容量（cap）</li>
+</ul>
+</li>
+<li>扩容是生成全新的内存地址还是在原来的地址后追加</li>
+</ol>
+<h4 id="扩容实例"><a class="markdownIt-Anchor" href="#扩容实例"></a> 扩容实例</h4>
+<p><strong>实例1：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    s := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line">    oldCap := <span class="built_in">cap</span>(s)</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">2048</span>; i++ &#123;</span><br><span class="line">        s = <span class="built_in">append</span>(s, i)</span><br><span class="line">        newCap := <span class="built_in">cap</span>(s)</span><br><span class="line">        <span class="keyword">if</span> newCap != oldCap &#123;</span><br><span class="line">            fmt.Printf(<span class="string">"[%d -&gt; %4d] cap = %-4d  |  after append %-4d  cap = %-4d\n"</span>, <span class="number">0</span>, i<span class="number">-1</span>, oldCap, i, newCap)</span><br><span class="line">            oldCap = newCap</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//运行结果为:</span></span><br><span class="line">[<span class="number">0</span> -&gt;    <span class="number">0</span>] <span class="built_in">cap</span> = <span class="number">1</span>     |  after <span class="built_in">append</span> <span class="number">1</span>     <span class="built_in">cap</span> = <span class="number">2</span>   </span><br><span class="line">[<span class="number">0</span> -&gt;    <span class="number">1</span>] <span class="built_in">cap</span> = <span class="number">2</span>     |  after <span class="built_in">append</span> <span class="number">2</span>     <span class="built_in">cap</span> = <span class="number">4</span>   </span><br><span class="line">[<span class="number">0</span> -&gt;    <span class="number">3</span>] <span class="built_in">cap</span> = <span class="number">4</span>     |  after <span class="built_in">append</span> <span class="number">4</span>     <span class="built_in">cap</span> = <span class="number">8</span>   </span><br><span class="line">[<span class="number">0</span> -&gt;    <span class="number">7</span>] <span class="built_in">cap</span> = <span class="number">8</span>     |  after <span class="built_in">append</span> <span class="number">8</span>     <span class="built_in">cap</span> = <span class="number">16</span>  </span><br><span class="line">[<span class="number">0</span> -&gt;   <span class="number">15</span>] <span class="built_in">cap</span> = <span class="number">16</span>    |  after <span class="built_in">append</span> <span class="number">16</span>    <span class="built_in">cap</span> = <span class="number">32</span>  </span><br><span class="line">[<span class="number">0</span> -&gt;   <span class="number">31</span>] <span class="built_in">cap</span> = <span class="number">32</span>    |  after <span class="built_in">append</span> <span class="number">32</span>    <span class="built_in">cap</span> = <span class="number">64</span>  </span><br><span class="line">[<span class="number">0</span> -&gt;   <span class="number">63</span>] <span class="built_in">cap</span> = <span class="number">64</span>    |  after <span class="built_in">append</span> <span class="number">64</span>    <span class="built_in">cap</span> = <span class="number">128</span> </span><br><span class="line">[<span class="number">0</span> -&gt;  <span class="number">127</span>] <span class="built_in">cap</span> = <span class="number">128</span>   |  after <span class="built_in">append</span> <span class="number">128</span>   <span class="built_in">cap</span> = <span class="number">256</span> </span><br><span class="line">[<span class="number">0</span> -&gt;  <span class="number">255</span>] <span class="built_in">cap</span> = <span class="number">256</span>   |  after <span class="built_in">append</span> <span class="number">256</span>   <span class="built_in">cap</span> = <span class="number">512</span> </span><br><span class="line">[<span class="number">0</span> -&gt;  <span class="number">511</span>] <span class="built_in">cap</span> = <span class="number">512</span>   |  after <span class="built_in">append</span> <span class="number">512</span>   <span class="built_in">cap</span> = <span class="number">1024</span></span><br><span class="line">[<span class="number">0</span> -&gt; <span class="number">1023</span>] <span class="built_in">cap</span> = <span class="number">1024</span>  |  after <span class="built_in">append</span> <span class="number">1024</span>  <span class="built_in">cap</span> = <span class="number">1280</span></span><br><span class="line">[<span class="number">0</span> -&gt; <span class="number">1279</span>] <span class="built_in">cap</span> = <span class="number">1280</span>  |  after <span class="built_in">append</span> <span class="number">1280</span>  <span class="built_in">cap</span> = <span class="number">1696</span></span><br><span class="line">[<span class="number">0</span> -&gt; <span class="number">1695</span>] <span class="built_in">cap</span> = <span class="number">1696</span>  |  after <span class="built_in">append</span> <span class="number">1696</span>  <span class="built_in">cap</span> = <span class="number">2304</span></span><br></pre></td></tr></table></figure>
+<p><strong>分析：</strong></p>
+<ol>
+<li>1280/1024 = 1.25 , 1696/1024 = 1.325, 2304/1696=1.3584,为什么每次增加的倍数都不一样呢？<br />
+*</li>
+</ol>
+<p>实例2：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	slice := []<span class="keyword">int</span>&#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>&#125;</span><br><span class="line">	newSlice := <span class="built_in">append</span>(slice, <span class="number">50</span>)</span><br><span class="line">	fmt.Printf(<span class="string">"Before slice %v, Pointer %p, Pointer0 %p, len %d, cap %d\n"</span>, slice, &amp;slice, &amp;slice[<span class="number">0</span>], <span class="built_in">len</span>(slice), <span class="built_in">cap</span>(slice))</span><br><span class="line">	fmt.Printf(<span class="string">"Before newSlice = %v, Pointer = %p, Pointer0 %p, len = %d, cap = %d\n"</span>, newSlice, &amp;newSlice, &amp;newSlice[<span class="number">0</span>], <span class="built_in">len</span>(newSlice), <span class="built_in">cap</span>(newSlice))</span><br><span class="line">	newSlice[<span class="number">1</span>] += <span class="number">10</span></span><br><span class="line">	fmt.Printf(<span class="string">"After slice = %v, Pointer = %p, Pointer0 %p, len = %d, cap = %d\n"</span>, slice, &amp;slice, &amp;slice[<span class="number">0</span>], <span class="built_in">len</span>(slice), <span class="built_in">cap</span>(slice))</span><br><span class="line">	fmt.Printf(<span class="string">"After newSlice = %v, Pointer = %p, Pointer0 %p, len = %d, cap = %d\n"</span>, newSlice, &amp;newSlice, &amp;newSlice[<span class="number">0</span>], <span class="built_in">len</span>(newSlice), <span class="built_in">cap</span>(newSlice))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Before slice [<span class="number">10</span> <span class="number">20</span> <span class="number">30</span> <span class="number">40</span>], Pointer <span class="number">0xc00000c060</span>, Pointer0 <span class="number">0xc000014140</span>, <span class="built_in">len</span> <span class="number">4</span>, <span class="built_in">cap</span> <span class="number">4</span></span><br><span class="line">Before newSlice = [<span class="number">10</span> <span class="number">20</span> <span class="number">30</span> <span class="number">40</span> <span class="number">50</span>], Pointer = <span class="number">0xc00000c080</span>, Pointer0 <span class="number">0xc000016140</span>, <span class="built_in">len</span> = <span class="number">5</span>, <span class="built_in">cap</span> = <span class="number">8</span></span><br><span class="line">After slice = [<span class="number">10</span> <span class="number">20</span> <span class="number">30</span> <span class="number">40</span>], Pointer = <span class="number">0xc00000c060</span>, Pointer0 <span class="number">0xc000014140</span>, <span class="built_in">len</span> = <span class="number">4</span>, <span class="built_in">cap</span> = <span class="number">4</span></span><br><span class="line">After newSlice = [<span class="number">10</span> <span class="number">30</span> <span class="number">30</span> <span class="number">40</span> <span class="number">50</span>], Pointer = <span class="number">0xc00000c080</span>, Pointer0 <span class="number">0xc000016140</span>, <span class="built_in">len</span> = <span class="number">5</span>, <span class="built_in">cap</span> = <span class="number">8</span></span><br></pre></td></tr></table></figure>
+<p>分析：</p>
+<ol>
+<li>当旧切片容量小于1024，新切片容量直接翻倍</li>
+<li>这里分配了一个新地址，修改新分片，旧分片并不会改变</li>
+</ol>
+<p><strong>实例2：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	array := [<span class="number">4</span>]<span class="keyword">int</span>&#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>&#125;</span><br><span class="line">	slice := array[<span class="number">0</span>:<span class="number">2</span>]</span><br><span class="line">	newSlice := <span class="built_in">append</span>(slice, <span class="number">50</span>)</span><br><span class="line">	fmt.Printf(<span class="string">"Before array %v, Poninter %p, Poninter0 %p \n"</span>, array, &amp;array, &amp;array[<span class="number">0</span>])</span><br><span class="line">	fmt.Printf(<span class="string">"Before slice %v, Pointer %p, Pointer0 %p, len = %d, cap = %d\n"</span>, slice, &amp;slice, &amp;slice[<span class="number">0</span>], <span class="built_in">len</span>(slice), <span class="built_in">cap</span>(slice))</span><br><span class="line">	fmt.Printf(<span class="string">"Before newSlice = %v, Pointer = %p, Pointer0 %p, len = %d, cap = %d\n"</span>, newSlice, &amp;newSlice, &amp;newSlice[<span class="number">0</span>], <span class="built_in">len</span>(newSlice), <span class="built_in">cap</span>(newSlice))</span><br><span class="line">	newSlice[<span class="number">1</span>] += <span class="number">10</span></span><br><span class="line">	fmt.Printf(<span class="string">"After slice = %v, Pointer = %p, Pointer0 %p, len = %d, cap = %d\n"</span>, slice, &amp;slice, &amp;slice[<span class="number">0</span>], <span class="built_in">len</span>(slice), <span class="built_in">cap</span>(slice))</span><br><span class="line">	fmt.Printf(<span class="string">"After newSlice = %v, Pointer = %p, Pointer0 %p, len = %d, cap = %d\n"</span>, newSlice, &amp;newSlice, &amp;newSlice[<span class="number">0</span>], <span class="built_in">len</span>(newSlice), <span class="built_in">cap</span>(newSlice))</span><br><span class="line">	fmt.Printf(<span class="string">"After array = %v, Poninter = %p, Pointer0 %p \n"</span>, array, &amp;array, &amp;array[<span class="number">0</span>])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Before array [<span class="number">10</span> <span class="number">20</span> <span class="number">50</span> <span class="number">40</span>], Poninter <span class="number">0xc000014140</span>, Poninter0 <span class="number">0xc000014140</span> </span><br><span class="line">Before slice [<span class="number">10</span> <span class="number">20</span>], Pointer <span class="number">0xc00000c060</span>, Pointer0 <span class="number">0xc000014140</span>, <span class="built_in">len</span> = <span class="number">2</span>, <span class="built_in">cap</span> = <span class="number">4</span></span><br><span class="line">Before newSlice = [<span class="number">10</span> <span class="number">20</span> <span class="number">50</span>], Pointer = <span class="number">0xc00000c080</span>, Pointer0 <span class="number">0xc000014140</span>, <span class="built_in">len</span> = <span class="number">3</span>, <span class="built_in">cap</span> = <span class="number">4</span></span><br><span class="line">After slice = [<span class="number">10</span> <span class="number">30</span>], Pointer = <span class="number">0xc00000c060</span>, Pointer0 <span class="number">0xc000014140</span>, <span class="built_in">len</span> = <span class="number">2</span>, <span class="built_in">cap</span> = <span class="number">4</span></span><br><span class="line">After newSlice = [<span class="number">10</span> <span class="number">30</span> <span class="number">50</span>], Pointer = <span class="number">0xc00000c080</span>, Pointer0 <span class="number">0xc000014140</span>, <span class="built_in">len</span> = <span class="number">3</span>, <span class="built_in">cap</span> = <span class="number">4</span></span><br><span class="line">After array = [<span class="number">10</span> <span class="number">30</span> <span class="number">50</span> <span class="number">40</span>], Poninter = <span class="number">0xc000014140</span>, Pointer0 <span class="number">0xc000014140</span></span><br></pre></td></tr></table></figure>
+<p>分析：</p>
+<ol>
+<li>与实例1进行对比：由于slice还有容量可以扩容，所以执行 append() 操作以后，会在原数组上直接操作，这种情况下，扩容以后的数组还是指向原来的数组</li>
+<li>实例1中由于没有容量进行扩容，所以执行append之后指向的就是一个全新的数组，修改值并不会影响原来的数组</li>
+<li>由于数组是值类型，而切片是应引用类型，所以看到 <code>&amp;array</code> 与 <code>&amp;array[0]</code>的地址是一样的。但是 <code>&amp;slice</code> 与 <code>&amp;slice[0]</code>的地址是不一样的。另外两者指向的第一个值地址都是一样的，指向同一片内存。</li>
+</ol>
+<blockquote>
+<p>由于容量导致结果不一致，极易产生bug。</p>
+</blockquote>
+<p>实例3：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	s := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line">	oldCap := <span class="built_in">cap</span>(s)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">2048</span>; i++ &#123;</span><br><span class="line">		s = <span class="built_in">append</span>(s, i)</span><br><span class="line">		newCap := <span class="built_in">cap</span>(s)</span><br><span class="line">		<span class="keyword">if</span> newCap != oldCap &#123;</span><br><span class="line">			fmt.Printf(<span class="string">"[%d -&gt; %4d] cap = %-4d  |  after append %-4d  cap = %-4d\n"</span>, <span class="number">0</span>, i<span class="number">-1</span>, oldCap, i, newCap)</span><br><span class="line">			oldCap = newCap</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//运行结果为:</span></span><br><span class="line">[<span class="number">0</span> -&gt;   <span class="number">-1</span>] <span class="built_in">cap</span> = <span class="number">0</span>     |  after <span class="built_in">append</span> <span class="number">0</span>     <span class="built_in">cap</span> = <span class="number">1</span>   </span><br><span class="line">[<span class="number">0</span> -&gt;    <span class="number">0</span>] <span class="built_in">cap</span> = <span class="number">1</span>     |  after <span class="built_in">append</span> <span class="number">1</span>     <span class="built_in">cap</span> = <span class="number">2</span>   </span><br><span class="line">[<span class="number">0</span> -&gt;    <span class="number">1</span>] <span class="built_in">cap</span> = <span class="number">2</span>     |  after <span class="built_in">append</span> <span class="number">2</span>     <span class="built_in">cap</span> = <span class="number">4</span>   </span><br><span class="line">[<span class="number">0</span> -&gt;    <span class="number">3</span>] <span class="built_in">cap</span> = <span class="number">4</span>     |  after <span class="built_in">append</span> <span class="number">4</span>     <span class="built_in">cap</span> = <span class="number">8</span>   </span><br><span class="line">[<span class="number">0</span> -&gt;    <span class="number">7</span>] <span class="built_in">cap</span> = <span class="number">8</span>     |  after <span class="built_in">append</span> <span class="number">8</span>     <span class="built_in">cap</span> = <span class="number">16</span>  </span><br><span class="line">[<span class="number">0</span> -&gt;   <span class="number">15</span>] <span class="built_in">cap</span> = <span class="number">16</span>    |  after <span class="built_in">append</span> <span class="number">16</span>    <span class="built_in">cap</span> = <span class="number">32</span>  </span><br><span class="line">[<span class="number">0</span> -&gt;   <span class="number">31</span>] <span class="built_in">cap</span> = <span class="number">32</span>    |  after <span class="built_in">append</span> <span class="number">32</span>    <span class="built_in">cap</span> = <span class="number">64</span>  </span><br><span class="line">[<span class="number">0</span> -&gt;   <span class="number">63</span>] <span class="built_in">cap</span> = <span class="number">64</span>    |  after <span class="built_in">append</span> <span class="number">64</span>    <span class="built_in">cap</span> = <span class="number">128</span> </span><br><span class="line">[<span class="number">0</span> -&gt;  <span class="number">127</span>] <span class="built_in">cap</span> = <span class="number">128</span>   |  after <span class="built_in">append</span> <span class="number">128</span>   <span class="built_in">cap</span> = <span class="number">256</span> </span><br><span class="line">[<span class="number">0</span> -&gt;  <span class="number">255</span>] <span class="built_in">cap</span> = <span class="number">256</span>   |  after <span class="built_in">append</span> <span class="number">256</span>   <span class="built_in">cap</span> = <span class="number">512</span> </span><br><span class="line">[<span class="number">0</span> -&gt;  <span class="number">511</span>] <span class="built_in">cap</span> = <span class="number">512</span>   |  after <span class="built_in">append</span> <span class="number">512</span>   <span class="built_in">cap</span> = <span class="number">1024</span></span><br><span class="line">[<span class="number">0</span> -&gt; <span class="number">1023</span>] <span class="built_in">cap</span> = <span class="number">1024</span>  |  after <span class="built_in">append</span> <span class="number">1024</span>  <span class="built_in">cap</span> = <span class="number">1280</span></span><br><span class="line">[<span class="number">0</span> -&gt; <span class="number">1279</span>] <span class="built_in">cap</span> = <span class="number">1280</span>  |  after <span class="built_in">append</span> <span class="number">1280</span>  <span class="built_in">cap</span> = <span class="number">1696</span></span><br><span class="line">[<span class="number">0</span> -&gt; <span class="number">1695</span>] <span class="built_in">cap</span> = <span class="number">1696</span>  |  after <span class="built_in">append</span> <span class="number">1696</span>  <span class="built_in">cap</span> = <span class="number">2304</span></span><br></pre></td></tr></table></figure>
+<p>分析：</p>
+<h3 id="切片拷贝"><a class="markdownIt-Anchor" href="#切片拷贝"></a> 切片拷贝</h3>
+<h4 id="拷贝原理"><a class="markdownIt-Anchor" href="#拷贝原理"></a> 拷贝原理</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">slicecopy</span><span class="params">(toPtr unsafe.Pointer, toLen <span class="keyword">int</span>, fmPtr unsafe.Pointer, fmLen <span class="keyword">int</span>, width <span class="keyword">uintptr</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> fmLen == <span class="number">0</span> || toLen == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	n := fmLen</span><br><span class="line">	<span class="keyword">if</span> toLen &lt; n &#123;</span><br><span class="line">		n = toLen</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> width == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> n</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> raceenabled &#123; <span class="comment">//竞争检测</span></span><br><span class="line">		callerpc := getcallerpc()</span><br><span class="line">		pc := funcPC(slicecopy)</span><br><span class="line">		racereadrangepc(fmPtr, <span class="keyword">uintptr</span>(n*<span class="keyword">int</span>(width)), callerpc, pc)</span><br><span class="line">		racewriterangepc(toPtr, <span class="keyword">uintptr</span>(n*<span class="keyword">int</span>(width)), callerpc, pc)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> msanenabled &#123; <span class="comment">// 如果开启了 The memory sanitizer (msan)</span></span><br><span class="line">		msanread(fmPtr, <span class="keyword">uintptr</span>(n*<span class="keyword">int</span>(width)))</span><br><span class="line">		msanwrite(toPtr, <span class="keyword">uintptr</span>(n*<span class="keyword">int</span>(width)))</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	size := <span class="keyword">uintptr</span>(n) * width</span><br><span class="line">	<span class="keyword">if</span> size == <span class="number">1</span> &#123; <span class="comment">// common case worth about 2x to do here</span></span><br><span class="line">		<span class="comment">// <span class="doctag">TODO:</span> is this still worth it with new memmove impl?</span></span><br><span class="line">    <span class="comment">//如果只有一个元素，那么指针直接转换即可</span></span><br><span class="line">		*(*<span class="keyword">byte</span>)(toPtr) = *(*<span class="keyword">byte</span>)(fmPtr) <span class="comment">// known to be a byte pointer</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">//如果不止一个元素，那么就把 size 个 bytes 从 fm.array 地址开始，拷贝到 to.array 地址之后</span></span><br><span class="line">		memmove(toPtr, fmPtr, size)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> n</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="拷贝实例"><a class="markdownIt-Anchor" href="#拷贝实例"></a> 拷贝实例</h4>
+<p>实例1：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	array := []<span class="keyword">int</span>&#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>&#125;</span><br><span class="line">	slice := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">6</span>)</span><br><span class="line">	slice1 := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">3</span>)</span><br><span class="line">	n := <span class="built_in">copy</span>(slice, array)</span><br><span class="line">	m := <span class="built_in">copy</span>(slice1, array)</span><br><span class="line">	fmt.Println(n, slice)</span><br><span class="line">	fmt.Println(m, slice1)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//运行结果</span></span><br><span class="line"><span class="number">4</span> [<span class="number">10</span> <span class="number">20</span> <span class="number">30</span> <span class="number">40</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"><span class="number">3</span> [<span class="number">10</span> <span class="number">20</span> <span class="number">30</span>]</span><br></pre></td></tr></table></figure>
+<p>分析：</p>
+<ol>
+<li>copy返回复制数目，slicecopy 方法最终结果取决于较短的那个切片，当较短的切片复制完成，整个复制过程就全部完成了</li>
+</ol>
+<p><strong>实例2：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	slice := []<span class="keyword">int</span>&#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>&#125;</span><br><span class="line">	<span class="keyword">for</span> index, value := <span class="keyword">range</span> slice &#123;</span><br><span class="line">		fmt.Printf(<span class="string">"value = %d , value-addr = %x , slice-addr = %x\n"</span>, value, &amp;value, &amp;slice[index])</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">value = <span class="number">10</span> , value-addr = c000018088 , slice-addr = c000014140</span><br><span class="line">value = <span class="number">20</span> , value-addr = c000018088 , slice-addr = c000014148</span><br><span class="line">value = <span class="number">30</span> , value-addr = c000018088 , slice-addr = c000014150</span><br><span class="line">value = <span class="number">40</span> , value-addr = c000018088 , slice-addr = c000014158</span><br></pre></td></tr></table></figure>
+<p>分析：</p>
+<ol>
+<li>如果用 range 的方式去遍历一个切片， <strong>Value 其实是切片里面的值拷贝</strong>。所以每次打印 Value 的地址都不变</li>
+<li>由于 Value 是值拷贝而非引用传递，所以直接改 Value 是达不到更改原切片值的目的的，需通过 <code>&amp;slice[index]</code> 获取真实的地址</li>
+</ol>
+<h3 id="参考文献"><a class="markdownIt-Anchor" href="#参考文献"></a> 参考文献</h3>
+<ol>
+<li><a href="https://halfrost.com/go_slice/" target="_blank" rel="noopener">https://halfrost.com/go_slice/</a></li>
+<li><a href="https://www.kancloud.cn/kancloud/the-way-to-go/72489" target="_blank" rel="noopener">https://www.kancloud.cn/kancloud/the-way-to-go/72489</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/04/14/Redis/Redis%E5%85%A5%E9%97%A80-%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/" title="Redis入门0-设计与实现"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2020/12/08/Go/Go%E5%85%A5%E9%97%A81-%E9%97%AD%E5%8C%85/" title="Go入门1-闭包"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">
+        <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>
