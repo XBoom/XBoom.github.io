@@ -407,6 +407,8 @@
     
   <section id="comments">
   	
+      <div id="vcomments"></div>
+    
   </section>
 
 
@@ -419,7 +421,7 @@
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/2022/02/15/Acwing/Acwing-%E5%89%91%E6%8C%87/" title="Acwing-剑指"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+      <a href="/2022/02/15/Acwing/Test/" title="Acwing-剑指"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
     </li>
     
     
@@ -556,6 +558,31 @@ window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
 
 
    
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
 
 
 
