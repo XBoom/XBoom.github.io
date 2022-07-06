@@ -27,7 +27,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/gopools1.png">
 <meta property="article:published_time" content="2022-07-06T13:53:58.640Z">
-<meta property="article:modified_time" content="2022-07-06T14:47:08.333Z">
+<meta property="article:modified_time" content="2022-07-06T14:55:05.108Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="go-zero">
 <meta name="twitter:card" content="summary">
@@ -437,8 +437,6 @@
 <li>使用双向链表存储任务，表示它理论上支持无限个任务。后面的任务可能存在长时间等待的情况</li>
 <li>使用任务上限的好处是，不是每来一个任务都开启一个协程，而是任务超过一定数量而又空闲的协程才开启新的协程去执行</li>
 </ol>
-<p>方案3：ants</p>
-<p>内容比较多，将在下一章详细描述</p>
 <h3 id="技术内幕"><a class="markdownIt-Anchor" href="#技术内幕"></a> 技术内幕</h3>
 <p><code>go-zero</code>是如何实现协程池的，代码路径：<code>core/threading</code></p>
 <p><strong>第一步</strong>，定义了<code>recover</code>逻辑，用于 <code>panic</code> 之后的清理操作</p>
@@ -463,6 +461,7 @@
 <li>任务已任务合集的形式存在，让消费者并发消费</li>
 <li>有了异常捕获与任务合集，为了防止工人都发生异常，而还有任务没有执行，则需要有工人唤起机制</li>
 <li>可以使用本地缓存池进行工人的重复利用</li>
+<li>任务合集缓隧道还是双链表、每个任务都构建一个协程还是单个任务多任务执行的选择</li>
 </ol>
 <p>下一节，将学习另外一个协程池 ants 的实现方式</p>
 <h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
