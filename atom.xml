@@ -490,41 +490,6 @@
   </entry>
   
   <entry>
-    <title>Acwing-剑指</title>
-    <link href="http://xboom.github.io/2022/02/15/Acwing/Test/"/>
-    <id>http://xboom.github.io/2022/02/15/Acwing/Test/</id>
-    <published>2022-02-14T16:27:12.000Z</published>
-    <updated>2022-06-28T14:44:37.504Z</updated>
-    
-    <content type="html"><![CDATA[<p>本人学历和眼界有限，以下内容仅供参考：</p><ol><li><p>不建议进入该专业的原因：</p><ul><li>内卷严重：大量人员涌入，比较内卷</li><li>频繁裁员：当前互联网公司也在频繁裁员(可能和当前经济环境有关，这样的环境会持续好久</li><li>性别因素：公司在招聘研发岗位可能会更多的考虑男孩子(研究岗位不清楚，不评论)</li><li>技术更新快：需要不断学习，技术更新迭代很快</li></ul></li><li><p>进入该专业的原因：</p><ul><li>社会需求大：社会各单位都需要计算机人才</li><li>前景巨大：计算机需求的趋势不变，不管是新基建、数字乡村的国家政策还是万物互联、数字化等社会需求</li><li>找工作容易：对于考公务员、进入大厂或从事计算机相关工作，有计算机背景会有更多的选择</li></ul></li><li><p>是怎么选自己的专业</p><ul><li>社会需求</li></ul></li></ol><ul><li><ul><li>当前需求</li></ul></li><li><ul><li>未来需求</li></ul></li><li><p>发展前景</p></li><li></li><li><p>薪资</p></li><li><ul><li></li></ul></li><li><p>工作强度</p></li><li><p>工作强度主要跟工作类型区分</p></li></ul>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;本人学历和眼界有限，以下内容仅供参考：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;不建议进入该专业的原因：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;内卷严重：大量人员涌入，比较内卷&lt;/li&gt;
-&lt;li&gt;频繁裁员：当前互联网公司也在频繁裁员(可能和当前经济环境有关，这样的环境会持续好久&lt;/li&gt;
-&lt;
-      
-    
-    </summary>
-    
-    
-      <category term="Acwing" scheme="http://xboom.github.io/categories/Acwing/"/>
-    
-    
-      <category term="Algorithm" scheme="http://xboom.github.io/tags/Algorithm/"/>
-    
-      <category term="Acwing" scheme="http://xboom.github.io/tags/Acwing/"/>
-    
-  </entry>
-  
-  <entry>
     <title>MySql入门9-温故而知新</title>
     <link href="http://xboom.github.io/2022/02/11/MySql/MySql%E5%85%A5%E9%97%A89-%E6%B8%A9%E6%95%85%E8%80%8C%E7%9F%A5%E6%96%B0/"/>
     <id>http://xboom.github.io/2022/02/11/MySql/MySql%E5%85%A5%E9%97%A89-%E6%B8%A9%E6%95%85%E8%80%8C%E7%9F%A5%E6%96%B0/</id>
@@ -559,6 +524,35 @@
     <updated>2022-02-11T07:50:14.306Z</updated>
     
     <summary type="html">
+    
+    </summary>
+    
+    
+      <category term="MySql" scheme="http://xboom.github.io/categories/MySql/"/>
+    
+    
+      <category term="MySql" scheme="http://xboom.github.io/tags/MySql/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>MySql入门6-集群</title>
+    <link href="http://xboom.github.io/2022/02/11/MySql/MySql%E5%85%A5%E9%97%A86-%E9%9B%86%E7%BE%A4/"/>
+    <id>http://xboom.github.io/2022/02/11/MySql/MySql%E5%85%A5%E9%97%A86-%E9%9B%86%E7%BE%A4/</id>
+    <published>2022-02-11T07:47:24.000Z</published>
+    <updated>2022-06-25T07:00:00.112Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="高可用方案"><a class="markdownIt-Anchor" href="#高可用方案"></a> 高可用方案</h3><ol><li>共享存储：SAN/NAS</li><li>操作系统实时数据块恢复：DRBD架构(MySQL+DRBD+Heartbeat)</li><li>主从复制架构<ul><li>主从复制(一主多从)</li><li>MMM架构(双主多从)</li><li>MHA架构(多主多从)</li></ul></li><li>数据库高可用架构<ul><li>GRT(MySQL Group Replication)</li><li>Galera</li></ul></li><li>MySQL Cluster 和 PXC<ul><li>MySQL Cluster(ndb存储引擎比较复杂，并没有大规模使用)</li><li>PXC(Percona XtraDB Cluster)</li></ul></li></ol><h3 id="常见方案介绍"><a class="markdownIt-Anchor" href="#常见方案介绍"></a> 常见方案介绍</h3><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220211144807.png" alt="img" /></p><h4 id="方案1-主从架构"><a class="markdownIt-Anchor" href="#方案1-主从架构"></a> 方案1 主从架构</h4><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220211144926.png" alt="img" /></p><ol><li>主从复制的模式有哪些？<a href="https://zhuanlan.zhihu.com/p/307288925" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/307288925</a></li><li>怎么保证数据库一致性</li></ol><h4 id="方案2-mha架构"><a class="markdownIt-Anchor" href="#方案2-mha架构"></a> 方案2 MHA架构</h4><blockquote><p>MHA: Master Hight Availability Manager and Toolsfor MySQL</p></blockquote><p><a href="https://www.cnblogs.com/zeq912/archive/2018/12/20/10147347.html" target="_blank" rel="noopener">生产环境MySQL数据库集群MHA上线实施方案</a></p><p>MHA(Master High Availability Manager and Toolsfor MySQL)目前在Mysql高可用方面是一个相对成熟的解决方案。它是日本的一位MySQL专家采用Perl语言编写的一个脚本管理工具，该工具仅适用于MySQLReplication 环境，目的在于维持Master主库的高可用性。</p><p>MHA是基于标准的MySQL复制(异步/半同步)。</p><p>MHA是由管理节点(MHA Manager)和数据节点(MHA Node)两部分组成。</p><p>MHA Manager可以单独部署在一台独立机器,也可以部署在一台slave上。</p><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220211145343.png" alt="img" /></p><h4 id="方案3-mmm架构"><a class="markdownIt-Anchor" href="#方案3-mmm架构"></a> 方案3 MMM架构</h4><p><a href="http://www.cnblogs.com/panwenbin-logs/p/8284593.html" target="_blank" rel="noopener">MySQL-MMM实现MySQL高可用</a></p><p>MMM，全称为Master-Master replication manager for Mysql，是一套支持双主故障切换和双主日常管理的脚本程序，MMM使用Perl语言开发。主要用来监控和管理MySQL Master-Master(双)复制。特别适合DBA做维护等需要主从复制的场景，通过双主架构避免了重复搭建从库的麻烦。<strong>虽然叫做双主复制，但是业务上同一时刻只允许对一个主进行写入，另一台备选主上提供部分读服务，以加速在主主切换时备选主的预热</strong></p><img src="https://img2018.cnblogs.com/blog/424830/201904/424830-20190401203908476-1265027333.png" alt="img" style="zoom:50%;" /><p>MMM优缺点<br />　　优点：高可用性，扩展性好，出现故障自动切换，对于主主同步，在同一时间只提供一台数据库写操作，保证的数据的一致性。<br />　　缺点：Monitor节点是单点，可以结合Keepalived实现高可用</p><h4 id="方案4-drbd架构"><a class="markdownIt-Anchor" href="#方案4-drbd架构"></a> 方案4 DRBD架构</h4><p><a href="https://www.linbit.com/en/drbd-community/drbd-download/" target="_blank" rel="noopener">https://www.linbit.com/en/drbd-community/drbd-download/</a></p><h3 id="读写分离方案"><a class="markdownIt-Anchor" href="#读写分离方案"></a> 读写分离方案</h3><h5 id="客户端解决方案应用层"><a class="markdownIt-Anchor" href="#客户端解决方案应用层"></a> 客户端解决方案(应用层)</h5><p>常用：DDL、 Sharding-Jdbc (常用shardding-jdbc)</p><img src="https://img2018.cnblogs.com/blog/424830/201904/424830-20190401141200513-1826979161.png" alt="img" style="zoom:50%;" /><p>优点：</p><ul><li>程序自动完成，数据源方便管理</li><li>不需要维护，因为没用中间件</li><li>理论支持任何数据库 （sql标准）</li></ul><p>缺点：</p><ul><li>增加了开发成本、代码有入侵</li><li>不能做到动态增加数据源</li><li>程序员开发完成，运维参与不了。</li></ul><h5 id="中间件解决方案代理层"><a class="markdownIt-Anchor" href="#中间件解决方案代理层"></a> 中间件解决方案（代理层）</h5><p>常用：mysql proxy、mycat、altas (常用mycat)</p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220211145657.png" alt="img" style="zoom: 50%;" /><p>优点：</p><ul><li>数据增加了都程序没用任何影响</li><li>应用层（程序）不需要管数据库方面的事情</li><li>增加数据源不需要重启程序</li></ul><p>缺点：</p><ul><li>程序依赖中间件，导致切换数据库变的困难</li><li>增加了proxy 性能下降</li><li>增加了维护工作、高可用问题</li></ul><h3 id="主从复制"><a class="markdownIt-Anchor" href="#主从复制"></a> 主从复制</h3><p>Mysql为了保证数据库一致性，引入了集中复制类型，分别是</p><ol><li>异步复制</li><li>半同步复制</li><li>全同步复制</li></ol><p>主从复制整理分为以下三个步骤</p><ol><li>主库将数据库的变更操作记录到Binlog日志文件(Master服务器对数据库更改操作记录在Binlog中，BinlogDump Thread接到写入请求后，读取Binlog信息推送给Slave的I/O Thread)</li><li>从库读取主库中的Binlog日志文件信息写入到从库的<strong>Relay Log中继日志</strong>中(Slave的I/O Thread将读取到的Binlog信息写入到本地Relay Log中)</li><li>从库读取中继日志信息在从库中进行Replay,更新从库数据信息(Slave的SQL Thread检测到Relay Log的变更请求，解析relay log中内容在从库上执行)</li></ol><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220211151719.png" alt="image-20220211151719430" style="zoom:67%;" /><p><strong>主库上并发的修改操作在从库上只能串行化执行，因为只有一个SQL线程来重放中继日志，这也是很多工作负载的性能瓶颈所在</strong></p><h4 id="异步复制"><a class="markdownIt-Anchor" href="#异步复制"></a> 异步复制</h4><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220211151114.png" alt="hello" /></p><p>mysql主从复制存在的问题：</p><ul><li>主库宕机后，数据可能丢失</li><li>从库只有一个SQL Thread，主库写压力大，复制很可能延时</li></ul><h4 id="半同步复制"><a class="markdownIt-Anchor" href="#半同步复制"></a> 半同步复制</h4><p>为了提升数据安全，MySQL让Master在某一个时间点等待Slave节点的 ACK（Acknowledgecharacter）消息，接收到ACK消息后才进行事务提交，这也是半同步复制的基础，MySQL从5.5版本开始引入了半同步复制机制来降低数据丢失的概率。</p><p>介绍半同步复制之前先快速过一下 MySQL 事务写入碰到主从复制时的完整过程，主库事务写入分为 4个步骤：</p><ul><li><p>InnoDB Redo File Write (Prepare Write)</p></li><li><p>Binlog File Flush &amp; Sync to Binlog File</p></li><li><p>InnoDB Redo File Commit（Commit Write）</p></li><li><p>Send Binlog to Slave</p></li></ul><p>当Master不需要关注Slave是否接受到Binlog Event时，即为传统的主从复制。</p><p>当Master需要在第三步等待Slave返回ACK时，即为 after-commit（Master先提交，等Slave ACK以后再，回复客户端），半同步复制（MySQL 5.5引入）。</p><p>当Master需要在第二步等待 Slave 返回 ACK 时，即为 after-sync（Master先写binlog，等Slave ACK以后再提交），增强半同步（MySQL 5.7引入）。</p><p>下图是 MySQL 官方对于半同步复制的时序图，主库等待从库写入 relay log 并返回 ACK 后才进行Engine Commit。</p><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220211151928.png" alt="img" /></p><h3 id="mysql-group-replication"><a class="markdownIt-Anchor" href="#mysql-group-replication"></a> MySQL Group Replication</h3><p>MySQL Group Replication是建立在已有MySQL复制框架的基础之上，通过新增Group Replication Protocol协议及Paxos协议的实现，形成的整体高可用解决方案</p><p>与原有复制方式相比，MGR主要增加了状态机一致性顺序复制和certify这两个环境</p><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220211153036.png" alt="pic" /></p><p>MySQL事务通过before_commit钩子进入MGR，before_commit位于MYSQL_BIN_LOG::commit()函数中，具体是在进入事务组提交MYSQL_BIN_LOG::ordered_commit()之前，这就意味着执行到before_commit这个钩子时，事务还未提交，产生的Binlog还未写入Binlog文件中，事务GTID还未产生</p><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220211153725.png" alt="2" /></p><h4 id="分布式数据库事务"><a class="markdownIt-Anchor" href="#分布式数据库事务"></a> 分布式数据库事务</h4><p>分布式数据库实现分布式事务的主流方法还是2PC</p><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220211154002.png" alt="img" /></p><p>如上图所示，当分布式事务提交时，会选择其中的一个数据分片作为协调者在所有数据分片上执行两阶段提交协议。由于所有数据分片都是通过 Paxos 复制日志实现多副本高可用的，当主副本发生宕机后，会由同一数据分片的备副本转换为新的主副本继续提供服务，所以可以认为参与者和协调者都是保证高可用不宕机的（多数派存活），绕开了协调者宕机的问题。</p><p>在参与者高可用的实现前提下，可以对协调者进行了“无状态”的优化。在标准的两阶段提交中，协调者要通过记录日志的方法持久化自己的状态，否则如果协调者和参与者同时宕机，协调者恢复后可能会导致事务提交状态不一致。但是如果我们认为参与者不会宕机，那么协调者并不需要写日志记录自己的状态。</p><p>所以在第一阶段所有参与者都回复prepare完成以后，即可以反馈事务提交成功，提升了2PC的效率<br />由于存在多副本，只要保证在prepare阶段，验证事务执行没有错误，协调者发出commit指令后，就可以乐观的认为，事务执行成功并反馈给事务发起者。相信commit消息会被多数副本收到，多数副本收到消息以后，剩下的就交给他们自己同步</p><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220211154042.png" alt="在这里插入图片描述" /></p><p>在上图中（绿色部分表示写日志的动作），左侧为标准两阶段提交协议，用户感知到的提交时延是4次写日志耗时以及2次 RPC 的往返耗时；由于少了协调者的写日志耗时以及提前了应答客户端的时机，用户感知到的提交时延是1次写日志耗时以及1次 RPC 的往返耗时</p><h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3><ol><li><a href="https://www.cnblogs.com/rouqinglangzi/p/10921982.html" target="_blank" rel="noopener">MySQL高可用集群方案</a></li><li><a href="https://blog.csdn.net/u014134750/article/details/118336002" target="_blank" rel="noopener">MySQL 主从复制</a></li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;高可用方案&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href=&quot;#高可用方案&quot;&gt;&lt;/a&gt; 高可用方案&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;共享存储：SAN/NAS&lt;/li&gt;
+&lt;li&gt;操作系统实时数据块恢复：DRBD架构(MySQL+DRBD+Heart
+      
     
     </summary>
     
