@@ -33,7 +33,7 @@
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/11/60/110d6f442e718f86d2a1d16095513260.jpg?wh=1142*856">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/23/d1/23958f889ca48dbb8373f521708408d1.jpg?wh=1142*790">
 <meta property="article:published_time" content="2021-07-04T23:53:00.000Z">
-<meta property="article:modified_time" content="2022-07-09T11:01:21.958Z">
+<meta property="article:modified_time" content="2022-07-09T11:04:59.210Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Algorithm">
 <meta name="twitter:card" content="summary">
@@ -446,7 +446,11 @@
 <p>第一种方式需要对<code>n-1</code>个节点进行堆化，每个节点堆化的时间复杂度为 <code>O(logn)</code>，所以它精确的时间复杂度为<code>(n-1)*O(logn)</code></p>
 <p>第二种方式从非叶子节点开始，需要对 <code>n/2</code>个节点进行堆化，精确的时间复杂度为<code>(n/2)*O(logn)</code></p>
 <p>所以第二种方式节省了近一半的时间</p>
-<p>建堆的时候要注意：<strong>父节点要与左右子节点比较，选择三者中最大的做为父节点</strong></p>
+<p>注意：建堆的时候，此时的数组还不是堆，所以</p>
+<ol>
+<li><strong>父节点与左右子节点比较，选择三者中最大的做为父节点</strong></li>
+<li>当父节点与子节点交换位置之后，<strong>还需要与继续比较新子节点与它(新子节点)的子节点的大小构建堆</strong></li>
+</ol>
 <h4 id="排序"><a class="markdownIt-Anchor" href="#排序"></a> 排序</h4>
 <p>建堆之后，数组中的数据已经是按照大顶堆/小顶堆的特性来进行排列的。但是堆的特性并不关心左右子节点的大小，这时候还需要对已经建立的堆进行排序。</p>
 <p>如何排序？这就像删除堆顶元素一样。当堆顶元素移除之后，把下标为 n 的元素放到堆顶，然后再通过堆化的方法，将剩下的 n−1 个元素重新构建成堆。堆化完成之后，我们再取堆顶的元素，放到下标是 n−1 的位置，一直重复这个过程，直到最后堆中只剩下标为 1 的一个元素，排序工作就完成了。</p>
