@@ -18,26 +18,22 @@
   
   
   <title>算法2-堆排序 | XBoom Dove</title>
-  <meta name="description" content="堆排序是利用堆这种数据结构而设计的一种排序算法，堆排序是一种选择排序，它的最坏，最好，平均时间复杂度均为O(nlogn)，是不稳定排序  堆 堆是具有以下性质的完全二叉树   每个结点的值都大于或等于其左右孩子结点的值，称为大顶堆   每个结点的值都小于或等于其左右孩子结点的值，称为小顶堆     那左右子节点有谁大谁小？没有要求！！！ 大根堆，每个子结点都要小于父结点，不区分左右儿子谁大谁小，也">
+  <meta name="description" content="堆排序是一种选择排序，它的最坏，最好，平均时间复杂度均为O(nlogn)，是不稳定排序  堆 堆是具有以下性质的完全二叉树   每个结点的值都大于或等于其左右孩子结点的值，称为大顶堆   每个结点的值都小于或等于其左右孩子结点的值，称为小顶堆     完全二叉树：除了最后一层，其他层的节点个数都是满的，最后一层的节点都靠左排列 那左右子节点有谁大谁小？没有要求！！！ 大根堆，每个子结点都要小于父结">
 <meta property="og:type" content="article">
 <meta property="og:title" content="算法2-堆排序">
 <meta property="og:url" content="http://xboom.github.io/2021/07/05/Algorithm/%E7%AE%97%E6%B3%952-%E5%A0%86%E6%8E%92%E5%BA%8F/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="堆排序是利用堆这种数据结构而设计的一种排序算法，堆排序是一种选择排序，它的最坏，最好，平均时间复杂度均为O(nlogn)，是不稳定排序  堆 堆是具有以下性质的完全二叉树   每个结点的值都大于或等于其左右孩子结点的值，称为大顶堆   每个结点的值都小于或等于其左右孩子结点的值，称为小顶堆     那左右子节点有谁大谁小？没有要求！！！ 大根堆，每个子结点都要小于父结点，不区分左右儿子谁大谁小，也">
+<meta property="og:description" content="堆排序是一种选择排序，它的最坏，最好，平均时间复杂度均为O(nlogn)，是不稳定排序  堆 堆是具有以下性质的完全二叉树   每个结点的值都大于或等于其左右孩子结点的值，称为大顶堆   每个结点的值都小于或等于其左右孩子结点的值，称为小顶堆     完全二叉树：除了最后一层，其他层的节点个数都是满的，最后一层的节点都靠左排列 那左右子节点有谁大谁小？没有要求！！！ 大根堆，每个子结点都要小于父结">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704225248.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704225526.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230243.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230415.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230519.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230713.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230810.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230854.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230924.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210706070921.jpg">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210706070825.jpg">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/4d/1e/4d349f57947df6590a2dd1364c3b0b1e.jpg?wh=1142*540">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/e3/0e/e3744661e038e4ae570316bc862b2c0e.jpg?wh=1142*776">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/59/81/5916121b08da6fc0636edf1fc24b5a81.jpg?wh=1142*867">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/11/60/110d6f442e718f86d2a1d16095513260.jpg?wh=1142*856">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/23/d1/23958f889ca48dbb8373f521708408d1.jpg?wh=1142*790">
 <meta property="article:published_time" content="2021-07-04T23:53:00.000Z">
-<meta property="article:modified_time" content="2022-07-09T07:45:55.456Z">
+<meta property="article:modified_time" content="2022-07-09T11:01:21.958Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Algorithm">
 <meta name="twitter:card" content="summary">
@@ -335,7 +331,7 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#堆"><span class="toc-number">1.</span> <span class="toc-text"> 堆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本思想和步骤"><span class="toc-number">2.</span> <span class="toc-text"> 基本思想和步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#插入和删除"><span class="toc-number">3.</span> <span class="toc-text"> 插入和删除</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">4.</span> <span class="toc-text"> 代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#堆排序应用"><span class="toc-number">5.</span> <span class="toc-text"> 堆排序应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">6.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#堆"><span class="toc-number">1.</span> <span class="toc-text"> 堆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本思想和步骤"><span class="toc-number">2.</span> <span class="toc-text"> 基本思想和步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#往堆中插入一个元素"><span class="toc-number">2.1.</span> <span class="toc-text"> 往堆中插入一个元素</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#删除堆顶元素"><span class="toc-number">2.2.</span> <span class="toc-text"> 删除堆顶元素</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#创建一个堆"><span class="toc-number">2.3.</span> <span class="toc-text"> 创建一个堆</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#排序"><span class="toc-number">2.4.</span> <span class="toc-text"> 排序</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">3.</span> <span class="toc-text"> 代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#堆排序应用"><span class="toc-number">4.</span> <span class="toc-text"> 堆排序应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -379,19 +375,19 @@
         <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/07/05/Algorithm/%E7%AE%97%E6%B3%952-%E5%A0%86%E6%8E%92%E5%BA%8F/#comments" class="article-comment-link">Comments</a></span>
         
 	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 2.7k(words)</span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 3.4k(words)</span>
 	
 	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 10(minutes)</span>
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 12(minutes)</span>
 	
 
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p>堆排序是利用<strong>堆</strong>这种数据结构而设计的一种排序算法，堆排序是一种<strong>选择排序</strong>，它的最坏，最好，平均时间复杂度均为O(nlogn)，是不稳定排序</p>
+        <p>堆排序是一种<strong>选择排序</strong>，它的最坏，最好，平均时间复杂度均为O(nlogn)，是不稳定排序</p>
 <h3 id="堆"><a class="markdownIt-Anchor" href="#堆"></a> 堆</h3>
-<p>堆是具有以下性质的完全二叉树</p>
+<p>堆是具有以下性质的<strong>完全二叉树</strong></p>
 <ul>
 <li>
 <p>每个结点的值都大于或等于其左右孩子结点的值，称为<strong>大顶堆</strong></p>
@@ -402,6 +398,7 @@
 </ul>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704225248.png" alt="img" style="zoom:33%;" />
 <blockquote>
+<p>完全二叉树：除了最后一层，其他层的节点个数都是满的，最后一层的节点都靠左排列</p>
 <p>那左右子节点有谁大谁小？没有要求！！！</p>
 <p>大根堆，每个子结点都要小于父结点，不区分左右儿子谁大谁小，也不必保证某个“孙子结点”一定要小于另一个“儿子结点”。<br />
 小根堆，每个子结点都要大于父结点，不区分左右儿子谁大谁小，也不必保证某个“孙子结点”一定要大于另一个“儿子结点”</p>
@@ -412,90 +409,73 @@
 <p><strong>大顶堆：arr[i] &gt;= arr[2i+1] &amp;&amp; arr[i] &gt;= arr[2i+2]</strong></p>
 <p><strong>小顶堆：arr[i] &lt;= arr[2i+1] &amp;&amp; arr[i] &lt;= arr[2i+2]</strong></p>
 <h3 id="基本思想和步骤"><a class="markdownIt-Anchor" href="#基本思想和步骤"></a> 基本思想和步骤</h3>
-<p>堆排序的基本思想是：将待排序序列构造成一个大顶堆，此时，整个序列的最大值就是堆顶的根节点。将其与末尾元素进行交换，此时末尾就为最大值。然后将剩余n-1个元素重新构造成一个堆，这样会得到n个元素的次小值。如此反复执行，便能得到一个有序序列了</p>
-<p><strong>步骤一</strong> 构造初始堆。将给定无序序列构造成一个大顶堆（一般升序采用大顶堆，降序采用小顶堆)</p>
-<ol>
-<li>假设给定无序序列结构如下</li>
-</ol>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230243.png" alt="img" style="zoom:33%;" />
-<ol start="2">
-<li>
-<p>从最后一个非叶子结点开始（叶结点自然不用调整，第一个非叶子结点 arr.length/2-1=5/2-1=1，也就是下面的6结点），从左至右，从下至上进行调整</p>
+<p>利用数组来实现堆排序的原因是：完全二叉树可以使用数组来表示，通过数组下标而不是指针指向子节点可以节省空间。</p>
+<img src="https://static001.geekbang.org/resource/image/4d/1e/4d349f57947df6590a2dd1364c3b0b1e.jpg?wh=1142*540" alt="img" style="zoom:50%;" />
+<p>如图，根节点为 arr[0] = 4，它的左子树就是 arr[ 2 * 0+ 1] = arr[1] = 6，它的右子树就是 arr[ 2* 0+ 2] = arr[2] = 8。</p>
+<h4 id="往堆中插入一个元素"><a class="markdownIt-Anchor" href="#往堆中插入一个元素"></a> 往堆中插入一个元素</h4>
+<p>将新元素插入到堆的最后，新的堆也要满足堆的特性，这个调整的过程称为<strong>堆化</strong></p>
+<p>堆化实际有两个过程，<strong>从上往下</strong>和<strong>从下往上</strong>。</p>
+<p><strong>从下往上</strong>一般用于数据插入，因为插入的数据会放到堆的末尾。让新插入的节点与父节点对比大小。如果不满足子节点小于等于父节点的大小关系，就互换两个节点。一直重复这个过程，直到父子节点之间满足刚说的那种大小关系</p>
 <blockquote>
-<p>最后一个非叶子节点 = n/2 - 1</p>
+<p>怎么只调整父子节点的位置，兄弟节点不管吗？不管</p>
+<p>比如大顶堆，当子节点需要和父节点调整位置，说明子节点比父节点大，而父节点肯定是比另一个子节点大的。所以调整位置之后一定满足大顶堆。小顶堆同理</p>
 </blockquote>
-</li>
-</ol>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230415.png" alt="img" style="zoom:33%;" />
-<ol start="3">
-<li>找到第二个非叶节点4，由于[4,9,8]中9元素最大，4和9交换</li>
-</ol>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230519.png" alt="img" style="zoom:33%;" />
-<p><strong>步骤二</strong> 将堆顶元素与末尾元素进行交换，使末尾元素最大。然后继续调整堆，再将堆顶元素与末尾元素交换，得到第二大元素。如此反复进行交换、重建、交换。</p>
-<ol>
-<li>将堆顶元素9和末尾元素4进行交换</li>
-</ol>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230713.png" alt="img" style="zoom:33%;" />
-<ol start="2">
-<li>重新调整结构，使其继续满足堆定义</li>
-</ol>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230810.png" alt="img" style="zoom:33%;" />
-<ol start="3">
-<li>再将堆顶元素8与末尾元素5进行交换，得到第二大元素8</li>
-</ol>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230854.png" alt="img" style="zoom:33%;" />
-<ol start="4">
-<li>后续过程，继续进行调整，交换，如此反复进行，最终使得整个序列有序</li>
-</ol>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704230924.png" alt="img" style="zoom:33%;" />
-<p>总结下堆排序的基本思路：</p>
-<ul>
-<li>将无需序列构建成一个堆，根据升序降序需求选择大顶堆或小顶堆</li>
-<li>将堆顶元素与末尾元素交换，将最大元素&quot;沉&quot;到数组末端</li>
-<li>重新调整结构，使其满足堆定义，然后继续交换堆顶元素与当前末尾元素，反复执行调整+交换步骤，直到整个序列有序</li>
-</ul>
+<img src="https://static001.geekbang.org/resource/image/e3/0e/e3744661e038e4ae570316bc862b2c0e.jpg?wh=1142*776" alt="img" style="zoom: 50%;" />
+<h4 id="删除堆顶元素"><a class="markdownIt-Anchor" href="#删除堆顶元素"></a> 删除堆顶元素</h4>
+<p>堆顶元素存储的就是堆中数据的(大顶堆)最大值或者(小顶堆)最小值。</p>
+<p>当删除堆顶元素之后，就需要把第二大的元素放到堆顶，那第二大元素肯定会出现在左右子节点中。然后再迭代地删除第二大节点，以此类推，直到叶子节点被删除。</p>
+<p>这样会出现一个问题，就是<code>空洞</code>：调整并不需要与最后一个节点交换，那么空洞就会出现在二叉树中，需要进一步处理。</p>
+<img src="https://static001.geekbang.org/resource/image/59/81/5916121b08da6fc0636edf1fc24b5a81.jpg?wh=1142*867" alt="img" style="zoom:50%;" />
+<p>所以，这里改变思路：将最后一个节点与堆顶交换，然后删除最后一个元素，最后利用同样的父子节点对比方法。对于不满足父子节点大小关系的，互换两个节点，并且重复进行这个过程，直到父子节点之间满足大小关系为止。这就是<strong>从上往下</strong>的堆化方法</p>
+<img src="https://static001.geekbang.org/resource/image/11/60/110d6f442e718f86d2a1d16095513260.jpg?wh=1142*856" alt="img" style="zoom:50%;" />
 <blockquote>
-<p>完全二叉树：设二叉树的深度为h，除第 h 层外，其它各层 (1～h-1) 的结点数都达到最大个数，<br />
-第 h 层所有的结点都连续集中在最左边</p>
-<p>满二叉树：深度为k且有2^k-1个结点的二叉树称为满二叉树</p>
+<p>一个包含 n 个节点的完全二叉树，树的高度不会超过 <code>log2n</code>，堆化的过程是顺着节点所在路径比较交换的，所以堆化的时间复杂度跟树的高度成正比，也就是 <code>O(logn)</code>。插入数据和删除堆顶元素的主要逻辑就是堆化，所以，往堆中插入一个元素和删除堆顶元素的时间复杂度都是 <code>O(logn)</code></p>
 </blockquote>
-<p><strong>为什么 堆排序(完全二叉树)最后一个非叶子节点的序号是 <code>n/2 - 1</code> (n为节点个数)？</strong></p>
-<p><strong>第一种</strong>：堆的最后一个非叶子节点只有左孩子</p>
-<p>因为 i 的左孩子为 2 * i + 1，而最后一个节点的序号为 n - 1，所以 i = n / 2 -1</p>
-<p><strong>第二种</strong>：堆的最后一个非叶子节点有左右两个孩子</p>
-<p>因为 i 的左孩子为 2 * i + 2，而最后一个节点的序号为 n - 1，所以 i = (n - 1) / 2 -1</p>
-<p>又因为当完全二叉树最后一个节点是其父节点的右孩子时，树的节点数为奇数，所以 i = n / 2 - 1</p>
+<h4 id="创建一个堆"><a class="markdownIt-Anchor" href="#创建一个堆"></a> 创建一个堆</h4>
+<p>知道了插入和删除，它们的首要条件是要有一个堆。</p>
+<p>创堆有两个方法：</p>
+<p>第一种：从前往后，尽管数组中包含 n 个数据，假设起初堆中只包含一个数据，就是下标为 0 的数据。然后不断的插入将下标从 1 到 n - 1 的数据依次插入到堆中。这样就将包含 n 个数据的数组，组织成了堆。从上往下堆化</p>
+<p>第二种：从后往前。依次与子节点进行比较，因为叶子节点无法与子节点比较，所以就需要从最后一个非叶子节点比较。从下往上堆化</p>
 <blockquote>
-<p>当 n &lt;= 1的时候，并没有非叶子节点。即 非叶子节点 i = n / 2 - 1 (n &gt; 1)</p>
+<p>问题1：最后一个非叶子节点怎么表示？</p>
+<p>设最后一个非叶子节点下标为 <code>i</code>，</p>
+<p>如果它的左子节点是最后一个节点，那么最后一个节点下标就是 <code>2i + 1</code>。整个二叉树的长度就是 len = 2i + 2</p>
+<p>如果它的右子节点是最后一个节点，那么最后一个节点的下标就是 <code>2i + 2</code>。整个二叉树的长度就是 len = 2i + 3</p>
+<p>所以最后一个非叶子节点的下标就是 <code>len / 2 - 1</code></p>
 </blockquote>
-<h3 id="插入和删除"><a class="markdownIt-Anchor" href="#插入和删除"></a> 插入和删除</h3>
-<ol>
-<li>
-<p>删除</p>
-<p>利用下沉来进行堆顶元素删除，首先要做的是进行<strong>交换</strong>，再进行下沉</p>
-</li>
-</ol>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210706070921.jpg" alt="img" style="zoom:50%;" />
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//构建父节点i最大，父节点大于等于子节点</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">heapify</span><span class="params">(arr []<span class="keyword">int</span>, i, arrLen <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">        left := <span class="number">2</span>*i + <span class="number">1</span></span><br><span class="line">        right := <span class="number">2</span>*i + <span class="number">2</span></span><br><span class="line">        largest := i</span><br><span class="line">        <span class="comment">//找到父子节点中三个最大的，如果不是根节点则交换位置</span></span><br><span class="line">        <span class="keyword">if</span> left &lt; arrLen &amp;&amp; arr[left] &gt; arr[largest] &#123;</span><br><span class="line">                largest = left</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> right &lt; arrLen &amp;&amp; arr[right] &gt; arr[largest] &#123;</span><br><span class="line">                largest = right</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> largest != i &#123;<span class="comment">//如果子节点比父节点大，调整之后，子节点的子节点也需要做调整</span></span><br><span class="line">                arr[i], arr[largest] = arr[largest], arr[i]</span><br><span class="line">                heapify(arr, largest, arrLen)</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ol start="2">
-<li>
-<p>插入</p>
-<p>首先将元素添加到末尾，然后通过上浮的方式进行</p>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210706070825.jpg" alt="img" style="zoom:50%;" />
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//上浮代码</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">swim</span><span class="params">(nums []<span class="keyword">int</span>, index <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">  <span class="keyword">for</span> index &gt; <span class="number">1</span> &amp;&amp; nums[index/<span class="number">2</span>] &gt; nums[index] &#123;</span><br><span class="line">    nums[index/<span class="number">2</span>], nums[index] = nums[index], nums[nums/<span class="number">2</span>]</span><br><span class="line">    index = index/<span class="number">2</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
+<p>第一种方式需要对<code>n-1</code>个节点进行堆化，每个节点堆化的时间复杂度为 <code>O(logn)</code>，所以它精确的时间复杂度为<code>(n-1)*O(logn)</code></p>
+<p>第二种方式从非叶子节点开始，需要对 <code>n/2</code>个节点进行堆化，精确的时间复杂度为<code>(n/2)*O(logn)</code></p>
+<p>所以第二种方式节省了近一半的时间</p>
+<p>建堆的时候要注意：<strong>父节点要与左右子节点比较，选择三者中最大的做为父节点</strong></p>
+<h4 id="排序"><a class="markdownIt-Anchor" href="#排序"></a> 排序</h4>
+<p>建堆之后，数组中的数据已经是按照大顶堆/小顶堆的特性来进行排列的。但是堆的特性并不关心左右子节点的大小，这时候还需要对已经建立的堆进行排序。</p>
+<p>如何排序？这就像删除堆顶元素一样。当堆顶元素移除之后，把下标为 n 的元素放到堆顶，然后再通过堆化的方法，将剩下的 n−1 个元素重新构建成堆。堆化完成之后，我们再取堆顶的元素，放到下标是 n−1 的位置，一直重复这个过程，直到最后堆中只剩下标为 1 的一个元素，排序工作就完成了。</p>
+<img src="https://static001.geekbang.org/resource/image/23/d1/23958f889ca48dbb8373f521708408d1.jpg?wh=1142*790" alt="img" style="zoom:50%;" />
+<p>因为每个元素都需要进行删除的过程，所以堆排序整体的时间复杂度为 <code>O(nlogn)</code></p>
 <h3 id="代码实现"><a class="markdownIt-Anchor" href="#代码实现"></a> 代码实现</h3>
 <p>Go代码实现：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//堆排序</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">heapSort</span><span class="params">(arr []<span class="keyword">int</span>)</span> []<span class="title">int</span></span> &#123;</span><br><span class="line">        arrLen := <span class="built_in">len</span>(arr)</span><br><span class="line">        <span class="comment">//构建大頂堆，但是数组并不满足降序，只找到最大值 </span></span><br><span class="line">        <span class="keyword">for</span> i := arrLen / <span class="number">2</span> - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">                heapify(arr, i, arrLen)</span><br><span class="line">        &#125;</span><br><span class="line">  			<span class="comment">//满足大頂堆之后，只需要将最大值与最后一个值互换，并将根节点下沉又是一个大顶堆</span></span><br><span class="line">        <span class="keyword">for</span> i := arrLen - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">                arr[<span class="number">0</span>], arr[i] = arr[i], arr[<span class="number">0</span>]</span><br><span class="line">                arrLen -= <span class="number">1</span></span><br><span class="line">                heapify(arr, <span class="number">0</span>, arrLen)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> arr</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//构建父节点i最大，父节点大于等于子节点</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">heapify</span><span class="params">(arr []<span class="keyword">int</span>, i, arrLen <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">        left := <span class="number">2</span>*i + <span class="number">1</span></span><br><span class="line">        right := <span class="number">2</span>*i + <span class="number">2</span></span><br><span class="line">        largest := i</span><br><span class="line">        <span class="comment">//找到父子节点中三个最大的，如果不是根节点则交换位置</span></span><br><span class="line">        <span class="keyword">if</span> left &lt; arrLen &amp;&amp; arr[left] &gt; arr[largest] &#123;</span><br><span class="line">                largest = left</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> right &lt; arrLen &amp;&amp; arr[right] &gt; arr[largest] &#123;</span><br><span class="line">                largest = right</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> largest != i &#123;<span class="comment">//如果子节点比父节点大，调整之后，子节点的子节点也需要做调整</span></span><br><span class="line">                arr[i], arr[largest] = arr[largest], arr[i]</span><br><span class="line">                heapify(arr, largest, arrLen)</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>C++代码实现：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; n; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; a[i] &lt;&lt; <span class="string">" "</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">heapAdjust</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> pivotKey = a[low - <span class="number">1</span>];</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">2</span> * low; i &lt;= high; i *= <span class="number">2</span>) </span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span>(i &lt; high &amp;&amp; a[i - <span class="number">1</span>] &lt; a[i])</span><br><span class="line">    &#123;</span><br><span class="line">      i++; <span class="comment">//i指向较大值</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(pivotKey &gt;= a[i - <span class="number">1</span>])</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    a[low - <span class="number">1</span>] = a[i - <span class="number">1</span>];</span><br><span class="line">    low = i; </span><br><span class="line">  &#125;</span><br><span class="line">  a[low - <span class="number">1</span>] = pivotKey; </span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">heapSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i, tmp;</span><br><span class="line">  <span class="keyword">for</span>(i = n/<span class="number">2</span>; i &gt; <span class="number">0</span>; i--) </span><br><span class="line">  &#123;</span><br><span class="line">    heapAdjust(a, i, n);</span><br><span class="line">    <span class="built_in">print</span>(a, n);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(i = n; i &gt; <span class="number">1</span>; i--)</span><br><span class="line">  &#123;</span><br><span class="line">    tmp = a[i <span class="number">-1</span>];</span><br><span class="line">    a[i - <span class="number">1</span>] = a[<span class="number">0</span>];</span><br><span class="line">    a[<span class="number">0</span>] = tmp;</span><br><span class="line">    heapAdjust(a, <span class="number">1</span>, i - <span class="number">1</span>); </span><br><span class="line">    <span class="built_in">print</span>(a, n);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> a[] = &#123;<span class="number">30</span>, <span class="number">20</span>, <span class="number">40</span>, <span class="number">10</span>, <span class="number">0</span>, <span class="number">60</span>, <span class="number">80</span>, <span class="number">70</span>&#125;;</span><br><span class="line">  <span class="keyword">int</span> n = <span class="keyword">sizeof</span>(a) / <span class="keyword">sizeof</span>(a[<span class="number">0</span>]);</span><br><span class="line">  heapSort(a, n);</span><br><span class="line">  <span class="built_in">print</span>(a, n);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; n; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; a[i] &lt;&lt; <span class="string">" "</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//heapAdjust 作用从上往下构建，保证数组 a[] 中 第low个元素为堆顶的元素构成的结构为大顶堆</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">heapAdjust</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span>	<span class="comment">//调整的过程</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> pivotKey = a[low - <span class="number">1</span>];		<span class="comment">//注意数组的索引从0开始</span></span><br><span class="line">  <span class="keyword">int</span> i;                        <span class="comment">//当前节点下标</span></span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">2</span> * low; i &lt;= high; i *= <span class="number">2</span>) </span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span>(i &lt; high &amp;&amp; a[i - <span class="number">1</span>] &lt; a[i])	<span class="comment">//找到左右子节点中较大的那个</span></span><br><span class="line">    &#123;</span><br><span class="line">      i++; <span class="comment">//i指向较大值</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(pivotKey &gt;= a[i - <span class="number">1</span>])	<span class="comment">//如果大于等于子节点说明已经是大顶堆</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    a[low - <span class="number">1</span>] = a[i - <span class="number">1</span>];	<span class="comment">//否则将子节点更换到父节点的位置</span></span><br><span class="line">    low = i;                <span class="comment">//然后继续判断子节点与孙子节点的大小,保证子节点与起构成的子节点也是大堆顶</span></span><br><span class="line">  &#125;</span><br><span class="line">  a[low - <span class="number">1</span>] = pivotKey;    <span class="comment">//将最开始的堆顶放到合适的位置</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">heapSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i, tmp;</span><br><span class="line">  <span class="keyword">for</span>(i = n/<span class="number">2</span>; i &gt; <span class="number">0</span>; i--) <span class="comment">//从非叶子节点开始，开始调整(最后一个非叶子节点是 len/2 - 1)</span></span><br><span class="line">  &#123;</span><br><span class="line">    heapAdjust(a, i, n);</span><br><span class="line">    <span class="built_in">print</span>(a, n);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(i = n; i &gt; <span class="number">1</span>; i--)	<span class="comment">//将堆顶元素放置最后，开始调整</span></span><br><span class="line">  &#123;</span><br><span class="line">    tmp = a[i <span class="number">-1</span>];</span><br><span class="line">    a[i - <span class="number">1</span>] = a[<span class="number">0</span>];</span><br><span class="line">    a[<span class="number">0</span>] = tmp;</span><br><span class="line">    heapAdjust(a, <span class="number">1</span>, i - <span class="number">1</span>); </span><br><span class="line">    <span class="built_in">print</span>(a, n);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> a[] = &#123;<span class="number">30</span>, <span class="number">20</span>, <span class="number">40</span>, <span class="number">10</span>, <span class="number">0</span>, <span class="number">60</span>, <span class="number">80</span>, <span class="number">70</span>&#125;;</span><br><span class="line">  <span class="keyword">int</span> n = <span class="keyword">sizeof</span>(a) / <span class="keyword">sizeof</span>(a[<span class="number">0</span>]);  <span class="comment">//计算数组长度</span></span><br><span class="line">  heapSort(a, n);</span><br><span class="line">  <span class="built_in">print</span>(a, n);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p></p>
 <p>堆排序是一种选择排序，整体主要由构建初始堆+交换堆顶元素和末尾元素并重建堆两部分组成。</p>
 <ul>
 <li>其中构建初始堆经推导复杂度为O(n)，在交换并重建堆的过程中，需交换n-1次，</li>
 <li>而重建堆的过程中，根据完全二叉树的性质，[log2(n-1),log2(n-2)…1]逐步递减，近似为nlogn。所以堆排序时间复杂度一般认为就是O(nlogn)级。</li>
 </ul>
+<p>注意：为什么快速排序要比堆排序性能好？</p>
+<ol>
+<li>
+<p>堆排序数据访问的方式没有快速排序友好：快速排序数据是顺序访问的，而堆排序数据是跳着访问，对CPU不友好</p>
+</li>
+<li>
+<p>对于同样的数据，在排序过程中，堆排序算法的数据交换次数要多于快速排序。</p>
+<ul>
+<li>快排每次都会将数据放在正确的位置上</li>
+<li>堆排则有一个建堆的过程，可能会将原本已经有序的数据打乱</li>
+</ul>
+</li>
+</ol>
 <h3 id="堆排序应用"><a class="markdownIt-Anchor" href="#堆排序应用"></a> 堆排序应用</h3>
 <ol>
 <li>
@@ -525,7 +505,9 @@
 <li>如果比大顶堆的堆顶大，那就插入到小顶堆中</li>
 <li>如果插入数据后不满足要求两个堆的数量为n/2和n/2 或n/2 和n+1/2 的要求，需要调整两个堆的大小，从大顶堆中删除堆顶元素，或小顶堆中删除堆顶元素，移动到另外一个堆中即可。</li>
 </ul>
-<p>99%的响应时间：如果一个接口的有100个访问请求，分别耗时1ms，2ms，3ms…100ms，那么按照访问时间从小到大排列，排在第99位的访问时间，就是99%的访问时间，我们维护两个堆，大顶堆的元素个数为n<em>99%，小顶堆的元素个数为n</em>1%，那么大顶堆中的堆顶元素即是所求的99%的响应时间，和中位数的应用一样，只是中位数中的应用更特殊一点</p>
+<blockquote>
+<p>99%的响应时间：如果一个接口的有100个访问请求，分别耗时1ms，2ms，3ms…100ms，那么按照访问时间从小到大排列，排在第99位的访问时间，就是99%的访问时间，我们维护两个堆，大顶堆的元素个数为n * 99%，小顶堆的元素个数为n*1%，那么大顶堆中的堆顶元素即是所求的99%的响应时间，和中位数的应用一样，只是中位数中的应用更特殊一点</p>
+</blockquote>
 </li>
 <li>
 <p>优先级队列</p>
