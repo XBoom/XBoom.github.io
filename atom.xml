@@ -376,34 +376,6 @@
   </entry>
   
   <entry>
-    <title>微服务-分布式缓存</title>
-    <link href="http://xboom.github.io/2022/03/04/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/"/>
-    <id>http://xboom.github.io/2022/03/04/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/</id>
-    <published>2022-03-03T16:30:33.000Z</published>
-    <updated>2022-07-19T14:34:33.914Z</updated>
-    
-    <content type="html"><![CDATA[<p>缓存知识点如下：</p><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220303234240.png" alt="img" /></p><ul><li>首先，要熟练掌握缓存的基础知识，了解缓存常用的分类、读写模式，熟悉缓存的七大经典问题及解决应对之策，同时要从缓存组件的访问协议、Client 入手，熟练掌握如何访问各种缓存组件，如 Memcached、Redis、Pika 等。</li><li>其次，要尽可能深入理解缓存组件的实现方案、设计原理，了解缓存的各种特性、优势和不足，这样在缓存数据与预期不一致时，能够快速定位并解决问题。</li><li>再次，还要多了解线上大中型系统是如何对缓存进行架构设计的。线上系统，业务功能丰富多变，跨域部署环境复杂，而且热点频发，用户习惯迥异。因此，缓存系统在设计之初就要尽量进行良好设计，规划好如何进行Hash及分布、如何保障数据的一致性、如何进行扩容和缩容。当然，缓存体系也需要伴随业务发展持续演进，这就需要对缓存体系进行持续的状态监控、异常报警、故障演练，以确保在故障发生时能及时进行人肉或自动化运维处理，并根据线上状况不断进行优化和改进。</li><li>最后，了解缓存在各种场景下的最佳实践，理解这些最佳实践背后的 Tradeoff，做到知其然知其所以然，以便在实际工作中能举一反三，把知识和经验更好的应用到工作实践中来</li></ul><h3 id="缓存的原理"><a class="markdownIt-Anchor" href="#缓存的原理"></a> 缓存的原理</h3><p>缓存的基本思想、缓存的优点、缓存的代价</p><h4 id="缓存的定义"><a class="markdownIt-Anchor" href="#缓存的定义"></a> 缓存的定义</h4><ul><li>缓存最初的含义，是指用于加速 CPU 数据交换的 RAM，即随机存取存储器，通常这种存储器使用更昂贵但快速的静态 RAM（SRAM）技术，用以对 DRAM进 行加速。这是一个狭义缓存的定义。</li><li>广义缓存的定义则更宽泛，任何可以用于数据高速交换的存储介质都是缓存，可以是硬件也可以是软件</li></ul><h4 id="缓存的基本思想"><a class="markdownIt-Anchor" href="#缓存的基本思想"></a> 缓存的基本思想</h4><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220303234744.png" alt="img" /></p><p>缓存构建的基本思想是利用时间局限性原理，通过空间换时间来达到加速数据获取的目的，同时由于缓存空间的成本较高，在实际设计架构中还要考虑访问延迟和成本的权衡问题。这里面有 3 个关键点。</p><ul><li>一是时间局限性原理，即被获取过一次的数据在未来会被多次引用，比如一条微博被一个人感兴趣并阅读后，它大概率还会被更多人阅读，当然如果变成热门微博后，会被数以百万/千万计算的更多用户查看。</li><li>二是以空间换时间，因为原始数据获取太慢，所以我们开辟一块高速独立空间，提供高效访问，来达到数据获取加速的目的。</li><li>三是性能成本 Tradeoff，构建系统时希望系统的访问性能越高越好，访问延迟越低小越好。但维持相同数据规模的存储及访问，性能越高延迟越小，成本也会越高，所以在系统架构设计时，你需要在系统性能和开发运行成本之间做取舍。比如左边这张图，相同成本的容量，SSD 硬盘容量会比内存大 10～30 倍以上，但读写延迟却高 50～100 倍。</li></ul><p>通过缓存可以 提升访问性能、降低网络拥堵、减轻服务负载、增强可扩展性 但同时 增加系统复杂度、增加成本以及 缓存一致性</p><h3 id="缓存读写模式"><a class="markdownIt-Anchor" href="#缓存读写模式"></a> 缓存读写模式</h3><p>业务系统读写缓存有 3 种模式：</p><ul><li>Cache Aside（旁路缓存）</li><li>Read/Write Through（读写穿透）</li><li>Write Behind Caching（异步缓存写入）</li></ul><h4 id="cache-aside"><a class="markdownIt-Anchor" href="#cache-aside"></a> Cache Aside</h4><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220303235235.png" alt="img" /></p><p>Cache Aside 模式中，业务应用方对于</p><ul><li><p>写: 更新 DB 后，直接将 key 从 cache 中删除，然后由 DB 驱动缓存数据的更新；</p></li><li><p>读: 先读 cache，如果 cache 没有，则读 DB，同时将从 DB 中读取的数据回写到 cache</p></li></ul><blockquote><p>写的时候为什么在更新完数据库之后将数据更新到缓存中？</p></blockquote><p>适用：对数据一致性要求高或者数据缓存更新复杂的业务</p><h4 id="readwrite-through"><a class="markdownIt-Anchor" href="#readwrite-through"></a> Read/Write Through</h4><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220303235549.png" alt="img" /></p><p>Cache Aside 模式，业务应用需同时维护 cache 和 DB 两个数据存储方，过于繁琐，于是就有了 Read/Write Through 模式</p><p>在Read/Write Through模式下，业务应用只关注一个存储服务即可，业务方的读写 cache 和 DB 的操作，都由存储服务代理。存储服务处理</p><ul><li>写：会首先查 cache，如果数据在 cache 中不存在，则只更新 DB，如果数据在 cache 中存在，则先更新 cache，然后更新 DB。</li><li>读：如果命中 cache 直接返回，否则先从 DB 加载，更新 cache 后返回响应</li></ul><blockquote><p>为什么在写操作先更新缓存，如果更新完缓存，但是数据库更新失败怎么办？</p><p>为什么Cache Aside不能使用存储服务代理？</p></blockquote><p>适用：同一业务区分缓存(读写频率高的更新缓存并写入数据库，而操作频率低的直接写入数据库并不写入缓存)</p><h3 id="write-behind-caching"><a class="markdownIt-Anchor" href="#write-behind-caching"></a> Write Behind Caching</h3><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220304000358.png" alt="img" /></p><p>Write Behind Caching 模式与 Read/Write Through 模式类似，也由数据存储服务来管理 cache 和 DB 的读写。不同点是，数据更新时，Read/write Through 是同步更新 cache 和 DB，而 Write Behind Caching 则是只更新缓存，不直接更新 DB，而是改为异步批量的方式来更新 DB。</p><p>适用：变化频率特变高，对一致性要求不太高的业务(比如计数业务的点赞功能，执行异步批量写入)</p><h3 id="缓存的分类"><a class="markdownIt-Anchor" href="#缓存的分类"></a> 缓存的分类</h3><h4 id="按宿主层次分类"><a class="markdownIt-Anchor" href="#按宿主层次分类"></a> 按宿主层次分类</h4><p>按宿主层次分类的话，缓存一般可以分为本地 Cache、进程间 Cache 和远程 Cache。</p><ul><li>本地 Cache 是指业务进程内的缓存，这类缓存由于在业务系统进程内，所以读写性能超高且无任何网络开销，但不足是会随着业务系统重启而丢失。</li><li>进程间 Cache 是本机独立运行的缓存，这类缓存读写性能较高，不会随着业务系统重启丢数据，并且可以大幅减少网络开销，但不足是业务系统和缓存都在相同宿主机，运维复杂，且存在资源竞争。</li><li>远程 Cache 是指跨机器部署的缓存，这类缓存因为独立设备部署，容量大且易扩展，在互联网企业使用最广泛。不过远程缓存需要跨机访问，在高读写压力下，带宽容易成为瓶颈。</li></ul><p>本地 Cache 的缓存组件有 Ehcache、Guava Cache 等，开发者自己也可以用 Map、Set 等轻松构建一个自己专用的本地 Cache。进程间 Cache 和远程 Cache 的缓存组件相同，只是部署位置的差异罢了，这类缓存组件有 Memcached、Redis、Pika 等。</p><h4 id="按存储介质分类"><a class="markdownIt-Anchor" href="#按存储介质分类"></a> 按存储介质分类</h4><ul><li>内存型缓存将数据存储在内存，读写性能很高，但缓存系统重启或 Crash 后，内存数据会丢失。</li><li>持久化型缓存将数据存储到 SSD/Fusion-IO 硬盘中，相同成本下，这种缓存的容量会比内存型缓存大 1 个数量级以上，而且数据会持久化落地，重启不丢失，但读写性能相对低 1～2 个数量级。Memcached 是典型的内存型缓存，而 Pika 以及其他基于 RocksDB 开发的缓存组件等则属于持久化型缓存。</li></ul><h3 id="缓存架构设计"><a class="markdownIt-Anchor" href="#缓存架构设计"></a> 缓存架构设计</h3><p>根据缓存组件特点确定缓存组件后，需要以下三点来考虑缓存架构设计</p><ol><li>分布式算法：取模还是一致性 Hash 进行分布<ul><li>取模：方案简单，每个 key 只会存在确定的缓存节点</li><li>一致性Hash：方案相对复杂，但失效节点的数据访问均衡分散到其他正常存活的节点，从而保证系统稳定性</li></ul></li><li>分布式读写访问如何实施：由缓存 Client 直接进行 Hash 分布定位读写<ul><li>Client 直接读写：读写性能最佳，但需要 Client 感知分布策略</li><li>Proxy代理访问：业务开发友好，但需要考虑性能瓶颈</li></ul></li><li>缓存的水平迁移:如果待缓存的数据量增长过快，会导致大量缓存数据被剔除，缓存命中率会下降，数据访问性能会随之降低，这样就需要将数据从缓存节点进行动态拆分，把部分数据水平迁移到其他缓存节点</li></ol><h4 id="部署与运维"><a class="markdownIt-Anchor" href="#部署与运维"></a> 部署与运维</h4><p>设计完毕缓存的分布策略后，接下来就要考虑缓存的架构部署及运维管理了。架构部署主要考虑如何对缓存进行分池、分层、分 IDC，以及是否需要进行异构处理。</p><ol><li>核心的、高并发访问的不同数据，需要分别分拆到独立的缓存池中，进行分别访问，避免相互影响；访问量较小、非核心的业务数据，则可以混存。</li><li>对海量数据、访问超过 10～100万 级的业务数据，要考虑分层访问，并且要分摊访问量，避免缓存过载。</li><li>如果业务系统需要多 IDC 部署甚至异地多活，则需要对缓存体系也进行多 IDC 部署，要考虑如何跨 IDC 对缓存数据进行更新，可以采用直接跨 IDC 读写，也可以采用 DataBus 配合队列机进行不同 IDC 的消息同步，然后由消息处理机进行缓存更新，还可以由各个 IDC 的 DB Trigger 进行缓存更新。</li><li>某些极端场景下，还需要把多种缓存组件进行组合使用，通过缓存异构达到最佳读写性能。</li><li>站在系统层面，要想更好得管理缓存，还要考虑缓存的服务化，考虑缓存体系如何更好得进行集群管理、监控运维等。</li></ol><h4 id="常见考量点"><a class="markdownIt-Anchor" href="#常见考量点"></a> 常见考量点</h4><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220307235700.png" alt="img" /></p><h5 id="读写方式"><a class="markdownIt-Anchor" href="#读写方式"></a> 读写方式</h5><p>首先是 value 的读写方式。是全部整体读写，还是只部分读写及变更？是否需要内部计算？比如，用户粉丝数，很多普通用户的粉丝有几千到几万，而大 V 的粉丝更是高达几千万甚至过亿，因此，获取粉丝列表肯定不能采用整体读写的方式，只能部分获取。另外在判断某用户是否关注了另外一个用户时，也不需要拉取该用户的全部关注列表，直接在关注列表上进行检查判断，然后返回 True/False 或 0/1 的方式更为高效</p><h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3><ol><li><a href="https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/300%E5%88%86%E9%92%9F%E5%90%83%E9%80%8F%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98-%E5%AE%8C" target="_blank" rel="noopener">https://learn.lianglianglee.com/专栏/300分钟吃透分布式缓存-完</a></li></ol>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;缓存知识点如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220303234240.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
-
-      
-    
-    </summary>
-    
-    
-      <category term="Microservices" scheme="http://xboom.github.io/categories/Microservices/"/>
-    
-    
-      <category term="Microservices" scheme="http://xboom.github.io/tags/Microservices/"/>
-    
-  </entry>
-  
-  <entry>
     <title>ETCD入门6-多版本控制</title>
     <link href="http://xboom.github.io/2022/02/23/ETCD/ETCD%E5%85%A5%E9%97%A86-%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/"/>
     <id>http://xboom.github.io/2022/02/23/ETCD/ETCD%E5%85%A5%E9%97%A86-%E5%A4%9A%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/</id>
@@ -568,6 +540,33 @@
     
     
       <category term="k8s" scheme="http://xboom.github.io/tags/k8s/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>协议5-TLS</title>
+    <link href="http://xboom.github.io/2022/02/21/Protocol/%E5%8D%8F%E8%AE%AE5-TLS/"/>
+    <id>http://xboom.github.io/2022/02/21/Protocol/%E5%8D%8F%E8%AE%AE5-TLS/</id>
+    <published>2022-02-20T16:27:19.000Z</published>
+    <updated>2022-06-25T07:00:00.113Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="引言"><a class="markdownIt-Anchor" href="#引言"></a> 引言</h3><p>HTTPS是建立在HTTP的基础上添加SSL加密层，通过TLS/SSL<strong>具有的身份验证</strong>、<strong>信息加密</strong>和<strong>完整性校验</strong>功能保证数据安全。</p><p>HTTP与HTTPS的区别：</p><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220221002749.jpg" alt="" /></p><ol><li>HTTPS是加密传输协议，HTTP是名文传输协议;</li><li>HTTPS需要用到SSL证书，而HTTP不用;</li><li>HTTPS比HTTP更加安全，对搜索引擎更友好，利于SEO</li><li>HTTPS标准端口443，HTTP标准端口80;</li><li>HTTPS基于传输层，HTTP基于应用层;</li><li>HTTPS在浏览器显示绿色安全锁，HTTP没有显示;</li></ol><h3 id="握手与密钥协商过程报文分析"><a class="markdownIt-Anchor" href="#握手与密钥协商过程报文分析"></a> 握手与密钥协商过程(报文分析)</h3><p>基于RSA握手和密钥交换的TLS/SSL握手过程</p><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220221002749.jpg" alt="" /></p><p>未完待续。。。</p><h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3><ul><li><a href="https://blog.csdn.net/hherima/article/details/52469674" target="_blank" rel="noopener">SSL/TLS握手过程</a></li><li><a href="https://blog.csdn.net/mrpre/category_9270159.html" target="_blank" rel="noopener">SSL/TLS详解</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;引言&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href=&quot;#引言&quot;&gt;&lt;/a&gt; 引言&lt;/h3&gt;
+&lt;p&gt;HTTPS是建立在HTTP的基础上添加SSL加密层，通过TLS/SSL&lt;strong&gt;具有的身份验证&lt;/strong&gt;、&lt;strong&gt;信息加密
+      
+    
+    </summary>
+    
+    
+      <category term="Protocol" scheme="http://xboom.github.io/categories/Protocol/"/>
+    
+    
+      <category term="TLS" scheme="http://xboom.github.io/tags/TLS/"/>
     
   </entry>
   
