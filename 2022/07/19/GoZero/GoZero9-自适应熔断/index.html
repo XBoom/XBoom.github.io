@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>go-zero9-自适应熔断 | XBoom Dove</title>
+  <meta name="description" content="问题背景 使用负载均衡策略是一种避免超负载的处理方式，但服务的容量是有限的。部分服务还是会出现超载的情况，如果优雅的处理过载则对可靠的服务至关重要。 在高并发场景下，为了应对依赖服务过载，服务不可用等情况，提出了熔断、限流与降级方案。这里主要描述熔断的原理，这里存在几个问题：  都有哪些熔断的解决方案 熔断器的实现原理是什么  使用较多的熔断组件：  hystrix circuit breake">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go-zero9-自适应熔断">
+<meta property="og:url" content="http://xboom.github.io/2022/07/19/GoZero/GoZero9-%E8%87%AA%E9%80%82%E5%BA%94%E7%86%94%E6%96%AD/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="问题背景 使用负载均衡策略是一种避免超负载的处理方式，但服务的容量是有限的。部分服务还是会出现超载的情况，如果优雅的处理过载则对可靠的服务至关重要。 在高并发场景下，为了应对依赖服务过载，服务不可用等情况，提出了熔断、限流与降级方案。这里主要描述熔断的原理，这里存在几个问题：  都有哪些熔断的解决方案 熔断器的实现原理是什么  使用较多的熔断组件：  hystrix circuit breake">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-07-19T14:31:29.926Z">
+<meta property="article:modified_time" content="2022-08-01T10:07:02.530Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="go-zero">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/07/19/GoZero/GoZero9-%E8%87%AA%E9%80%82%E5%BA%94%E7%86%94%E6%96%AD/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.38px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.63px;">Algorithms To Live By</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.38px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.38px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.25px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.5px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.25px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.88px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.75px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.5px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.13px;">gRPC</a> <a href="/tags/go-zero/" style="font-size: 13.88px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.5px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Microservices/">Microservices</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/07/28/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/" class="title">微服务-缓存一致性</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-07-28T00:39:54.767Z" itemprop="datePublished">2022-07-28</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/go-zero/">go-zero</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/07/19/GoZero/GoZero9-%E8%87%AA%E9%80%82%E5%BA%94%E7%86%94%E6%96%AD/" class="title">go-zero9-自适应熔断</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-07-19T14:31:29.926Z" itemprop="datePublished">2022-07-19</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/go-zero/">go-zero</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/07/19/GoZero/GoZero8-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%93%E5%AD%98/" class="title">go-zero8-数据库缓存</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-07-19T14:31:29.925Z" itemprop="datePublished">2022-07-19</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/go-zero/">go-zero</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/07/19/GoZero/GoZero7-%E8%BF%9B%E7%A8%8B%E5%86%85%E7%BC%93%E5%AD%98/" class="title">go-zero7-进程内缓存</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-07-19T14:31:29.923Z" itemprop="datePublished">2022-07-19</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/go-zero/">go-zero</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/07/19/GoZero/GoZero6-%E6%9C%8D%E5%8A%A1%E7%AE%A1%E7%90%86/" class="title">go-zero6-服务管理</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-07-19T14:31:29.919Z" itemprop="datePublished">2022-07-19</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题背景"><span class="toc-number">1.</span> <span class="toc-text"> 问题背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#熔断器原理"><span class="toc-number">2.</span> <span class="toc-text"> 熔断器原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#技术内幕"><span class="toc-number">3.</span> <span class="toc-text"> 技术内幕</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#接口定义"><span class="toc-number">3.1.</span> <span class="toc-text"> 接口定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#断路器"><span class="toc-number">3.2.</span> <span class="toc-text"> 断路器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据记录"><span class="toc-number">3.3.</span> <span class="toc-text"> 数据记录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#请求操作"><span class="toc-number">3.4.</span> <span class="toc-text"> 请求操作</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">5.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-GoZero/GoZero9-自适应熔断" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      go-zero9-自适应熔断
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/07/19/GoZero/GoZero9-%E8%87%AA%E9%80%82%E5%BA%94%E7%86%94%E6%96%AD/" class="article-date">
+	  <time datetime="2022-07-19T14:31:29.926Z" itemprop="datePublished">2022-07-19</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/go-zero/">go-zero</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/go-zero/" rel="tag">go-zero</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/07/19/GoZero/GoZero9-%E8%87%AA%E9%80%82%E5%BA%94%E7%86%94%E6%96%AD/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 1.5k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 6(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="问题背景"><a class="markdownIt-Anchor" href="#问题背景"></a> 问题背景</h3>
+<p>使用负载均衡策略是一种避免超负载的处理方式，但服务的容量是有限的。部分服务还是会出现超载的情况，如果优雅的处理过载则对可靠的服务至关重要。</p>
+<p>在高并发场景下，为了应对依赖服务过载，服务不可用等情况，提出了熔断、限流与降级方案。这里主要描述熔断的原理，这里存在几个问题：</p>
+<ol>
+<li>都有哪些熔断的解决方案</li>
+<li>熔断器的实现原理是什么</li>
+</ol>
+<p>使用较多的熔断组件：</p>
+<ol>
+<li>hystrix circuit breaker（不再维护）</li>
+<li>hystrix-go</li>
+<li>resilience4j（推荐）</li>
+<li>sentinel（推荐）</li>
+</ol>
+<h3 id="熔断器原理"><a class="markdownIt-Anchor" href="#熔断器原理"></a> 熔断器原理</h3>
+<p>熔断器一般具有三个状态：</p>
+<ol>
+<li><strong>关闭</strong>: 默认状态，请求能被到达目标服务，同时统计在窗口时间成功和失败次数，如果达到错误率阈值将会进入断开状态。</li>
+<li><strong>断开</strong>: 此状态下将会直接返回错误，如果有 fallback 配置则直接调用 fallback 方法。</li>
+<li><strong>半断开</strong>: 进行断开状态会维护一个超时时间，到达超时时间开始进入 <strong>半断开</strong> 状态，尝试允许一部分请求正常通过并统计成功数量，如果请求正常则认为此时目标服务已恢复进入 <strong>关闭</strong> 状态，否则进入 <strong>断开</strong> 状态</li>
+</ol>
+<p>基于熔断器的原理，通常熔断器主要关注以下参数：</p>
+<ol>
+<li>错误比例阈值: 达到该阈值进入 断开 状态</li>
+<li>断开状态超时时间: 超时后进入 半断开 状态</li>
+<li>半断开状态允许请求数量</li>
+<li>窗口时间大小</li>
+</ol>
+<p>这里有更将详细可参考的参考以及算法说明</p>
+<ol>
+<li><a href="https://resilience4j.readme.io/docs/circuitbreaker" target="_blank" rel="noopener">https://resilience4j.readme.io/docs/circuitbreaker</a></li>
+<li><a href="https://sre.google/sre-book/handling-overload/" target="_blank" rel="noopener">https://sre.google/sre-book/handling-overload/</a></li>
+</ol>
+<p>由于<code>go-zero</code> 的熔断器是基于google文章实现，来看下基本算法</p>
+<h3 id="技术内幕"><a class="markdownIt-Anchor" href="#技术内幕"></a> 技术内幕</h3>
+<ol>
+<li>无论什么熔断器都得依靠指标统计来转换状态，而统计指标一般要求是最近的一段时间内的数据，所以通常采用一个 <code>滑动时间窗口</code> 数据结构 来存储统计数据。同时熔断器的状态也需要依靠指标统计来实现可观测性。</li>
+<li>外部服务请求结果各式各样，所以需要提供一个自定义的判断方法，判断请求是否成功。熔断器需要实时收集此数据。</li>
+<li>当外部服务被熔断时使用者往往需要自定义快速失败的逻辑，考虑提供自定义的 <code>fallback()</code> 功能。</li>
+</ol>
+<h4 id="接口定义"><a class="markdownIt-Anchor" href="#接口定义"></a> 接口定义</h4>
+<p>代码路径：<code>core/breaker/breaker.go</code></p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 250ms for bucket duration</span></span><br><span class="line">window     = time.Second * <span class="number">10</span></span><br><span class="line">buckets    = <span class="number">40</span></span><br><span class="line">k          = <span class="number">1.5</span></span><br><span class="line">protection = <span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//判断断路器是否通过</span></span><br><span class="line">Acceptable <span class="function"><span class="keyword">func</span><span class="params">(err error)</span> <span class="title">bool</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Breaker 断路器</span></span><br><span class="line">	Breaker <span class="keyword">interface</span> &#123;</span><br><span class="line">		<span class="comment">// 熔断器名称</span></span><br><span class="line">		Name() <span class="keyword">string</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//检查请求是否允许。调用成功则使用 Promise.Accept()，失败则调用 Promise.Reject()，否则表示不许云</span></span><br><span class="line">		Allow() (Promise, error)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果 Breaker 接受，Do 运行给定的请求。</span></span><br><span class="line">		<span class="comment">// 如果 Breaker 拒绝请求，Do 立即返回错误。</span></span><br><span class="line">		<span class="comment">// 如果请求发生恐慌，Breaker 将其作为错误处理并再次引起同样的恐慌。</span></span><br><span class="line">		Do(req <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">error</span>) <span class="title">error</span></span></span><br><span class="line"></span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 如果 Breaker 接受，DoWithAcceptable 运行给定的请求。</span></span><br><span class="line">		<span class="comment">// 如果 Breaker 拒绝请求，DoWithAcceptable 会立即返回错误。</span></span><br><span class="line">		<span class="comment">// 如果请求发生恐慌，Breaker 将其作为错误处理并再次引起同样的恐慌。</span></span><br><span class="line">		<span class="comment">// 可接受的检查它是否是一个成功的调用，即使错误不是零。</span></span><br><span class="line">		DoWithAcceptable(req <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">error</span>, <span class="title">acceptable</span> <span class="title">Acceptable</span>) <span class="title">error</span></span></span><br><span class="line"></span><br><span class="line">		<span class="comment">// 如果 Breaker 接受，DoWithFallback 运行给定的请求。</span></span><br><span class="line">		<span class="comment">// 如果 Breaker 拒绝请求，DoWithFallback 运行回退。</span></span><br><span class="line">		<span class="comment">// 如果请求发生恐慌，Breaker 将其作为错误处理并再次引起同样的恐慌。</span></span><br><span class="line">		DoWithFallback(req <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">error</span>, <span class="title">fallback</span> <span class="title">func</span><span class="params">(err error)</span> <span class="title">error</span>) <span class="title">error</span></span></span><br><span class="line"></span><br><span class="line">		<span class="comment">// 如果 Breaker 接受，DoWithFallbackAcceptable 运行给定的请求。</span></span><br><span class="line">		<span class="comment">// DoWithFallbackAcceptable 如果 Breaker 拒绝请求，则运行回退。</span></span><br><span class="line">		<span class="comment">// 如果请求发生恐慌，Breaker 将其作为错误处理并再次引起同样的恐慌。</span></span><br><span class="line">		<span class="comment">// 可接受的检查它是否是一个成功的调用，即使错误不是零。</span></span><br><span class="line">		DoWithFallbackAcceptable(req <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">error</span>, <span class="title">fallback</span> <span class="title">func</span><span class="params">(err error)</span> <span class="title">error</span>, <span class="title">acceptable</span> <span class="title">Acceptable</span>) <span class="title">error</span></span></span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="断路器"><a class="markdownIt-Anchor" href="#断路器"></a> 断路器</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//断路器</span></span><br><span class="line">circuitBreaker <span class="keyword">struct</span> &#123;</span><br><span class="line">	name <span class="keyword">string</span></span><br><span class="line">	throttle</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//断路器内部则通过两个接口实现</span></span><br><span class="line">throttle <span class="keyword">interface</span> &#123;</span><br><span class="line">	allow() (Promise, error)</span><br><span class="line">	doReq(req <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">error</span>, <span class="title">fallback</span> <span class="title">func</span><span class="params">(err error)</span> <span class="title">error</span>, <span class="title">acceptable</span> <span class="title">Acceptable</span>) <span class="title">error</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//自定义断路器对象</span></span><br><span class="line"><span class="keyword">type</span> googleBreaker <span class="keyword">struct</span> &#123;</span><br><span class="line">	k     <span class="keyword">float64</span></span><br><span class="line">	stat  *collection.RollingWindow	<span class="comment">//使用滑动窗口统计最近一段时间数据</span></span><br><span class="line">	proba *mathx.Proba</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newGoogleBreaker</span><span class="params">()</span> *<span class="title">googleBreaker</span></span> &#123;</span><br><span class="line">	bucketDuration := time.Duration(<span class="keyword">int64</span>(window) / <span class="keyword">int64</span>(buckets))</span><br><span class="line">	st := collection.NewRollingWindow(buckets, bucketDuration)	</span><br><span class="line">	<span class="keyword">return</span> &amp;googleBreaker&#123;</span><br><span class="line">		stat:  st,</span><br><span class="line">		k:     k,</span><br><span class="line">		proba: mathx.NewProba(),</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="数据记录"><a class="markdownIt-Anchor" href="#数据记录"></a> 数据记录</h4>
+<p>其实是将成功或者失败记录到滑动窗口中</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *googleBreaker)</span> <span class="title">markSuccess</span><span class="params">()</span></span> &#123;</span><br><span class="line">	b.stat.Add(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *googleBreaker)</span> <span class="title">markFailure</span><span class="params">()</span></span> &#123;</span><br><span class="line">	b.stat.Add(<span class="number">0</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="请求操作"><a class="markdownIt-Anchor" href="#请求操作"></a> 请求操作</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//统计滑动窗口中所代表的最近一段时间的数据</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *googleBreaker)</span> <span class="title">history</span><span class="params">()</span> <span class="params">(accepts, total <span class="keyword">int64</span>)</span></span> &#123;</span><br><span class="line">	b.stat.Reduce(<span class="function"><span class="keyword">func</span><span class="params">(b *collection.Bucket)</span></span> &#123;</span><br><span class="line">		accepts += <span class="keyword">int64</span>(b.Sum)</span><br><span class="line">		total += b.Count</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//检查是否允许</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *googleBreaker)</span> <span class="title">accept</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	accepts, total := b.history()</span><br><span class="line">	weightedAccepts := b.k * <span class="keyword">float64</span>(accepts)</span><br><span class="line">	<span class="comment">// https://landing.google.com/sre/sre-book/chapters/handling-overload/#eq2101</span></span><br><span class="line">	dropRatio := math.Max(<span class="number">0</span>, (<span class="keyword">float64</span>(total-protection)-weightedAccepts)/<span class="keyword">float64</span>(total+<span class="number">1</span>))</span><br><span class="line">	<span class="keyword">if</span> dropRatio &lt;= <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> b.proba.TrueOnProba(dropRatio) &#123;</span><br><span class="line">		<span class="keyword">return</span> ErrServiceUnavailable</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//返回断路器权限</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *googleBreaker)</span> <span class="title">allow</span><span class="params">()</span> <span class="params">(internalPromise, error)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> err := b.accept(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> googlePromise&#123;</span><br><span class="line">		b: b,</span><br><span class="line">	&#125;, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *googleBreaker)</span> <span class="title">doReq</span><span class="params">(req <span class="keyword">func</span>()</span> <span class="title">error</span>, <span class="title">fallback</span> <span class="title">func</span><span class="params">(err error)</span> <span class="title">error</span>, <span class="title">acceptable</span> <span class="title">Acceptable</span>) <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> err := b.accept(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> fallback != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> fallback(err)</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> e := <span class="built_in">recover</span>(); e != <span class="literal">nil</span> &#123;</span><br><span class="line">			b.markFailure()</span><br><span class="line">			<span class="built_in">panic</span>(e)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	err := req()</span><br><span class="line">	<span class="keyword">if</span> acceptable(err) &#123;	<span class="comment">//结果的处理</span></span><br><span class="line">		b.markSuccess()</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		b.markFailure()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<ol>
+<li>
+<p>通过滑动窗口进行最近一段数据(成功失败次数)的统计</p>
+</li>
+<li>
+<p>是否断路则是通过指定的公式计算</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">失</mi><mi mathvariant="normal">败</mi><mi mathvariant="normal">率</mi><mo>=</mo><mi mathvariant="normal">总</mi><mi mathvariant="normal">数</mi><mo>−</mo><mi mathvariant="normal">可</mi><mi mathvariant="normal">接</mi><mi mathvariant="normal">收</mi><mi mathvariant="normal">误</mi><mi mathvariant="normal">差</mi><mo>−</mo><mi>k</mi><mo>∗</mo><mi mathvariant="normal">成</mi><mi mathvariant="normal">功</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">失</mi><mi mathvariant="normal">败</mi></mrow><annotation encoding="application/x-tex">失败率 = 总数 - 可接收误差 - k * 成功 / 失败
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mord cjk_fallback">失</span><span class="mord cjk_fallback">败</span><span class="mord cjk_fallback">率</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord cjk_fallback">总</span><span class="mord cjk_fallback">数</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord cjk_fallback">可</span><span class="mord cjk_fallback">接</span><span class="mord cjk_fallback">收</span><span class="mord cjk_fallback">误</span><span class="mord cjk_fallback">差</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord cjk_fallback">成</span><span class="mord cjk_fallback">功</span><span class="mord">/</span><span class="mord cjk_fallback">失</span><span class="mord cjk_fallback">败</span></span></span></span></span></p>
+</li>
+</ol>
+<h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
+<ol>
+<li><a href="https://talkgo.org/t/topic/3035" target="_blank" rel="noopener">https://talkgo.org/t/topic/3035</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/07/28/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/" title="微服务-缓存一致性"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/07/19/GoZero/GoZero8-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%93%E5%AD%98/" title="go-zero8-数据库缓存"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">
+        <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>
