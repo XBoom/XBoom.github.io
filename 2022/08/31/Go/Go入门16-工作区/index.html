@@ -17,21 +17,21 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>设计模式-迭代器模式 | XBoom Dove</title>
-  <meta name="description" content="迭代器模式是一种行为设计模式， 让你能在不暴露集合底层表现形式 （列表、 栈和树等） 的情况下遍历集合中所有的元素  代码实现 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667package ite">
+  <title>Go入门16-工作区 | XBoom Dove</title>
+  <meta name="description" content="问题背景 Golang 在1.18 推出了新特性 workspace 工作区模式  为什么要有 workspace 什么是 workspace 怎么使用 workspace  在工作过程中发现，模块的go.mod中添加了很多 replace，其实是为了解决依赖的问题。例如有2个module处于开发阶段，一个是example.com&#x2F;web，一个是example.com&#x2F;util。example.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="设计模式-迭代器模式">
-<meta property="og:url" content="http://xboom.github.io/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:title" content="Go入门16-工作区">
+<meta property="og:url" content="http://xboom.github.io/2022/08/31/Go/Go%E5%85%A5%E9%97%A816-%E5%B7%A5%E4%BD%9C%E5%8C%BA/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="迭代器模式是一种行为设计模式， 让你能在不暴露集合底层表现形式 （列表、 栈和树等） 的情况下遍历集合中所有的元素  代码实现 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667package ite">
+<meta property="og:description" content="问题背景 Golang 在1.18 推出了新特性 workspace 工作区模式  为什么要有 workspace 什么是 workspace 怎么使用 workspace  在工作过程中发现，模块的go.mod中添加了很多 replace，其实是为了解决依赖的问题。例如有2个module处于开发阶段，一个是example.com&#x2F;web，一个是example.com&#x2F;util。example.">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-08-09T15:30:38.933Z">
-<meta property="article:modified_time" content="2022-08-14T07:51:26.268Z">
+<meta property="article:published_time" content="2022-08-31T14:04:54.799Z">
+<meta property="article:modified_time" content="2022-09-12T09:45:46.081Z">
 <meta property="article:author" content="XBoom Dove">
-<meta property="article:tag" content="Design Patterns">
+<meta property="article:tag" content="Go">
 <meta name="twitter:card" content="summary">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://xboom.github.io/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/index.html">
+  <link rel="canonical" href="http://xboom.github.io/2022/08/31/Go/Go%E5%85%A5%E9%97%A816-%E5%B7%A5%E4%BD%9C%E5%8C%BA/index.html">
   
   
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -323,21 +323,21 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">1.</span> <span class="toc-text"> 代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#单元测试"><span class="toc-number">2.</span> <span class="toc-text"> 单元测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#适用场景"><span class="toc-number">3.</span> <span class="toc-text"> 适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题背景"><span class="toc-number">1.</span> <span class="toc-text"> 问题背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#工作区"><span class="toc-number">2.</span> <span class="toc-text"> 工作区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令"><span class="toc-number">3.</span> <span class="toc-text"> 命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">4.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Design Patterns/设计模式-迭代器模式" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Go/Go入门16-工作区" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      设计模式-迭代器模式
+      Go入门16-工作区
     </h1>
   
 
@@ -345,20 +345,20 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/" class="article-date">
-	  <time datetime="2022-08-09T15:30:38.933Z" itemprop="datePublished">2022-08-09</time>
+	<a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A816-%E5%B7%A5%E4%BD%9C%E5%8C%BA/" class="article-date">
+	  <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
 	</a>
 </span>
         
   <span class="article-category">
     <i class="icon icon-folder"></i>
-    <a class="article-category-link" href="/categories/Design-Patterns/">Design Patterns</a>
+    <a class="article-category-link" href="/categories/Go/">Go</a>
   </span>
 
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a>
+	<a class="article-tag-link" href="/tags/Go/" rel="tag">Go</a>
   </span>
 
 
@@ -371,41 +371,97 @@
 	</span>
 
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/#comments" class="article-comment-link">Comments</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A816-%E5%B7%A5%E4%BD%9C%E5%8C%BA/#comments" class="article-comment-link">Comments</a></span>
         
 	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 473(words)</span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 1.1k(words)</span>
 	
 	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 2(minutes)</span>
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 4(minutes)</span>
 	
 
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p><strong>迭代器模式</strong>是一种行为设计模式， 让你能在不暴露集合底层表现形式 （列表、 栈和树等） 的情况下遍历集合中所有的元素</p>
-<h3 id="代码实现"><a class="markdownIt-Anchor" href="#代码实现"></a> 代码实现</h3>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> iterator</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//聚合</span></span><br><span class="line"><span class="keyword">type</span> Aggregate <span class="keyword">interface</span> &#123;</span><br><span class="line">	Iterator() Iterator</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//迭代器</span></span><br><span class="line"><span class="keyword">type</span> Iterator <span class="keyword">interface</span> &#123;</span><br><span class="line">	First()							<span class="comment">//第一个</span></span><br><span class="line">	IsDone() <span class="keyword">bool</span>				<span class="comment">//是否结束</span></span><br><span class="line">	Next() <span class="keyword">interface</span>&#123;&#125;	<span class="comment">//下一个</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//数量</span></span><br><span class="line"><span class="keyword">type</span> Numbers <span class="keyword">struct</span> &#123;</span><br><span class="line">	start, end <span class="keyword">int</span>	<span class="comment">//开始与结束</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewNumbers</span><span class="params">(start, end <span class="keyword">int</span>)</span> *<span class="title">Numbers</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;Numbers&#123;</span><br><span class="line">		start: start,</span><br><span class="line">		end:   end,</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> NumbersIterator <span class="keyword">struct</span> &#123;</span><br><span class="line">	numbers *Numbers</span><br><span class="line">	next    <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//迭代器</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(n *Numbers)</span> <span class="title">Iterator</span><span class="params">()</span> <span class="title">Iterator</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;NumbersIterator&#123;</span><br><span class="line">		numbers: n,</span><br><span class="line">		next:    n.start,</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//第一个</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(i *NumbersIterator)</span> <span class="title">First</span><span class="params">()</span></span> &#123;</span><br><span class="line">	i.next = i.numbers.start	<span class="comment">//第一个</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//是否结束</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(i *NumbersIterator)</span> <span class="title">IsDone</span><span class="params">()</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> i.next &gt; i.numbers.end</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//下一个</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(i *NumbersIterator)</span> <span class="title">Next</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">	<span class="keyword">if</span> !i.IsDone() &#123;</span><br><span class="line">		next := i.next</span><br><span class="line">		i.next++</span><br><span class="line">		<span class="keyword">return</span> next</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">IteratorPrint</span><span class="params">(i Iterator)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i.First(); !i.IsDone(); &#123;</span><br><span class="line">		c := i.Next()</span><br><span class="line">		fmt.Printf(<span class="string">"%#v\n"</span>, c)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="单元测试"><a class="markdownIt-Anchor" href="#单元测试"></a> 单元测试</h3>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> iterator</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ExampleIterator</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> aggregate Aggregate</span><br><span class="line">	aggregate = NewNumbers(<span class="number">1</span>, <span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">	IteratorPrint(aggregate.Iterator())</span><br><span class="line">	<span class="comment">// Output:</span></span><br><span class="line">	<span class="comment">// 1</span></span><br><span class="line">	<span class="comment">// 2</span></span><br><span class="line">	<span class="comment">// 3</span></span><br><span class="line">	<span class="comment">// 4</span></span><br><span class="line">	<span class="comment">// 5</span></span><br><span class="line">	<span class="comment">// 6</span></span><br><span class="line">	<span class="comment">// 7</span></span><br><span class="line">	<span class="comment">// 8</span></span><br><span class="line">	<span class="comment">// 9</span></span><br><span class="line">	<span class="comment">// 10</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="适用场景"><a class="markdownIt-Anchor" href="#适用场景"></a> 适用场景</h3>
+        <h3 id="问题背景"><a class="markdownIt-Anchor" href="#问题背景"></a> 问题背景</h3>
+<p>Golang 在1.18 推出了新特性 <strong>workspace</strong> 工作区模式</p>
 <ol>
-<li>集合背后为复杂的数据结构且希望对客户端隐藏其复杂性时</li>
-<li>使用该模式可以减少程序中重复的遍历代码</li>
-<li>希望代码能够遍历不同的甚至是无法预知的数据结构</li>
+<li>为什么要有 <strong>workspace</strong></li>
+<li>什么是 <strong>workspace</strong></li>
+<li>怎么使用 <strong>workspace</strong></li>
 </ol>
-<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<p>在工作过程中发现，模块的go.mod中添加了很多 <code>replace</code>，其实是为了解决依赖的问题。例如有2个<code>module</code>处于开发阶段，一个是<code>example.com/web</code>，一个是<code>example.com/util</code>。<code>example.com/web</code>依赖<code>example.com/util</code>的函数，当两个模块同时开发过程中，为了 <code>web</code> 模块能够时候用到最新的 <code>util</code> 模块代码，有两种方案</p>
+<p><strong>方案1</strong>：就是将模块及时提交代码到代码仓库</p>
 <ul>
-<li><em>单一职责原则</em>。 通过将体积庞大的遍历算法代码抽取为独立的类， 对客户端代码和集合进行整理。</li>
-<li><em>开闭原则</em>。 可实现新型的集合和迭代器并将其传递给现有代码， 无需修改现有代码。</li>
-<li>可以并行遍历同一集合， 因为每个迭代器对象都包含其自身的遍历状态。</li>
-<li>相似的， 可以暂停遍历并在需要时继续。</li>
+<li>如果 <code>util</code> 有修改，那么就需要将代码提交到代码仓库，然后打上 tag</li>
+<li>然后使用 go get -u 更新 main 中依赖的 util 的版本号(tag)</li>
 </ul>
+<blockquote>
+<p>缺点：每次需要提交代码并更新到最新</p>
+</blockquote>
+<p><strong>方案2</strong>：使用go.mod中使用<code>replace</code>指令，见代码</p>
+<p>目录结构:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">module</span><br><span class="line">|-- web</span><br><span class="line">|    |-- go.mod</span><br><span class="line">     |-- main.go</span><br><span class="line">|-- util</span><br><span class="line">     |-- go.mod</span><br><span class="line">     |-- util.go</span><br></pre></td></tr></table></figure>
+<p>文件<code>web/web.go</code> :</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"example.com/util"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	result := util.Add(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">	fmt.Println(result)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件<code>web/go.mod</code>:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">module example.com/web</span><br><span class="line"></span><br><span class="line"><span class="keyword">go</span> <span class="number">1.18</span></span><br><span class="line"></span><br><span class="line">require <span class="string">"example.com/util"</span> v0<span class="number">.0</span><span class="number">.0</span></span><br><span class="line"></span><br><span class="line">replace <span class="string">"example.com/util"</span> =&gt; ../util</span><br></pre></td></tr></table></figure>
+<p>文件<code>util/util.go</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">package util</span><br><span class="line"></span><br><span class="line">func Add(a int, b int) int &#123;</span><br><span class="line">	return a + b</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件<code>util/go.mod</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">module example.com/util</span><br><span class="line"></span><br><span class="line"><span class="keyword">go</span> <span class="number">1.18</span></span><br></pre></td></tr></table></figure>
+<p>通过<code>replace</code>指令，使用go命令编译代码的时候，会找到本地的util目录，这样<code>example.com/web</code>就可以使用到本地最新的<code>example.com/util</code>代码</p>
+<blockquote>
+<p>缺点：提交<code>example.com/web</code>这个module的代码到代码仓库时，需要删除最后的replace指令，否则其他开发者下载后会编译报错，因为他们本地可能没有util目录，或者util目录的路径和你的不一样</p>
+</blockquote>
+<h3 id="工作区"><a class="markdownIt-Anchor" href="#工作区"></a> 工作区</h3>
+<p>为了解决方案2的痛点，Go1.18 新增了工作区模式(<strong>workspace mode</strong>)</p>
+<p>去掉 <code>web/go.mod</code> 中的 <code>replace</code>命令</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">module example.com/web</span><br><span class="line"></span><br><span class="line"><span class="keyword">go</span> <span class="number">1.18</span></span><br><span class="line"></span><br><span class="line">require <span class="string">"example.com/util"</span> v0<span class="number">.0</span><span class="number">.0</span></span><br></pre></td></tr></table></figure>
+<p>在 web 模块中执行 <code>go run hello.go</code>，提示找不到依赖模块</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hello.<span class="keyword">go</span>:<span class="number">6</span>:<span class="number">2</span>: missing <span class="keyword">go</span>.sum entry <span class="keyword">for</span> module providing <span class="keyword">package</span> example.com/util; to add:</span><br><span class="line">       <span class="keyword">go</span> mod download example.com/util</span><br></pre></td></tr></table></figure>
+<p>使用 <code>go work init web util</code>指定工作模块 <code>web</code> 与 <code>util</code>，会生成 <code>go.work</code> 文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">go 1.18</span><br><span class="line"></span><br><span class="line">use (</span><br><span class="line">	./util</span><br><span class="line">	./web</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>其中 <code>use</code> 用于表示需要指定的模块，再次执行 <code>go run hello.go</code>，则运行成功</p>
+<p>目录结构</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">module</span><br><span class="line">|-- go.work</span><br><span class="line">|-- web</span><br><span class="line">|    |-- go.mod</span><br><span class="line">     |-- main.go</span><br><span class="line">|-- util</span><br><span class="line">     |-- go.mod</span><br><span class="line">     |-- util.go</span><br></pre></td></tr></table></figure>
+<h3 id="命令"><a class="markdownIt-Anchor" href="#命令"></a> 命令</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">root@13ce5bc74ac3:/code/module-workspace# go help work</span><br><span class="line">Usage:</span><br><span class="line">        go work &lt;command&gt; [arguments]</span><br><span class="line">The commands are:</span><br><span class="line"></span><br><span class="line">        edit        edit go.work from tools or scripts</span><br><span class="line">        init        initialize workspace file</span><br><span class="line">        sync        sync workspace build list to modules</span><br><span class="line">        use         add modules to workspace file</span><br><span class="line"></span><br><span class="line">Use "go help work &lt;command&gt;" for more information about a command.</span><br></pre></td></tr></table></figure>
+<ol>
+<li>
+<p>通常情况下，建议不要提交 go.work 文件到 git上，因为它主要用于本地代码开发</p>
+</li>
+<li>
+<p>推荐在 <code>$GOPATH</code> 路径下执行，生成 go.work 文件</p>
+</li>
+<li>
+<p><code>go work init</code> 初始化工作区文件，用于生成go.work工作区文件</p>
+</li>
+<li>
+<p><code>go work use</code> 添加新的模块到工作区间</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> work use ./example 添加一个模块到工作区</span><br><span class="line"><span class="keyword">go</span> work use ./example ./example1 添加多个模块到工作区</span><br><span class="line"><span class="keyword">go</span> work use -r ./example 递归 ./example 目录到当前工作区</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>go work edit</code> 用于编辑 go.work文件</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//可以使用 edit 命令编辑和手动编辑 go.work 文件效果是相同的 示例:</span></span><br><span class="line"><span class="keyword">go</span> work edit -fmt <span class="keyword">go</span>.work 重新格式化 <span class="keyword">go</span>.work 文件</span><br><span class="line"><span class="keyword">go</span> work edit -replace=github.com/link1st/example=./example <span class="keyword">go</span>.work 替换代码模块</span><br><span class="line"><span class="keyword">go</span> work edit -dropreplace=github.com/link1st/example 删除替换代码模块</span><br><span class="line"><span class="keyword">go</span> work edit -use=./example <span class="keyword">go</span>.work 添加新的模块到工作区</span><br><span class="line"><span class="keyword">go</span> work edit -dropuse=./example <span class="keyword">go</span>.work 从工作区中删除模块</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>go work sync</code> 将工作区的构建列表同步到工作区的模块</p>
+</li>
+<li>
+<p><code>go env GOWORK</code> 查看环境变量，查看当前工作区文件路径 可以排查工作区文件是否设置正确，<strong>go.work</strong> 路径找不到可以使用 <code>GOWORK</code> 指定，生成多个<code>go.work</code>则指向最后一次生成的路径</p>
+</li>
+<li>
+<p><code>replace</code> 指令的语法与 go.mod 中的 <code>replace</code> 指令相同，并优先于 go.mod 文件中的替换。这是主要用于覆盖不同工作区中的冲突替换模块</p>
+</li>
+</ol>
 <h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
 <ol>
-<li><a href="https://refactoringguru.cn/design-patterns/iterator" target="_blank" rel="noopener">https://refactoringguru.cn/design-patterns/iterator</a></li>
-<li><a href="https://lailin.xyz/post/iterator.html" target="_blank" rel="noopener">https://lailin.xyz/post/iterator.html</a></li>
+<li><a href="https://go.dev/blog/go1.18" target="_blank" rel="noopener">https://go.dev/blog/go1.18</a></li>
+<li><a href="https://go.dev/doc/tutorial/workspaces" target="_blank" rel="noopener">https://go.dev/doc/tutorial/workspaces</a></li>
+<li><a href="https://tonybai.com/2021/11/12/go-workspace-mode-in-go-1-18/" target="_blank" rel="noopener">https://tonybai.com/2021/11/12/go-workspace-mode-in-go-1-18/</a></li>
+<li><a href="https://go.dev/ref/mod#workspaces" target="_blank" rel="noopener">https://go.dev/ref/mod#workspaces</a></li>
 </ol>
 
       
@@ -450,12 +506,12 @@
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E9%97%A8%E9%9D%A2%E6%A8%A1%E5%BC%8F/" title="设计模式-门面模式"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+      <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A814-%E6%B3%9B%E5%9E%8B/" title="Go入门14-泛型"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
     </li>
     
     
     <li class="next">
-      <a href="/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/" title="设计模式-建造者模式"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2022/08/27/Go/Go%E5%85%A5%E9%97%A813-style/" title="Go入门13-style"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
