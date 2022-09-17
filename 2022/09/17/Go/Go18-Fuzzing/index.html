@@ -17,21 +17,21 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>设计模式-代理模式 | XBoom Dove</title>
-  <meta name="description" content="代理模式 建议新建一个与原服务对象接口相同的代理类， 然后更新应用以将代理对象传递给所有原始对象客户端。 代理类接收到客户端请求后会创建实际的服务对象， 并将所有工作委派给它。  代码实现 123456789101112131415161718192021222324252627282930package proxytype Subject interface &amp;#123;	Do() string">
+  <title>Go18-Fuzzing | XBoom Dove</title>
+  <meta name="description" content="Golang在1.18引入的第三个特性就是 Fuzzing 模糊测试：构造随机数据来找出代码里的漏洞或者可能导致程序崩溃的输入。 单元测试有局限性，每个测试输入必须由开发者指定加到单元测试的测试用例里。fuzzing的优点之一是可以基于开发者代码里指定的测试输入作为基础数据，进一步自动生成新的随机测试数据，用来发现指定测试输入没有覆盖到的边界情况。 通过fuzzing可以找出的漏洞包括SQL注入、">
 <meta property="og:type" content="article">
-<meta property="og:title" content="设计模式-代理模式">
-<meta property="og:url" content="http://xboom.github.io/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:title" content="Go18-Fuzzing">
+<meta property="og:url" content="http://xboom.github.io/2022/09/17/Go/Go18-Fuzzing/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="代理模式 建议新建一个与原服务对象接口相同的代理类， 然后更新应用以将代理对象传递给所有原始对象客户端。 代理类接收到客户端请求后会创建实际的服务对象， 并将所有工作委派给它。  代码实现 123456789101112131415161718192021222324252627282930package proxytype Subject interface &amp;#123;	Do() string">
+<meta property="og:description" content="Golang在1.18引入的第三个特性就是 Fuzzing 模糊测试：构造随机数据来找出代码里的漏洞或者可能导致程序崩溃的输入。 单元测试有局限性，每个测试输入必须由开发者指定加到单元测试的测试用例里。fuzzing的优点之一是可以基于开发者代码里指定的测试输入作为基础数据，进一步自动生成新的随机测试数据，用来发现指定测试输入没有覆盖到的边界情况。 通过fuzzing可以找出的漏洞包括SQL注入、">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-08-09T15:30:38.933Z">
-<meta property="article:modified_time" content="2022-08-14T04:40:41.487Z">
+<meta property="article:published_time" content="2022-09-17T09:06:06.892Z">
+<meta property="article:modified_time" content="2022-09-17T15:57:16.237Z">
 <meta property="article:author" content="XBoom Dove">
-<meta property="article:tag" content="Design Patterns">
+<meta property="article:tag" content="Go">
 <meta name="twitter:card" content="summary">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://xboom.github.io/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/index.html">
+  <link rel="canonical" href="http://xboom.github.io/2022/09/17/Go/Go18-Fuzzing/index.html">
   
   
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -323,21 +323,21 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">1.</span> <span class="toc-text"> 代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#单元测试"><span class="toc-number">2.</span> <span class="toc-text"> 单元测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#适用场景"><span class="toc-number">3.</span> <span class="toc-text"> 适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#第一步实现基本功能"><span class="toc-number">1.</span> <span class="toc-text"> 第一步：实现基本功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第二步编写单元测试"><span class="toc-number">2.</span> <span class="toc-text"> 第二步：编写单元测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第三步添加模糊测试"><span class="toc-number">3.</span> <span class="toc-text"> 第三步：添加模糊测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第四步修复bug"><span class="toc-number">4.</span> <span class="toc-text"> 第四步：修复Bug</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#语法"><span class="toc-number">5.</span> <span class="toc-text"> 语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">6.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Design Patterns/设计模式-代理模式" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Go/Go18-Fuzzing" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      设计模式-代理模式
+      Go18-Fuzzing
     </h1>
   
 
@@ -345,20 +345,20 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/" class="article-date">
-	  <time datetime="2022-08-09T15:30:38.933Z" itemprop="datePublished">2022-08-09</time>
+	<a href="/2022/09/17/Go/Go18-Fuzzing/" class="article-date">
+	  <time datetime="2022-09-17T09:06:06.892Z" itemprop="datePublished">2022-09-17</time>
 	</a>
 </span>
         
   <span class="article-category">
     <i class="icon icon-folder"></i>
-    <a class="article-category-link" href="/categories/Design-Patterns/">Design Patterns</a>
+    <a class="article-category-link" href="/categories/Go/">Go</a>
   </span>
 
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a>
+	<a class="article-tag-link" href="/tags/Go/" rel="tag">Go</a>
   </span>
 
 
@@ -371,42 +371,84 @@
 	</span>
 
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/#comments" class="article-comment-link">Comments</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/09/17/Go/Go18-Fuzzing/#comments" class="article-comment-link">Comments</a></span>
         
 	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 514(words)</span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 1.7k(words)</span>
 	
 	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 1(minutes)</span>
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 7(minutes)</span>
 	
 
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p><strong>代理模式</strong> 建议新建一个与原服务对象接口相同的代理类， 然后更新应用以将代理对象传递给所有原始对象客户端。 代理类接收到客户端请求后会创建实际的服务对象， 并将所有工作委派给它。</p>
-<h3 id="代码实现"><a class="markdownIt-Anchor" href="#代码实现"></a> 代码实现</h3>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> proxy</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Subject <span class="keyword">interface</span> &#123;</span><br><span class="line">	Do() <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> RealSubject <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(RealSubject)</span> <span class="title">Do</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">"real"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Proxy <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="built_in">real</span> RealSubject</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p Proxy)</span> <span class="title">Do</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> res <span class="keyword">string</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 在调用真实对象之前的工作，检查缓存，判断权限，实例化真实对象等。。</span></span><br><span class="line">	res += <span class="string">"pre:"</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 调用真实对象</span></span><br><span class="line">	res += p.<span class="built_in">real</span>.Do()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 调用之后的操作，如缓存结果，对结果进行处理等。。</span></span><br><span class="line">	res += <span class="string">":after"</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="单元测试"><a class="markdownIt-Anchor" href="#单元测试"></a> 单元测试</h3>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> proxy</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"testing"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestProxy</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> sub Subject</span><br><span class="line">	sub = &amp;Proxy&#123;&#125;</span><br><span class="line"></span><br><span class="line">	res := sub.Do()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> res != <span class="string">"pre:real:after"</span> &#123;</span><br><span class="line">		t.Fail()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="适用场景"><a class="markdownIt-Anchor" href="#适用场景"></a> 适用场景</h3>
+        <p>Golang在1.18引入的第三个特性就是 Fuzzing 模糊测试：构造随机数据来找出代码里的漏洞或者可能导致程序崩溃的输入。</p>
+<p>单元测试有局限性，每个测试输入必须由开发者指定加到单元测试的测试用例里。fuzzing的优点之一是可以基于开发者代码里指定的测试输入作为基础数据，进一步自动生成新的随机测试数据，用来发现指定测试输入没有覆盖到的边界情况。</p>
+<p>通过fuzzing可以找出的漏洞包括SQL注入、缓冲区溢出、拒绝服务(Denial of Service)攻击和XSS(cross-site scripting)攻击等</p>
+<p>这里通过编写反转字符串函数通过 <code>fuzz test</code> 来发现并修改问题</p>
+<h3 id="第一步实现基本功能"><a class="markdownIt-Anchor" href="#第一步实现基本功能"></a> 第一步：实现基本功能</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Reverse</span><span class="params">(s <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	b := []<span class="keyword">byte</span>(s)</span><br><span class="line">	<span class="keyword">for</span> i, j := <span class="number">0</span>, <span class="built_in">len</span>(b)<span class="number">-1</span>; i &lt; <span class="built_in">len</span>(b)/<span class="number">2</span>; i, j = i+<span class="number">1</span>, j<span class="number">-1</span> &#123;</span><br><span class="line">		b[i], b[j] = b[j], b[i]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">string</span>(b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	input := <span class="string">"The quick brown fox jumped over the lazy dog"</span></span><br><span class="line">	rev := Reverse(input)</span><br><span class="line">	doubleRev := Reverse(rev)</span><br><span class="line">	fmt.Printf(<span class="string">"original: %q\n"</span>, input)</span><br><span class="line">	fmt.Printf(<span class="string">"reversed: %q\n"</span>, rev)</span><br><span class="line">	fmt.Printf(<span class="string">"reversed again: %q\n"</span>, doubleRev)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出的结果是</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">original: <span class="string">"The quick brown fox jumped over the lazy dog"</span></span><br><span class="line">reversed: <span class="string">"god yzal eht revo depmuj xof nworb kciuq ehT"</span></span><br><span class="line">reversed again: <span class="string">"The quick brown fox jumped over the lazy dog"</span></span><br></pre></td></tr></table></figure>
+<h3 id="第二步编写单元测试"><a class="markdownIt-Anchor" href="#第二步编写单元测试"></a> 第二步：编写单元测试</h3>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">func TestReverse(t *testing.T) &#123;</span><br><span class="line">	testcases :&#x3D; []struct &#123;</span><br><span class="line">		in, want string</span><br><span class="line">	&#125;&#123;</span><br><span class="line">		&#123;&quot;Hello, world&quot;, &quot;dlrow ,olleH&quot;&#125;,</span><br><span class="line">		&#123;&quot; &quot;, &quot; &quot;&#125;,</span><br><span class="line">		&#123;&quot;!12345&quot;, &quot;54321!&quot;&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	for _, tc :&#x3D; range testcases &#123;</span><br><span class="line">		rev :&#x3D; Reverse(tc.in)</span><br><span class="line">		if rev !&#x3D; tc.want &#123;</span><br><span class="line">			t.Errorf(&quot;Reverse: %q, want %q&quot;, rev, tc.want)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行单元测试发现，一切正常</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ok      example/fuzz    0.003s</span><br></pre></td></tr></table></figure>
+<h3 id="第三步添加模糊测试"><a class="markdownIt-Anchor" href="#第三步添加模糊测试"></a> 第三步：添加模糊测试</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">FuzzReverse</span><span class="params">(f *testing.F)</span></span> &#123;</span><br><span class="line">	testcases := []<span class="keyword">string</span>&#123;<span class="string">"Hello, world"</span>, <span class="string">" "</span>, <span class="string">"!12345"</span>&#125;</span><br><span class="line">	<span class="keyword">for</span> _, tc := <span class="keyword">range</span> testcases &#123;</span><br><span class="line">		f.Add(tc) <span class="comment">// Use f.Add to provide a seed corpus</span></span><br><span class="line">	&#125;</span><br><span class="line">	f.Fuzz(<span class="function"><span class="keyword">func</span><span class="params">(t *testing.T, orig <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">		rev := Reverse(orig)</span><br><span class="line">		doubleRev := Reverse(rev)</span><br><span class="line">    <span class="comment">//这一行是为了解释后面的错误加的，暂时可以忽略</span></span><br><span class="line">    t.Logf(<span class="string">"Number of runes: orig=%d, rev=%d, doubleRev=%d"</span>, utf8.RuneCountInString(orig), utf8.RuneCountInString(rev), utf8.RuneCountInString(doubleRev))</span><br><span class="line">		<span class="keyword">if</span> orig != doubleRev &#123;</span><br><span class="line">			t.Errorf(<span class="string">"Before: %q, after: %q"</span>, orig, doubleRev)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> utf8.ValidString(orig) &amp;&amp; !utf8.ValidString(rev) &#123;</span><br><span class="line">			t.Errorf(<span class="string">"Reverse produced invalid UTF-8 string %q"</span>, rev)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意点：</p>
 <ol>
-<li><strong>延迟初始化</strong>， 如果有一个偶尔使用的重量级服务对象，一直保持该对象运行会消耗系统资源时使用代理模式(类似单例模式，但单例模式强调的是单实例)</li>
-<li><strong>访问控制(保护代理)</strong>，如果你只希望特定客户端使用服务对象，这里的对象可以是操作系统中非常重要的部分，而客户端则是各种已启动的程序(包括恶意程序)，此时可使用代理模式</li>
+<li><code>Reverse</code>函数如果是一个错误的版本(直接return返回输入的字符串)，虽然可以通过上面的模糊测试，但没法通过第二步的单元测试，所以模糊测试与单元测试是互补的关系</li>
+<li><code>go test</code> <strong>只会使用种子语料库，而不会生成随机测试数据</strong>。通过这种方式可以用来验证种子语料库的测试数据是否可以测试通过</li>
+<li>如果<code>reverse_test.go</code>文件里有其它单元测试函数或者模糊测试函数，但只想运行<code>FuzzReverse</code>模糊测试函数，我们可以执行<code>go test -run=FuzzReverse</code>命令</li>
+<li>如果要基于种子语料库生成随机测试数据用于模糊测试，需要给<code>go test</code>命令增加<code>-fuzz</code>参数</li>
 </ol>
-<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">root@13ce5bc74ac3:/code/fuzz# go test -fuzz .</span><br><span class="line">fuzz: elapsed: 0s, gathering baseline coverage: 0/7 completed</span><br><span class="line">fuzz: elapsed: 0s, gathering baseline coverage: 7/7 completed, now fuzzing with 2 workers</span><br><span class="line">fuzz: elapsed: 0s, execs: 648 (17784/sec), new interesting: 1 (total: 8)</span><br><span class="line">--- FAIL: FuzzReverse (0.04s)</span><br><span class="line">    --- FAIL: FuzzReverse (0.00s)</span><br><span class="line">    		hello_test.go:32: Number of runes: orig=1, rev=2, doubleRev=1</span><br><span class="line">        hello_test.go:36: Reverse produced invalid UTF-8 string "\x9e\xdb"</span><br><span class="line">    </span><br><span class="line">    Failing input written to testdata/fuzz/FuzzReverse/d6a654c77ca8db001e0bbe2cbb5493efcd20e17777911523bf59bd30bd33e199</span><br><span class="line">    To re-run:</span><br><span class="line">    go test -run=FuzzReverse/d6a654c77ca8db001e0bbe2cbb5493efcd20e17777911523bf59bd30bd33e199</span><br><span class="line">FAIL</span><br><span class="line">exit status 1</span><br><span class="line">FAIL    example/fuzz    0.048s</span><br></pre></td></tr></table></figure>
+<ol start="5">
+<li>
+<p>运行之后会生成testdata的文件夹，那么下次即使没有带上 <code>-fuzz</code> 参数，也会使用该数据进行模糊测试</p>
+<p>路径：<code>./testdata/fuzz/FuzzReverse/d6a654c77ca8db001e0bbe2cbb5493efcd20e17777911523bf59bd30bd33e199</code>，内容是：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> test fuzz v1  <span class="comment">//语料库文件里的第1行标识的是编码版本</span></span><br><span class="line"><span class="keyword">string</span>(<span class="string">"۞"</span>)</span><br></pre></td></tr></table></figure>
+<p>从第2行开始，每一行数据对应的是语料库的每条测试数据(corpus entry)的其中一个参数，按照参数先后顺序排列，因为fuzz target函数<code>func(t *testing.T, orig string)</code>只有<code>orig</code>这1个参数作为真正的测试输入，也就是每条测试数据其实就1个输入，因此在上面示例的<code>testdata/fuzz/FuzzReverse</code>目录下的文件里只有string(“۞”)这一行</p>
+</li>
+</ol>
+<h3 id="第四步修复bug"><a class="markdownIt-Anchor" href="#第四步修复bug"></a> 第四步：修复Bug</h3>
+<p>模糊测试中得出的错误为 <code>Reverse produced invalid UTF-8 string &quot;\x9e\xdb&quot;</code></p>
+<p><code>Reverse</code>函数是按照字节(byte)为维度进行字符串反转，这就是问题所在。比如字符<code>string(&quot;۞&quot;)</code> 如果按照字节反转，反转后得到的就是一个无效的字符串了。因此为了保证字符串反转后得到的仍然是一个有效的UTF-8编码的字符串，需要按照<code>rune</code>进行字符串反转。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Reverse</span><span class="params">(s <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    r := []<span class="keyword">rune</span>(s)</span><br><span class="line">    <span class="keyword">for</span> i, j := <span class="number">0</span>, <span class="built_in">len</span>(r)<span class="number">-1</span>; i &lt; <span class="built_in">len</span>(r)/<span class="number">2</span>; i, j = i+<span class="number">1</span>, j<span class="number">-1</span> &#123;</span><br><span class="line">        r[i], r[j] = r[j], r[i]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">string</span>(r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行 <code>go test</code> 命令单元测试通过，表示老的数据能够正常的处理，但是如果再次执行 <code>go test -fuzz</code> 会出现新的错误</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">root@<span class="number">13</span>ce5bc74ac3:/code/fuzz# <span class="keyword">go</span> test -fuzz .</span><br><span class="line">fuzz: elapsed: <span class="number">0</span>s, gathering baseline coverage: <span class="number">0</span>/<span class="number">9</span> completed</span><br><span class="line">fuzz: minimizing <span class="number">38</span>-<span class="keyword">byte</span> failing input file</span><br><span class="line">fuzz: elapsed: <span class="number">0</span>s, gathering baseline coverage: <span class="number">4</span>/<span class="number">9</span> completed</span><br><span class="line">--- FAIL: FuzzReverse (<span class="number">0.01</span>s)</span><br><span class="line">    --- FAIL: FuzzReverse (<span class="number">0.00</span>s)</span><br><span class="line">        hello_test.<span class="keyword">go</span>:<span class="number">34</span>: Before: <span class="string">"\xe5"</span>, after: <span class="string">"�"</span></span><br><span class="line">    </span><br><span class="line">    Failing input written to testdata/fuzz/FuzzReverse/<span class="number">91862839</span>dc552bd95b4e42be6576a6c198f0d4c8fc2884c953030d898573b014</span><br><span class="line">    To re-run:</span><br><span class="line">    <span class="keyword">go</span> test -run=FuzzReverse/<span class="number">91862839</span>dc552bd95b4e42be6576a6c198f0d4c8fc2884c953030d898573b014</span><br><span class="line">FAIL</span><br><span class="line">exit status <span class="number">1</span></span><br><span class="line">FAIL    example/fuzz    <span class="number">0.011</span>s</span><br></pre></td></tr></table></figure>
+<p>结构就是对一个字符串做了2次反转后得到的和原字符串不一样，这次测试输入本身是非法的unicode</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Reverse</span><span class="params">(s <span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> !utf8.ValidString(s) &#123;	<span class="comment">//判断是否是合法的 utf-8编码</span></span><br><span class="line">        <span class="keyword">return</span> s, errors.New(<span class="string">"input is not valid UTF-8"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    r := []<span class="keyword">rune</span>(s)</span><br><span class="line">    <span class="keyword">for</span> i, j := <span class="number">0</span>, <span class="built_in">len</span>(r)<span class="number">-1</span>; i &lt; <span class="built_in">len</span>(r)/<span class="number">2</span>; i, j = i+<span class="number">1</span>, j<span class="number">-1</span> &#123;</span><br><span class="line">        r[i], r[j] = r[j], r[i]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">string</span>(r), <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>修改对应的引用和单元测试后，通过测试</p>
+<h3 id="语法"><a class="markdownIt-Anchor" href="#语法"></a> 语法</h3>
+<p>Go模糊测试和单元测试在语法上有如下差异：</p>
 <ol>
-<li>可以在客户端毫无察觉的情况下控制服务对象</li>
-<li>如果客户端对服务对象的生命周期没有特殊要求， 你可以对生命周期进行管理</li>
-<li>即使服务对象还未准备好或不存在， 代理也可以正常工作</li>
-<li>可以在不对服务或客户端做出修改的情况下创建新代理</li>
-<li>代码可能会变得复杂， 因为需要新建许多类。</li>
-<li>服务响应可能会延迟(经过了一层搭理)</li>
+<li>Go模糊测试函数以<code>FuzzXxx</code>开头，单元测试函数以<code>TestXxx</code>开头</li>
+<li>Go模糊测试函数以 <code>*testing.F</code>作为入参，单元测试函数以<code>*testing.T</code>作为入参</li>
+<li>Go模糊测试会调用<code>f.Add</code>函数和<code>f.Fuzz</code>函数。
+<ul>
+<li><code>f.Add</code>函数把指定输入作为模糊测试的种子语料库(seed corpus)，fuzzing基于种子语料库生成随机输入。</li>
+<li><code>f.Fuzz</code>函数接收一个fuzz target函数作为入参。fuzz target函数有多个参数，第一个参数是<code>*testing.T</code>，其它参数是被模糊的类型(<strong>注意</strong>：被模糊的类型目前只支持部分内置类型,
+<ul>
+<li><code>string</code>, <code>[]byte</code></li>
+<li><code>int</code>, <code>int8</code>, <code>int16</code>, <code>int32</code>/<code>rune</code>, <code>int64</code></li>
+<li><code>uint</code>, <code>uint8</code>/<code>byte</code>, <code>uint16</code>, <code>uint32</code>, <code>uint64</code></li>
+<li><code>float32</code>, <code>float64</code></li>
+<li><code>bool</code></li>
+</ul>
+</li>
+</ul>
+</li>
 </ol>
 <h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
 <ol>
-<li><a href="https://lailin.xyz/post/factory.html" target="_blank" rel="noopener">https://lailin.xyz/post/factory.html</a></li>
-<li><a href="https://refactoringguru.cn/design-patterns/proxy" target="_blank" rel="noopener">https://refactoringguru.cn/design-patterns/proxy</a></li>
+<li><a href="https://go.dev/doc/tutorial/fuzz" target="_blank" rel="noopener">https://go.dev/doc/tutorial/fuzz</a></li>
+<li><a href="https://segmentfault.com/a/1190000041650681" target="_blank" rel="noopener">https://segmentfault.com/a/1190000041650681</a></li>
+<li><a href="https://segmentfault.com/a/1190000041467510" target="_blank" rel="noopener">https://segmentfault.com/a/1190000041467510</a></li>
+<li><a href="https://go.googlesource.com/proposal/+/master/design/draft-fuzzing.md" target="_blank" rel="noopener">https://go.googlesource.com/proposal/+/master/design/draft-fuzzing.md</a></li>
 </ol>
 
       
@@ -450,13 +492,9 @@
   
   <ul class="pager pull-left">
     
-    <li class="prev">
-      <a href="/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/" title="设计模式-享元模式"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
-    </li>
-    
     
     <li class="next">
-      <a href="/2022/08/09/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%B8%AD%E4%BB%8B%E6%A8%A1%E5%BC%8F/" title="设计模式-中介模式"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2022/09/10/Go/Go%E5%85%A5%E9%97%A815-Sync/" title="Go入门15-Sync"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
