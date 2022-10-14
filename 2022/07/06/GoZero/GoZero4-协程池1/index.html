@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>go-zero4-协程池1 | XBoom Dove</title>
+  <meta name="description" content="问题背景 需要协程池吗？ 虽然协程非常轻量级的，一般用不上协程池。协程池的作用 无休止地创建大量goroutine，势必会因为对大量go 程的创建、调度和销毁带来性能损耗。 为了解决这个问题，可以引入协程池  解决方案 协程池需要什么？  协程如何重用、任务如何执行 协程池支持自定义协程池大小 如果当前任务数量超过协程池大小，那么当前任务需要等待，等待时间支持超时退出 协程支持自定义退出 异常捕">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go-zero4-协程池1">
+<meta property="og:url" content="http://xboom.github.io/2022/07/06/GoZero/GoZero4-%E5%8D%8F%E7%A8%8B%E6%B1%A01/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="问题背景 需要协程池吗？ 虽然协程非常轻量级的，一般用不上协程池。协程池的作用 无休止地创建大量goroutine，势必会因为对大量go 程的创建、调度和销毁带来性能损耗。 为了解决这个问题，可以引入协程池  解决方案 协程池需要什么？  协程如何重用、任务如何执行 协程池支持自定义协程池大小 如果当前任务数量超过协程池大小，那么当前任务需要等待，等待时间支持超时退出 协程支持自定义退出 异常捕">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/gopools1.png">
+<meta property="article:published_time" content="2022-07-06T13:53:58.640Z">
+<meta property="article:modified_time" content="2022-07-06T14:55:05.108Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="go-zero">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/gopools1.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/07/06/GoZero/GoZero4-%E5%8D%8F%E7%A8%8B%E6%B1%A01/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">18</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/" rel="tag">golang</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.3px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.3px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.7px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.1px;">gRPC</a> <a href="/tags/go-zero/" style="font-size: 13.8px;">go-zero</a> <a href="/tags/golang/" style="font-size: 13px;">golang</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/17/Go/Go%E5%85%A5%E9%97%A818-Fuzzing/" class="title">Go入门18-Fuzzing</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-17T09:06:06.892Z" itemprop="datePublished">2022-09-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/golang/">golang</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/14/Go/Go%E5%85%A5%E9%97%A820-Goland%E6%BF%80%E6%B4%BB/" class="title">Go入门20-Goland激活</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-14T13:27:28.900Z" itemprop="datePublished">2022-09-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/10/Go/Go%E5%85%A5%E9%97%A815-Sync/" class="title">Go入门15-Sync</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-10T00:59:08.235Z" itemprop="datePublished">2022-09-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A816-%E5%B7%A5%E4%BD%9C%E5%8C%BA/" class="title">Go入门16-工作区</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A814-%E6%B3%9B%E5%9E%8B/" class="title">Go入门14-泛型</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题背景"><span class="toc-number">1.</span> <span class="toc-text"> 问题背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解决方案"><span class="toc-number">2.</span> <span class="toc-text"> 解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#方案1"><span class="toc-number">2.1.</span> <span class="toc-text"> 方案1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#方案2"><span class="toc-number">2.2.</span> <span class="toc-text"> 方案2</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#技术内幕"><span class="toc-number">3.</span> <span class="toc-text"> 技术内幕</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">5.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-GoZero/GoZero4-协程池1" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      go-zero4-协程池1
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/07/06/GoZero/GoZero4-%E5%8D%8F%E7%A8%8B%E6%B1%A01/" class="article-date">
+	  <time datetime="2022-07-06T13:53:58.640Z" itemprop="datePublished">2022-07-06</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/go-zero/">go-zero</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/go-zero/" rel="tag">go-zero</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/07/06/GoZero/GoZero4-%E5%8D%8F%E7%A8%8B%E6%B1%A01/" class="leancloud_visitors"  data-flag-title="go-zero4-协程池1">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/07/06/GoZero/GoZero4-%E5%8D%8F%E7%A8%8B%E6%B1%A01/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 2.6k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 11(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="问题背景"><a class="markdownIt-Anchor" href="#问题背景"></a> 问题背景</h3>
+<p>需要协程池吗？</p>
+<p>虽然协程非常轻量级的，一般用不上协程池。协程池的作用 无休止地创建大量goroutine，势必会因为对大量go 程的创建、调度和销毁带来性能损耗。 为了解决这个问题，可以引入协程池</p>
+<h3 id="解决方案"><a class="markdownIt-Anchor" href="#解决方案"></a> 解决方案</h3>
+<p>协程池需要什么？</p>
+<ol>
+<li>协程如何重用、任务如何执行</li>
+<li>协程池支持自定义协程池大小</li>
+<li>如果当前任务数量超过协程池大小，那么当前任务需要等待，等待时间支持超时退出</li>
+<li>协程支持自定义退出</li>
+<li>异常捕获，防止因为单个协程的异常处理导致整个协程池无法使用</li>
+</ol>
+<p>协程池大致的逻辑如下图所示：</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/gopools1.png" alt="gopools1" /></p>
+<h4 id="方案1"><a class="markdownIt-Anchor" href="#方案1"></a> 方案1</h4>
+<p>这是一个网上能搜到的 “100行实现一个协程池”，</p>
+<p><strong>第一步</strong>：定义一个任务</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Task <span class="keyword">struct</span> &#123;</span><br><span class="line">    Handler <span class="function"><span class="keyword">func</span><span class="params">(v ...<span class="keyword">interface</span>&#123;&#125;)</span></span></span><br><span class="line">    Params  []<span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实是将需要执行的协程方法，使用结构体封装起来</p>
+<p><strong>第二步</strong>：定义一个协程池</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Pool <span class="keyword">struct</span> &#123;</span><br><span class="line">    capacity       <span class="keyword">uint64</span>			<span class="comment">//容量</span></span><br><span class="line">    runningWorkers <span class="keyword">uint64</span>			<span class="comment">//正在运行的协程树</span></span><br><span class="line">    status          <span class="keyword">int64</span>           <span class="comment">//状态(防止在退出过程中，仍然在新建协程)</span></span><br><span class="line">    chTask          <span class="keyword">chan</span> *Task      <span class="comment">//任务队列</span></span><br><span class="line">    PanicHandler   <span class="function"><span class="keyword">func</span><span class="params">(<span class="keyword">interface</span>&#123;&#125;)</span>//<span class="title">panic</span>处理函数</span></span><br><span class="line">    sync.Mutex						<span class="comment">//原子锁,用于保证runningWorkers原子数据变化</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    RUNNING = <span class="number">1</span></span><br><span class="line">    STOPED = <span class="number">0</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><strong>第三步</strong>：利用协程池启动一个协程执行任务</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">run</span><span class="params">()</span></span> &#123;</span><br><span class="line">	p.incRunning()	<span class="comment">//增加正在运行的协程数目</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			p.decRunning()	<span class="comment">//结束任务</span></span><br><span class="line">			<span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">if</span> p.PanicHandler != <span class="literal">nil</span> &#123;</span><br><span class="line">					p.PanicHandler(r)</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					log.Printf(<span class="string">"Worker panic: %s\n"</span>, r)</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			p.checkWorker() <span class="comment">// check worker avoid no worker running</span></span><br><span class="line">		&#125;()</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			<span class="keyword">select</span> &#123;</span><br><span class="line">			<span class="keyword">case</span> task, ok := &lt;-p.chTask:</span><br><span class="line">				<span class="keyword">if</span> !ok &#123;</span><br><span class="line">					<span class="keyword">return</span></span><br><span class="line">				&#125;</span><br><span class="line">				task.Handler(task.Params...)	<span class="comment">//任务处理</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//如果任务数量大于0，但是这个时候协程都退出，则再次构建一个协程</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">checkWorker</span><span class="params">()</span></span> &#123;	</span><br><span class="line">	p.Lock()</span><br><span class="line">	<span class="keyword">defer</span> p.Unlock()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> p.runningWorkers == <span class="number">0</span> &amp;&amp; <span class="built_in">len</span>(p.chTask) &gt; <span class="number">0</span> &#123;	</span><br><span class="line">		p.run()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>协程池的协程不是常驻协程吗，为什么会出现协程数量为0，但是任务大于0的情况呢？</p>
+<p>答：工作协程可能因为 <code>panic</code> 都退出了，那么这个时候就需要有一个重新拉起协程去执行任务</p>
+<p><strong>第四步</strong>：生产任务</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Put</span><span class="params">(task *Task)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	p.Lock()</span><br><span class="line">	<span class="keyword">defer</span> p.Unlock()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> p.status == STOPED &#123;</span><br><span class="line">		<span class="keyword">return</span> ErrPoolAlreadyClosed</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// run worker</span></span><br><span class="line">	<span class="keyword">if</span> p.GetRunningWorkers() &lt; p.GetCap() &#123;</span><br><span class="line">		p.run()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// send task</span></span><br><span class="line">	<span class="keyword">if</span> p.status == RUNNING &#123;</span><br><span class="line">		p.chTask &lt;- task</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为什么在存放任务的时候，会多一个协程池的判断呢？</p>
+<p>答：可能会出现协程池结束关闭的情况，如果这个时候又有新的任务，那就又会创建新的协程去执行</p>
+<p><strong>最后</strong>：关闭协程池</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Close close pool graceful</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Close</span><span class="params">()</span></span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> !p.setStatus(STOPED) &#123; <span class="comment">// stop put task</span></span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> <span class="built_in">len</span>(p.chTask) &gt; <span class="number">0</span> &#123; <span class="comment">// 等待所有的任务都被消费</span></span><br><span class="line">		time.Sleep(<span class="number">1e6</span>) <span class="comment">// 防止等待任务清空 cpu 负载突然变大, 这里小睡一下</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">close</span>(p.chTask)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>总结</strong>：</p>
+<ol>
+<li>这里添加了协程池的状态，防止退出时候的任务增加</li>
+<li>为什么在退出的时候，如果任务大于0，那么需要 <code>sleep</code> 一下？</li>
+<li>异常捕获之后再次检查是否有协程在执行任务，没有则添加一个协程</li>
+<li>使用无缓冲<code>channel</code>进行任务执行，可能会出现添加任务阻塞的情况</li>
+<li>任务是否可以添加一个运行超时时间，防止单个任务死锁？</li>
+</ol>
+<h4 id="方案2"><a class="markdownIt-Anchor" href="#方案2"></a> 方案2</h4>
+<p>字节跳动开源的协程池，仓库地址：<a href="https://github.com/bytedance/gopkg/tree/develop/util/gopool" target="_blank" rel="noopener">https://github.com/bytedance/gopkg/tree/develop/util/gopool</a></p>
+<p>使用 <strong>生产者-消费者模式</strong> 设计协程池</p>
+<p><strong>第一步</strong>：**协程池 ** 具有的功能</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Pool <span class="keyword">interface</span> &#123;</span><br><span class="line">	Name() <span class="keyword">string</span>				<span class="comment">//协程池名称</span></span><br><span class="line">	SetCap(<span class="built_in">cap</span> <span class="keyword">int32</span>)			<span class="comment">//协程池容量</span></span><br><span class="line">	Go(f <span class="function"><span class="keyword">func</span><span class="params">()</span>)				//使用协程执行 <span class="title">f</span></span></span><br><span class="line">	CtxGo(ctx context.Context, f <span class="function"><span class="keyword">func</span><span class="params">()</span>) //使用协程执行<span class="title">f</span>并支持参数 <span class="title">ctx</span></span></span><br><span class="line">	SetPanicHandler(f <span class="function"><span class="keyword">func</span><span class="params">(context.Context, <span class="keyword">interface</span>&#123;&#125;)</span>) //设置协程处理函数</span></span><br><span class="line">	WorkerCount() <span class="keyword">int32</span>			<span class="comment">//返回正在运行的协程数量</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>第二步</strong>：协程池的结构</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> pool <span class="keyword">struct</span> &#123;</span><br><span class="line">	name <span class="keyword">string</span>				<span class="comment">//协程池名称</span></span><br><span class="line">	<span class="built_in">cap</span> <span class="keyword">int32</span>				<span class="comment">//协程池容量</span></span><br><span class="line">	config *Config			<span class="comment">//协程池配置</span></span><br><span class="line">	taskHead  *task			<span class="comment">//任务头部</span></span><br><span class="line">	taskTail  *task			<span class="comment">//任务尾部</span></span><br><span class="line">    taskLock  sync.Mutex	<span class="comment">//任务原子锁(竞争)</span></span><br><span class="line">	taskCount <span class="keyword">int32</span>			<span class="comment">//任务数量</span></span><br><span class="line">	workerCount <span class="keyword">int32</span>		<span class="comment">//正在运行的协程数量</span></span><br><span class="line">	panicHandler <span class="function"><span class="keyword">func</span><span class="params">(context.Context, <span class="keyword">interface</span>&#123;&#125;)</span>	//<span class="title">Panic</span>处理逻辑</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>第三步</strong>：看看 任务 <code>task</code> 的定义</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> task <span class="keyword">struct</span> &#123;</span><br><span class="line">	ctx context.Context		</span><br><span class="line">	f   <span class="function"><span class="keyword">func</span><span class="params">()</span>				//执行函数</span></span><br><span class="line"></span><br><span class="line">	next *task				<span class="comment">//指向下一个任务的指针</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> taskList <span class="keyword">struct</span> &#123;     <span class="comment">//使用双向链表将任务连接起来</span></span><br><span class="line">	sync.Mutex</span><br><span class="line">	taskHead *task</span><br><span class="line">	taskTail *task</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>第四步</strong>：查看协程池是怎么运行的</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> taskPool sync.Pool <span class="comment">//对象池</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *pool)</span> <span class="title">CtxGo</span><span class="params">(ctx context.Context, f <span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">	t := taskPool.Get().(*task)		<span class="comment">//从对象池获取任务对象</span></span><br><span class="line">	t.ctx = ctx</span><br><span class="line">	t.f = f</span><br><span class="line">	p.taskLock.Lock()			<span class="comment">//获取任务写锁</span></span><br><span class="line">	<span class="keyword">if</span> p.taskHead == <span class="literal">nil</span> &#123;      <span class="comment">//如果任务链表为空则新建，否则插入链表尾部</span></span><br><span class="line">		p.taskHead = t</span><br><span class="line">		p.taskTail = t</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		p.taskTail.next = t</span><br><span class="line">		p.taskTail = t</span><br><span class="line">	&#125;</span><br><span class="line">	p.taskLock.Unlock()		<span class="comment">//释放任务写锁</span></span><br><span class="line">	atomic.AddInt32(&amp;p.taskCount, <span class="number">1</span>) <span class="comment">//增加任务数量</span></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    1. 如果任务数量大于配置的数量 &amp;&amp; 正在执行的协程数量小于协程池容量，说明任务太多，还有空闲的协程</span></span><br><span class="line"><span class="comment">     那么就开启一个新的协程处理</span></span><br><span class="line"><span class="comment">       如果任务数量小于配置的数量 &amp;&amp; 正在执行的协程数量小于协程池容量。说明任务还不多，就让当前协程顺序执行</span></span><br><span class="line"><span class="comment">    2. 正在执行的协程为0</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">	<span class="keyword">if</span> (atomic.LoadInt32(&amp;p.taskCount) &gt;= p.config.ScaleThreshold &amp;&amp; p.WorkerCount() &lt; atomic.LoadInt32(&amp;p.<span class="built_in">cap</span>)) || p.WorkerCount() == <span class="number">0</span> &#123;</span><br><span class="line">		p.incWorkerCount()   </span><br><span class="line">		w := workerPool.Get().(*worker)</span><br><span class="line">		w.pool = p</span><br><span class="line">		w.run()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里额外定义了一个 <code>workPool</code>，其实是消费者池</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> workerPool sync.Pool</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> worker <span class="keyword">struct</span> &#123;	<span class="comment">//消费者其实是一个协程池</span></span><br><span class="line">	pool *pool</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *worker)</span> <span class="title">run</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">for</span> &#123; 			<span class="comment">//这是一个常驻协程</span></span><br><span class="line">			<span class="keyword">var</span> t *task</span><br><span class="line">			w.pool.taskLock.Lock()   <span class="comment">//获取任务写锁</span></span><br><span class="line">			<span class="keyword">if</span> w.pool.taskHead != <span class="literal">nil</span> &#123; <span class="comment">//获取任务并将任务数量-1</span></span><br><span class="line">				t = w.pool.taskHead</span><br><span class="line">				w.pool.taskHead = w.pool.taskHead.next</span><br><span class="line">				atomic.AddInt32(&amp;w.pool.taskCount, <span class="number">-1</span>)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> t == <span class="literal">nil</span> &#123;	<span class="comment">//如果没有任务，那么worker销毁</span></span><br><span class="line">				<span class="comment">// if there's no task to do, exit</span></span><br><span class="line">				w.<span class="built_in">close</span>()</span><br><span class="line">				w.pool.taskLock.Unlock()</span><br><span class="line">				w.Recycle()</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">			w.pool.taskLock.Unlock() <span class="comment">//释放任务写锁</span></span><br><span class="line">			<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">				<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">					<span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;		<span class="comment">//异常处理</span></span><br><span class="line">						<span class="keyword">if</span> w.pool.panicHandler != <span class="literal">nil</span> &#123;</span><br><span class="line">							w.pool.panicHandler(t.ctx, r)</span><br><span class="line">						&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">							msg := fmt.Sprintf(<span class="string">"GOPOOL: panic in pool: %s: %v: %s"</span>, w.pool.name, r, debug.Stack())</span><br><span class="line">							logger.CtxErrorf(t.ctx, msg)</span><br><span class="line">						&#125;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;()</span><br><span class="line">				t.f()		<span class="comment">//执行任务 f</span></span><br><span class="line">			&#125;()</span><br><span class="line">			t.Recycle()		<span class="comment">//任务结束后，会收work</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *worker)</span> <span class="title">close</span><span class="params">()</span></span> &#123;		<span class="comment">//减少worker数目</span></span><br><span class="line">	w.pool.decWorkerCount()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *worker)</span> <span class="title">zero</span><span class="params">()</span></span> &#123; 		<span class="comment">//释放缓存池</span></span><br><span class="line">	w.pool = <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *worker)</span> <span class="title">Recycle</span><span class="params">()</span></span> &#123;	<span class="comment">//释放worker(存入缓存池)</span></span><br><span class="line">	w.zero()</span><br><span class="line">	workerPool.Put(w)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后，它还定义了一个 <code>poolMap</code> 用于根据名称注册与使用 多个协程池</p>
+<p><strong>注意</strong>：</p>
+<ol>
+<li>使用双向链表存储任务，表示它理论上支持无限个任务。后面的任务可能存在长时间等待的情况</li>
+<li>使用任务上限的好处是，不是每来一个任务都开启一个协程，而是任务超过一定数量而又空闲的协程才开启新的协程去执行</li>
+</ol>
+<h3 id="技术内幕"><a class="markdownIt-Anchor" href="#技术内幕"></a> 技术内幕</h3>
+<p><code>go-zero</code>是如何实现协程池的，代码路径：<code>core/threading</code></p>
+<p><strong>第一步</strong>，定义了<code>recover</code>逻辑，用于 <code>panic</code> 之后的清理操作</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// core/rescue/recover.go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Recover</span><span class="params">(cleanups ...<span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">	<span class="keyword">for</span> _, cleanup := <span class="keyword">range</span> cleanups &#123;</span><br><span class="line">		cleanup()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> p := <span class="built_in">recover</span>(); p != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">//logx.ErrorStack(p)</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>第二步</strong>，定义了一个安全运行<code>goroutine</code>的方案 <code>GoSafe</code>，包含处理<code>panic</code>逻辑</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GoSafe</span><span class="params">(fn <span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">	<span class="keyword">go</span> RunSafe(fn)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">RunSafe</span><span class="params">(fn <span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> rescue.Recover()</span><br><span class="line"></span><br><span class="line">	fn()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>TaskRunner</code>： 使用 <code>limitChan</code> 协程池 执行协程</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TaskRunner 用于并发控制协程数量</span></span><br><span class="line"><span class="keyword">type</span> TaskRunner <span class="keyword">struct</span> &#123;</span><br><span class="line">	limitChan <span class="keyword">chan</span> lang.PlaceholderType</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建 TaskRunner 对象</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewTaskRunner</span><span class="params">(concurrency <span class="keyword">int</span>)</span> *<span class="title">TaskRunner</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;TaskRunner&#123;</span><br><span class="line">		limitChan: <span class="built_in">make</span>(<span class="keyword">chan</span> lang.PlaceholderType, concurrency),</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在 任务并发控制下执行 task</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rp *TaskRunner)</span> <span class="title">Schedule</span><span class="params">(task <span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">  rp.limitChan &lt;- lang.Placeholder	<span class="comment">//limitChan 类似一个并发锁</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> rescue.Recover(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			&lt;-rp.limitChan</span><br><span class="line">		&#125;)</span><br><span class="line"></span><br><span class="line">		task()</span><br><span class="line">	&#125;()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>注意</strong>：当<code>limitChan</code>满那么任务执行会出现超时，缺乏超时逻辑</p>
+<p><code>WorkerGroup</code>：使用 <code>wokers</code> 并发执行任务 <code>job</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> WorkerGroup <span class="keyword">struct</span> &#123;</span><br><span class="line">	job     <span class="function"><span class="keyword">func</span><span class="params">()</span></span></span><br><span class="line">	workers <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewWorkerGroup returns a WorkerGroup with given job and workers.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewWorkerGroup</span><span class="params">(job <span class="keyword">func</span>()</span>, <span class="title">workers</span> <span class="title">int</span>) <span class="title">WorkerGroup</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> WorkerGroup&#123;</span><br><span class="line">		job:     job,</span><br><span class="line">		workers: workers,</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Start starts a WorkerGroup.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(wg WorkerGroup)</span> <span class="title">Start</span><span class="params">()</span></span> &#123;</span><br><span class="line">	group := NewRoutineGroup()</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; wg.workers; i++ &#123;</span><br><span class="line">		group.RunSafe(wg.job)</span><br><span class="line">	&#125;</span><br><span class="line">	group.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>RoutineGroup</code>: 多协程等待</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// RoutineGroup 多协程等待</span></span><br><span class="line"><span class="keyword">type</span> RoutineGroup <span class="keyword">struct</span> &#123;</span><br><span class="line">	waitGroup sync.WaitGroup</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewRoutineGroup</span><span class="params">()</span> *<span class="title">RoutineGroup</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">new</span>(RoutineGroup)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 不要引用外部参数，可能被其他协程修改</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(g *RoutineGroup)</span> <span class="title">Run</span><span class="params">(fn <span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">	g.waitGroup.Add(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> g.waitGroup.Done()</span><br><span class="line">		fn()</span><br><span class="line">	&#125;()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//不要引用外部参数，可能被其他协程修改</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(g *RoutineGroup)</span> <span class="title">RunSafe</span><span class="params">(fn <span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">	g.waitGroup.Add(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">	GoSafe(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> g.waitGroup.Done()</span><br><span class="line">		fn()</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等待所有协程结束</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(g *RoutineGroup)</span> <span class="title">Wait</span><span class="params">()</span></span> &#123;</span><br><span class="line">	g.waitGroup.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以 go-zero的<code>threading</code> 并不是真正的协程池，仅仅是提供多种并发执行 <code>goroutine</code>的方法</p>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<p>所以从目前来看，实现一个协程池都有哪些值得学习的地方呢？</p>
+<ol>
+<li>将需要使用临时协程执行的函数已任务的形式 <code>任务 -- 协程池(Pool) -- 工人</code>执行</li>
+<li>协程池是有容量限制的，有了容量就有正在运行的协程数</li>
+<li>协程池有状态防止在退出的时候仍然进行任务构建与执行</li>
+<li>协程池有异常捕获机制，保证单个异常不会影响整个协程池</li>
+<li>任务已任务合集的形式存在，让消费者并发消费</li>
+<li>有了异常捕获与任务合集，为了防止工人都发生异常，而还有任务没有执行，则需要有工人唤起机制</li>
+<li>可以使用本地缓存池进行工人的重复利用</li>
+<li>任务合集缓隧道还是双链表、每个任务都构建一个协程还是单个任务多任务执行的选择</li>
+</ol>
+<p>下一节，将学习另外一个协程池 ants 的实现方式</p>
+<h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
+<ol>
+<li><a href="https://go-zero.dev/cn/docs/goctl/installation/" target="_blank" rel="noopener">https://go-zero.dev/cn/docs/goctl/installation/</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/07/06/GoZero/GoZero4-%E5%8D%8F%E7%A8%8B%E6%B1%A01/" title="go-zero4-协程池1" target="_blank" rel="external">http://xboom.github.io/2022/07/06/GoZero/GoZero4-协程池1/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/07/08/GoZero/GoZero5-%E6%97%B6%E9%97%B4%E8%BD%AE/" title="go-zero5-时间轮"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/07/03/GoZero/GoZero3-MapReduce/" title="go-zero3-MapReduce"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="https://unpkg.com/leancloud-storage@4.12.2/dist/av-live-query-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>

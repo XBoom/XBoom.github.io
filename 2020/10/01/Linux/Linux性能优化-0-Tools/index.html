@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Linux性能优化-0-Tools | XBoom Dove</title>
+  <meta name="description" content="前言 Linux性能分析  CPU性能 磁盘I&#x2F;O性能 内存性能 网络性能  Linux大神Brendan D.Gregg的Linux Performance Tools   Virtual Memory  vmstat vmstat：Virtual Meomory Statistics(虚拟内存统计)，可对操作系统的虚拟内存、进程、CPU活动进行监控  vmstat 命令详解 使用 man v">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux性能优化-0-Tools">
+<meta property="og:url" content="http://xboom.github.io/2020/10/01/Linux/Linux%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-0-Tools/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="前言 Linux性能分析  CPU性能 磁盘I&#x2F;O性能 内存性能 网络性能  Linux大神Brendan D.Gregg的Linux Performance Tools   Virtual Memory  vmstat vmstat：Virtual Meomory Statistics(虚拟内存统计)，可对操作系统的虚拟内存、进程、CPU活动进行监控  vmstat 命令详解 使用 man v">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20200927231355.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20201101103457.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20201101103343.png">
+<meta property="article:published_time" content="2020-09-30T16:00:38.000Z">
+<meta property="article:modified_time" content="2022-06-25T07:00:00.112Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20200927231355.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2020/10/01/Linux/Linux%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-0-Tools/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">18</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/" rel="tag">golang</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.3px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.3px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.7px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.1px;">gRPC</a> <a href="/tags/go-zero/" style="font-size: 13.8px;">go-zero</a> <a href="/tags/golang/" style="font-size: 13px;">golang</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/17/Go/Go%E5%85%A5%E9%97%A818-Fuzzing/" class="title">Go入门18-Fuzzing</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-17T09:06:06.892Z" itemprop="datePublished">2022-09-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/golang/">golang</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/14/Go/Go%E5%85%A5%E9%97%A820-Goland%E6%BF%80%E6%B4%BB/" class="title">Go入门20-Goland激活</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-14T13:27:28.900Z" itemprop="datePublished">2022-09-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/10/Go/Go%E5%85%A5%E9%97%A815-Sync/" class="title">Go入门15-Sync</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-10T00:59:08.235Z" itemprop="datePublished">2022-09-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A816-%E5%B7%A5%E4%BD%9C%E5%8C%BA/" class="title">Go入门16-工作区</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A814-%E6%B3%9B%E5%9E%8B/" class="title">Go入门14-泛型</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#virtual-memory"><span class="toc-number">2.</span> <span class="toc-text"> Virtual Memory</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#vmstat"><span class="toc-number">2.1.</span> <span class="toc-text"> vmstat</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#vmstat-命令详解"><span class="toc-number">2.1.1.</span> <span class="toc-text"> vmstat 命令详解</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#vmstat常用命令"><span class="toc-number">2.1.2.</span> <span class="toc-text"> vmstat常用命令</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#block-device-int-块设备io接口"><span class="toc-number">3.</span> <span class="toc-text"> Block Device Int-块设备IO接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#pidstat"><span class="toc-number">3.1.</span> <span class="toc-text"> pidstat</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#pidstat-命令详解"><span class="toc-number">3.1.1.</span> <span class="toc-text"> pidstat 命令详解</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#pidstat常用命令"><span class="toc-number">3.1.2.</span> <span class="toc-text"> pidstat常用命令</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#io-controller"><span class="toc-number">4.</span> <span class="toc-text"> I&#x2F;O Controller</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#iostat"><span class="toc-number">4.1.</span> <span class="toc-text"> iostat</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#iostat-命令详解"><span class="toc-number">4.1.1.</span> <span class="toc-text"> iostat 命令详解</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#iostat常用命令"><span class="toc-number">4.1.2.</span> <span class="toc-text"> iostat常用命令</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Linux/Linux性能优化-0-Tools" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Linux性能优化-0-Tools
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2020/10/01/Linux/Linux%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-0-Tools/" class="article-date">
+	  <time datetime="2020-09-30T16:00:38.000Z" itemprop="datePublished">2020-10-01</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Linux/" rel="tag">Linux</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2020/10/01/Linux/Linux%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-0-Tools/" class="leancloud_visitors"  data-flag-title="Linux性能优化-0-Tools">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/10/01/Linux/Linux%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-0-Tools/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 6k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 25(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h3>
+<p>Linux性能分析</p>
+<ul>
+<li>CPU性能</li>
+<li>磁盘I/O性能</li>
+<li>内存性能</li>
+<li>网络性能</li>
+</ul>
+<p>Linux大神Brendan D.Gregg的<a href="http://www.brendangregg.com/linuxperf.html" target="_blank" rel="noopener">Linux Performance Tools</a></p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20200927231355.png" alt="linux_perf_tools_full" /></p>
+<h3 id="virtual-memory"><a class="markdownIt-Anchor" href="#virtual-memory"></a> Virtual Memory</h3>
+<h4 id="vmstat"><a class="markdownIt-Anchor" href="#vmstat"></a> vmstat</h4>
+<p>vmstat：Virtual Meomory Statistics(虚拟内存统计)，可对操作系统的虚拟内存、进程、CPU活动进行监控</p>
+<h5 id="vmstat-命令详解"><a class="markdownIt-Anchor" href="#vmstat-命令详解"></a> vmstat 命令详解</h5>
+<p>使用 <code>man vmstat</code> 查看 vmstat 的使用说明</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">vmstat [options] [delay [count]]</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 参数详解</span></span><br><span class="line">delay         表示间隔更新的时间。如果不指定，则只会打印一次从系统启动到现在的平均值</span><br><span class="line">count         更新次数，在没有计数的情况下，定义延迟时，默认值为无限</span><br><span class="line">-a, --active	 </span><br><span class="line">-f, --forks   显示从启动到现在forks次数</span><br><span class="line">-m, --slabs   显示内核slab缓冲区信息</span><br><span class="line">-n, --one-header  标题只显示一次而不是定期显示</span><br><span class="line">-s, --state   显示各种事件计数器和内存统计信息的表。此显示不重复</span><br><span class="line">-d, --disk    显示磁盘统计</span><br><span class="line">-D, --disk-sum    显示磁盘摘要信息</span><br><span class="line">-p, --partition device  显示分区统计信息</span><br><span class="line">-S, --unit character    在1000(k),1024(k),1000000(m)或1048576(m)字节之间切换输出。不会更改交换(si/so)或块(bi/bo)字段</span><br><span class="line">-t, --timestamp   每一行显示时间戳</span><br><span class="line">-w, --wide    宽输出模式（适用于内存量较大的系统，其中默认输出模式会出现不需要的列中断）。输出宽度超过80个字符每行</span><br><span class="line"></span><br><span class="line">NOTES</span><br><span class="line">  1. vmstat does not require special permissions.</span><br><span class="line">  2. These reports are intended to help identify system bottlenecks.  Linux vmstat does not count itself as a running process.</span><br><span class="line">  3. All linux blocks are currently 1024 bytes.  Old kernels may report blocks as 512 bytes, 2048 bytes, or 4096 bytes.</span><br><span class="line">  4. Since procps 3.1.9, vmstat lets you choose units (k, K, m, M).  Default is K (1024 bytes) in the default mode.</span><br><span class="line">	</span><br><span class="line">FILES</span><br><span class="line">       /proc/meminfo</span><br><span class="line">       /proc/stat</span><br><span class="line">       /proc/*/stat</span><br></pre></td></tr></table></figure>
+<h5 id="vmstat常用命令"><a class="markdownIt-Anchor" href="#vmstat常用命令"></a> vmstat常用命令</h5>
+<ol>
+<li>
+<p><code>vmstat 2 1</code> 间隔2s采集一次服务器状态，1表示只采集一次</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">[xboom@localhost ~]$ vmstat 2 1</span><br><span class="line">procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----</span><br><span class="line"> r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st</span><br><span class="line"> 1  0 698692  70384     80 136748  159  827  4004   965  250  511  5  4 91  0  0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">FIELD DESCRIPTION FOR VM MODE</span></span><br><span class="line">Procs</span><br><span class="line">  r: The number of runnable processes (running or waiting for run time).</span><br><span class="line">  b: The number of processes in uninterruptible sleep.</span><br><span class="line">  </span><br><span class="line">Memory</span><br><span class="line">  swpd: the amount of virtual memory used.</span><br><span class="line">  free: the amount of idle memory.</span><br><span class="line">  buff: the amount of memory used as buffers.</span><br><span class="line">  cache: the amount of memory used as cache.</span><br><span class="line">  inact: the amount of inactive memory.  (-a option)</span><br><span class="line">  active: the amount of active memory. has been recently userd (-a option)</span><br><span class="line">  </span><br><span class="line">Swap</span><br><span class="line">  si: Amount of memory swapped in from disk (kb/s)</span><br><span class="line">  so: Amount of memory swapped to disk (kb/s)</span><br><span class="line">	</span><br><span class="line">IO</span><br><span class="line">  bi: Blocks received from a block device (blocks/s). default 1024bytes per block</span><br><span class="line">  bo: Blocks sent to a block device (blocks/s).</span><br><span class="line"></span><br><span class="line">System</span><br><span class="line">  in: The number of interrupts per second, including the clock.</span><br><span class="line">  cs: The number of context switches per second.</span><br><span class="line"></span><br><span class="line">CPU</span><br><span class="line">  These are percentages of total CPU time.</span><br><span class="line">  us: Time spent running non-kernel code.  (user time, including nice time)</span><br><span class="line">  sy: Time spent running kernel code.  (system time)</span><br><span class="line">  id: Time spent idle.  Prior to Linux 2.5.41, this includes IO-wait time.</span><br><span class="line">  wa: Time spent waiting for IO.  Prior to Linux 2.5.41, included in idle.</span><br><span class="line">  st: Time stolen from a virtual machine.  Prior to Linux 2.6.11, unknown.</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Active memory: This information is currently in memory, and has been recently used.</p>
+<p>Inactive memory: This information in memory is not actively being used, but was recently used.</p>
+<p>For example, if you’ve been using Mail and then quit it, the RAM that Mail was using is marked as Inactive memory. This Inactive memory is available for use by another application, just like Free memory.  However, if you open Mail before its Inactive memory is used by a different application, Mail will open quicker because its Inactive memory is converted to Active memory, instead of loading Mail from the slower hard dis</p>
+</blockquote>
+</li>
+<li>
+<p><code>vmstat -d</code> 查看磁盘信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">[xboom@localhost ~]$ vmstat -d</span><br><span class="line">disk- ------------reads------------ ------------writes----------- -----IO------</span><br><span class="line">       total merged sectors      ms  total merged sectors      ms    cur    sec</span><br><span class="line">sda    73171   8499 7041491   19482  12371 181181 1645664   10221      0     23</span><br><span class="line">sr0       52      0    2125      55      0      0       0       0      0      0</span><br><span class="line">dm-0   46855      0 6696761   13980   5743      0  143320    2504      0     17</span><br><span class="line">dm-1   32794      0  266008    6924 187764      0 1502112  308321      0     10</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">FIELD DESCRIPTION FOR DISK MODE</span></span><br><span class="line">Reads</span><br><span class="line">  total: Total reads completed successfully</span><br><span class="line">  merged: grouped reads (resulting in one I/O)</span><br><span class="line">  sectors: Sectors read successfully</span><br><span class="line">  ms: milliseconds spent reading</span><br><span class="line"></span><br><span class="line">Writes</span><br><span class="line">  total: Total writes completed successfully</span><br><span class="line">  merged: grouped writes (resulting in one I/O)</span><br><span class="line">  sectors: Sectors written successfully</span><br><span class="line">  ms: milliseconds spent writing</span><br><span class="line"></span><br><span class="line">IO</span><br><span class="line">  cur: I/O in progress</span><br><span class="line">  s: seconds spent for I/O</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>vmstat -p dev</code> 查看分区情况</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# vmstat -p /dev/sda1</span><br><span class="line">sda1            reads      read sectors      writes  requested writes</span><br><span class="line">                  343             68386          34               456</span><br><span class="line"><span class="meta">#</span><span class="bash">FIELD DESCRIPTION FOR DISK PARTITION MODE</span></span><br><span class="line">  reads: Total number of reads issued to this partition,分区的读的次数</span><br><span class="line">  read sectors: Total read sectors for partition,分区的读扇区的次数</span><br><span class="line">  writes : Total number of writes issued to this partition,分区写的次数</span><br><span class="line">  requested writes: Total number of write requests made for partition,分区写请求次数</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>vmstat -m</code> 查看系统slab信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# vmstat -m</span><br><span class="line">Cache                       Num  Total   Size  Pages</span><br><span class="line">isofs_inode_cache            92     92    704     46</span><br><span class="line">fuse_inode                   36     36    896     36</span><br><span class="line">nf_conntrack                102    102    320     51</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">FIELD DESCRIPTION FOR SLAB MODE</span></span><br><span class="line">  cache: Cache name</span><br><span class="line">  num: Number of currently active objects</span><br><span class="line">  total: Total number of available objects</span><br><span class="line">  size: Size of each object</span><br><span class="line">  pages: Number of pages with at least one active object</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>slab:由于内核会有许多小对象，这些对象构造销毁十分频繁，比如i-node，dentry，这些对象如果每次构建的时候就向内存要一个页(4kb),这样就会非常浪费，为了解决这个问题，就引入了一种新的机制来处理在同一个页框中如何分配小存储区，而slab可以对小对象进行分配,这样就不用为每一个对象分配页框，从而节省了空间，内核对一些小对象创建析构很频繁，slab对这些小对象进行缓冲,可以重复利用,减少内存分配次数</p>
+</blockquote>
+</li>
+<li>
+<p><code>vmstat -f</code>显示从系统启动至今的fork(创建进程的系统调用)数量</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# vmstat -f</span><br><span class="line">         4319 forks</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="block-device-int-块设备io接口"><a class="markdownIt-Anchor" href="#block-device-int-块设备io接口"></a> Block Device Int-块设备IO接口</h3>
+<h4 id="pidstat"><a class="markdownIt-Anchor" href="#pidstat"></a> pidstat</h4>
+<p>pidstat命令用于监视Linux内核当前正在管理的各个任务</p>
+<h5 id="pidstat-命令详解"><a class="markdownIt-Anchor" href="#pidstat-命令详解"></a> pidstat 命令详解</h5>
+<p>使用 <code>man pidstat</code> 查看 pidstat 的使用说明, 进程(任务)相关统计</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">pidstat  [ -d ] [ -H ] [ -h ] [ -I ] [ -l ] [ -R ] [ -r ] [ -s ] [ -t ] [ -U [ username ] ] [ -u ] [ -V ] [ -v ] [ -w ] [ -C comm ] [ -G process_name ] [ --human ] [ -p &#123; pid [,...] | SELF | ALL &#125; ] [ -T &#123; TASK | CHILD | ALL &#125;  ] [ interval [ count ] ] [ -e program args ]</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">描述</span></span><br><span class="line">  1. 未指定 -p &lt;pid&gt; 将默认使用-p ALL，仅显示活动任务(统计值非0的任务)</span><br><span class="line">  2. 使用 -T 查看子进程信息</span><br><span class="line">  3. interval参数表示每次报告的时间间隔，0(或没有参数)表示自系统启动以来的的任务统计信息。如果没有设置为0，则可以与 count 一起使用，count表示指定间隔时间之后生成的报告次数。如果没有则是连续报告</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">参数详解</span></span><br><span class="line">-C comm    仅显示命令名称包含字符串comm的任务。 该字符串可以是正则表达式</span><br><span class="line">-d         报告I/O统计信息（仅内核2.6.20及更高版本）</span><br><span class="line">-e program args    给定参数args执行程序，并使用pidstat对其进行监视。当程序终止时，pidstat停止</span><br><span class="line">-G process_name    仅显示命令名称包含字符串process_name的进程。该字符串可以是正则表达式。 </span><br><span class="line">                   如果选项-t与选项-G一起使用，则属于该进程的线程为也会显示，</span><br><span class="line">                   即使其命令名称不包含字符串process_name</span><br><span class="line">-H         以秒为单位显示时间戳</span><br><span class="line">-h         所有活动都单行显示，报告末尾没有平均统计信息。目的是使它易于被其他程序解析</span><br><span class="line">--human    以人类可读的格式打印尺寸（例如1.0k，1.2M等），设置与指标关联的其他任何默认单位（例如，千字节，扇区...）。</span><br><span class="line">-I         在多处理器环境中，指示任务CPU使用率（如选项-u所示）应除以处理器总数.</span><br><span class="line">-l         显示完成的进程命令和它的参数</span><br><span class="line">-p &#123; pid [,...] | SELF | ALL &#125;    选择要报告其统计信息的任务。 </span><br><span class="line">                                  pid  指定进程标识号</span><br><span class="line">                                  SELF 报告pidstat进程本身的统计信息</span><br><span class="line">                                  ALL  报告系统管理的所有任务的统计信息。</span><br><span class="line">-R         报告实时优先级和调度策略信息</span><br><span class="line">    prio   任务的优先级</span><br><span class="line">    policy 任务的调度策略</span><br><span class="line">-r     报告页面错误和内存利用率。当报告单个任务的统计信息时，可能会显示以下值：</span><br><span class="line">-s     报告堆栈利用率</span><br><span class="line">-T &#123; TASK | CHILD | ALL &#125;    此选项指定pidstat命令必须监视的内容。 </span><br><span class="line">    TASK  表示将报告单个任务的统计信息（这是默认选项）</span><br><span class="line">    CHILD 表示报告所选任务及其子进程</span><br><span class="line">    ALL   表示要报告单个任务的统计信息，并针对所选全局报告任务和子进程</span><br><span class="line">    注意：任务及其所有子项的全局统计信息不适用于pidstat的所有选项</span><br><span class="line">         同样，这些统计信息不一定与当前时间间隔有关：子进程的统计信息仅在完成或被杀死时才收集进程</span><br><span class="line">-t   显示与所选任务关联的线程的统计信息</span><br><span class="line">    TGID    线程组标识符</span><br><span class="line">    TID     线程标识符</span><br><span class="line">-U [ username ]    显示正在监视的任务的真实用户名，而不是UID。如果指定了用户名，则仅显示属于指定用户的任务     </span><br><span class="line">-u    显示CPU利用率</span><br><span class="line">-v    内核表信息</span><br><span class="line">-w    显示进程上下文切换情况</span><br></pre></td></tr></table></figure>
+<h5 id="pidstat常用命令"><a class="markdownIt-Anchor" href="#pidstat常用命令"></a> pidstat常用命令</h5>
+<ol>
+<li>
+<p><code>pidstat 2 5</code> 每两秒钟显示一次系统中每个活动任务的CPU统计信息的五个报告</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">[xboom@localhost ~]$ pidstat 2 5</span><br><span class="line">Linux 4.18.0-193.10.el8.x86_64 (localhost.localdomain) 	2020年10月10日 	_x86_64_	(1 CPU)</span><br><span class="line"></span><br><span class="line">23时10分13秒   UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command</span><br><span class="line">23时10分16秒  1000      5605    0.00    0.50    0.00    0.00    0.50     0  pidstat</span><br><span class="line"></span><br><span class="line">23时10分16秒   UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command</span><br><span class="line">23时10分18秒     0      5569    0.00    0.50    0.00    0.00    0.50     0  kworker/0:1-ata_sff</span><br><span class="line">23时10分18秒  1000      5605    0.00    0.50    0.00    0.00    0.50     0  pidstat</span><br><span class="line"></span><br><span class="line">23时10分18秒   UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command</span><br><span class="line">23时10分20秒     0      4130    0.50    0.00    0.00    0.00    0.50     0  sssd_kcm</span><br><span class="line">23时10分20秒  1000      5605    0.50    0.00    0.00    0.00    0.50     0  pidstat</span><br><span class="line"></span><br><span class="line">23时10分20秒   UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command</span><br><span class="line">23时10分22秒  1000      5605    0.00    0.50    0.00    0.00    0.50     0  pidstat</span><br><span class="line"></span><br><span class="line">23时10分22秒   UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command</span><br><span class="line"></span><br><span class="line">平均时间:   UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command</span><br><span class="line">平均时间:     0      4130    0.10    0.00    0.00    0.00    0.10     -  sssd_kcm</span><br><span class="line">平均时间:     0      5569    0.00    0.10    0.00    0.00    0.10     -  kworker/0:1-ata_sff</span><br><span class="line">平均时间:  1000      5605    0.10    0.30    0.00    0.00    0.40     -  pidstat</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>pidstat -d</code> 报告I/O统计信息（仅内核2.6.20及更高版本）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[xboom@localhost ~]$ pidstat -d</span><br><span class="line">Linux 4.18.0-193.10.el8.x86_64 (localhost.localdomain) 	2020年10月10日 	_x86_64_	(1 CPU)</span><br><span class="line"></span><br><span class="line">23时11分56秒   UID       PID   kB_rd/s   kB_wr/s kB_ccwr/s iodelay  Command</span><br><span class="line">23时11分56秒  1000      2050      0.99      0.00      0.00      12  dbus-daemon</span><br><span class="line">23时11分56秒  1000      2052      0.81      0.00      0.00       0  gdm-wayland-ses</span><br><span class="line">23时11分56秒  1000      2056     28.68      0.07      0.00       6  gnome-session-b</span><br><span class="line">23时11分56秒  1000      2104    197.84      0.05      0.00     199  gnome-shell</span><br><span class="line">23时11分56秒  1000      2167      4.47      0.00      0.00       6  Xwayland</span><br><span class="line"></span><br><span class="line">kB_rd/s    每秒从磁盘读取任务的千字节数</span><br><span class="line">kB_wr/s    每秒磁盘写入任务的千字节数</span><br><span class="line">kB_ccwr/s  任务已取消其写入磁盘的千字节数。 当任务截断一些脏页缓存时，可能会发生这种情况。</span><br><span class="line">           在这种情况下，一些IO另一个任务已被考虑将不会发生</span><br><span class="line">iodelay    任务的块I/O延迟，以时钟周期为单位。该指标包括等待同步块I/O完成和交换块I/O完成</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>pidstat -r</code>  报告页面错误和内存利用率</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[xboom@localhost ~]$ pidstat -r</span><br><span class="line">Linux 4.18.0-193.10.el8.x86_64 (localhost.localdomain) 	2020年10月10日 	_x86_64_	(1 CPU)</span><br><span class="line"></span><br><span class="line">23时16分42秒   UID       PID  minflt/s  majflt/s     VSZ     RSS   %MEM  Command</span><br><span class="line">23时16分42秒     0         1      3.02      0.23  245432    5032   0.62  systemd</span><br><span class="line">23时16分42秒     0       725      0.19      0.19  104716    2700   0.33  systemd-journal</span><br><span class="line">23时16分42秒     0       757      0.65      0.02  118924     420   0.05  systemd-udevd</span><br><span class="line">23时16分42秒    32       885      0.05      0.00   67124     144   0.02  rpcbind</span><br><span class="line">23时16分42秒     0       888      0.03      0.01  143108      48   0.01  auditd</span><br><span class="line">23时16分42秒     0       890      0.03      0.00   48488      20   0.00  sedispatch</span><br><span class="line">23时16分42秒   998       927      6.24      0.12 1634948    2484   0.31  polkitd</span><br><span class="line"></span><br><span class="line">minflt/s    任务每秒发生的次要错误，不需要从磁盘中加载页</span><br><span class="line">majflt/s    任务每秒发生的主要错误，需要从磁盘中加载页</span><br><span class="line">VSZ    虚拟地址大小，虚拟内存的使用KB</span><br><span class="line">RSS    常驻集合大小，非交换区五里内存使用KB</span><br><span class="line"><span class="meta">%</span><span class="bash">MEM   任务当前使用的可用物理内存份额</span></span><br><span class="line">当报告任务及其所有子任务的全局统计信息时，可能会显示以下值：</span><br><span class="line">minflt-nr    任务及其所有子项所产生的次要错误总数</span><br><span class="line">majflt-nr    任务及其所有子项所产生的主要错误总数</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>pidstat -s</code> 报告堆栈利用率</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[xboom@localhost ~]$ pidstat -s</span><br><span class="line">Linux 4.18.0-193.10.el8.x86_64 (localhost.localdomain) 	2020年10月10日 	_x86_64_	(1 CPU)</span><br><span class="line"></span><br><span class="line">23时18分36秒   UID       PID StkSize  StkRef  Command</span><br><span class="line">23时18分36秒  1000      2016     132      16  systemd</span><br><span class="line">23时18分36秒  1000      2037     132       4  pulseaudio</span><br><span class="line">23时18分36秒  1000      2050     132      12  dbus-daemon</span><br><span class="line">23时18分36秒  1000      2052     132       4  gdm-wayland-ses</span><br><span class="line">23时18分36秒  1000      2056     132       8  gnome-session-b</span><br><span class="line"></span><br><span class="line">StkSize    为任务保留为堆栈的内存量（以KB为单位），但不一定使用。</span><br><span class="line">StkRef     任务引用的用作堆栈的内存量（以KB为单位）</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>pidstat -u</code> 报告CPU利用率</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[xboom@localhost ~]$ pidstat -u</span><br><span class="line">Linux 4.18.0-193.10.el8.x86_64 (localhost.localdomain) 	2020年10月10日 	_x86_64_	(1 CPU)</span><br><span class="line"></span><br><span class="line">23时20分26秒   UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command</span><br><span class="line">23时20分26秒     0         1    0.00    0.03    0.00    0.07    0.03     0  systemd</span><br><span class="line">23时20分26秒     0         2    0.00    0.00    0.00    0.00    0.00     0  kthreadd</span><br><span class="line">23时20分26秒     0         9    0.00    0.01    0.00    0.03    0.01     0  ksoftirqd/0</span><br><span class="line">23时20分26秒     0        10    0.00    0.00    0.00    0.81    0.00     0  rcu_sched</span><br><span class="line"></span><br><span class="line"><span class="meta">%</span><span class="bash">usr       用户太CPU占比，不包含虚拟处理器(虚拟处理器)所花费时间</span></span><br><span class="line"><span class="meta">%</span><span class="bash">system    内核态CPU占比 </span></span><br><span class="line"><span class="meta">%</span><span class="bash">guest     虚拟机CPU占比 </span></span><br><span class="line"><span class="meta">%</span><span class="bash"><span class="built_in">wait</span>      等待IO的CPU占比			</span></span><br><span class="line"><span class="meta">%</span><span class="bash">CPU       总的CPU利用率，如果在多处理器环境中，添加参数 -I,该值将除以总的CPU个数</span></span><br><span class="line">CPU        进程运行的CPU id</span><br><span class="line">当报告任务及其所有子任务的全局统计信息时，可能会显示以下值：</span><br><span class="line">usr-ms     用户态任务及其所有子项花费的毫秒总数</span><br><span class="line">system-ms  内核态任务及其所有子项花费的毫秒总数</span><br><span class="line">guest-ms   虚拟处理器任务及其所有子项花费的毫秒总数</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>pidstat -v</code> 内核表信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[xboom@localhost ~]$ pidstat -v</span><br><span class="line">Linux 4.18.0-193.10.el8.x86_64 (localhost.localdomain) 	2020年10月10日 	_x86_64_	(1 CPU)</span><br><span class="line"></span><br><span class="line">23时22分03秒   UID       PID threads   fd-nr  Command</span><br><span class="line">23时22分03秒  1000      2016       1      25  systemd</span><br><span class="line">23时22分03秒  1000      2037       3      36  pulseaudio</span><br><span class="line">23时22分03秒  1000      2050       2      71  dbus-daemon</span><br><span class="line"></span><br><span class="line">threads   当前任务关联线程数</span><br><span class="line">fd-nr     当前任务关联文件描述符</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>pidstat -w</code>  显示上下文切换</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[xboom@localhost ~]$ pidstat -w</span><br><span class="line">Linux 4.18.0-193.10.el8.x86_64 (localhost.localdomain) 	2020年10月10日 	_x86_64_	(1 CPU)</span><br><span class="line"></span><br><span class="line">23时23分28秒   UID       PID   cswch/s nvcswch/s  Command</span><br><span class="line">23时23分28秒     0         1      0.79      0.27  systemd</span><br><span class="line">23时23分28秒     0         2      0.03      0.00  kthreadd</span><br><span class="line">23时23分28秒     0         3      0.00      0.00  rcu_gp</span><br><span class="line">23时23分28秒     0         4      0.00      0.00  rcu_par_gp</span><br><span class="line">23时23分28秒     0         6      0.00      0.00  kworker/0:0H-kblockd</span><br><span class="line"></span><br><span class="line">cswch/s    每秒执行的任务的自愿上下文切换总数。</span><br><span class="line">           自愿的上下文切换：进程无法获取所需资源导致,如 I/O、内存等系统系统资源不足。</span><br><span class="line">nvcswch/s  每秒执行的任务的非自愿上下文切换总数。</span><br><span class="line">           非自愿的上下文切换：是指进程由于时间片已到等原因，被系统强制调度，进而发生的上下文切换。</span><br><span class="line">           比如说，大量进程都在争抢 CPU 时，就容易发生非自愿上下文切换</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="io-controller"><a class="markdownIt-Anchor" href="#io-controller"></a> I/O Controller</h3>
+<h4 id="iostat"><a class="markdownIt-Anchor" href="#iostat"></a> iostat</h4>
+<p><code>iostat</code>命令用于通过观察设备活动的时间及其平均传输速率来监视系统输入/输出设备的负载。</p>
+<p><code>iostat</code>命令生成可用于更改系统配置的报告，以更好地平衡物理磁盘之间的输入/输出负载</p>
+<h5 id="iostat-命令详解"><a class="markdownIt-Anchor" href="#iostat-命令详解"></a> iostat 命令详解</h5>
+<p>使用 <code>man iostat</code> 查看 iostat 的使用说明, 进程(任务)相关统计</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line">iostat [ -c ] [ -d ] [ -h ] [ -k | -m ] [ -N ] [ -s ] [ -t ] [ -V ] [ -x ] [ -y ] [ -z ] [ -j &#123; ID | LABEL | PATH | UUID | ... &#125; ] [ -o JSON ] [ [ -H ] -g group_name ] [ --human ] [ -p [ device [,...] | ALL ] ] [ device [...] | ALL ] [ interval [ count ] ]</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">描述</span></span><br><span class="line">  1.iostat命令生成的第一个报告提供有关自系统启动以来的时间的统计信息，除非使用了-y选项（在这种情况下，将忽略此第一个报告）。 </span><br><span class="line">  2.每个后续报告涵盖自上一个报告以来的时间。每次运行iostat命令时，都会报告所有统计信息。 该报告由一个CPU标头行和随后的CPU统计信息行组成。 在多处理器系统上，CPU统计信息是系统范围内所有处理器的平均值。将显示设备标题行，后跟配置的每个设备的一行统计信息。</span><br><span class="line">  3.interval参数指定每个报告之间的时间间隔（以秒为单位）。可以与interval参数一起指定count参数。如果指定了count参数，count的值将确定间隔间隔秒生成的报告数。如果没有指定count参数而未指定count参数，则iostat命令将连续生成报告。</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> iostat命令生成两种类型的报告，即CPU利用率报告和设备利用率报告。</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> CPU使用率报告</span></span><br><span class="line">iostat命令生成的第一个报告是CPU利用率报告。对于多处理器系统，CPU值是所有处理器之间的全局平均值。 该报告具有以下格式：</span><br><span class="line">                     </span><br><span class="line"><span class="meta">#</span><span class="bash">磁盘利用率报告</span></span><br><span class="line">设备报告提供了基于每个物理设备或分区的统计信息。</span><br><span class="line">  如果未输入设备或分区，则将显示系统使用的每个设备的统计信息，并提供内核维护的统计信息。</span><br><span class="line">  如果在命令行上指定了ALL关键字，则将显示系统定义的每个设备的统计信息，包括从未使用过的设备。</span><br><span class="line">  除非设置了环境变量POSIXLY_CORRECT，否则默认情况下传输速率以1K块为单位，在这种情况下，将使用512字节的块。 </span><br><span class="line">  </span><br><span class="line">  sec/s (kB/s, MB/s): 每秒从设备读取或写入设备的扇区数（千字节，兆字节）</span><br><span class="line">  rqm/s: 每秒排队到设备中的 I/O 请求数</span><br><span class="line">  areq-sz: 发出给设备的 I/O 请求的平均大小（以千字节为单位）注意：在以前的版本中，此字段称为avgrq-sz，以扇区表示</span><br><span class="line">  await: 发出给要服务的设备的 I/O 请求的平均时间（毫秒）。 这包括队列中的请求所花费的时间以及为请求服务所花费的时间</span><br><span class="line">  </span><br><span class="line"><span class="meta">#</span><span class="bash"> 参数详解</span></span><br><span class="line">-c  显示CPU利用率</span><br><span class="line">-d  显示设备利用率</span><br><span class="line">-g group_name &#123; device [...] | ALL &#125;  </span><br><span class="line">    显示一组设备的统计信息 iostat命令报告列表中每个设备的统计信息，</span><br><span class="line">    然后报告显示为group_name并由列表中所有设备组成的组的全局统计信息。 </span><br><span class="line">    ALL关键字表示系统定义的所有块设备都应包含在组中。</span><br><span class="line">-H  此选项必须与选项-g一起使用，并指示仅显示该组的全局统计信息，而不显示该组中各个设备的统计信息。</span><br><span class="line">-h  使设备使用情况报告更易于人阅读。--human使用此选项隐式启用。</span><br><span class="line">--human 以可读格式打印的尺寸（例如KB, M等）。使用此选项显示的单位将取代与度量标准关联的任何其他默认单位（例如千字节，扇区...）</span><br><span class="line">-j &#123; ID | LABEL | PATH | UUID | ... &#125; [ device [...] | ALL ] 显示永久设备名称。 </span><br><span class="line">    选项ID，LABEL等指定持久名称的类型。这些选项不受限制，只有先决条件是 /dev/disk 中必须存在具有所需持久名称的目录。 </span><br><span class="line">    （可选）可以在所选的持久名称类型中指定多个设备。 因为持久性设备名称通常很长，所以选择</span><br><span class="line">-k  显示统计信息（KB/s）</span><br><span class="line">-m  显示统计信息（M/s）。</span><br><span class="line">-N  显示任何设备映射器设备的注册设备映射器名称。用于查看LVM2统计信息。</span><br><span class="line">-o JSON  以JSON（JavaScript对象表示法）格式显示统计信息。JSON输出字段顺序未定义，将来可能会添加新字段。</span><br><span class="line">-p [ &#123; device [,...] | ALL &#125; ]</span><br><span class="line">    显示系统使用的块设备及其所有分区的统计信息。</span><br><span class="line">    如果在命令行上输入了设备名称，则对其进行统计并显示其所有分区。</span><br><span class="line">    ALL关键字指示必须显示系统定义的所有块设备和分区的统计信息，包括那些从未使用过的 </span><br><span class="line">    如果在此选项之前定义了选项-j，则可以使用所选的持久名称类型指定在命令行上输入的设备。</span><br><span class="line">-s  在80个字符的宽屏幕中显示报告的简短（窄版）版本。</span><br><span class="line">-t  打印显示的每个报告的时间。时间戳格式可能取决于S_TIME_FORMAT环境变量的值（请参见下文）。</span><br><span class="line">-V  打印版本号然后退出</span><br><span class="line">-x  显示扩展统计信息。</span><br><span class="line">-y  如果以给定的时间间隔显示多个记录，则自系统启动以来忽略带有统计信息的第一个报告。</span><br><span class="line">-z  告诉iostat忽略在采样期间没有任何活动的任何设备的输出。</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">环境变量：iostat命令考虑以下环境变量：</span></span><br><span class="line">POSIXLY_CORRECT  设置此变量后，传输速率以512字节块而不是默认的1K块显示。</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">BUG</span></span><br><span class="line">       /proc filesystem must be mounted for iostat to work.</span><br><span class="line">       Kernels older than 2.6.x are no longer supported.</span><br><span class="line">       The  average service time (svctm field) value is meaningless,</span><br><span class="line">           1. I/O statistics are now calculated at block level</span><br><span class="line">           2， we don't know when the disk driver starts to process a request.</span><br><span class="line"><span class="meta">#</span><span class="bash">FILES</span></span><br><span class="line">       /proc/stat contains system statistics.</span><br><span class="line">       /proc/uptime contains system uptime.</span><br><span class="line">       /proc/diskstats contains disks statistics.</span><br><span class="line">       /sys contains statistics for block devices.</span><br><span class="line">       /proc/self/mountstats contains statistics for network filesystems.</span><br><span class="line">       /dev/disk contains persistent device names.</span><br></pre></td></tr></table></figure>
+<h5 id="iostat常用命令"><a class="markdownIt-Anchor" href="#iostat常用命令"></a> iostat常用命令</h5>
+<ol>
+<li>
+<p><code>iostat</code>自启动报告以来，显示所有CPU和设备的单个历史记录</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20201101103457.png" alt="image-20201101103457814" /></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Device: 此列提供 /dev 目录中列出的设备（或分区）名称</span><br><span class="line">tps: 表示每秒发送到设备的I/O请求次数。多个逻辑请求可以组合成对设备的单个I/O请求。传输的大小不确定。</span><br><span class="line">Blk_read/s(kB_read/s, MB_read/s): 表示从设备读取的数据量，以每秒的块数（千字节，兆字节）表示。块等同于扇区，因此大小为512B</span><br><span class="line">Blk_wrtn/s(kB_wrtn/s, MB_wrtn/s): 表示写入设备的数据量，以每秒的块数（千字节，兆字节）表示。</span><br><span class="line">Blk_read (kB_read, MB_read): 读取的总块数（千字节，兆字节）。</span><br><span class="line">Blk_wrtn (kB_wrtn, MB_wrtn): 写入的总块数（千字节，兆字节）。</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>iostat -x 显示IO拓展信息</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20201101103343.png" alt="image-20201101103343532" /></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Device: 此列提供 /dev 目录中列出的设备（或分区）名称</span><br><span class="line">r/s: 每秒设备完成的读取请求数（合并后）</span><br><span class="line">w/s: 每秒设备完成的写请求数（合并后）</span><br><span class="line">rsec/s (rkB/s, rMB/s): 每秒从设备读取的扇区数（千字节，兆字节）</span><br><span class="line">wsec/s (wkB/s, wMB/s): 每秒写入设备的扇区数（千字节，兆字节）</span><br><span class="line">rrqm/s: 每秒合并到设备中的读取请求数</span><br><span class="line">wrqm/s: 每秒合并到设备中的写入请求数</span><br><span class="line"><span class="meta">%</span><span class="bash">rrqm: 读取请求(已合并)的百分比</span></span><br><span class="line"><span class="meta">%</span><span class="bash">wrqm: 写入请求(已合并)的百分比</span></span><br><span class="line">r_await: 发送给要服务的设备的读取请求的平均时间（以毫秒为单位）包括队列中的请求所花费的时间以及为请求服务所花费的时间</span><br><span class="line">w_await: 发布给要服务的设备的写请求的平均时间（以毫秒为单位）包括队列中的请求所花费的时间以及为请求服务所花费的时间</span><br><span class="line">aqu-sz: 发出到设备的请求的平均队列长度。注意：在以前的版本中 此字段称为avgqu-sz</span><br><span class="line">rareq-sz: 发出给设备的读请求的平均大小（以千字节为单位）</span><br><span class="line">wareq-sz: 发出给设备的写请求的平均大小（以千字节为单位）</span><br><span class="line">svctm: 发出给设备的 I/O 请求的平均服务时间（以毫秒为单位）警告！不再信任此字段。 将来的sysstat版本中将删除此字段</span><br><span class="line"><span class="meta">%</span><span class="bash">util: 向设备发出 I/O 请求的经过时间的百分比（设备的带宽利用率）</span></span><br><span class="line">       当该值接近100％时，发生设备饱和用于串行服务请求的设备</span><br><span class="line">       对于并行处理请求的设备（例如RAID阵列和现代SSD）此数字并不反映其性能限制</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ul>
+<li><a href="https://www.cnblogs.com/ftl1012/p/vmstat.html" target="_blank" rel="noopener">Linux vmstat命令详解</a></li>
+</ul>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2020/10/01/Linux/Linux%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-0-Tools/" title="Linux性能优化-0-Tools" target="_blank" rel="external">http://xboom.github.io/2020/10/01/Linux/Linux性能优化-0-Tools/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2020/10/11/Protocol/%E5%8D%8F%E8%AE%AE4-SMB/" title="协议4-SMB"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2020/07/26/TCP/TCP-1-%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE/" title="TCP-1-传输控制协议"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="https://unpkg.com/leancloud-storage@4.12.2/dist/av-live-query-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>

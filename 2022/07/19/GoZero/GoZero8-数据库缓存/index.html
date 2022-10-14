@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>go-zero8-数据库缓存 | XBoom Dove</title>
+  <meta name="description" content="问题背景 在 进程内缓存中说到的是直接在进程进行缓存的自管理，一般应用于业务生成的自定义数据(多副本情况下可能存在缓存一致性问题)。而随着业务量的增加，利用Redis构建专门的数据缓存，加快数据库访问。 由于数据库数据的特点，那么这里就有几个实现需要注意的点  数据一致性 缓存击穿、穿透、雪崩 缓存访问量、缓存命中率   实现原理 源码注释：core&#x2F;stores&#x2F;cache  构建缓存对象 根">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go-zero8-数据库缓存">
+<meta property="og:url" content="http://xboom.github.io/2022/07/19/GoZero/GoZero8-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%93%E5%AD%98/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="问题背景 在 进程内缓存中说到的是直接在进程进行缓存的自管理，一般应用于业务生成的自定义数据(多副本情况下可能存在缓存一致性问题)。而随着业务量的增加，利用Redis构建专门的数据缓存，加快数据库访问。 由于数据库数据的特点，那么这里就有几个实现需要注意的点  数据一致性 缓存击穿、穿透、雪崩 缓存访问量、缓存命中率   实现原理 源码注释：core&#x2F;stores&#x2F;cache  构建缓存对象 根">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache10.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache13.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache14.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cachedb1.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cacheDB2.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cachedb3.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cachedb5.png">
+<meta property="article:published_time" content="2022-07-19T14:31:29.925Z">
+<meta property="article:modified_time" content="2022-07-22T13:54:57.154Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="go-zero">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache10.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/07/19/GoZero/GoZero8-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%93%E5%AD%98/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">18</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/" rel="tag">golang</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.3px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.3px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.7px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.1px;">gRPC</a> <a href="/tags/go-zero/" style="font-size: 13.8px;">go-zero</a> <a href="/tags/golang/" style="font-size: 13px;">golang</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/17/Go/Go%E5%85%A5%E9%97%A818-Fuzzing/" class="title">Go入门18-Fuzzing</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-17T09:06:06.892Z" itemprop="datePublished">2022-09-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/golang/">golang</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/14/Go/Go%E5%85%A5%E9%97%A820-Goland%E6%BF%80%E6%B4%BB/" class="title">Go入门20-Goland激活</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-14T13:27:28.900Z" itemprop="datePublished">2022-09-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/10/Go/Go%E5%85%A5%E9%97%A815-Sync/" class="title">Go入门15-Sync</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-10T00:59:08.235Z" itemprop="datePublished">2022-09-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A816-%E5%B7%A5%E4%BD%9C%E5%8C%BA/" class="title">Go入门16-工作区</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A814-%E6%B3%9B%E5%9E%8B/" class="title">Go入门14-泛型</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题背景"><span class="toc-number">1.</span> <span class="toc-text"> 问题背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现原理"><span class="toc-number">2.</span> <span class="toc-text"> 实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#构建缓存对象"><span class="toc-number">2.1.</span> <span class="toc-text"> 构建缓存对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#集群缓存操作"><span class="toc-number">2.2.</span> <span class="toc-text"> 集群缓存操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#单点缓存操作"><span class="toc-number">2.3.</span> <span class="toc-text"> 单点缓存操作</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#查询缓存"><span class="toc-number">2.3.1.</span> <span class="toc-text"> 查询缓存</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#设置缓存"><span class="toc-number">2.3.2.</span> <span class="toc-text"> 设置缓存</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#删除缓存"><span class="toc-number">2.3.3.</span> <span class="toc-text"> 删除缓存</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#获取缓存"><span class="toc-number">2.3.4.</span> <span class="toc-text"> 获取缓存</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#技术内幕"><span class="toc-number">3.</span> <span class="toc-text"> 技术内幕</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#新建缓存节点"><span class="toc-number">3.1.</span> <span class="toc-text"> 新建缓存节点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询缓存-2"><span class="toc-number">3.2.</span> <span class="toc-text"> 查询缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#设置缓存-2"><span class="toc-number">3.3.</span> <span class="toc-text"> 设置缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#获取缓存-2"><span class="toc-number">3.4.</span> <span class="toc-text"> 获取缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#删除缓存-2"><span class="toc-number">3.5.</span> <span class="toc-text"> 删除缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#缓存统计"><span class="toc-number">3.6.</span> <span class="toc-text"> 缓存统计</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#新建统计对象"><span class="toc-number">3.6.1.</span> <span class="toc-text"> 新建统计对象</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#缓存清理"><span class="toc-number">3.7.</span> <span class="toc-text"> 缓存清理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#初始化"><span class="toc-number">3.7.1.</span> <span class="toc-text"> 初始化</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#添加清理任务"><span class="toc-number">3.7.2.</span> <span class="toc-text"> 添加清理任务</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#总结"><span class="toc-number">3.8.</span> <span class="toc-text"> 总结</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">4.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-GoZero/GoZero8-数据库缓存" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      go-zero8-数据库缓存
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/07/19/GoZero/GoZero8-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%93%E5%AD%98/" class="article-date">
+	  <time datetime="2022-07-19T14:31:29.925Z" itemprop="datePublished">2022-07-19</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/go-zero/">go-zero</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/go-zero/" rel="tag">go-zero</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/07/19/GoZero/GoZero8-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%93%E5%AD%98/" class="leancloud_visitors"  data-flag-title="go-zero8-数据库缓存">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/07/19/GoZero/GoZero8-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%93%E5%AD%98/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 2.3k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 10(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="问题背景"><a class="markdownIt-Anchor" href="#问题背景"></a> 问题背景</h3>
+<p>在 <a href="https://xboom.github.io/2022/07/19/GoZero/GoZero7-%E8%BF%9B%E7%A8%8B%E5%86%85%E7%BC%93%E5%AD%98/">进程内缓存</a>中说到的是直接在进程进行缓存的自管理，一般应用于业务生成的自定义数据(多副本情况下可能存在缓存一致性问题)。而随着业务量的增加，利用Redis构建专门的数据缓存，加快数据库访问。</p>
+<p>由于数据库数据的特点，那么这里就有几个实现需要注意的点</p>
+<ol>
+<li>数据一致性</li>
+<li>缓存击穿、穿透、雪崩</li>
+<li>缓存访问量、缓存命中率</li>
+</ol>
+<h3 id="实现原理"><a class="markdownIt-Anchor" href="#实现原理"></a> 实现原理</h3>
+<p>源码注释：<code>core/stores/cache</code></p>
+<h4 id="构建缓存对象"><a class="markdownIt-Anchor" href="#构建缓存对象"></a> 构建缓存对象</h4>
+<p>根据缓存节点配置构建一个缓存对象用于业务层进行缓存处理</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache10.png" alt="go-zero-cache10" />缓存支持通过多节点构建的缓存集群，也支持单个节点结构</p>
+<ol>
+<li>多节点缓存集群通过一致性Hash进行访问，这里的多节点是指多个无关的缓存节点。而每个缓存节点可能都是一个Redis集群</li>
+<li>共享调用防止缓存击穿</li>
+<li>统计将环中命中，DB查询等情况上报给外部</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//缓存集群对象</span></span><br><span class="line">cacheCluster <span class="keyword">struct</span> &#123;</span><br><span class="line">	dispatcher  *hash.ConsistentHash</span><br><span class="line">	errNotFound error</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>关于一致性Hash 在 《go-zero-一致性Hash》有说明</p>
+</blockquote>
+<h4 id="集群缓存操作"><a class="markdownIt-Anchor" href="#集群缓存操作"></a> 集群缓存操作</h4>
+<p>集群的缓存操作都是根据一致性<code>Hash</code>算法得出对应节点，然后演变成单节点的缓存操作</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache13.png" alt="go-zero-cache13" style="zoom:50%;" />
+<p>与单点不同的是，缓存集群批量删除<code>Key</code>,而<code>Key</code>有可能存在于多个节点上</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache14.png" alt="go-zero-cache14" style="zoom:50%;" />
+<p>当<code>keys</code>数量大于1的时候，首先会 <code>for Hash(Key)</code> 找到所有的缓存节点，然后再通过 <code>for del</code></p>
+<ol>
+<li>单次映射<code>Hash</code>节点或者删除<code>Key</code>并不会影响后续操作，而是通过 <code>BatchError</code>记录每一次错误</li>
+<li>通过 <code>make(map[interface{}][]string)</code>保存<strong>节点</strong>与<strong>Key</strong>的关系</li>
+</ol>
+<h4 id="单点缓存操作"><a class="markdownIt-Anchor" href="#单点缓存操作"></a> 单点缓存操作</h4>
+<h5 id="查询缓存"><a class="markdownIt-Anchor" href="#查询缓存"></a> 查询缓存</h5>
+<p>查询缓存的过程其实就是从Redis中获取数据的过程</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cachedb1.png" alt="go-zero-cachedb1" style="zoom: 33%;" />
+<p>这里有两点需要注意</p>
+<ol>
+<li>当加载数据完毕，有一个将结果与空占位符比较的过程 <code>value = &quot;*&quot;</code>，是为了防止缓存穿透而故意设置的占位符。那么它是什么时候怎么插入的？</li>
+<li>将结果反序列如果失败，那么会去Redis删除这个 <code>Key</code>，表示存储的缓存异常</li>
+</ol>
+<h5 id="设置缓存"><a class="markdownIt-Anchor" href="#设置缓存"></a> 设置缓存</h5>
+<p>设置缓存是直接按照redis语法设置 <code>k/v</code> 与 <code>expire</code></p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cacheDB2.png" alt="go-zero-cacheDB2" style="zoom:50%;" />
+<h5 id="删除缓存"><a class="markdownIt-Anchor" href="#删除缓存"></a> 删除缓存</h5>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cachedb3.png" alt="go-zero-cachedb3" style="zoom:33%;" />
+<ol>
+<li>删除缓存时候，如果本身就是一个缓存集群，当对 <code>keys</code>进行批量删除的时候，需要依次删除每一个Key，而不是直接 <code>del(keys...)</code> 删除。</li>
+<li>删除失败这里添加延时任务进行重试，但只会重试一次，失败后直接退出</li>
+</ol>
+<h5 id="获取缓存"><a class="markdownIt-Anchor" href="#获取缓存"></a> 获取缓存</h5>
+<p>获取缓存当缓存数据库没有的时候，就会直接从数据库加载并将数据保存到缓存数据库</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cachedb5.png" alt="go-zero-cachedb5" style="zoom:33%;" />
+<ol>
+<li>当缓存中没有且数据库中也没有的时候，那么这个时候就会设置占位符(防止缓存穿透)，占位符的过期时间与普通的<code>Key</code>一致</li>
+<li>关于查询数据库操作，这里仅仅是将结果实体传入，由数据层进行数据加载</li>
+<li>当缓存没有的时候，是先查询数据库，然后更新缓存</li>
+</ol>
+<h3 id="技术内幕"><a class="markdownIt-Anchor" href="#技术内幕"></a> 技术内幕</h3>
+<p>代码：<code>core/stores/cache/cachenode.go</code></p>
+<p><code>cacheNode</code> 表示是单个缓存节点的对象</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//cacheNode 表示单个缓存节点</span></span><br><span class="line"><span class="keyword">type</span> cacheNode <span class="keyword">struct</span> &#123;</span><br><span class="line">	rds            *redis.Redis			<span class="comment">//redis句柄</span></span><br><span class="line">	expiry         time.Duration 		<span class="comment">//缓存过期时间</span></span><br><span class="line">	notFoundExpiry time.Duration		<span class="comment">//</span></span><br><span class="line">	barrier        syncx.SingleFlight	<span class="comment">//共享调用</span></span><br><span class="line">	r              *rand.Rand			</span><br><span class="line">	lock           *sync.Mutex			<span class="comment">//原子锁</span></span><br><span class="line">	unstableExpiry mathx.Unstable		</span><br><span class="line">  stat           *Stat						<span class="comment">//统计(单个节点的统计)</span></span><br><span class="line">	errNotFound    error</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	notFoundPlaceholder = <span class="string">"*"</span></span><br><span class="line">  <span class="comment">//避免缓存雪崩，这里加上随机过期时间随机值 [0.95, 1.05] * seconds</span></span><br><span class="line">	expiryDeviation = <span class="number">0.05</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<ol>
+<li>这里几个过期分别有什么作用
+<ul>
+<li><code>expiry</code>:</li>
+<li><code>notFoundExpiry</code>:</li>
+<li><code>unstableExpiry</code>:</li>
+</ul>
+</li>
+<li>使用共享调用 <code>barrier</code>减少缓存调用</li>
+<li><code>rand.Rand</code> 的随机数</li>
+</ol>
+<h4 id="新建缓存节点"><a class="markdownIt-Anchor" href="#新建缓存节点"></a> 新建缓存节点</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewNode</span><span class="params">(rds *redis.Redis, barrier syncx.SingleFlight, st *Stat,</span></span></span><br><span class="line"><span class="function"><span class="params">	errNotFound error, opts ...Option)</span> <span class="title">Cache</span></span> &#123;</span><br><span class="line">	o := newOptions(opts...)</span><br><span class="line">	<span class="keyword">return</span> cacheNode&#123;</span><br><span class="line">		rds:            rds,							<span class="comment">//redis句柄</span></span><br><span class="line">		expiry:         o.Expiry,					<span class="comment">//过期时间</span></span><br><span class="line">		notFoundExpiry: o.NotFoundExpiry,	<span class="comment">//设置占位符过期时间</span></span><br><span class="line">		barrier:        barrier,					<span class="comment">//共享调用</span></span><br><span class="line">		r:              rand.New(rand.NewSource(time.Now().UnixNano())),</span><br><span class="line">		lock:           <span class="built_in">new</span>(sync.Mutex),</span><br><span class="line">		unstableExpiry: mathx.NewUnstable(expiryDeviation),	<span class="comment">//一定范围内过期时间</span></span><br><span class="line">		stat:           st,							<span class="comment">//统计逻辑</span></span><br><span class="line">		errNotFound:    errNotFound,		<span class="comment">//找不到缓存</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="查询缓存-2"><a class="markdownIt-Anchor" href="#查询缓存-2"></a> 查询缓存</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c cacheNode)</span> <span class="title">doGetCache</span><span class="params">(ctx context.Context, key <span class="keyword">string</span>, v <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	c.stat.IncrementTotal()</span><br><span class="line">	data, err := c.rds.GetCtx(ctx, key)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		c.stat.IncrementMiss()</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(data) == <span class="number">0</span> &#123;	<span class="comment">//数据为空</span></span><br><span class="line">		c.stat.IncrementMiss()</span><br><span class="line">		<span class="keyword">return</span> c.errNotFound</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	c.stat.IncrementHit()</span><br><span class="line">	<span class="keyword">if</span> data == notFoundPlaceholder &#123;	<span class="comment">//防止缓存穿透</span></span><br><span class="line">		<span class="keyword">return</span> errPlaceholder</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> c.processCache(ctx, key, data, v)	<span class="comment">//缓存处理</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c cacheNode)</span> <span class="title">processCache</span><span class="params">(ctx context.Context, key, data <span class="keyword">string</span>, v <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	err := jsonx.Unmarshal([]<span class="keyword">byte</span>(data), v)	<span class="comment">//反序列化</span></span><br><span class="line">	<span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//... 日志记录</span></span><br><span class="line">  </span><br><span class="line">	<span class="keyword">if</span> _, e := c.rds.DelCtx(ctx, key); e != <span class="literal">nil</span> &#123;	<span class="comment">//删除缓存 </span></span><br><span class="line">		logger.Errorf(<span class="string">"delete invalid cache, node: %s, key: %s, value: %s, error: %v"</span>,</span><br><span class="line">			c.rds.Addr, key, data, e)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// returns errNotFound to reload the value by the given queryFn</span></span><br><span class="line">	<span class="keyword">return</span> c.errNotFound</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="设置缓存-2"><a class="markdownIt-Anchor" href="#设置缓存-2"></a> 设置缓存</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c cacheNode)</span> <span class="title">SetWithExpireCtx</span><span class="params">(ctx context.Context, key <span class="keyword">string</span>, val <span class="keyword">interface</span>&#123;&#125;,</span></span></span><br><span class="line"><span class="function"><span class="params">	expire time.Duration)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	data, err := jsonx.Marshal(val)	<span class="comment">//序列化</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> c.rds.SetexCtx(ctx, key, <span class="keyword">string</span>(data), <span class="keyword">int</span>(expire.Seconds()))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="获取缓存-2"><a class="markdownIt-Anchor" href="#获取缓存-2"></a> 获取缓存</h4>
+<p>获取缓存直接加载加载redis，并根据加载结果进行不同的处理</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c cacheNode)</span> <span class="title">doTake</span><span class="params">(ctx context.Context, v <span class="keyword">interface</span>&#123;&#125;, key <span class="keyword">string</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">	query <span class="keyword">func</span>(v <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">error</span>, <span class="title">cacheVal</span> <span class="title">func</span><span class="params">(v <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">error</span>) <span class="title">error</span></span> &#123;</span><br><span class="line">	logger := logx.WithContext(ctx)</span><br><span class="line">	val, fresh, err := c.barrier.DoEx(key, <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, error)</span></span> &#123;	<span class="comment">//共享调用加载key</span></span><br><span class="line">		<span class="keyword">if</span> err := c.doGetCache(ctx, key, v); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> err == errPlaceholder &#123;	<span class="comment">//如果是占位符直接返回找不到</span></span><br><span class="line">				<span class="keyword">return</span> <span class="literal">nil</span>, c.errNotFound</span><br><span class="line">			&#125; <span class="keyword">else</span> <span class="keyword">if</span> err != c.errNotFound &#123;	</span><br><span class="line">				<span class="comment">//如果是其他错误，直接返回而不要继续将错误蔓延到dbs</span></span><br><span class="line">        <span class="comment">//如果不这样，可能高并发导致redis奔溃之后，dbs也会跟着崩溃</span></span><br><span class="line">				<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">//数据库查询</span></span><br><span class="line">			<span class="keyword">if</span> err = query(v); err == c.errNotFound &#123; </span><br><span class="line">        <span class="comment">//没有找到就设置占位符</span></span><br><span class="line">				<span class="keyword">if</span> err = c.setCacheWithNotFound(ctx, key); err != <span class="literal">nil</span> &#123;</span><br><span class="line">					logger.Error(err)</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				<span class="keyword">return</span> <span class="literal">nil</span>, c.errNotFound</span><br><span class="line">			&#125; <span class="keyword">else</span> <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				c.stat.IncrementDbFails()</span><br><span class="line">				<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> err = cacheVal(v); err != <span class="literal">nil</span> &#123;	<span class="comment">//缓存找到的缓存</span></span><br><span class="line">				logger.Error(err)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> jsonx.Marshal(v)</span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> fresh &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//放在最后的原因是共享调用，这里共享调用不记录到总数中</span></span><br><span class="line">	c.stat.IncrementTotal()	</span><br><span class="line">	c.stat.IncrementHit()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> jsonx.Unmarshal(val.([]<span class="keyword">byte</span>), v)	<span class="comment">//反序列化</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="删除缓存-2"><a class="markdownIt-Anchor" href="#删除缓存-2"></a> 删除缓存</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c cacheNode)</span> <span class="title">DelCtx</span><span class="params">(ctx context.Context, keys ...<span class="keyword">string</span>)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(keys) == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	logger := logx.WithContext(ctx)</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(keys) &gt; <span class="number">1</span> &amp;&amp; c.rds.Type == redis.ClusterType &#123;	<span class="comment">//如果是集群则for循环批量删除</span></span><br><span class="line">		<span class="keyword">for</span> _, key := <span class="keyword">range</span> keys &#123;</span><br><span class="line">			<span class="keyword">if</span> _, err := c.rds.DelCtx(ctx, key); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				logger.Errorf(<span class="string">"failed to clear cache with key: %q, error: %v"</span>, key, err)</span><br><span class="line">				c.asyncRetryDelCache(key)	<span class="comment">//失败添加重试任务</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; <span class="keyword">else</span> <span class="keyword">if</span> _, err := c.rds.DelCtx(ctx, keys...); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		logger.Errorf(<span class="string">"failed to clear cache with keys: %q, error: %v"</span>, formatKeys(keys), err)</span><br><span class="line">		c.asyncRetryDelCache(keys...)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="缓存统计"><a class="markdownIt-Anchor" href="#缓存统计"></a> 缓存统计</h4>
+<p>代码：<code>core/stores/cache/cachestat.go</code></p>
+<p>用于统计缓存情况</p>
+<h5 id="新建统计对象"><a class="markdownIt-Anchor" href="#新建统计对象"></a> 新建统计对象</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// NewStat returns a Stat.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewStat</span><span class="params">(name <span class="keyword">string</span>)</span> *<span class="title">Stat</span></span> &#123;</span><br><span class="line">	ret := &amp;Stat&#123;</span><br><span class="line">		name: name,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">go</span> ret.statLoop()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> ret</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//statLoop 开启统计</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Stat)</span> <span class="title">statLoop</span><span class="params">()</span></span> &#123;</span><br><span class="line">	ticker := time.NewTicker(statInterval)</span><br><span class="line">	<span class="keyword">defer</span> ticker.Stop()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> <span class="keyword">range</span> ticker.C &#123;</span><br><span class="line">		total := atomic.SwapUint64(&amp;s.Total, <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">if</span> total == <span class="number">0</span> &#123;</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">        <span class="comment">//计算缓存情况</span></span><br><span class="line">		hit := atomic.SwapUint64(&amp;s.Hit, <span class="number">0</span>)</span><br><span class="line">		percent := <span class="number">100</span> * <span class="keyword">float32</span>(hit) / <span class="keyword">float32</span>(total)	<span class="comment">//命中率</span></span><br><span class="line">		miss := atomic.SwapUint64(&amp;s.Miss, <span class="number">0</span>)			<span class="comment">//未命中</span></span><br><span class="line">		dbf := atomic.SwapUint64(&amp;s.DbFails, <span class="number">0</span>)			<span class="comment">//数据库调用事变</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">//发送统计信息</span></span><br><span class="line">		logx.Statf(<span class="string">"dbcache(%s) - qpm: %d, hit_ratio: %.1f%%, hit: %d, miss: %d, db_fails: %d"</span>,	s.name, total, percent, hit, miss, dbf)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意：</p>
+<ol>
+<li>协程是一个常驻协程，缺少退出</li>
+<li><code>SwapUint64</code>的作用是：将新的值写入 <code>addr</code>，而返回<code>addr</code>中旧的值</li>
+</ol>
+<h4 id="缓存清理"><a class="markdownIt-Anchor" href="#缓存清理"></a> 缓存清理</h4>
+<p>当缓存删除失败，这里添加一个重试机制</p>
+<h5 id="初始化"><a class="markdownIt-Anchor" href="#初始化"></a> 初始化</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> err error	</span><br><span class="line">    <span class="comment">//时间轮</span></span><br><span class="line">	timingWheel, err = collection.NewTimingWheel(time.Second, timingWheelSlots, clean)</span><br><span class="line">	logx.Must(err)	</span><br><span class="line">	<span class="comment">//监听系统异常退出</span></span><br><span class="line">	proc.AddShutdownListener(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		timingWheel.Drain(clean)</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//clean 时间轮操作</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">clean</span><span class="params">(key, value <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	taskRunner.Schedule(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		dt := value.(delayTask)</span><br><span class="line">		err := dt.task() <span class="comment">//执行任务</span></span><br><span class="line">		<span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		next, ok := nextDelay(dt.delay)	<span class="comment">//重复任务设置</span></span><br><span class="line">		<span class="keyword">if</span> ok &#123;</span><br><span class="line">			dt.delay = next</span><br><span class="line">			timingWheel.SetTimer(key, dt, next)</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			msg := fmt.Sprintf(<span class="string">"retried but failed to clear cache with keys: %q, error: %v"</span>,</span><br><span class="line">				formatKeys(dt.keys), err)</span><br><span class="line">			logx.Error(msg)</span><br><span class="line">			stat.Report(msg)	<span class="comment">//暂未实现</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里做了一个动态清理</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">nextDelay</span><span class="params">(delay time.Duration)</span> <span class="params">(time.Duration, <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">switch</span> delay &#123;</span><br><span class="line">	<span class="keyword">case</span> time.Second:</span><br><span class="line">		<span class="keyword">return</span> time.Second * <span class="number">5</span>, <span class="literal">true</span></span><br><span class="line">	<span class="keyword">case</span> time.Second * <span class="number">5</span>:</span><br><span class="line">		<span class="keyword">return</span> time.Minute, <span class="literal">true</span></span><br><span class="line">	<span class="keyword">case</span> time.Minute:</span><br><span class="line">		<span class="keyword">return</span> time.Minute * <span class="number">5</span>, <span class="literal">true</span></span><br><span class="line">	<span class="keyword">case</span> time.Minute * <span class="number">5</span>:</span><br><span class="line">		<span class="keyword">return</span> time.Hour, <span class="literal">true</span></span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>, <span class="literal">false</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="添加清理任务"><a class="markdownIt-Anchor" href="#添加清理任务"></a> 添加清理任务</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AddCleanTask adds a clean task on given keys.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">AddCleanTask</span><span class="params">(task <span class="keyword">func</span>()</span> <span class="title">error</span>, <span class="title">keys</span> ...<span class="title">string</span>)</span> &#123;</span><br><span class="line">	timingWheel.SetTimer(stringx.Randn(taskKeyLen), delayTask&#123;</span><br><span class="line">		delay: time.Second,</span><br><span class="line">		task:  task,</span><br><span class="line">		keys:  keys,</span><br><span class="line">	&#125;, time.Second)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h4>
+<ol>
+<li>采用共享调用的方式防止缓存击穿</li>
+<li>采用占位符方式缓存床头</li>
+<li>设置范围过期时间防止缓存雪崩</li>
+<li>增加重试删除机制(时间轮)</li>
+</ol>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://talkgo.org/t/topic/1716" target="_blank" rel="noopener">https://talkgo.org/t/topic/1716</a></li>
+<li><a href="https://talkgo.org/t/topic/1505" target="_blank" rel="noopener">https://talkgo.org/t/topic/1505</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/07/19/GoZero/GoZero8-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%93%E5%AD%98/" title="go-zero8-数据库缓存" target="_blank" rel="external">http://xboom.github.io/2022/07/19/GoZero/GoZero8-数据库缓存/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/07/19/GoZero/GoZero9-%E8%87%AA%E9%80%82%E5%BA%94%E7%86%94%E6%96%AD/" title="go-zero9-自适应熔断"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/07/19/GoZero/GoZero7-%E8%BF%9B%E7%A8%8B%E5%86%85%E7%BC%93%E5%AD%98/" title="go-zero7-进程内缓存"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="https://unpkg.com/leancloud-storage@4.12.2/dist/av-live-query-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>

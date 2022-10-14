@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Go入门6-内存管理 | XBoom Dove</title>
+  <meta name="description" content="物理内存 VS 虚拟内存 内存分配器实际上操作的不是物理内存而是虚拟内存 Golang内存分配算法主要源自 Google 为 C 语言开发的TCMalloc算法，全称Thread-Caching Malloc。核心思想就是把内存分为多级管理，从而降低锁的粒度。 将可用的堆内存采用二级分配的方式进行管理：每个线程都会自行维护一个独立的内存池，进行内存分配时优先从该内存池中分配，当内存池不足时才会向">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go入门6-内存管理">
+<meta property="og:url" content="http://xboom.github.io/2021/09/09/Go/Go%E5%85%A5%E9%97%A86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="物理内存 VS 虚拟内存 内存分配器实际上操作的不是物理内存而是虚拟内存 Golang内存分配算法主要源自 Google 为 C 语言开发的TCMalloc算法，全称Thread-Caching Malloc。核心思想就是把内存分为多级管理，从而降低锁的粒度。 将可用的堆内存采用二级分配的方式进行管理：每个线程都会自行维护一个独立的内存池，进行内存分配时优先从该内存池中分配，当内存池不足时才会向">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711161230.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711161604.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711161654.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711161907.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711162200.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711163351.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711163833.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711164432.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711165639.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711170344.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711172507.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711172913.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711172945.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711173701.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711175307.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711144513.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711145757.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711145650.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150354.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150526.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150549.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150643.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150923.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711151026.png">
+<meta property="article:published_time" content="2021-09-08T16:08:22.000Z">
+<meta property="article:modified_time" content="2022-10-01T14:54:12.333Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711161230.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2021/09/09/Go/Go%E5%85%A5%E9%97%A86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">18</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/" rel="tag">golang</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.3px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.3px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.7px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.1px;">gRPC</a> <a href="/tags/go-zero/" style="font-size: 13.8px;">go-zero</a> <a href="/tags/golang/" style="font-size: 13px;">golang</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/17/Go/Go%E5%85%A5%E9%97%A818-Fuzzing/" class="title">Go入门18-Fuzzing</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-17T09:06:06.892Z" itemprop="datePublished">2022-09-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/golang/">golang</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/14/Go/Go%E5%85%A5%E9%97%A820-Goland%E6%BF%80%E6%B4%BB/" class="title">Go入门20-Goland激活</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-14T13:27:28.900Z" itemprop="datePublished">2022-09-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/10/Go/Go%E5%85%A5%E9%97%A815-Sync/" class="title">Go入门15-Sync</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-10T00:59:08.235Z" itemprop="datePublished">2022-09-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A816-%E5%B7%A5%E4%BD%9C%E5%8C%BA/" class="title">Go入门16-工作区</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A814-%E6%B3%9B%E5%9E%8B/" class="title">Go入门14-泛型</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#物理内存-vs-虚拟内存"><span class="toc-number">1.</span> <span class="toc-text"> 物理内存 VS 虚拟内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcmalloc"><span class="toc-number">2.</span> <span class="toc-text"> TCMalloc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存分配器"><span class="toc-number">3.</span> <span class="toc-text"> 内存分配器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#设计原理"><span class="toc-number">3.1.</span> <span class="toc-text"> 设计原理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#分配方法"><span class="toc-number">3.1.1.</span> <span class="toc-text"> 分配方法</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#线性分配器"><span class="toc-number">3.1.1.1.</span> <span class="toc-text"> 线性分配器</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#空闲链表分配器"><span class="toc-number">3.1.1.2.</span> <span class="toc-text"> 空闲链表分配器</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#分级分配"><span class="toc-number">3.1.2.</span> <span class="toc-text"> 分级分配</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#对象大小"><span class="toc-number">3.1.2.1.</span> <span class="toc-text"> 对象大小</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#多级缓存"><span class="toc-number">3.1.2.2.</span> <span class="toc-text"> 多级缓存</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#虚拟内存分布"><span class="toc-number">3.1.3.</span> <span class="toc-text"> 虚拟内存分布</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#线性内存"><span class="toc-number">3.1.3.1.</span> <span class="toc-text"> 线性内存</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#稀疏内存"><span class="toc-number">3.1.3.2.</span> <span class="toc-text"> 稀疏内存</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#地址空间"><span class="toc-number">3.1.4.</span> <span class="toc-text"> 地址空间</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存管理组件"><span class="toc-number">4.</span> <span class="toc-text"> 内存管理组件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#内存管理单元"><span class="toc-number">4.0.1.</span> <span class="toc-text"> 内存管理单元</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#线程缓存"><span class="toc-number">4.0.2.</span> <span class="toc-text"> 线程缓存</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#中心缓存"><span class="toc-number">4.0.3.</span> <span class="toc-text"> 中心缓存</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基础概念"><span class="toc-number">5.</span> <span class="toc-text"> 基础概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存管理单元-2"><span class="toc-number">6.</span> <span class="toc-text"> 内存管理单元</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存管理元件"><span class="toc-number">7.</span> <span class="toc-text"> 内存管理元件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#mcache"><span class="toc-number">7.1.</span> <span class="toc-text"> mcache</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mcentral"><span class="toc-number">7.2.</span> <span class="toc-text"> mcentral</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mheap"><span class="toc-number">7.3.</span> <span class="toc-text"> mheap</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存分配流程"><span class="toc-number">8.</span> <span class="toc-text"> 内存分配流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">9.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Go/Go入门6-内存管理" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Go入门6-内存管理
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/09/09/Go/Go%E5%85%A5%E9%97%A86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="article-date">
+	  <time datetime="2021-09-08T16:08:22.000Z" itemprop="datePublished">2021-09-09</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Go/">Go</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Go/" rel="tag">Go</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2021/09/09/Go/Go%E5%85%A5%E9%97%A86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="leancloud_visitors"  data-flag-title="Go入门6-内存管理">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/09/09/Go/Go%E5%85%A5%E9%97%A86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 8.3k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 33(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="物理内存-vs-虚拟内存"><a class="markdownIt-Anchor" href="#物理内存-vs-虚拟内存"></a> 物理内存 VS 虚拟内存</h3>
+<p>内存分配器实际上操作的不是物理内存而是虚拟内存</p>
+<p>Golang内存分配算法主要源自 Google 为 C 语言开发的<code>TCMalloc算法</code>，全称<code>Thread-Caching Malloc</code>。核心思想就是把内存分为多级管理，从而降低锁的粒度。</p>
+<p>将可用的堆内存采用二级分配的方式进行管理：<strong>每个线程都会自行维护一个独立的内存池</strong>，进行内存分配时优先从该内存池中分配，当内存池不足时才会向全局内存池申请，以避免不同线程对全局内存池的频繁竞争</p>
+<h3 id="tcmalloc"><a class="markdownIt-Anchor" href="#tcmalloc"></a> TCMalloc</h3>
+<ul>
+<li>TCMalloc用固定大小的page(页)来执行内存获取、分配等操作。跟Linux物理内存页的划分有同样的道理。</li>
+<li>TCMalloc用固定大小的对象，比如8KB，16KB 等用于特定大小对象的内存分配，这对于内存获取或释放等操作都带来了简化的作用。</li>
+<li>TCMalloc还利用缓存常用对象来提高获取内存的速度。</li>
+<li>TCMalloc还可以基于每个线程或者每个CPU来设置缓存大小，这是默认设置</li>
+<li>TCMalloc基于每个线程独立设置缓存分配策略，减少了多线程之间锁的竞争</li>
+</ul>
+<h3 id="内存分配器"><a class="markdownIt-Anchor" href="#内存分配器"></a> 内存分配器</h3>
+<h4 id="设计原理"><a class="markdownIt-Anchor" href="#设计原理"></a> 设计原理</h4>
+<p>内存管理一般包含三个不同的组件，分别是用户程序(Mutator)、分配器(Allocator)和收集器(Collector)，当用户程序申请内存时，它会通过内存分配器申请新内存，而分配器会负责从堆中初始化相应的内存区域</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711161230.png" alt="mutator-allocator-collector" style="zoom:50%;" />
+<h5 id="分配方法"><a class="markdownIt-Anchor" href="#分配方法"></a> 分配方法</h5>
+<p>编程语言的内存分配器一般包含两种分配方法，一种是<strong>线性分配器</strong>（Sequential Allocator，Bump Allocator），另一种是<strong>空闲链表分配器</strong>（Free-List Allocator），这两种分配方法有着不同的实现机制和特性，本节会依次介绍它们的分配过程</p>
+<h6 id="线性分配器"><a class="markdownIt-Anchor" href="#线性分配器"></a> 线性分配器</h6>
+<p>使用线性分配器(Bump Allocator)，只需要在内存中维护一个指向内存特定位置的指针，如果用户程序向分配器申请内存，分配器只需要检查剩余的空闲内存、返回分配的内存区域并修改指针在内存中的位置，即移动下图中的指针：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711161604.png" alt="bump-allocator" style="zoom:50%;" />
+<p>缺点：线性分配器无法在内存被释放时重用内存。如下图所示，如果已经分配的内存被回收，线性分配器无法重新利用红色的内存：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711161654.png" alt="bump-allocator-reclaim-memory" style="zoom:50%;" />
+<p>因为线性分配器具有上述特性，所以需要与合适的垃圾回收算法配合使用，例如：标记压缩（Mark-Compact）、复制回收（Copying GC）和分代回收（Generational GC）等算法，通过拷贝的方式整理存活对象的碎片，将空闲内存定期合并，这样就能利用线性分配器的效率提升内存分配器的性能了。</p>
+<blockquote>
+<p>线性分配器需要与具有拷贝特性的垃圾回收算法配合，所以 C 和 C++ 等需要直接对外暴露指针的语言就无法使用该策略</p>
+</blockquote>
+<h6 id="空闲链表分配器"><a class="markdownIt-Anchor" href="#空闲链表分配器"></a> 空闲链表分配器</h6>
+<p>空闲链表分配器（Free-List Allocator）可以重用已经被释放的内存，它在内部会维护一个类似链表的数据结构。当用户程序申请内存时，空闲链表分配器会依次遍历空闲的内存块，找到足够大的内存，然后申请新的资源并修改链表：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711161907.png" alt="free-list-allocator" style="zoom:50%;" />
+<p>缺点:分配内存时需要遍历链表，时间复杂度是 𝑂(𝑛)O(n)。空闲链表分配器可以选择不同的策略在链表中的内存块中进行选择，最常见的是以下四种：</p>
+<ul>
+<li>首次适应(First-Fit):从链表头开始遍历，选择第一个大小大于申请内存的内存块；</li>
+<li>循环首次适应(Next-Fit):从上次遍历的结束位置开始遍历，选择第一个大小大于申请内存的内存块；</li>
+<li>最优适应(Best-Fit):从链表头遍历整个链表，选择最合适的内存块；</li>
+<li>隔离适应(Segregated-Fit):将内存分割成多个链表，每个链表中的内存块大小相同，申请内存时先找到满足条件的链表，再从链表中选择合适的内存块</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711162200.png" alt="segregated-list" style="zoom:50%;" />
+<p>如上图所示，该策略会将内存分割成由 4、8、16、32 字节的内存块组成的链表，当我们向内存分配器申请 8 字节的内存时，它会在上图中找到满足条件的空闲内存块并返回。隔离适应的分配策略减少了需要遍历的内存块数量，提高了内存分配的效率</p>
+<h5 id="分级分配"><a class="markdownIt-Anchor" href="#分级分配"></a> 分级分配</h5>
+<p>线程缓存分配（Thread-Caching Malloc，TCMalloc）是用于分配内存的机制，它比 glibc 中的 <code>malloc</code> 还要快很多。核心思想就是把内存分为多级管理。将可用的堆内存采用二级分配的方式进行管理：每个线程都会自行维护一个独立的内存池，进行内存分配时优先从该内存池中分配，当内存池不足时才会向全局内存池申请，以避免不同线程对全局内存池的频繁竞</p>
+<h6 id="对象大小"><a class="markdownIt-Anchor" href="#对象大小"></a> 对象大小</h6>
+<p>内存分配器根据申请分配的内存大小选择不同的处理逻辑，运行时根据对象的大小将对象分成微对象、小对象和大对象三种：</p>
+<ul>
+<li>微对象：(0,16B)</li>
+<li>小对象：[16B, 32KB]</li>
+<li>大对象：(32KB, +∞)</li>
+</ul>
+<h6 id="多级缓存"><a class="markdownIt-Anchor" href="#多级缓存"></a> 多级缓存</h6>
+<p>内存分配器不仅会区别对待大小不同的对象，还将内存分成不同的级别分别管理，TCMalloc 和 Go 运行时分配器都会引入线程缓存（Thread Cache）、中心缓存（Central Cache）和页堆（Page Heap）三个组件分级管理内存：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711163351.png" alt="multi-level-cache" style="zoom:50%;" />
+<p>线程缓存属于每一个独立的线程，它能够满足线程上绝大多数的内存分配需求，因为不涉及多线程，所以也不需要使用互斥锁来保护内存，这能够减少锁竞争带来的性能损耗。当线程缓存不能满足需求时，运行时会使用中心缓存作为补充解决小对象的内存分配，在遇到 32KB 以上的对象时，内存分配器会选择页堆直接分配大内存。</p>
+<h5 id="虚拟内存分布"><a class="markdownIt-Anchor" href="#虚拟内存分布"></a> 虚拟内存分布</h5>
+<p>在 Go 语言 1.10 以前的版本，堆区的内存空间都是连续的；但是在 1.11 版本，Go 团队使用稀疏的堆内存空间替代了连续的内存，解决了连续内存带来的限制以及在特殊场景下可能出现的问题</p>
+<h6 id="线性内存"><a class="markdownIt-Anchor" href="#线性内存"></a> 线性内存</h6>
+<p>Go 语言程序的 1.10 版本在启动时会初始化整片虚拟内存区域，如下所示的三个区域 <code>spans</code>、<code>bitmap</code> 和 <code>arena</code> 分别预留了 512MB、16GB 以及 512GB 的内存空间，这些内存并不是真正存在的物理内存，而是虚拟内存</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711163833.png" alt="heap-before-go-1-10" style="zoom:50%;" />
+<ul>
+<li><code>spans</code> 区域存储了指向内存管理单元 <code>runtime.mspan</code> 的指针，每个内存单元会管理几页的内存空间，每页大小为 8KB；</li>
+<li><code>bitmap</code> 用于标识 <code>arena</code> 区域中的那些地址保存了对象，位图中的每个字节都会表示堆区中的 32 字节是否空闲；</li>
+<li><code>arena</code> 区域是真正的堆区，运行时会将 8KB 看做一页，这些内存页中存储了所有在堆上初始化的对象</li>
+</ul>
+<p>对于任意一个地址，都可以根据 <code>arena</code> 的基地址计算该地址所在的页数并通过 <code>spans</code> 数组获得管理该片内存的管理单元 <code>runtime.mspan</code>，<code>spans</code> 数组中多个连续的位置可能对应同一个 <code>runtime.mspan</code> 结构。</p>
+<p>Go 语言在垃圾回收时会根据指针的地址判断对象是否在堆中，并通过上一段中介绍的过程找到管理该对象的 <code>runtime.mspan</code>。这些都建立在<strong>堆区的内存是连续的</strong>这一假设上。这种设计虽然简单并且方便，但是在 C 和 Go 混合使用时会导致程序崩溃：</p>
+<ol>
+<li>分配的内存地址会发生冲突，导致堆的初始化和扩容失败</li>
+<li>没有被预留的大块内存可能会被分配给 C 语言的二进制，导致扩容后的堆不连续</li>
+</ol>
+<p>线性的堆内存需要预留大块内存空间，但大块的内存空间不使用是不切实际的，不预留内存空间却会在特殊场景下造成程序崩溃</p>
+<h6 id="稀疏内存"><a class="markdownIt-Anchor" href="#稀疏内存"></a> 稀疏内存</h6>
+<p>稀疏内存是 Go 语言在 1.11 中提出的方案，使用稀疏的内存布局不仅能移除堆大小的上限，还能解决 C 和 Go 混合使用时的地址空间冲突问题。不过因为基于稀疏内存的内存管理失去了内存的连续性这一假设，这也使内存管理变得更加复杂：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711164432.png" alt="heap-after-go-1-11" style="zoom:50%;" />
+<p>如上图所示，运行时使用二维的 <code>runtime.heapArena</code> 数组管理所有的内存，每个单元都会管理 64MB 的内存空间：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> heapArena <span class="keyword">struct</span> &#123;</span><br><span class="line">	bitmap [heapArenaBitmapBytes]<span class="keyword">byte</span></span><br><span class="line">	spans [pagesPerArena]*mspan</span><br><span class="line">	pageInUse [pagesPerArena / <span class="number">8</span>]<span class="keyword">uint8</span></span><br><span class="line">	pageMarks [pagesPerArena / <span class="number">8</span>]<span class="keyword">uint8</span></span><br><span class="line">	pageSpecials [pagesPerArena / <span class="number">8</span>]<span class="keyword">uint8</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">//zeroedBase 标记arena还没被使用的第一页的第一个字节，是相对于 arena 单调增加，直到达到 heapArenaBytes</span></span><br><span class="line">  <span class="comment">//该字段足以确定是否分配 需要归零，因为页面分配器遵循地址排序的第一个适合策略。</span></span><br><span class="line">  <span class="comment">//以原子方式读取并使用原子 CAS 写入</span></span><br><span class="line">	zeroedBase <span class="keyword">uintptr</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该结构体中的 <code>bitmap</code> 和 <code>spans</code> 与线性内存中的 <code>bitmap</code> 和 <code>spans</code> 区域一一对应，<code>zeroedBase</code> 字段指向了该结构体管理的内存的基地址。上述设计将原有的连续大内存切分成稀疏的小内存，而用于管理这些内存的元信息也被切成了小块</p>
+<h5 id="地址空间"><a class="markdownIt-Anchor" href="#地址空间"></a> 地址空间</h5>
+<p>Go 语言的运行时构建了操作系统的内存管理抽象层，将运行时管理的地址空间分成以下四种状态</p>
+<ul>
+<li>None: 内存没有被保留或者映射，是地址空间的默认状态</li>
+<li>Reserved: 运行时持有该地址空间，但是访问该内存会导致错误</li>
+<li>Prepared: 内存被保留，一般没有对应的物理内存访问该片内存的行为是未定义的可以快速转换到 <code>Ready</code> 状态</li>
+<li>Ready: 可以被安全访问</li>
+</ul>
+<p>不同状态之间的转换过程：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711165639.png" alt="memory-regions-states-and-transitions" style="zoom:50%;" />
+<p>运行时中包含多个操作系统实现的状态转换方法，所有的实现都包含在以 <code>mem_</code> 开头的文件中，本节将介绍 Linux 操作系统对上图中方法的实现：</p>
+<ul>
+<li><code>runtime.sysAlloc</code>: 会从操作系统中获取一大块可用的内存空间，可能为几百 KB 或者几 MB；</li>
+<li><code>runtime.sysFree</code>: 会在程序发生内存不足（Out-of Memory，OOM）时调用并无条件地返回内存；</li>
+<li><code>runtime.sysReserve</code> 会保留操作系统中的一片内存区域，访问这片内存会触发异常；</li>
+<li><code>runtime.sysMap</code> 保证内存区域可以快速转换至就绪状态；</li>
+<li><code>runtime.sysUsed</code> 通知操作系统应用程序需要使用该内存区域，保证内存区域可以安全访问；</li>
+<li><code>runtime.sysUnused</code> 通知操作系统虚拟内存对应的物理内存已经不再需要，可以重用物理内存；</li>
+<li><code>runtime.sysFault</code> 将内存区域转换成保留状态，主要用于运行时的调试；</li>
+</ul>
+<p>运行时使用 Linux 提供的 <code>mmap</code>、<code>munmap</code> 和 <code>madvise</code> 等系统调用实现了操作系统的内存管理抽象层</p>
+<h3 id="内存管理组件"><a class="markdownIt-Anchor" href="#内存管理组件"></a> 内存管理组件</h3>
+<p>Go 语言的内存分配器包含内存管理单元、线程缓存、中心缓存和页堆几个重要组件</p>
+<ul>
+<li><code>runtime.mspan</code></li>
+<li><code>runtime.mcache</code></li>
+<li><code>runtime.mcentral</code></li>
+<li><code>runtime.mheap</code></li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711170344.png" alt="go-memory-layout" style="zoom:60%;" />
+<p>Go 语言程序启动时初始化如上图所示的内存布局，每一个处理器都会分配一个线程缓存 <code>runtime.mcache</code> 用于处理微对象和小对象的分配，它们会持有内存管理单元 <code>runtime.mspan</code></p>
+<p>每个类型的内存管理单元都会管理特定大小的对象，当内存管理单元中不存在空闲对象时，它们会从 <code>runtime.mheap</code> 持有的 134 个中心缓存 <code>runtime.mcentral</code> 中获取新的内存单元，中心缓存属于全局的堆结构体 <code>runtime.mheap</code>，它会从操作系统中申请内存。</p>
+<p>在 amd64 的 Linux 操作系统上，<code>runtime.mheap</code> 会持有 4,194,304 <code>runtime.heapArena</code>，每个 <code>runtime.heapArena</code> 都会管理 64MB 的内存，单个 Go 语言程序的内存上限也就是 256TB</p>
+<h5 id="内存管理单元"><a class="markdownIt-Anchor" href="#内存管理单元"></a> 内存管理单元</h5>
+<p><code>runtime.mspan</code> 是 Go 语言内存管理的基本单元,是一个双向链表</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> mspan <span class="keyword">struct</span> &#123;</span><br><span class="line">	next *mspan     <span class="comment">// next span in list, or nil if none</span></span><br><span class="line">	prev *mspan     <span class="comment">// previous span in list, or nil if none</span></span><br><span class="line">	list *mSpanList <span class="comment">// For debugging. <span class="doctag">TODO:</span> Remove.</span></span><br><span class="line"></span><br><span class="line">	startAddr <span class="keyword">uintptr</span> <span class="comment">// address of first byte of span aka s.base() 起始地址</span></span><br><span class="line">	npages    <span class="keyword">uintptr</span> <span class="comment">// number of pages in span span中页的个数</span></span><br><span class="line"></span><br><span class="line">	manualFreeList gclinkptr <span class="comment">// list of free objects in mSpanManual spans</span></span><br><span class="line">	freeindex <span class="keyword">uintptr</span></span><br><span class="line">	nelems <span class="keyword">uintptr</span> <span class="comment">// number of object in the span.</span></span><br><span class="line"></span><br><span class="line">	allocCache <span class="keyword">uint64</span></span><br><span class="line"></span><br><span class="line">	allocBits  *gcBits</span><br><span class="line">	gcmarkBits *gcBits</span><br><span class="line"></span><br><span class="line">	<span class="comment">// sweep generation:</span></span><br><span class="line">	<span class="comment">// if sweepgen == h-&gt;sweepgen - 2, the span needs sweeping</span></span><br><span class="line">	<span class="comment">// if sweepgen == h-&gt;sweepgen - 1, the span is currently being swept</span></span><br><span class="line">	<span class="comment">// if sweepgen == h-&gt;sweepgen, the span is swept and ready to use</span></span><br><span class="line">	<span class="comment">// if sweepgen == h-&gt;sweepgen + 1, the span was cached before sweep began and is still cached, and needs sweeping</span></span><br><span class="line">	<span class="comment">// if sweepgen == h-&gt;sweepgen + 3, the span was swept and then cached and is still cached</span></span><br><span class="line">	<span class="comment">// h-&gt;sweepgen is incremented by 2 after every GC</span></span><br><span class="line"></span><br><span class="line">	sweepgen    <span class="keyword">uint32</span></span><br><span class="line">	divMul      <span class="keyword">uint16</span>        <span class="comment">// for divide by elemsize - divMagic.mul</span></span><br><span class="line">	baseMask    <span class="keyword">uint16</span>        <span class="comment">// if non-0, elemsize is a power of 2, &amp; this will get object allocation base</span></span><br><span class="line">	allocCount  <span class="keyword">uint16</span>        <span class="comment">// number of allocated objects</span></span><br><span class="line">	spanclass   spanClass     <span class="comment">// size class and noscan (uint8)</span></span><br><span class="line">	state       mSpanStateBox <span class="comment">// mSpanInUse etc; accessed atomically (get/set methods)</span></span><br><span class="line">	needzero    <span class="keyword">uint8</span>         <span class="comment">// needs to be zeroed before allocation</span></span><br><span class="line">	divShift    <span class="keyword">uint8</span>         <span class="comment">// for divide by elemsize - divMagic.shift</span></span><br><span class="line">	divShift2   <span class="keyword">uint8</span>         <span class="comment">// for divide by elemsize - divMagic.shift2</span></span><br><span class="line">	elemsize    <span class="keyword">uintptr</span>       <span class="comment">// computed from sizeclass or from npages</span></span><br><span class="line">	limit       <span class="keyword">uintptr</span>       <span class="comment">// end of data in span</span></span><br><span class="line">	speciallock mutex         <span class="comment">// guards specials list</span></span><br><span class="line">	specials    *special      <span class="comment">// linked list of special records sorted by offset.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>startAddr</code> 和 <code>npages</code> — 确定该结构体管理的多个页所在的内存，每个页的大小都是 8KB；</li>
+<li><code>freeindex</code> — 扫描页中空闲对象的初始索引；</li>
+<li><code>allocBits</code> 和 <code>gcmarkBits</code> — 分别用于标记内存的占用和回收情况；</li>
+<li><code>allocCache</code> — <code>allocBits</code> 的补码，可以用于快速查找内存中未被使用的内存；</li>
+</ul>
+<p>串联后的上述结构体会构成如下双向链表</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711172507.png" alt="mspan-and-linked-list" style="zoom:50%;" />
+<p>因为相邻的管理单元会互相引用，所以我们可以从任意一个结构体访问双向链表中的其他节点</p>
+<p><code>runtime.mspan</code> 会以两种不同的视角看待管理的内存</p>
+<ul>
+<li>当结构体管理的内存不足时，运行时会以页为单位向堆申请内存</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711172913.png" alt="mspan-and-pages" style="zoom:50%;" />
+<ul>
+<li>当向 <code>runtime.mspan</code> 申请内存时，它会使用 <code>allocCache</code> 字段以对象为单位在管理的内存中快速查找待分配的空间</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711172945.png" alt="mspan-and-objects" style="zoom:50%;" />
+<p>如果我们能在内存中找到空闲的内存单元会直接返回，当内存中不包含空闲的内存时，上一级的组件 <code>runtime.mcache</code> 会为调用 <code>runtime.mcache.refill</code> 更新内存管理单元以满足为更多对象分配内存的需求</p>
+<p>该状态可能处于 <code>mSpanDead</code>、<code>mSpanInUse</code>、<code>mSpanManual</code> 和 <code>mSpanFree</code> 四种情况。当 <code>runtime.mspan</code> 在空闲堆中，它会处于 <code>mSpanFree</code> 状态；当 <code>runtime.mspan</code> 已经被分配时，它会处于 <code>mSpanInUse</code>、<code>mSpanManual</code> 状态，运行时会遵循下面的规则转换该状态：</p>
+<ul>
+<li>在垃圾回收的任意阶段，可能从 <code>mSpanFree</code> 转换到 <code>mSpanInUse</code> 和 <code>mSpanManual</code>；</li>
+<li>在垃圾回收的清除阶段，可能从 <code>mSpanInUse</code> 和 <code>mSpanManual</code> 转换到 <code>mSpanFree</code>；</li>
+<li>在垃圾回收的标记阶段，不能从 <code>mSpanInUse</code> 和 <code>mSpanManual</code> 转换到 <code>mSpanFree</code>；</li>
+</ul>
+<p>设置 <code>runtime.mspan</code> 状态的操作必须是原子性的以避免垃圾回收造成的线程竞争问题</p>
+<p><code>runtime.spanClass</code> 是 <code>runtime.mspan</code> 的跨度类，它决定了内存管理单元中存储的对象大小和个数</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">class</th>
+<th style="text-align:right">bytes/obj</th>
+<th style="text-align:right">bytes/span</th>
+<th style="text-align:right">objects</th>
+<th style="text-align:center">tail waste</th>
+<th style="text-align:center">max waste</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:right">8</td>
+<td style="text-align:right">8192</td>
+<td style="text-align:right">1024</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">87.50%</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:right">16</td>
+<td style="text-align:right">8192</td>
+<td style="text-align:right">512</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">43.75%</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:right">24</td>
+<td style="text-align:right">8192</td>
+<td style="text-align:right">341</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">29.24%</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:right">32</td>
+<td style="text-align:right">8192</td>
+<td style="text-align:right">256</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">46.88%</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:right">48</td>
+<td style="text-align:right">8192</td>
+<td style="text-align:right">170</td>
+<td style="text-align:center">32</td>
+<td style="text-align:center">31.52%</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:right">64</td>
+<td style="text-align:right">8192</td>
+<td style="text-align:right">128</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">23.44%</td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:right">80</td>
+<td style="text-align:right">8192</td>
+<td style="text-align:right">102</td>
+<td style="text-align:center">32</td>
+<td style="text-align:center">19.07%</td>
+</tr>
+<tr>
+<td style="text-align:center">…</td>
+<td style="text-align:right">…</td>
+<td style="text-align:right">…</td>
+<td style="text-align:right">…</td>
+<td style="text-align:center">…</td>
+<td style="text-align:center">…</td>
+</tr>
+<tr>
+<td style="text-align:center">67</td>
+<td style="text-align:right">32768</td>
+<td style="text-align:right">32768</td>
+<td style="text-align:right">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">12.50%</td>
+</tr>
+</tbody>
+</table>
+<p>上表展示了对象大小从 8B 到 32KB，总共 67 种跨度类的大小、存储的对象数以及浪费的内存空间，以表中的第四个跨度类为例，跨度类为 5 的 <code>runtime.mspan</code> 中对象的大小上限为 48 字节、管理 1 个页、最多可以存储 170 个对象。因为内存需要按照页进行管理，所以在尾部会浪费 32 字节的内存，当页中存储的对象都是 33 字节时，最多会浪费 31.52% 的资源</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711173701.png" alt="mspan-max-waste-memory" style="zoom:50%;" />
+<p>除了上述 67 个跨度类之外，运行时中还包含 ID 为 0 的特殊跨度类，它能够管理大于 32KB 的特殊对象，我们会在后面详细介绍大对象的分配过程，在这里就不展开说明了。</p>
+<p>跨度类中除了存储类别的 ID 之外，它还会存储一个 <code>noscan</code> 标记位，该标记位表示对象是否包含指针，垃圾回收会对包含指针的 <code>runtime.mspan</code> 结构体进行扫描。我们可以通过下面的几个函数和方法了解 ID 和标记位的底层存储方式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">func makeSpanClass(sizeclass uint8, noscan bool) spanClass &#123;</span><br><span class="line">	return spanClass(sizeclass&lt;&lt;1) | spanClass(bool2int(noscan))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (sc spanClass) sizeclass() int8 &#123;</span><br><span class="line">	return int8(sc &gt;&gt; 1)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (sc spanClass) noscan() bool &#123;</span><br><span class="line">	return sc&amp;1 !&#x3D; 0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>runtime.spanClass</code> 是一个 <code>uint8</code> 类型的整数，它的前 7 位存储着跨度类的 ID，最后一位表示是否包含指针，该类型提供的两个方法能够帮我们快速获取对应的字段</p>
+<h5 id="线程缓存"><a class="markdownIt-Anchor" href="#线程缓存"></a> 线程缓存</h5>
+<p><code>runtime.mcache</code> 是 Go 语言中的线程缓存，与线程上的处理器一一绑定，主要用来缓存用户程序申请的微小对象。每一个线程缓存都持有 68 * 2 个 <code>runtime.mspan</code>，这些内存管理单元都存储在结构体的 <code>alloc</code> 字段中：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711175307.png" alt="mcache-and-mspans" style="zoom:50%;" />
+<p>线程缓存初始化时不包含 <code>runtime.mspan</code> ，只有当用户程序申请内存，才会从上一级组件获取新的 <code>runtime.mspan</code> 来满足内存分配</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> mcache <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// The following members are accessed on every malloc,</span></span><br><span class="line">	<span class="comment">// so they are grouped here for better caching.</span></span><br><span class="line">	next_sample <span class="keyword">uintptr</span> <span class="comment">// trigger heap sample after allocating this many bytes</span></span><br><span class="line">	local_scan  <span class="keyword">uintptr</span> <span class="comment">// bytes of scannable heap allocated</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Allocator cache for tiny objects w/o pointers.</span></span><br><span class="line">	<span class="comment">// See "Tiny allocator" comment in malloc.go.</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// tiny points to the beginning of the current tiny block, or</span></span><br><span class="line">	<span class="comment">// nil if there is no current tiny block.</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">// tiny is a heap pointer. Since mcache is in non-GC'd memory,</span></span><br><span class="line">	<span class="comment">// we handle it by clearing it in releaseAll during mark</span></span><br><span class="line">	<span class="comment">// termination.</span></span><br><span class="line">	tiny             <span class="keyword">uintptr</span></span><br><span class="line">	tinyoffset       <span class="keyword">uintptr</span></span><br><span class="line">	local_tinyallocs <span class="keyword">uintptr</span> <span class="comment">// number of tiny allocs not counted in other stats</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// The rest is not accessed on every malloc.</span></span><br><span class="line"></span><br><span class="line">	alloc [numSpanClasses]*mspan <span class="comment">// spans to allocate from, indexed by spanClass</span></span><br><span class="line"></span><br><span class="line">	stackcache [_NumStackOrders]stackfreelist</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Local allocator stats, flushed during GC.</span></span><br><span class="line">	local_largefree  <span class="keyword">uintptr</span>                  <span class="comment">// bytes freed for large objects (&gt;maxsmallsize)</span></span><br><span class="line">	local_nlargefree <span class="keyword">uintptr</span>                  <span class="comment">// number of frees for large objects (&gt;maxsmallsize)</span></span><br><span class="line">	local_nsmallfree [_NumSizeClasses]<span class="keyword">uintptr</span> <span class="comment">// number of frees for small objects (&lt;=maxsmallsize)</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// flushGen indicates the sweepgen during which this mcache</span></span><br><span class="line">	<span class="comment">// was last flushed. If flushGen != mheap_.sweepgen, the spans</span></span><br><span class="line">	<span class="comment">// in this mcache are stale and need to the flushed so they</span></span><br><span class="line">	<span class="comment">// can be swept. This is done in acquirep.</span></span><br><span class="line">	flushGen <span class="keyword">uint32</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行时在初始化处理器时会调用 <code>runtime.allocmcache</code> 初始化线程缓存，该函数会在系统栈中使用 <code>runtime.mheap</code> 中的线程缓存分配器初始化新的 <code>runtime.mcache</code> 结构体：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// dummy mspan that contains no free objects.</span></span><br><span class="line"><span class="keyword">var</span> emptymspan mspan</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">allocmcache</span><span class="params">()</span> *<span class="title">mcache</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> c *mcache</span><br><span class="line">	systemstack(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		lock(&amp;mheap_.lock)</span><br><span class="line">		c = (*mcache)(mheap_.cachealloc.alloc())</span><br><span class="line">		c.flushGen = mheap_.sweepgen</span><br><span class="line">		unlock(&amp;mheap_.lock)</span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> c.alloc &#123;</span><br><span class="line">		c.alloc[i] = &amp;emptymspan</span><br><span class="line">	&#125;</span><br><span class="line">	c.next_sample = nextSample()</span><br><span class="line">	<span class="keyword">return</span> c</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">freemcache</span><span class="params">(c *mcache)</span></span> &#123;</span><br><span class="line">	systemstack(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		c.releaseAll()</span><br><span class="line">		stackcache_clear(c)</span><br><span class="line"></span><br><span class="line">		lock(&amp;mheap_.lock)</span><br><span class="line">		purgecachedstats(c)</span><br><span class="line">		mheap_.cachealloc.free(unsafe.Pointer(c))</span><br><span class="line">		unlock(&amp;mheap_.lock)</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>初始化后的 <code>runtime.mcache</code> 中的所有 <code>runtime.mspan</code> 都是空的占位符 <code>emptymspan</code></p>
+<p><code>runtime.mcache.refill</code> 会为线程缓存获取一个指定跨度类的内存管理单元，被替换的单元不能包含空闲的内存空间，而获取的单元中需要至少包含一个空闲对象用于分配内存</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *mcache)</span> <span class="title">refill</span><span class="params">(spc spanClass)</span></span> &#123;</span><br><span class="line">	<span class="comment">// Return the current cached span to the central lists.</span></span><br><span class="line">	s := c.alloc[spc]</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">uintptr</span>(s.allocCount) != s.nelems &#123;</span><br><span class="line">		throw(<span class="string">"refill of span with free space remaining"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> s != &amp;emptymspan &#123;</span><br><span class="line">		<span class="comment">// Mark this span as no longer cached.</span></span><br><span class="line">		<span class="keyword">if</span> s.sweepgen != mheap_.sweepgen+<span class="number">3</span> &#123;</span><br><span class="line">			throw(<span class="string">"bad sweepgen in refill"</span>)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> go115NewMCentralImpl &#123;</span><br><span class="line">			mheap_.central[spc].mcentral.uncacheSpan(s)</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			atomic.Store(&amp;s.sweepgen, mheap_.sweepgen)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Get a new cached span from the central lists.</span></span><br><span class="line">	s = mheap_.central[spc].mcentral.cacheSpan()</span><br><span class="line">	<span class="keyword">if</span> s == <span class="literal">nil</span> &#123;</span><br><span class="line">		throw(<span class="string">"out of memory"</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">uintptr</span>(s.allocCount) == s.nelems &#123;</span><br><span class="line">		throw(<span class="string">"span has no free space"</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Indicate that this span is cached and prevent asynchronous</span></span><br><span class="line">	<span class="comment">// sweeping in the next sweep phase.</span></span><br><span class="line">	s.sweepgen = mheap_.sweepgen + <span class="number">3</span></span><br><span class="line"></span><br><span class="line">	c.alloc[spc] = s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="中心缓存"><a class="markdownIt-Anchor" href="#中心缓存"></a> 中心缓存</h5>
+<p><code>runtime.mcentral</code> 是内存分配器的中心缓存，与线程缓存不同，访问中心缓存中的内存管理单元需要使用互斥锁</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> mcentral <span class="keyword">struct</span> &#123;</span><br><span class="line">	lock      mutex</span><br><span class="line">	spanclass spanClass</span><br><span class="line"></span><br><span class="line">	<span class="comment">// For !go115NewMCentralImpl.</span></span><br><span class="line">	nonempty mSpanList <span class="comment">// list of spans with a free object, ie a nonempty free list</span></span><br><span class="line">	empty    mSpanList <span class="comment">// list of spans with no free objects (or cached in an mcache)</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// partial and full contain two mspan sets: one of swept in-use</span></span><br><span class="line">	<span class="comment">// spans, and one of unswept in-use spans. These two trade</span></span><br><span class="line">	<span class="comment">// roles on each GC cycle. The unswept set is drained either by</span></span><br><span class="line">	<span class="comment">// allocation or by the background sweeper in every GC cycle,</span></span><br><span class="line">	<span class="comment">// so only two roles are necessary.</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">// sweepgen is increased by 2 on each GC cycle, so the swept</span></span><br><span class="line">	<span class="comment">// spans are in partial[sweepgen/2%2] and the unswept spans are in</span></span><br><span class="line">	<span class="comment">// partial[1-sweepgen/2%2]. Sweeping pops spans from the</span></span><br><span class="line">	<span class="comment">// unswept set and pushes spans that are still in-use on the</span></span><br><span class="line">	<span class="comment">// swept set. Likewise, allocating an in-use span pushes it</span></span><br><span class="line">	<span class="comment">// on the swept set.</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">// Some parts of the sweeper can sweep arbitrary spans, and hence</span></span><br><span class="line">	<span class="comment">// can't remove them from the unswept set, but will add the span</span></span><br><span class="line">	<span class="comment">// to the appropriate swept list. As a result, the parts of the</span></span><br><span class="line">	<span class="comment">// sweeper and mcentral that do consume from the unswept list may</span></span><br><span class="line">	<span class="comment">// encounter swept spans, and these should be ignored.</span></span><br><span class="line">	partial [<span class="number">2</span>]spanSet <span class="comment">// list of spans with a free object</span></span><br><span class="line">	full    [<span class="number">2</span>]spanSet <span class="comment">// list of spans with no free objects</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// nmalloc is the cumulative count of objects allocated from</span></span><br><span class="line">	<span class="comment">// this mcentral, assuming all spans in mcaches are</span></span><br><span class="line">	<span class="comment">// fully-allocated. Written atomically, read under STW.</span></span><br><span class="line">	nmalloc <span class="keyword">uint64</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>每个中心缓存都会管理某个跨度类的内存管理单元，它会同时持有两个 <code>runtime.spanSet</code>，分别存储包含空闲对象和不包含空闲对象的内存管理单元。</p>
+<h3 id="基础概念"><a class="markdownIt-Anchor" href="#基础概念"></a> 基础概念</h3>
+<p>Go在程序启动的时候，会先向操作系统申请一块内存（注意这时还只是一段虚拟的地址空间，并不会真正地分配内存），切成小块后自己进行管理。</p>
+<p>申请到的内存块被分配了三个区域，在X64上分别是512MB，16GB，512GB大小</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711144513.png" alt="堆区总览" style="zoom:80%;" />
+<p><strong>arena</strong>区域就是所谓的堆区，Go动态分配的内存都是在这个区域，它把内存分割成<code>8KB</code>大小的页，一些页组合起来称为<code>mspan</code>。</p>
+<p><strong>bitmap</strong>区标识arena区域哪些地址保存了对象，并且用<code>4bit</code>标志位表示对象是否包含指针、<code>GC</code>标记信息。<code>bitmap</code>中一个<code>byte</code>大小的内存对应<code>arena</code>区域中4个指针大小（指针大小为 8B ）的内存，所以<code>bitmap</code>区域的大小是`512GB/(4*8B)=16GB</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711145757.png" alt="bitmap arena" style="zoom:80%;" />
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711145650.png" alt="堆区总览" style="zoom:80%;" />
+<p>从上图其实还可以看到bitmap的高地址部分指向arena区域的低地址部分，也就是说bitmap的地址是由高地址向低地址增长的。</p>
+<p><strong>spans</strong>区域存放<code>mspan</code>（也就是一些<code>arena</code>分割的页组合起来的内存管理基本单元，后文会再讲）的指针，每个指针对应一页，所以<code>spans</code>区域的大小就是<code>512GB/8KB*8B=512MB</code>。除以8KB是计算<code>arena</code>区域的页数，而最后乘以8是计算<code>spans</code>区域所有指针的大小。创建<code>mspan</code>的时候，按页填充对应的<code>spans</code>区域，在回收<code>object</code>时，根据地址很容易就能找到它所属的<code>mspan</code></p>
+<h3 id="内存管理单元-2"><a class="markdownIt-Anchor" href="#内存管理单元-2"></a> 内存管理单元</h3>
+<p><code>mspan</code>：Go中内存管理的基本单元，是由一片连续的<code>8KB</code>的页组成的大块内存。注意，这里的页和操作系统本身的页并不是一回事，它一般是操作系统页大小的几倍。一句话概括：<code>mspan</code>是一个包含起始地址、<code>mspan</code>规格、页的数量等内容的<strong>双端链表</strong>。</p>
+<p>每个<code>mspan</code>按照它自身的属性<code>Size Class</code>的大小分割成若干个<code>object</code>，每个<code>object</code>可存储一个对象。并且会使用一个位图来标记其尚未使用的<code>object</code>。属性<code>Size Class</code>决定<code>object</code>大小，而<code>mspan</code>只会分配给和<code>object</code>尺寸大小接近的对象，当然，对象的大小要小于<code>object</code>大小。还有一个概念：<code>Span Class</code>，它和<code>Size Class</code>的含义差不多，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Size_Class &#x3D; Span_Class &#x2F; 2</span><br></pre></td></tr></table></figure>
+<p>这是因为其实每个 <code>Size Class</code>有两个<code>mspan</code>，也就是有两个<code>Span Class</code>。其中一个分配给含有指针的对象，另一个分配给不含有指针的对象。这会给垃圾回收机制带来利好，之后的文章再谈。</p>
+<p>如下图，<code>mspan</code>由一组连续的页组成，按照一定大小划分成<code>object</code>。</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150354.png" alt="page mspan" /></p>
+<p>Go1.9.2里<code>mspan</code>的<code>Size Class</code>共有67种，每种<code>mspan</code>分割的object大小是8*2n的倍数，这个是写死在代码里的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; path: &#x2F;usr&#x2F;local&#x2F;go&#x2F;src&#x2F;runtime&#x2F;sizeclasses.go</span><br><span class="line"></span><br><span class="line">const _NumSizeClasses &#x3D; 67</span><br><span class="line"></span><br><span class="line">var class_to_size &#x3D; [_NumSizeClasses]uint16&#123;0, 8, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 288, 320, 352, 384, 416, 448, 480, 512, 576, 640, 704, 768, 896, 1024, 1152, 1280, 1408, 1536,1792, 2048, 2304, 2688, 3072, 3200, 3456, 4096, 4864, 5376, 6144, 6528, 6784, 6912, 8192, 9472, 9728, 10240, 10880, 12288, 13568, 14336, 16384, 18432, 19072, 20480, 21760, 24576, 27264, 28672, 32768&#125;</span><br></pre></td></tr></table></figure>
+<p>根据<code>mspan</code>的<code>Size Class</code>可以得到它划分的<code>object</code>大小。 比如<code>Size Class</code>等于3，<code>object</code>大小就是32B。 32B大小的object可以存储对象大小范围在17B~32B的对象。而对于微小对象（小于16B），分配器会将其进行合并，将几个对象分配到同一个<code>object</code>中。</p>
+<p>数组里最大的数是32768，也就是32KB，超过此大小就是大对象了，它会被特别对待，这个稍后会再介绍。顺便提一句，类型<code>Size Class</code>为0表示大对象，它实际上直接由堆内存分配，而小对象都要通过<code>mspan</code>来分配。</p>
+<p>对于mspan来说，它的<code>Size Class</code>会决定它所能分到的页数，这也是写死在代码里的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; path: &#x2F;usr&#x2F;local&#x2F;go&#x2F;src&#x2F;runtime&#x2F;sizeclasses.go</span><br><span class="line"></span><br><span class="line">const _NumSizeClasses &#x3D; 67</span><br><span class="line"></span><br><span class="line">var class_to_allocnpages &#x3D; [_NumSizeClasses]uint8&#123;0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 3, 2, 3, 1, 3, 2, 3, 4, 5, 6, 1, 7, 6, 5, 4, 3, 5, 7, 2, 9, 7, 5, 8, 3, 10, 7, 4&#125;</span><br></pre></td></tr></table></figure>
+<p>比如当我们要申请一个<code>object</code>大小为<code>32B</code>的<code>mspan</code>的时候，在class_to_size里对应的索引是3，而索引3在<code>class_to_allocnpages</code>数组里对应的页数就是1。</p>
+<p><code>mspan</code>结构体定义</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> mspan <span class="keyword">struct</span> &#123;</span><br><span class="line">    <span class="comment">//链表前向指针，用于将span链接起来</span></span><br><span class="line">	next *mspan	</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//链表前向指针，用于将span链接起来</span></span><br><span class="line">	prev *mspan	</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 起始地址，也即所管理页的地址</span></span><br><span class="line">	startAddr <span class="keyword">uintptr</span> </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 管理的页数</span></span><br><span class="line">	npages <span class="keyword">uintptr</span> </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 块个数，表示有多少个块可供分配</span></span><br><span class="line">	nelems <span class="keyword">uintptr</span> </span><br><span class="line"></span><br><span class="line">    <span class="comment">//分配位图，每一位代表一个块是否已分配</span></span><br><span class="line">	allocBits *gcBits </span><br><span class="line"></span><br><span class="line">    <span class="comment">// 已分配块的个数</span></span><br><span class="line">	allocCount <span class="keyword">uint16</span> </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// class表中的class ID，和Size Classs相关</span></span><br><span class="line">	spanclass spanClass  </span><br><span class="line"></span><br><span class="line">    <span class="comment">// class表中的对象大小，也即块大小</span></span><br><span class="line">	elemsize <span class="keyword">uintptr</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将<code>mspan</code>放到更大的视角来看：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150526.png" alt="mspan更大视角" style="zoom:80%;" />
+<p>上图可以看到有两个<code>S</code>指向了同一个<code>mspan</code>，因为这两个<code>S</code>指向的<code>P</code>是同属一个<code>mspan</code>的。所以，通过<code>arena</code>上的地址可以快速找到指向它的<code>S</code>，通过<code>S</code>就能找到<code>mspan</code>，回忆一下前面我们说的<code>mspan</code>区域的每个指针对应一页。</p>
+<p>假设最左边第一个<code>mspan</code>的<code>Size Class</code>等于10，根据前面的<code>class_to_size</code>数组，得出这个<code>msapn</code>分割的<code>object</code>大小是144B，算出可分配的对象个数是<code>8KB/144B=56.89</code>个，取整56个，所以会有一些内存浪费掉了，Go的源码里有所有<code>Size Class</code>的<code>mspan</code>浪费的内存的大小；再根据<code>class_to_allocnpages</code>数组，得到这个<code>mspan</code>只由1个<code>page</code>组成；假设这个<code>mspan</code>是分配给无指针对象的，那么<code>spanClass</code>等于20。</p>
+<p><code>startAddr</code>直接指向<code>arena</code>区域的某个位置，表示这个<code>mspan</code>的起始地址，<code>allocBits</code>指向一个位图，每位代表一个块是否被分配了对象；<code>allocCount</code>则表示总共已分配的对象个数。</p>
+<p>这样，左起第一个<code>mspan</code>的各个字段参数就如下图所示：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150549.png" alt="左起第一个mspan具体值" style="zoom:80%;" />
+<h3 id="内存管理元件"><a class="markdownIt-Anchor" href="#内存管理元件"></a> 内存管理元件</h3>
+<p>内存分配由内存分配器完成。分配器由3种组件构成：<code>mcache</code>, <code>mcentral</code>, <code>mheap</code></p>
+<h4 id="mcache"><a class="markdownIt-Anchor" href="#mcache"></a> mcache</h4>
+<p><code>mcache</code>：每个工作线程都会绑定一个mcache，本地缓存可用的<code>mspan</code>资源，这样就可以直接给Goroutine分配，因为不存在多个Goroutine竞争的情况，所以不会消耗锁资源。</p>
+<p><code>mcache</code>的结构体定义：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> mcache <span class="keyword">struct</span> &#123;</span><br><span class="line">  alloc [numSpanClasses]*mspan</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">numSpanClasses = _NumSizeClasses &lt;&lt; <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p><code>mcache</code>用<code>Span Classes</code>作为索引管理多个用于分配的<code>mspan</code>，它包含所有规格的<code>mspan</code>。它是<code>_NumSizeClasses</code>的2倍，也就是<code>67*2=134</code>，为什么有一个两倍的关系，前面我们提到过：为了加速之后内存回收的速度，数组里一半的<code>mspan</code>中分配的对象不包含指针，另一半则包含指针。</p>
+<p>对于无指针对象的<code>mspan</code>在进行垃圾回收的时候无需进一步扫描它是否引用了其他活跃的对象。 后面的垃圾回收文章会再讲到，这次先到这里。</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150643.png" alt="mcache" style="zoom:50%;" />
+<p><code>mcache</code>在初始化的时候是没有任何<code>mspan</code>资源的，在使用过程中会动态地从<code>mcentral</code>申请，之后会缓存下来。当对象小于等于32KB大小时，使用<code>mcache</code>的相应规格的<code>mspan</code>进行分配</p>
+<h4 id="mcentral"><a class="markdownIt-Anchor" href="#mcentral"></a> mcentral</h4>
+<p><code>mcentral</code>：为所有<code>mcache</code>提供切分好的<code>mspan</code>资源。每个<code>central</code>保存一种特定大小的全局<code>mspan</code>列表，包括已分配出去的和未分配出去的。 每个<code>mcentral</code>对应一种<code>mspan</code>，而<code>mspan</code>的种类导致它分割的<code>object</code>大小不同。当工作线程的<code>mcache</code>中没有合适（也就是特定大小的）的<code>mspan</code>时就会从<code>mcentral</code>获取。</p>
+<p><code>mcentral</code>被所有的工作线程共同享有，存在多个Goroutine竞争的情况，因此会消耗锁资源。结构体定义：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//path: /usr/local/go/src/runtime/mcentral.go</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> mcentral <span class="keyword">struct</span> &#123;</span><br><span class="line">    <span class="comment">// 互斥锁</span></span><br><span class="line">    lock mutex </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 规格</span></span><br><span class="line">    sizeclass <span class="keyword">int32</span> </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 尚有空闲object的mspan链表</span></span><br><span class="line">    nonempty mSpanList </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 没有空闲object的mspan链表，或者是已被mcache取走的msapn链表</span></span><br><span class="line">    empty mSpanList </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 已累计分配的对象个数</span></span><br><span class="line">    nmalloc <span class="keyword">uint64</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150923.png" alt="mcentral" style="zoom:50%;" />
+<p><code>empty</code>表示这条链表里的<code>mspan</code>都被分配了<code>object</code>，或者是已经被<code>cache</code>取走了的<code>mspan</code>，这个<code>mspan</code>就被那个工作线程独占了。而<code>nonempty</code>则表示有空闲对象的<code>mspan</code>列表。每个<code>central</code>结构体都在<code>mheap</code>中维护。</p>
+<p>简单说下<code>mcache</code>从<code>mcentral</code>获取和归还<code>mspan</code>的流程：</p>
+<ul>
+<li>获取<br />
+加锁；从<code>nonempty</code>链表找到一个可用的<code>mspan</code>；并将其从<code>nonempty</code>链表删除；将取出的<code>mspan</code>加入到<code>empty</code>链表；将<code>mspan</code>返回给工作线程；解锁。</li>
+<li>归还<br />
+加锁；将<code>mspan</code>从<code>empty</code>链表删除；将<code>mspan</code>加入到<code>nonempty</code>链表；解锁。</li>
+</ul>
+<h4 id="mheap"><a class="markdownIt-Anchor" href="#mheap"></a> mheap</h4>
+<p><code>mheap</code>：代表Go程序持有的所有堆空间，Go程序使用一个<code>mheap</code>的全局对象<code>_mheap</code>来管理堆内存。</p>
+<p>当<code>mcentral</code>没有空闲的<code>mspan</code>时，会向<code>mheap</code>申请。而<code>mheap</code>没有资源时，会向操作系统申请新内存。<code>mheap</code>主要用于大对象的内存分配，以及管理未切割的<code>mspan</code>，用于给<code>mcentral</code>切割成小对象。</p>
+<p>同时我们也看到，<code>mheap</code>中含有所有规格的<code>mcentral</code>，所以，当一个<code>mcache</code>从<code>mcentral</code>申请<code>mspan</code>时，只需要在独立的<code>mcentral</code>中使用锁，并不会影响申请其他规格的<code>mspan</code>。</p>
+<p><code>mheap</code>结构体定义：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//path: /usr/local/go/src/runtime/mheap.go</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> mheap <span class="keyword">struct</span> &#123;</span><br><span class="line">	lock mutex</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// spans: 指向mspans区域，用于映射mspan和page的关系</span></span><br><span class="line">	spans []*mspan </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 指向bitmap首地址，bitmap是从高地址向低地址增长的</span></span><br><span class="line">	bitmap <span class="keyword">uintptr</span> </span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指示arena区首地址</span></span><br><span class="line">	arena_start <span class="keyword">uintptr</span> </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 指示arena区已使用地址位置</span></span><br><span class="line">	arena_used  <span class="keyword">uintptr</span> </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 指示arena区末地址</span></span><br><span class="line">	arena_end   <span class="keyword">uintptr</span> </span><br><span class="line"></span><br><span class="line">	central [<span class="number">67</span>*<span class="number">2</span>]<span class="keyword">struct</span> &#123;</span><br><span class="line">		mcentral mcentral</span><br><span class="line">		pad [sys.CacheLineSize - unsafe.Sizeof(mcentral&#123;&#125;)%sys.CacheLineSize]<span class="keyword">byte</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711151026.png" alt="mheap" style="zoom:50%;" />
+<p>上图我们看到，bitmap和arena_start指向了同一个地址，这是因为bitmap的地址是从高到低增长的，所以他们指向的内存位置相同</p>
+<h3 id="内存分配流程"><a class="markdownIt-Anchor" href="#内存分配流程"></a> 内存分配流程</h3>
+<p>Go的内存分配器在分配对象时，根据对象的大小，分成三类：小对象（小于等于16B）、一般对象（大于16B，小于等于32KB）、大对象（大于32KB）。</p>
+<p>大体上的分配流程：</p>
+<ul>
+<li>
+<blockquote>
+<p>32KB 的对象，直接从mheap上分配；</p>
+</blockquote>
+</li>
+<li>
+<p>&lt;=16B 的对象使用mcache的tiny分配器分配；</p>
+</li>
+<li>
+<p>(16B,32KB] 的对象，首先计算对象的规格大小，然后使用mcache中相应规格大小的mspan分配；</p>
+<ul>
+<li>如果mcache没有相应规格大小的mspan，则向mcentral申请</li>
+<li>如果mcentral没有相应规格大小的mspan，则向mheap申请</li>
+<li>如果mheap中也没有合适大小的mspan，则向操作系统申请</li>
+</ul>
+</li>
+</ul>
+<p>使用go SDK 1.15.5 runtime/malloc.go</p>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://qcrao.com/2019/03/13/graphic-go-memory-allocation/" target="_blank" rel="noopener">https://qcrao.com/2019/03/13/graphic-go-memory-allocation/</a></li>
+<li><a href="https://www.infoq.cn/article/IEhRLwmmIM7-11RYaLHR" target="_blank" rel="noopener">https://www.infoq.cn/article/IEhRLwmmIM7-11RYaLHR</a></li>
+<li><a href="https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/" target="_blank" rel="noopener">https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2021/09/09/Go/Go%E5%85%A5%E9%97%A86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" title="Go入门6-内存管理" target="_blank" rel="external">http://xboom.github.io/2021/09/09/Go/Go入门6-内存管理/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/09/09/Go/Go%E5%85%A5%E9%97%A83-Groutine/" title="Go入门3-Groutine"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/09/09/Go/Go%E5%85%A5%E9%97%A84-Select/" title="Go入门4-Select"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="https://unpkg.com/leancloud-storage@4.12.2/dist/av-live-query-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>

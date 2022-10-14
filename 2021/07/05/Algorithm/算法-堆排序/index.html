@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>算法-堆排序 | XBoom Dove</title>
+  <meta name="description" content="堆排序是一种选择排序，它的最坏，最好，平均时间复杂度均为O(nlogn)，是不稳定排序  堆 堆是具有以下性质的完全二叉树   每个结点的值都大于或等于其左右孩子结点的值，称为大顶堆   每个结点的值都小于或等于其左右孩子结点的值，称为小顶堆     完全二叉树：除了最后一层，其他层的节点个数都是满的，最后一层的节点都靠左排列 那左右子节点有谁大谁小？没有要求！！！ 大根堆，每个子结点都要小于父结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法-堆排序">
+<meta property="og:url" content="http://xboom.github.io/2021/07/05/Algorithm/%E7%AE%97%E6%B3%95-%E5%A0%86%E6%8E%92%E5%BA%8F/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="堆排序是一种选择排序，它的最坏，最好，平均时间复杂度均为O(nlogn)，是不稳定排序  堆 堆是具有以下性质的完全二叉树   每个结点的值都大于或等于其左右孩子结点的值，称为大顶堆   每个结点的值都小于或等于其左右孩子结点的值，称为小顶堆     完全二叉树：除了最后一层，其他层的节点个数都是满的，最后一层的节点都靠左排列 那左右子节点有谁大谁小？没有要求！！！ 大根堆，每个子结点都要小于父结">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704225248.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704225526.png">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/4d/1e/4d349f57947df6590a2dd1364c3b0b1e.jpg?wh=1142*540">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/e3/0e/e3744661e038e4ae570316bc862b2c0e.jpg?wh=1142*776">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/59/81/5916121b08da6fc0636edf1fc24b5a81.jpg?wh=1142*867">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/11/60/110d6f442e718f86d2a1d16095513260.jpg?wh=1142*856">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/23/d1/23958f889ca48dbb8373f521708408d1.jpg?wh=1142*790">
+<meta property="article:published_time" content="2021-07-04T23:53:00.000Z">
+<meta property="article:modified_time" content="2022-07-21T01:52:47.418Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Algorithm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704225248.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2021/07/05/Algorithm/%E7%AE%97%E6%B3%95-%E5%A0%86%E6%8E%92%E5%BA%8F/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">18</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/" rel="tag">golang</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.3px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.3px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.7px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.1px;">gRPC</a> <a href="/tags/go-zero/" style="font-size: 13.8px;">go-zero</a> <a href="/tags/golang/" style="font-size: 13px;">golang</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/17/Go/Go%E5%85%A5%E9%97%A818-Fuzzing/" class="title">Go入门18-Fuzzing</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-17T09:06:06.892Z" itemprop="datePublished">2022-09-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/golang/">golang</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/14/Go/Go%E5%85%A5%E9%97%A820-Goland%E6%BF%80%E6%B4%BB/" class="title">Go入门20-Goland激活</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-14T13:27:28.900Z" itemprop="datePublished">2022-09-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/10/Go/Go%E5%85%A5%E9%97%A815-Sync/" class="title">Go入门15-Sync</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-10T00:59:08.235Z" itemprop="datePublished">2022-09-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A816-%E5%B7%A5%E4%BD%9C%E5%8C%BA/" class="title">Go入门16-工作区</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A814-%E6%B3%9B%E5%9E%8B/" class="title">Go入门14-泛型</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#堆"><span class="toc-number">1.</span> <span class="toc-text"> 堆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本思想和步骤"><span class="toc-number">2.</span> <span class="toc-text"> 基本思想和步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#往堆中插入一个元素"><span class="toc-number">2.1.</span> <span class="toc-text"> 往堆中插入一个元素</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#删除堆顶元素"><span class="toc-number">2.2.</span> <span class="toc-text"> 删除堆顶元素</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#创建一个堆"><span class="toc-number">2.3.</span> <span class="toc-text"> 创建一个堆</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#排序"><span class="toc-number">2.4.</span> <span class="toc-text"> 排序</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">3.</span> <span class="toc-text"> 代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#堆排序应用"><span class="toc-number">4.</span> <span class="toc-text"> 堆排序应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Algorithm/算法-堆排序" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      算法-堆排序
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/07/05/Algorithm/%E7%AE%97%E6%B3%95-%E5%A0%86%E6%8E%92%E5%BA%8F/" class="article-date">
+	  <time datetime="2021-07-04T23:53:00.000Z" itemprop="datePublished">2021-07-05</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Algorithm/">Algorithm</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Algorithm/" rel="tag">Algorithm</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2021/07/05/Algorithm/%E7%AE%97%E6%B3%95-%E5%A0%86%E6%8E%92%E5%BA%8F/" class="leancloud_visitors"  data-flag-title="算法-堆排序">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/07/05/Algorithm/%E7%AE%97%E6%B3%95-%E5%A0%86%E6%8E%92%E5%BA%8F/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 3.4k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 12(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>堆排序是一种<strong>选择排序</strong>，它的最坏，最好，平均时间复杂度均为O(nlogn)，是不稳定排序</p>
+<h3 id="堆"><a class="markdownIt-Anchor" href="#堆"></a> 堆</h3>
+<p>堆是具有以下性质的<strong>完全二叉树</strong></p>
+<ul>
+<li>
+<p>每个结点的值都大于或等于其左右孩子结点的值，称为<strong>大顶堆</strong></p>
+</li>
+<li>
+<p>每个结点的值都小于或等于其左右孩子结点的值，称为<strong>小顶堆</strong></p>
+</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704225248.png" alt="img" style="zoom:33%;" />
+<blockquote>
+<p>完全二叉树：除了最后一层，其他层的节点个数都是满的，最后一层的节点都靠左排列</p>
+<p>那左右子节点有谁大谁小？没有要求！！！</p>
+<p>大根堆，每个子结点都要小于父结点，不区分左右儿子谁大谁小，也不必保证某个“孙子结点”一定要小于另一个“儿子结点”。<br />
+小根堆，每个子结点都要大于父结点，不区分左右儿子谁大谁小，也不必保证某个“孙子结点”一定要大于另一个“儿子结点”</p>
+</blockquote>
+<p>如果对堆中的结点按层进行编号，将这种逻辑结构映射到数组中就是下面这个样子</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210704225526.png" alt="img" style="zoom:33%;"/>
+<p>则数组从逻辑上讲就是一个堆结构</p>
+<p><strong>大顶堆：arr[i] &gt;= arr[2i+1] &amp;&amp; arr[i] &gt;= arr[2i+2]</strong></p>
+<p><strong>小顶堆：arr[i] &lt;= arr[2i+1] &amp;&amp; arr[i] &lt;= arr[2i+2]</strong></p>
+<h3 id="基本思想和步骤"><a class="markdownIt-Anchor" href="#基本思想和步骤"></a> 基本思想和步骤</h3>
+<p>利用数组来实现堆排序的原因是：完全二叉树可以使用数组来表示，通过数组下标而不是指针指向子节点可以节省空间。</p>
+<img src="https://static001.geekbang.org/resource/image/4d/1e/4d349f57947df6590a2dd1364c3b0b1e.jpg?wh=1142*540" alt="img" style="zoom:50%;" />
+<p>如图，根节点为 arr[0] = 4，它的左子树就是 arr[ 2 * 0+ 1] = arr[1] = 6，它的右子树就是 arr[ 2* 0+ 2] = arr[2] = 8。</p>
+<h4 id="往堆中插入一个元素"><a class="markdownIt-Anchor" href="#往堆中插入一个元素"></a> 往堆中插入一个元素</h4>
+<p>将新元素插入到堆的最后，新的堆也要满足堆的特性，这个调整的过程称为<strong>堆化</strong></p>
+<p>堆化实际有两个过程，<strong>从上往下</strong>和<strong>从下往上</strong>。</p>
+<p><strong>从下往上</strong>一般用于数据插入，因为插入的数据会放到堆的末尾。让新插入的节点与父节点对比大小。如果不满足子节点小于等于父节点的大小关系，就互换两个节点。一直重复这个过程，直到父子节点之间满足刚说的那种大小关系</p>
+<blockquote>
+<p>怎么只调整父子节点的位置，兄弟节点不管吗？不管</p>
+<p>比如大顶堆，当子节点需要和父节点调整位置，说明子节点比父节点大，而父节点肯定是比另一个子节点大的。所以调整位置之后一定满足大顶堆。小顶堆同理</p>
+</blockquote>
+<img src="https://static001.geekbang.org/resource/image/e3/0e/e3744661e038e4ae570316bc862b2c0e.jpg?wh=1142*776" alt="img" style="zoom: 50%;" />
+<h4 id="删除堆顶元素"><a class="markdownIt-Anchor" href="#删除堆顶元素"></a> 删除堆顶元素</h4>
+<p>堆顶元素存储的就是堆中数据的(大顶堆)最大值或者(小顶堆)最小值。</p>
+<p>当删除堆顶元素之后，就需要把第二大的元素放到堆顶，那第二大元素肯定会出现在左右子节点中。然后再迭代地删除第二大节点，以此类推，直到叶子节点被删除。</p>
+<p>这样会出现一个问题，就是<code>空洞</code>：调整并不需要与最后一个节点交换，那么空洞就会出现在二叉树中，需要进一步处理。</p>
+<img src="https://static001.geekbang.org/resource/image/59/81/5916121b08da6fc0636edf1fc24b5a81.jpg?wh=1142*867" alt="img" style="zoom:50%;" />
+<p>所以，这里改变思路：将最后一个节点与堆顶交换，然后删除最后一个元素，最后利用同样的父子节点对比方法。对于不满足父子节点大小关系的，互换两个节点，并且重复进行这个过程，直到父子节点之间满足大小关系为止。这就是<strong>从上往下</strong>的堆化方法</p>
+<img src="https://static001.geekbang.org/resource/image/11/60/110d6f442e718f86d2a1d16095513260.jpg?wh=1142*856" alt="img" style="zoom:50%;" />
+<blockquote>
+<p>一个包含 n 个节点的完全二叉树，树的高度不会超过 <code>log2n</code>，堆化的过程是顺着节点所在路径比较交换的，所以堆化的时间复杂度跟树的高度成正比，也就是 <code>O(logn)</code>。插入数据和删除堆顶元素的主要逻辑就是堆化，所以，往堆中插入一个元素和删除堆顶元素的时间复杂度都是 <code>O(logn)</code></p>
+</blockquote>
+<h4 id="创建一个堆"><a class="markdownIt-Anchor" href="#创建一个堆"></a> 创建一个堆</h4>
+<p>知道了插入和删除，它们的首要条件是要有一个堆。</p>
+<p>创堆有两个方法：</p>
+<p>第一种：从前往后，尽管数组中包含 n 个数据，假设起初堆中只包含一个数据，就是下标为 0 的数据。然后不断的插入将下标从 1 到 n - 1 的数据依次插入到堆中。这样就将包含 n 个数据的数组，组织成了堆。从上往下堆化</p>
+<p>第二种：从后往前。依次与子节点进行比较，因为叶子节点无法与子节点比较，所以就需要从最后一个非叶子节点比较。从下往上堆化</p>
+<blockquote>
+<p>问题1：最后一个非叶子节点怎么表示？</p>
+<p>设最后一个非叶子节点下标为 <code>i</code>，</p>
+<p>如果它的左子节点是最后一个节点，那么最后一个节点下标就是 <code>2i + 1</code>。整个二叉树的长度就是 len = 2i + 2</p>
+<p>如果它的右子节点是最后一个节点，那么最后一个节点的下标就是 <code>2i + 2</code>。整个二叉树的长度就是 len = 2i + 3</p>
+<p>所以最后一个非叶子节点的下标就是 <code>len / 2 - 1</code></p>
+</blockquote>
+<p>第一种方式需要对<code>n-1</code>个节点进行堆化，每个节点堆化的时间复杂度为 <code>O(logn)</code>，所以它精确的时间复杂度为<code>(n-1)*O(logn)</code></p>
+<p>第二种方式从非叶子节点开始，需要对 <code>n/2</code>个节点进行堆化，精确的时间复杂度为<code>(n/2)*O(logn)</code></p>
+<p>所以第二种方式节省了近一半的时间</p>
+<p>注意：建堆的时候，此时的数组还不是堆，所以</p>
+<ol>
+<li><strong>父节点与左右子节点比较，选择三者中最大的做为父节点</strong></li>
+<li>当父节点与子节点交换位置之后，<strong>还需要与继续比较新子节点与它(新子节点)的子节点的大小构建堆</strong></li>
+</ol>
+<h4 id="排序"><a class="markdownIt-Anchor" href="#排序"></a> 排序</h4>
+<p>建堆之后，数组中的数据已经是按照大顶堆/小顶堆的特性来进行排列的。但是堆的特性并不关心左右子节点的大小，这时候还需要对已经建立的堆进行排序。</p>
+<p>如何排序？这就像删除堆顶元素一样。当堆顶元素移除之后，把下标为 n 的元素放到堆顶，然后再通过堆化的方法，将剩下的 n−1 个元素重新构建成堆。堆化完成之后，我们再取堆顶的元素，放到下标是 n−1 的位置，一直重复这个过程，直到最后堆中只剩下标为 1 的一个元素，排序工作就完成了。</p>
+<img src="https://static001.geekbang.org/resource/image/23/d1/23958f889ca48dbb8373f521708408d1.jpg?wh=1142*790" alt="img" style="zoom:50%;" />
+<p>因为每个元素都需要进行删除的过程，所以堆排序整体的时间复杂度为 <code>O(nlogn)</code></p>
+<h3 id="代码实现"><a class="markdownIt-Anchor" href="#代码实现"></a> 代码实现</h3>
+<p>Go代码实现：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//堆排序</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">heapSort</span><span class="params">(arr []<span class="keyword">int</span>)</span> []<span class="title">int</span></span> &#123;</span><br><span class="line">        arrLen := <span class="built_in">len</span>(arr)</span><br><span class="line">        <span class="comment">//构建大頂堆，但是数组并不满足降序，只找到最大值 </span></span><br><span class="line">        <span class="keyword">for</span> i := arrLen / <span class="number">2</span> - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">                heapify(arr, i, arrLen)</span><br><span class="line">        &#125;</span><br><span class="line">  			<span class="comment">//满足大頂堆之后，只需要将最大值与最后一个值互换，并将根节点下沉又是一个大顶堆</span></span><br><span class="line">        <span class="keyword">for</span> i := arrLen - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">                arr[<span class="number">0</span>], arr[i] = arr[i], arr[<span class="number">0</span>]</span><br><span class="line">                arrLen -= <span class="number">1</span></span><br><span class="line">                heapify(arr, <span class="number">0</span>, arrLen)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> arr</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//构建父节点i最大，父节点大于等于子节点</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">heapify</span><span class="params">(arr []<span class="keyword">int</span>, i, arrLen <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">        left := <span class="number">2</span>*i + <span class="number">1</span></span><br><span class="line">        right := <span class="number">2</span>*i + <span class="number">2</span></span><br><span class="line">        largest := i</span><br><span class="line">        <span class="comment">//找到父子节点中三个最大的，如果不是根节点则交换位置</span></span><br><span class="line">        <span class="keyword">if</span> left &lt; arrLen &amp;&amp; arr[left] &gt; arr[largest] &#123;</span><br><span class="line">                largest = left</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> right &lt; arrLen &amp;&amp; arr[right] &gt; arr[largest] &#123;</span><br><span class="line">                largest = right</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> largest != i &#123;<span class="comment">//如果子节点比父节点大，调整之后，子节点的子节点也需要做调整</span></span><br><span class="line">                arr[i], arr[largest] = arr[largest], arr[i]</span><br><span class="line">                heapify(arr, largest, arrLen)</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>C++代码实现：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; n; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; a[i] &lt;&lt; <span class="string">" "</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//heapAdjust 作用从上往下构建，保证数组 a[] 中 第low个元素为堆顶的元素构成的结构为大顶堆</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">heapAdjust</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> low, <span class="keyword">int</span> high)</span>	<span class="comment">//调整的过程</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> pivotKey = a[low - <span class="number">1</span>];		<span class="comment">//注意数组的索引从0开始</span></span><br><span class="line">  <span class="keyword">int</span> i;                        <span class="comment">//当前节点下标</span></span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">2</span> * low; i &lt;= high; i *= <span class="number">2</span>) </span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span>(i &lt; high &amp;&amp; a[i - <span class="number">1</span>] &lt; a[i])	<span class="comment">//找到左右子节点中较大的那个</span></span><br><span class="line">    &#123;</span><br><span class="line">      i++; <span class="comment">//i指向较大值</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(pivotKey &gt;= a[i - <span class="number">1</span>])	<span class="comment">//如果大于等于子节点说明已经是大顶堆</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    a[low - <span class="number">1</span>] = a[i - <span class="number">1</span>];	<span class="comment">//否则将子节点更换到父节点的位置</span></span><br><span class="line">    low = i;                <span class="comment">//然后继续判断子节点与孙子节点的大小,保证子节点与起构成的子节点也是大堆顶</span></span><br><span class="line">  &#125;</span><br><span class="line">  a[low - <span class="number">1</span>] = pivotKey;    <span class="comment">//将最开始的堆顶放到合适的位置</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">heapSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i, tmp;</span><br><span class="line">  <span class="keyword">for</span>(i = n/<span class="number">2</span>; i &gt; <span class="number">0</span>; i--) <span class="comment">//从非叶子节点开始，开始调整(最后一个非叶子节点是 len/2 - 1)</span></span><br><span class="line">  &#123;</span><br><span class="line">    heapAdjust(a, i, n);</span><br><span class="line">    <span class="built_in">print</span>(a, n);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(i = n; i &gt; <span class="number">1</span>; i--)	<span class="comment">//将堆顶元素放置最后，开始调整</span></span><br><span class="line">  &#123;</span><br><span class="line">    tmp = a[i <span class="number">-1</span>];</span><br><span class="line">    a[i - <span class="number">1</span>] = a[<span class="number">0</span>];</span><br><span class="line">    a[<span class="number">0</span>] = tmp;</span><br><span class="line">    heapAdjust(a, <span class="number">1</span>, i - <span class="number">1</span>); </span><br><span class="line">    <span class="built_in">print</span>(a, n);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> a[] = &#123;<span class="number">30</span>, <span class="number">20</span>, <span class="number">40</span>, <span class="number">10</span>, <span class="number">0</span>, <span class="number">60</span>, <span class="number">80</span>, <span class="number">70</span>&#125;;</span><br><span class="line">  <span class="keyword">int</span> n = <span class="keyword">sizeof</span>(a) / <span class="keyword">sizeof</span>(a[<span class="number">0</span>]);  <span class="comment">//计算数组长度</span></span><br><span class="line">  heapSort(a, n);</span><br><span class="line">  <span class="built_in">print</span>(a, n);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p></p>
+<p>堆排序是一种选择排序，整体主要由构建初始堆+交换堆顶元素和末尾元素并重建堆两部分组成。</p>
+<ul>
+<li>其中构建初始堆经推导复杂度为O(n)，在交换并重建堆的过程中，需交换n-1次，</li>
+<li>而重建堆的过程中，根据完全二叉树的性质，[log2(n-1),log2(n-2)…1]逐步递减，近似为nlogn。所以堆排序时间复杂度一般认为就是O(nlogn)级。</li>
+</ul>
+<p>注意：为什么快速排序要比堆排序性能好？</p>
+<ol>
+<li>
+<p>堆排序数据访问的方式没有快速排序友好：快速排序数据是顺序访问的，而堆排序数据是跳着访问，对CPU不友好</p>
+</li>
+<li>
+<p>对于同样的数据，在排序过程中，堆排序算法的数据交换次数要多于快速排序。</p>
+<ul>
+<li>快排每次都会将数据放在正确的位置上</li>
+<li>堆排则有一个建堆的过程，可能会将原本已经有序的数据打乱</li>
+</ul>
+</li>
+</ol>
+<h3 id="堆排序应用"><a class="markdownIt-Anchor" href="#堆排序应用"></a> 堆排序应用</h3>
+<ol>
+<li>
+<p>Top K问题</p>
+<p>从堆的定义来说，很容易想到堆顶元素是TOP 1，那么如何求经典的TOP K问题?</p>
+<p>如果求最大的Top K 元素，是建立大顶堆，还是小顶堆</p>
+<ol>
+<li>如果用大顶堆，堆顶是最大的元素，新加入的元素必须和所有的堆中元素做比对，显然不够划算；</li>
+<li>如果用小顶堆，那堆顶元素是最小的元素，新加入的元素只要和堆顶元素做对比，如果比堆顶元素大，就可以把堆顶的元素删除，将新加入的元素加入到堆中</li>
+</ol>
+<p>每次求TopK的问题的时候，只需要直接返回堆中所有元素即可，每次堆化的算法复杂度为O(logK),那么N个元素堆化的时间为O(nlogK),如果不用堆，每次新增元素都要重新排序，再取前面N个</p>
+</li>
+<li>
+<p>定时器应用</p>
+<p>独立线程，以超时时间建立了一个小顶堆，如果堆顶元素为2分钟，清理连接的线程的休眠时间设置为2分钟，2分钟后取堆顶元素，执行连接关闭操作。</p>
+</li>
+<li>
+<p>求中位数和99%的响应时间</p>
+<p>动态数组取中位数：</p>
+<ul>
+<li>如果n为偶数，前n/2数据存储在大顶堆中，n/2存储小顶堆中，则大顶堆的堆顶元素为要找的中位数</li>
+<li>如果n为奇数，可以将前n/2+1个数据存储在大顶堆中，后n/2存储在小顶堆中</li>
+</ul>
+<p>如果添加新数据，则将数据与大顶堆中的堆顶元素比较</p>
+<ul>
+<li>如果小于等于大顶堆中的元素，就插入到大顶堆中</li>
+<li>如果比大顶堆的堆顶大，那就插入到小顶堆中</li>
+<li>如果插入数据后不满足要求两个堆的数量为n/2和n/2 或n/2 和n+1/2 的要求，需要调整两个堆的大小，从大顶堆中删除堆顶元素，或小顶堆中删除堆顶元素，移动到另外一个堆中即可。</li>
+</ul>
+<blockquote>
+<p>99%的响应时间：如果一个接口的有100个访问请求，分别耗时1ms，2ms，3ms…100ms，那么按照访问时间从小到大排列，排在第99位的访问时间，就是99%的访问时间，我们维护两个堆，大顶堆的元素个数为n * 99%，小顶堆的元素个数为n*1%，那么大顶堆中的堆顶元素即是所求的99%的响应时间，和中位数的应用一样，只是中位数中的应用更特殊一点</p>
+</blockquote>
+</li>
+<li>
+<p>优先级队列</p>
+<p>优先级队列和通常的栈和队列一样，只不过里面的每一个元素都有一个&quot;优先级”，在处理的时候，首先处理优先级最高的。如果两个元素具有相同的优先级，则按照他们插入到队列中的先后顺序处理</p>
+</li>
+</ol>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://www.cnblogs.com/chengxiao/p/6129630.html" target="_blank" rel="noopener">https://www.cnblogs.com/chengxiao/p/6129630.html</a></li>
+<li><a href="https://mp.weixin.qq.com/s/OqpSdFfK12NhPpcsXTMvtA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/OqpSdFfK12NhPpcsXTMvtA</a></li>
+<li><a href="https://blog.csdn.net/weixin_45728685/article/details/105115912" target="_blank" rel="noopener">https://blog.csdn.net/weixin_45728685/article/details/105115912</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2021/07/05/Algorithm/%E7%AE%97%E6%B3%95-%E5%A0%86%E6%8E%92%E5%BA%8F/" title="算法-堆排序" target="_blank" rel="external">http://xboom.github.io/2021/07/05/Algorithm/算法-堆排序/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/07/11/Go/Go%E5%85%A5%E9%97%A85-Map/" title="Go入门5-Map"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/07/04/Linux/Linux%E6%B7%B1%E5%85%A52-%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9E%8B/" title="Linux深入2-事件模型"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="https://unpkg.com/leancloud-storage@4.12.2/dist/av-live-query-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>

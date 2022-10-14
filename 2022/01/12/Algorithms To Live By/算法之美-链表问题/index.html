@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>算法之美-链表问题 | XBoom Dove</title>
+  <meta name="description" content="17.从尾到头打印链表 https:&#x2F;&#x2F;www.acwing.com&#x2F;problem&#x2F;content&#x2F;18&#x2F;  题目 12345678910输入一个链表的头结点，按照 从尾到头 的顺序返回节点的值。返回的结果用数组存储。数据范围0≤ 链表长度 ≤1000。样例输入：[2, 3, 5]返回：[5, 3, 2]  解答 12345678910111213141516171819&#x2F;** *">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法之美-链表问题">
+<meta property="og:url" content="http://xboom.github.io/2022/01/12/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-%E9%93%BE%E8%A1%A8%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="17.从尾到头打印链表 https:&#x2F;&#x2F;www.acwing.com&#x2F;problem&#x2F;content&#x2F;18&#x2F;  题目 12345678910输入一个链表的头结点，按照 从尾到头 的顺序返回节点的值。返回的结果用数组存储。数据范围0≤ 链表长度 ≤1000。样例输入：[2, 3, 5]返回：[5, 3, 2]  解答 12345678910111213141516171819&#x2F;** *">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220110233358.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220113233358.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220115155813.png">
+<meta property="article:published_time" content="2022-01-11T16:05:08.000Z">
+<meta property="article:modified_time" content="2022-07-24T05:31:45.205Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Algorithms To Live By">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220110233358.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/01/12/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-%E9%93%BE%E8%A1%A8%E9%97%AE%E9%A2%98/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">18</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/" rel="tag">golang</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.3px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.3px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.7px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.1px;">gRPC</a> <a href="/tags/go-zero/" style="font-size: 13.8px;">go-zero</a> <a href="/tags/golang/" style="font-size: 13px;">golang</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/17/Go/Go%E5%85%A5%E9%97%A818-Fuzzing/" class="title">Go入门18-Fuzzing</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-17T09:06:06.892Z" itemprop="datePublished">2022-09-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/golang/">golang</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/14/Go/Go%E5%85%A5%E9%97%A820-Goland%E6%BF%80%E6%B4%BB/" class="title">Go入门20-Goland激活</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-14T13:27:28.900Z" itemprop="datePublished">2022-09-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/10/Go/Go%E5%85%A5%E9%97%A815-Sync/" class="title">Go入门15-Sync</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-10T00:59:08.235Z" itemprop="datePublished">2022-09-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A816-%E5%B7%A5%E4%BD%9C%E5%8C%BA/" class="title">Go入门16-工作区</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A814-%E6%B3%9B%E5%9E%8B/" class="title">Go入门14-泛型</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#17从尾到头打印链表"><span class="toc-number">1.</span> <span class="toc-text"> 17.从尾到头打印链表</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目"><span class="toc-number">1.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答"><span class="toc-number">1.2.</span> <span class="toc-text"> 解答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#相关知识-反向迭代器"><span class="toc-number">1.3.</span> <span class="toc-text"> 相关知识 - 反向迭代器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#28o1删除链表结点"><span class="toc-number">2.</span> <span class="toc-text"> 28.O(1)删除链表结点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-2"><span class="toc-number">2.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答-2"><span class="toc-number">2.2.</span> <span class="toc-text"> 解答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#相关知识"><span class="toc-number">2.3.</span> <span class="toc-text"> 相关知识</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#29删除链表重复节点"><span class="toc-number">3.</span> <span class="toc-text"> 29.删除链表重复节点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-3"><span class="toc-number">3.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答-3"><span class="toc-number">3.2.</span> <span class="toc-text"> 解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#33链表中倒数第n个节点"><span class="toc-number">4.</span> <span class="toc-text"> 33.链表中倒数第N个节点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-4"><span class="toc-number">4.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答-4"><span class="toc-number">4.2.</span> <span class="toc-text"> 解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#34链表中环的入口节点"><span class="toc-number">5.</span> <span class="toc-text"> 34.链表中环的入口节点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-5"><span class="toc-number">5.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答-5"><span class="toc-number">5.2.</span> <span class="toc-text"> 解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#35反转链表"><span class="toc-number">6.</span> <span class="toc-text"> 35.反转链表</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-6"><span class="toc-number">6.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答-6"><span class="toc-number">6.2.</span> <span class="toc-text"> 解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#36合并两个排序的链表"><span class="toc-number">7.</span> <span class="toc-text"> 36.合并两个排序的链表</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-7"><span class="toc-number">7.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答-7"><span class="toc-number">7.2.</span> <span class="toc-text"> 解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#48-复杂链表的复刻"><span class="toc-number">8.</span> <span class="toc-text"> 48. 复杂链表的复刻</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-8"><span class="toc-number">8.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答-8"><span class="toc-number">8.2.</span> <span class="toc-text"> 解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#49二叉搜索树与双向链表"><span class="toc-number">9.</span> <span class="toc-text"> 49.二叉搜索树与双向链表</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-9"><span class="toc-number">9.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答-9"><span class="toc-number">9.2.</span> <span class="toc-text"> 解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#66-两个链表的第一个公共结点"><span class="toc-number">10.</span> <span class="toc-text"> 66. 两个链表的第一个公共结点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-10"><span class="toc-number">10.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答-10"><span class="toc-number">10.2.</span> <span class="toc-text"> 解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#826-单链表"><span class="toc-number">11.</span> <span class="toc-text"> 826. 单链表</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-11"><span class="toc-number">11.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答-11"><span class="toc-number">11.2.</span> <span class="toc-text"> 解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1451-单链表快速排序"><span class="toc-number">12.</span> <span class="toc-text"> 1451. 单链表快速排序</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-12"><span class="toc-number">12.1.</span> <span class="toc-text"> 题目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解答-12"><span class="toc-number">12.2.</span> <span class="toc-text"> 解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1560-反转链表"><span class="toc-number">13.</span> <span class="toc-text"> 1560. 反转链表</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#题目-13"><span class="toc-number">13.1.</span> <span class="toc-text"> 题目</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">14.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Algorithms To Live By/算法之美-链表问题" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      算法之美-链表问题
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/01/12/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-%E9%93%BE%E8%A1%A8%E9%97%AE%E9%A2%98/" class="article-date">
+	  <time datetime="2022-01-11T16:05:08.000Z" itemprop="datePublished">2022-01-12</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/01/12/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-%E9%93%BE%E8%A1%A8%E9%97%AE%E9%A2%98/" class="leancloud_visitors"  data-flag-title="算法之美-链表问题">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/01/12/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-%E9%93%BE%E8%A1%A8%E9%97%AE%E9%A2%98/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 4.5k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 20(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="17从尾到头打印链表"><a class="markdownIt-Anchor" href="#17从尾到头打印链表"></a> 17.从尾到头打印链表</h3>
+<p><a href="https://www.acwing.com/problem/content/18/" target="_blank" rel="noopener">https://www.acwing.com/problem/content/18/</a></p>
+<h4 id="题目"><a class="markdownIt-Anchor" href="#题目"></a> 题目</h4>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">输入一个链表的头结点，按照 从尾到头 的顺序返回节点的值。</span><br><span class="line"></span><br><span class="line">返回的结果用数组存储。</span><br><span class="line"></span><br><span class="line">数据范围</span><br><span class="line">0≤ 链表长度 ≤1000。</span><br><span class="line"></span><br><span class="line">样例</span><br><span class="line">输入：[2, 3, 5]</span><br><span class="line">返回：[5, 3, 2]</span><br></pre></td></tr></table></figure>
+<h4 id="解答"><a class="markdownIt-Anchor" href="#解答"></a> 解答</h4>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * Definition for singly-linked list.</span><br><span class="line"> * struct ListNode &#123;</span><br><span class="line"> *     int val;</span><br><span class="line"> *     ListNode *next;</span><br><span class="line"> *     ListNode(int x) : val(x), next(NULL) &#123;&#125;</span><br><span class="line"> * &#125;;</span><br><span class="line"> *&#x2F;</span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    vector&lt;int&gt; printListReversingly(ListNode* head) &#123;</span><br><span class="line">        vector&lt;int&gt; result;</span><br><span class="line">        while(head) &#123;</span><br><span class="line">            result.push_back(head-&gt;val);</span><br><span class="line">            head &#x3D; head-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        return vector&lt;int&gt;(result.rbegin(), result.rend());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="相关知识-反向迭代器"><a class="markdownIt-Anchor" href="#相关知识-反向迭代器"></a> 相关知识 - 反向迭代器</h4>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220110233358.png" alt="image-20220110233358784" style="zoom:80%;" />
+<p><code>begin()</code> 返回一个迭代器，它指向容器的第一个元素</p>
+<p><code>end()</code> 返回一个迭代器，它指向容器的最后一个元素的下一个位置</p>
+<p><code>rbegin()</code> 返回一个逆序迭代器，它指向容器的最后一个元素</p>
+<p><code>rend()</code> 返回一个逆序迭代器，它指向容器的第一个元素前面的位置</p>
+<p>应用场景：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;sorts v in &quot;normal&quot; order</span><br><span class="line">sort(v.begin(), v.end());</span><br><span class="line">&#x2F;&#x2F;sorts in reverse</span><br><span class="line">sort(v.rbegin(), v.rend());</span><br></pre></td></tr></table></figure>
+<h3 id="28o1删除链表结点"><a class="markdownIt-Anchor" href="#28o1删除链表结点"></a> 28.O(1)删除链表结点</h3>
+<h4 id="题目-2"><a class="markdownIt-Anchor" href="#题目-2"></a> 题目</h4>
+<p><a href="https://www.acwing.com/problem/content/85/" target="_blank" rel="noopener">https://www.acwing.com/problem/content/85/</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">给定单向链表的一个节点指针，定义一个函数在O(<span class="number">1</span>)时间删除该结点。</span><br><span class="line"></span><br><span class="line">假设链表一定存在，并且该节点一定不是尾节点。</span><br><span class="line"></span><br><span class="line">数据范围</span><br><span class="line">链表长度 [<span class="number">1</span>,<span class="number">500</span>]。</span><br><span class="line"></span><br><span class="line">样例</span><br><span class="line">输入：链表 <span class="number">1</span>-&gt;<span class="number">4</span>-&gt;<span class="number">6</span>-&gt;<span class="number">8</span></span><br><span class="line">      删掉节点：第<span class="number">2</span>个节点即<span class="number">6</span>（头节点为第<span class="number">0</span>个节点）</span><br><span class="line"></span><br><span class="line">输出：新链表 <span class="number">1</span>-&gt;<span class="number">4</span>-&gt;<span class="number">8</span></span><br></pre></td></tr></table></figure>
+<h4 id="解答-2"><a class="markdownIt-Anchor" href="#解答-2"></a> 解答</h4>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * Definition for singly-linked list.</span><br><span class="line"> * struct ListNode &#123;</span><br><span class="line"> *     int val;</span><br><span class="line"> *     ListNode *next;</span><br><span class="line"> *     ListNode(int x) : val(x), next(NULL) &#123;&#125;</span><br><span class="line"> * &#125;;</span><br><span class="line"> *&#x2F;</span><br><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    void deleteNode(ListNode* node) &#123;</span><br><span class="line">        ListNode* nxt &#x3D; node-&gt;next;</span><br><span class="line">        node-&gt;val &#x3D; nxt-&gt;val;</span><br><span class="line">        node-&gt;next &#x3D; nxt-&gt;next;</span><br><span class="line">        </span><br><span class="line">        delete nxt;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="相关知识"><a class="markdownIt-Anchor" href="#相关知识"></a> 相关知识</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1. auto: 在声明变量的时候可根据变量初始值的数据类型自动为该变量选择与之匹配的数据类型</span></span><br><span class="line"><span class="comment">//2. delete TODO</span></span><br></pre></td></tr></table></figure>
+<h3 id="29删除链表重复节点"><a class="markdownIt-Anchor" href="#29删除链表重复节点"></a> 29.删除链表重复节点</h3>
+<h4 id="题目-3"><a class="markdownIt-Anchor" href="#题目-3"></a> 题目</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">在一个排序的链表中，存在重复的节点，请删除该链表中重复的节点，重复的节点不保留。</span><br><span class="line"></span><br><span class="line">数据范围</span><br><span class="line">链表中节点 val 值取值范围 [<span class="number">0</span>,<span class="number">100</span>]。</span><br><span class="line">链表长度 [<span class="number">0</span>,<span class="number">100</span>]。</span><br><span class="line"></span><br><span class="line">样例<span class="number">1</span></span><br><span class="line">输入：<span class="number">1</span>-&gt;<span class="number">2</span>-&gt;<span class="number">3</span>-&gt;<span class="number">3</span>-&gt;<span class="number">4</span>-&gt;<span class="number">4</span>-&gt;<span class="number">5</span></span><br><span class="line"></span><br><span class="line">输出：<span class="number">1</span>-&gt;<span class="number">2</span>-&gt;<span class="number">5</span></span><br><span class="line">样例<span class="number">2</span></span><br><span class="line">输入：<span class="number">1</span>-&gt;<span class="number">1</span>-&gt;<span class="number">1</span>-&gt;<span class="number">2</span>-&gt;<span class="number">3</span></span><br><span class="line"></span><br><span class="line">输出：<span class="number">2</span>-&gt;<span class="number">3</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意重复的节点也不保留</p>
+</blockquote>
+<h4 id="解答-3"><a class="markdownIt-Anchor" href="#解答-3"></a> 解答</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">deleteDuplication</span><span class="params">(ListNode* head)</span> </span>&#123;</span><br><span class="line">        ListNode * dummy = <span class="keyword">new</span> ListNode(<span class="number">-1</span>);	<span class="comment">//定义一个头指针(防止head为空)</span></span><br><span class="line">        dummy-&gt;next = head;</span><br><span class="line">        ListNode * pre = dummy;	<span class="comment">//双指针前指针</span></span><br><span class="line">        <span class="keyword">while</span>(pre-&gt;next) &#123;	</span><br><span class="line">            ListNode * nxt = pre-&gt;next;	<span class="comment">//双指针尾指针</span></span><br><span class="line">          	<span class="comment">//一直循环，直到头指针与尾指针值不一致</span></span><br><span class="line">          	<span class="comment">//注意这里pre是从dummy开头的，而这题是要删除所有重复的节点，所以有时候pre—&gt;next需要一起删除</span></span><br><span class="line">          	<span class="comment">//所以这里每次都是比较 pre-&gt;next 与 nxt</span></span><br><span class="line">            <span class="keyword">while</span>(nxt &amp;&amp; pre-&gt;next-&gt;val == nxt-&gt;val) nxt = nxt-&gt;next;	</span><br><span class="line">            </span><br><span class="line">       			<span class="comment">//经过上述流转出现 pre-&gt;next-&gt;val != nxt-&gt;val</span></span><br><span class="line">          	<span class="comment">//1. 如果两者相邻，那么pre向后移动一个节点</span></span><br><span class="line">          	<span class="comment">//2. 如果两者不相邻，那么pre与nxt之间都是重复节点</span></span><br><span class="line">            <span class="keyword">if</span> (pre-&gt;next-&gt;next == nxt) pre = pre-&gt;next;</span><br><span class="line">            <span class="keyword">else</span> pre-&gt;next = nxt;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dummy-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>重点：是每次使用 pre-&gt;next 与 nxt进行比较，那样即使删除也是删除pre-&gt;next 与 nxt之间的结点</p>
+</blockquote>
+<h3 id="33链表中倒数第n个节点"><a class="markdownIt-Anchor" href="#33链表中倒数第n个节点"></a> 33.链表中倒数第N个节点</h3>
+<h4 id="题目-4"><a class="markdownIt-Anchor" href="#题目-4"></a> 题目</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">输入一个链表，输出该链表中倒数第 k 个结点。</span><br><span class="line"></span><br><span class="line">注意：</span><br><span class="line"></span><br><span class="line">k &gt;= <span class="number">1</span>;</span><br><span class="line">如果 k 大于链表长度，则返回 <span class="literal">NULL</span>;</span><br><span class="line">数据范围</span><br><span class="line">链表长度 [<span class="number">0</span>,<span class="number">30</span>]。</span><br><span class="line"></span><br><span class="line">样例</span><br><span class="line">输入：链表：<span class="number">1</span>-&gt;<span class="number">2</span>-&gt;<span class="number">3</span>-&gt;<span class="number">4</span>-&gt;<span class="number">5</span> ，k=<span class="number">2</span></span><br><span class="line"></span><br><span class="line">输出：<span class="number">4</span></span><br></pre></td></tr></table></figure>
+<h4 id="解答-4"><a class="markdownIt-Anchor" href="#解答-4"></a> 解答</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">findKthToTail</span><span class="params">(ListNode* pListHead, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//使用快慢指针</span></span><br><span class="line">        ListNode *fast = pListHead;</span><br><span class="line">        ListNode *slow = pListHead;</span><br><span class="line">        <span class="comment">//快指针先走k步，如果fast为空或者为空都没有走到k个，说明链表数目小于k</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; k; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (fast) fast = fast-&gt;next;</span><br><span class="line">            <span class="comment">//这里k-1 是因为 i = 0 即为第一个节点 fast 需要走 i =  k - 1 步</span></span><br><span class="line">            <span class="keyword">if</span> (!fast &amp;&amp; i &lt; k - <span class="number">1</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span> (fast) &#123;</span><br><span class="line">            fast = fast-&gt;next;</span><br><span class="line">            slow = slow-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> slow;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>重点：快慢指针</p>
+</blockquote>
+<h3 id="34链表中环的入口节点"><a class="markdownIt-Anchor" href="#34链表中环的入口节点"></a> 34.链表中环的入口节点</h3>
+<h4 id="题目-5"><a class="markdownIt-Anchor" href="#题目-5"></a> 题目</h4>
+<p><a href="https://www.acwing.com/problem/content/86/" target="_blank" rel="noopener">https://www.acwing.com/problem/content/86/</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">给定一个链表，若其中包含环，则输出环的入口节点。</span><br><span class="line"></span><br><span class="line">若其中不包含环，则输出null。</span><br><span class="line"></span><br><span class="line">数据范围</span><br><span class="line">节点 val 值取值范围 [1,1000]。</span><br><span class="line">链表长度 [0,500]。</span><br><span class="line"></span><br><span class="line">样例如下图</span><br><span class="line"></span><br><span class="line">给定如上所示的链表：</span><br><span class="line">[1, 2, 3, 4, 5, 6]</span><br><span class="line">2</span><br><span class="line">注意，这里的2表示编号是2的节点，节点编号从0开始。所以编号是2的节点就是val等于3的节点。</span><br><span class="line"></span><br><span class="line">则输出环的入口节点3.</span><br></pre></td></tr></table></figure>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220113233358.png" alt="QQ图片20180531162503.png" /></p>
+<p>证明：</p>
+<p>如上图所示，<code>a</code> 是起点，b 是环的入口，<code>c</code> 是两个指针的第一次相遇点，<code>ab</code> 距离 <code>x</code>，<code>bc</code> 距离是 <code>y</code></p>
+<p>存在快慢指针 <code>first</code> 与 <code>second</code>，其中<code>second</code>的速度是<code>first</code>的2倍</p>
+<p>想法1：</p>
+<p>当 <code>first</code> 走到 <code>b</code> 时， <code>second</code> 已经从 <code>b</code> 开始在环上走了 <code>x</code> 步，可能多余n圈，距离 <code>b</code> 还差 <code>y</code> 步</p>
+<p>所以 second 走的路程 2x + y  = x + n 圈 ==&gt; x + y = n 圈，那么从 c 走 x 步 也能到达b</p>
+<p>想法2：</p>
+<p>用 z 表示从 c 点顺时针走到 b 的距离。则第一次相遇时 second 所走的距离是 <code>x+(y+z)∗n+y</code>，其中n表示圈数，所以</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x+(y+z)∗n+y = <span class="number">2</span>(x+y) <span class="comment">//second是 first路程的两倍</span></span><br><span class="line">x = (n<span class="number">-1</span>) * (y+z) + z</span><br></pre></td></tr></table></figure>
+<p>所以其实 <code>x == z</code> ，相遇之后节点距离入环扣与链表头到入环扣距离相等</p>
+<h4 id="解答-5"><a class="markdownIt-Anchor" href="#解答-5"></a> 解答</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode *<span class="title">entryNodeOfLoop</span><span class="params">(ListNode *head)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (!head || !head-&gt;next) <span class="keyword">return</span> <span class="literal">NULL</span>;	<span class="comment">//初始节点判断</span></span><br><span class="line">       </span><br><span class="line">       <span class="comment">//快慢指针</span></span><br><span class="line">       ListNode * first = head;</span><br><span class="line">       ListNode * second = head;</span><br><span class="line">       <span class="keyword">while</span> (first &amp;&amp; second)&#123;  <span class="comment">//外循环防止节点为空，找到第一个相遇的地方</span></span><br><span class="line">           first = first-&gt;next;</span><br><span class="line">           second = second-&gt;next;</span><br><span class="line">           <span class="keyword">if</span>(second) second = second-&gt;next;</span><br><span class="line">           <span class="keyword">else</span> <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">           </span><br><span class="line">           <span class="keyword">if</span> (first == second) &#123; <span class="comment">//当相遇则再次相遇说走的路程就是换入口处</span></span><br><span class="line">               first = head;</span><br><span class="line">               <span class="keyword">while</span> (first != second) &#123;</span><br><span class="line">                   first = first-&gt;next;</span><br><span class="line">                   second = second-&gt;next;</span><br><span class="line">               &#125;</span><br><span class="line">               <span class="keyword">return</span> first;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>重点是：从第一次相遇的地方走x步就能到达入环扣</p>
+</blockquote>
+<h3 id="35反转链表"><a class="markdownIt-Anchor" href="#35反转链表"></a> 35.反转链表</h3>
+<h4 id="题目-6"><a class="markdownIt-Anchor" href="#题目-6"></a> 题目</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">定义一个函数，输入一个链表的头结点，反转该链表并输出反转后链表的头结点。</span><br><span class="line"></span><br><span class="line">思考题：</span><br><span class="line"></span><br><span class="line">请同时实现迭代版本和递归版本。</span><br><span class="line">数据范围</span><br><span class="line">链表长度 [<span class="number">0</span>,<span class="number">30</span>]。</span><br><span class="line"></span><br><span class="line">样例</span><br><span class="line">输入:<span class="number">1</span>-&gt;<span class="number">2</span>-&gt;<span class="number">3</span>-&gt;<span class="number">4</span>-&gt;<span class="number">5</span>-&gt;<span class="literal">NULL</span></span><br><span class="line"></span><br><span class="line">输出:<span class="number">5</span>-&gt;<span class="number">4</span>-&gt;<span class="number">3</span>-&gt;<span class="number">2</span>-&gt;<span class="number">1</span>-&gt;<span class="literal">NULL</span></span><br></pre></td></tr></table></figure>
+<h4 id="解答-6"><a class="markdownIt-Anchor" href="#解答-6"></a> 解答</h4>
+<p>非递归</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">reverseList</span><span class="params">(ListNode* head)</span> </span>&#123;</span><br><span class="line">        ListNode * second = head;     </span><br><span class="line">        ListNode * first = <span class="literal">nullptr</span>;	<span class="comment">//头部空指针</span></span><br><span class="line">        <span class="keyword">while</span>(second) &#123;</span><br><span class="line">            ListNode * pre = second-&gt;next;</span><br><span class="line">            second-&gt;next = first;</span><br><span class="line">            first = second;</span><br><span class="line">            second = pre;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> first;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>递归</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">reverseList</span><span class="params">(ListNode* head)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!head || !head-&gt;next ) <span class="keyword">return</span> head;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//1 - 2 - 3 - 4</span></span><br><span class="line">        ListNode *tail = reverseList(head-&gt;next);   <span class="comment">//反转head-&gt;next 链表, 原链表的尾节点tail</span></span><br><span class="line">        <span class="comment">//为什么不用记录前一个节点进行转换，</span></span><br><span class="line">        <span class="comment">//因为 递归中 head-&gt;next 已经经过了反转，后面只需要反转 head 与 head-&gt;next的关系就可以了</span></span><br><span class="line">        head-&gt;next-&gt;next = head;    <span class="comment">//将 这里直接使用 head-&gt;next-&gt;next 不用再声明变量</span></span><br><span class="line">        head-&gt;next = <span class="literal">nullptr</span>;       <span class="comment">// nullptr &lt;- 1 &lt;- 2</span></span><br><span class="line">        <span class="keyword">return</span> tail;    <span class="comment">//其实这里一直返回的是原链表的尾节点</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="36合并两个排序的链表"><a class="markdownIt-Anchor" href="#36合并两个排序的链表"></a> 36.合并两个排序的链表</h3>
+<h4 id="题目-7"><a class="markdownIt-Anchor" href="#题目-7"></a> 题目</h4>
+<p><a href="https://www.acwing.com/problem/content/34/" target="_blank" rel="noopener">https://www.acwing.com/problem/content/34/</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">输入两个递增排序的链表，合并这两个链表并使新链表中的结点仍然是按照递增排序的。</span><br><span class="line"></span><br><span class="line">数据范围</span><br><span class="line">链表长度 [<span class="number">0</span>,<span class="number">500</span>]。</span><br><span class="line"></span><br><span class="line">样例</span><br><span class="line">输入：<span class="number">1</span>-&gt;<span class="number">3</span>-&gt;<span class="number">5</span> , <span class="number">2</span>-&gt;<span class="number">4</span>-&gt;<span class="number">5</span></span><br><span class="line"></span><br><span class="line">输出：<span class="number">1</span>-&gt;<span class="number">2</span>-&gt;<span class="number">3</span>-&gt;<span class="number">4</span>-&gt;<span class="number">5</span>-&gt;<span class="number">5</span></span><br></pre></td></tr></table></figure>
+<h4 id="解答-7"><a class="markdownIt-Anchor" href="#解答-7"></a> 解答</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">merge</span><span class="params">(ListNode* l1, ListNode* l2)</span> </span>&#123;        </span><br><span class="line">        ListNode * dummy = <span class="keyword">new</span> ListNode(<span class="number">-1</span>);	<span class="comment">//新建头部的保护结点dumm</span></span><br><span class="line">        ListNode * cur = dummy;		<span class="comment">//当前指针</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">while</span>(l1 &amp;&amp; l2) &#123;</span><br><span class="line">            <span class="keyword">if</span>(l1-&gt;val &gt; l2-&gt;val) &#123;</span><br><span class="line">                cur-&gt;next = l2;</span><br><span class="line">                l2 = l2-&gt;next;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                cur-&gt;next = l1;</span><br><span class="line">                l1 = l1-&gt;next;</span><br><span class="line">            &#125;</span><br><span class="line">            cur = cur-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">      	<span class="comment">//二元判断，防止两个链表数目不一致</span></span><br><span class="line">        cur-&gt;next = (l1 != <span class="literal">nullptr</span> ? l1 : l2);</span><br><span class="line">        <span class="keyword">return</span> dummy-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>两个链表各遍历一次，所以时间复杂度为O(n)</p>
+</blockquote>
+<h3 id="48-复杂链表的复刻"><a class="markdownIt-Anchor" href="#48-复杂链表的复刻"></a> 48. 复杂链表的复刻</h3>
+<h4 id="题目-8"><a class="markdownIt-Anchor" href="#题目-8"></a> 题目</h4>
+<p><a href="https://www.acwing.com/problem/content/89/" target="_blank" rel="noopener">https://www.acwing.com/problem/content/89/</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">请实现一个函数可以复制一个复杂链表。</span><br><span class="line"></span><br><span class="line">在复杂链表中，每个结点除了有一个指针指向下一个结点外，还有一个额外的指针指向链表中的任意结点或者null。</span><br><span class="line"></span><br><span class="line">注意：</span><br><span class="line"></span><br><span class="line">函数结束后原链表要与输入时保持一致。</span><br><span class="line">数据范围</span><br><span class="line">链表长度 [0,500]。</span><br></pre></td></tr></table></figure>
+<h4 id="解答-8"><a class="markdownIt-Anchor" href="#解答-8"></a> 解答</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list with a random pointer.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next, *random;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(NULL), random(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode *<span class="title">copyRandomList</span><span class="params">(ListNode *head)</span> </span>&#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//开始遍历添加cur的复制点np</span></span><br><span class="line">        ListNode * p = head;</span><br><span class="line">        <span class="keyword">while</span>(p) &#123;</span><br><span class="line">            <span class="comment">//1 - 2 --&gt; 1 - 1 - 2  复制节点并添加到节点后面</span></span><br><span class="line">            <span class="keyword">auto</span> * np = <span class="keyword">new</span> ListNode(p-&gt;val);</span><br><span class="line">            <span class="keyword">auto</span> * nxt = p-&gt;next;</span><br><span class="line">            p-&gt;next = np;</span><br><span class="line">            np-&gt;next = nxt;</span><br><span class="line">            p = nxt;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//如果存在 cur 有 random 则 p-&gt;next 是被复制的节点</span></span><br><span class="line">        p = head;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123;</span><br><span class="line">            <span class="keyword">if</span>(p-&gt;<span class="built_in">random</span>) <span class="comment">//p 是旧节点,则 p-&gt;next 是新节点</span></span><br><span class="line">                p-&gt;next-&gt;<span class="built_in">random</span> = p-&gt;<span class="built_in">random</span>-&gt;next; <span class="comment">//这里也是随机指定，和原来的不一定相等</span></span><br><span class="line">            p = p-&gt;next-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        ListNode * dummy = <span class="keyword">new</span> ListNode(<span class="number">-1</span>); <span class="comment">//保护头节点</span></span><br><span class="line">        ListNode * cur = dummy;</span><br><span class="line">        p = head;</span><br><span class="line">        <span class="keyword">while</span>(p) &#123;</span><br><span class="line">          	<span class="comment">//1 - 1 - 2 - 2 - 3 - 3</span></span><br><span class="line">            cur-&gt;next = p-&gt;next;	<span class="comment">//新链表</span></span><br><span class="line">            cur = cur-&gt;next;</span><br><span class="line">            p-&gt;next = p-&gt;next-&gt;next; <span class="comment">//恢复旧指针</span></span><br><span class="line">            p = p-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dummy-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>重点是：p-&gt;next-&gt;random = p-&gt;random-&gt;next; //如果有random，则它是原节点。将新节点指一个random</p>
+</blockquote>
+<h3 id="49二叉搜索树与双向链表"><a class="markdownIt-Anchor" href="#49二叉搜索树与双向链表"></a> 49.二叉搜索树与双向链表</h3>
+<p><a href="https://www.acwing.com/problem/content/87/" target="_blank" rel="noopener">https://www.acwing.com/problem/content/87/</a></p>
+<h4 id="题目-9"><a class="markdownIt-Anchor" href="#题目-9"></a> 题目</h4>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220115155813.png" alt="QQ截图20181202052830.png" /></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的双向链表。</span><br><span class="line"></span><br><span class="line">要求不能创建任何新的结点，只能调整树中结点指针的指向。</span><br><span class="line"></span><br><span class="line">注意：</span><br><span class="line"></span><br><span class="line">需要返回双向链表最左侧的节点。</span><br><span class="line">例如，输入上图中左边的二叉搜索树，则输出右边的排序双向链表。</span><br><span class="line"></span><br><span class="line">数据范围</span><br><span class="line">树中节点数量 [0,500]。</span><br></pre></td></tr></table></figure>
+<h4 id="解答-9"><a class="markdownIt-Anchor" href="#解答-9"></a> 解答</h4>
+<p>在中序递归遍历的基础，用一个pre指针保存中序遍历的前一个结点。遍历顺序就是双线链表的建立顺序；<br />
+每一个结点访问时它的左子树肯定被访问过了，所以放心大胆的改它的left指针，不怕树断掉；<br />
+同理，pre指向的结点保存的数肯定小于当前结点，所以其左右子树肯定都访问过了，所以其right指针也可以直接改。</p>
+<p>最后需要一直向左找到双向链表的头结点。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * struct TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode *left;</span></span><br><span class="line"><span class="comment"> *     TreeNode *right;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int x) : val(x), left(NULL), right(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    </span><br><span class="line">    TreeNode * pre = <span class="literal">NULL</span>;  <span class="comment">//pre记录当前节点指针</span></span><br><span class="line">    </span><br><span class="line">    <span class="function">TreeNode* <span class="title">convert</span><span class="params">(TreeNode* root)</span> </span>&#123;</span><br><span class="line">       dfs(root);</span><br><span class="line">       <span class="keyword">while</span>(root &amp;&amp; root-&gt;left) root = root-&gt;left; <span class="comment">//遍历找到第一个节点</span></span><br><span class="line">       <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//深度优先遍历</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dfs</span><span class="params">(TreeNode* root)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!root) <span class="keyword">return</span>;</span><br><span class="line">        </span><br><span class="line">        dfs(root-&gt;left);</span><br><span class="line">        root-&gt;left = pre;	<span class="comment">//左节点就是前节点</span></span><br><span class="line">        <span class="keyword">if</span>(pre) pre-&gt;right = root;	<span class="comment">//前节点的后继节点就是自己</span></span><br><span class="line">        pre = root; </span><br><span class="line">        </span><br><span class="line">        dfs(root-&gt;right);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>重点是：利用深度优先遍历 +  pre节点记录</p>
+</blockquote>
+<h3 id="66-两个链表的第一个公共结点"><a class="markdownIt-Anchor" href="#66-两个链表的第一个公共结点"></a> 66. 两个链表的第一个公共结点</h3>
+<h4 id="题目-10"><a class="markdownIt-Anchor" href="#题目-10"></a> 题目</h4>
+<p><a href="https://www.acwing.com/problem/content/62/" target="_blank" rel="noopener">https://www.acwing.com/problem/content/62/</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">输入两个链表，找出它们的第一个公共结点。</span><br><span class="line"></span><br><span class="line">当不存在公共节点时，返回空节点。</span><br><span class="line"></span><br><span class="line">数据范围</span><br><span class="line">链表长度 [1,2000]。</span><br><span class="line"></span><br><span class="line">样例</span><br><span class="line">给出两个链表如下所示：</span><br><span class="line">A：        a1 → a2</span><br><span class="line">                   ↘</span><br><span class="line">                     c1 → c2 → c3</span><br><span class="line">                   ↗            </span><br><span class="line">B:     b1 → b2 → b3</span><br><span class="line"></span><br><span class="line">输出第一个公共节点c1</span><br></pre></td></tr></table></figure>
+<p>不要用两层循环暴力破解！！！</p>
+<h4 id="解答-10"><a class="markdownIt-Anchor" href="#解答-10"></a> 解答</h4>
+<p>不同部分为a和b，公共部分为c；a + c + b = b + c + a;让两个一起走，a走到头就转向b， b走到头转向a，则在公共部分相遇</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode *<span class="title">findFirstCommonNode</span><span class="params">(ListNode *headA, ListNode *headB)</span> </span>&#123;</span><br><span class="line">        ListNode * A = headA;</span><br><span class="line">        ListNode * B = headB;</span><br><span class="line">        <span class="keyword">while</span>(A != B) &#123;</span><br><span class="line">            <span class="comment">//A遍历完开始走到B</span></span><br><span class="line">            <span class="keyword">if</span>(A) A = A-&gt;next;</span><br><span class="line">            <span class="keyword">else</span> A = headB;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">//B遍历完开始走到A</span></span><br><span class="line">            <span class="keyword">if</span>(B) B = B-&gt;next;</span><br><span class="line">            <span class="keyword">else</span> B = headA;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> A;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="826-单链表"><a class="markdownIt-Anchor" href="#826-单链表"></a> 826. 单链表</h3>
+<h4 id="题目-11"><a class="markdownIt-Anchor" href="#题目-11"></a> 题目</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">实现一个单链表，链表初始为空，支持三种操作：</span><br><span class="line"></span><br><span class="line">向链表头插入一个数；</span><br><span class="line">删除第 k 个插入的数后面的数；</span><br><span class="line">在第 k 个插入的数后插入一个数。</span><br><span class="line">现在要对该链表进行 M 次操作，进行完所有操作后，从头到尾输出整个链表。</span><br><span class="line"></span><br><span class="line">注意:题目中第 k 个插入的数并不是指当前链表的第 k 个数。例如操作过程中一共插入了 n 个数，则按照插入的时间顺序，这 n 个数依次为：第 <span class="number">1</span> 个插入的数，第 <span class="number">2</span> 个插入的数，…第 n 个插入的数。</span><br><span class="line"></span><br><span class="line">输入格式</span><br><span class="line">第一行包含整数 M，表示操作次数。</span><br><span class="line"></span><br><span class="line">接下来 M 行，每行包含一个操作命令，操作命令可能为以下几种：</span><br><span class="line"></span><br><span class="line">H x，表示向链表头插入一个数 x。</span><br><span class="line">D k，表示删除第 k 个插入的数后面的数（当 k 为 <span class="number">0</span> 时，表示删除头结点）。</span><br><span class="line">I k x，表示在第 k 个插入的数后面插入一个数 x（此操作中 k 均大于 <span class="number">0</span>）。</span><br><span class="line">输出格式</span><br><span class="line">共一行，将整个链表从头到尾输出。</span><br><span class="line"></span><br><span class="line">数据范围</span><br><span class="line"><span class="number">1</span>≤M≤<span class="number">100000</span></span><br><span class="line">所有操作保证合法。</span><br><span class="line"></span><br><span class="line">输入样例：</span><br><span class="line"><span class="number">10</span></span><br><span class="line">H <span class="number">9</span></span><br><span class="line">I <span class="number">1</span> <span class="number">1</span></span><br><span class="line">D <span class="number">1</span></span><br><span class="line">D <span class="number">0</span></span><br><span class="line">H <span class="number">6</span></span><br><span class="line">I <span class="number">3</span> <span class="number">6</span></span><br><span class="line">I <span class="number">4</span> <span class="number">5</span></span><br><span class="line">I <span class="number">4</span> <span class="number">5</span></span><br><span class="line">I <span class="number">3</span> <span class="number">4</span></span><br><span class="line">D <span class="number">6</span></span><br><span class="line">输出样例：</span><br><span class="line"><span class="number">6</span> <span class="number">4</span> <span class="number">6</span> <span class="number">5</span></span><br></pre></td></tr></table></figure>
+<h4 id="解答-11"><a class="markdownIt-Anchor" href="#解答-11"></a> 解答</h4>
+<p>静态链表</p>
+<h3 id="1451-单链表快速排序"><a class="markdownIt-Anchor" href="#1451-单链表快速排序"></a> 1451. 单链表快速排序</h3>
+<h4 id="题目-12"><a class="markdownIt-Anchor" href="#题目-12"></a> 题目</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">给定一个单链表，请使用快速排序算法对其排序。</span><br><span class="line"></span><br><span class="line">要求：期望平均时间复杂度为 O(nlogn)，期望额外空间复杂度为 O(logn)。</span><br><span class="line"></span><br><span class="line">思考题： 如果只能改变链表结构，不能修改每个节点的val值该如何做呢？</span><br><span class="line"></span><br><span class="line">数据范围</span><br><span class="line">链表中的所有数大小均在 <span class="keyword">int</span> 范围内，链表长度在 [<span class="number">0</span>,<span class="number">10000</span>]。</span><br><span class="line"></span><br><span class="line">输入样例：</span><br><span class="line">[<span class="number">5</span>, <span class="number">3</span>, <span class="number">2</span>]</span><br><span class="line">输出样例：</span><br><span class="line">[<span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>]</span><br></pre></td></tr></table></figure>
+<h4 id="解答-12"><a class="markdownIt-Anchor" href="#解答-12"></a> 解答</h4>
+<p>首先复习以下快速排序</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//用于默写test中国暖的算法</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">1e6</span> + <span class="number">1</span>;</span><br><span class="line"><span class="keyword">int</span> nums[N];    <span class="comment">//用于存储数据</span></span><br><span class="line"><span class="keyword">int</span> n;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> nums[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(l &gt;= r) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> mid = nums[l + r &gt;&gt; <span class="number">1</span>];</span><br><span class="line">    <span class="keyword">int</span> i = l - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> j = r + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>(i &lt; j)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">do</span> i++; <span class="keyword">while</span> (nums[i] &lt; mid);</span><br><span class="line">        <span class="keyword">do</span> j--; <span class="keyword">while</span> (nums[j] &gt; mid);</span><br><span class="line">        <span class="keyword">if</span> (i &lt; j) swap(nums[i], nums[j]);	<span class="comment">//表示num[i] 在左边但是数据却比 num[j] 大</span></span><br><span class="line">    &#125;</span><br><span class="line">    quick_sort(nums, l, i);</span><br><span class="line">    quick_sort(nums, i + <span class="number">1</span>, r);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;nums[i]);</span><br><span class="line">    quick_sort(nums, <span class="number">0</span>, n - <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) <span class="built_in">printf</span>(<span class="string">"%d "</span>, nums[i]);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>则链表排序为</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">1e5</span> + <span class="number">1</span>;</span><br><span class="line"><span class="keyword">int</span> n;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    ListNode *next;</span><br><span class="line">    ListNode(<span class="keyword">int</span> x) : val(x), next(<span class="literal">NULL</span>) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quickSort</span><span class="params">(ListNode *head, ListNode *tail)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (head != tail)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> key = head-&gt;val;</span><br><span class="line">        ListNode *p = head, *q = p-&gt;next;</span><br><span class="line">        <span class="keyword">while</span> (q != tail)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (q-&gt;val &lt; key)</span><br><span class="line">            &#123;</span><br><span class="line">                p = p-&gt;next;</span><br><span class="line">                swap(p-&gt;val, q-&gt;val);</span><br><span class="line">            &#125;</span><br><span class="line">            q = q-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (p != head)</span><br><span class="line">            swap(head-&gt;val, p-&gt;val);</span><br><span class="line"></span><br><span class="line">        quickSort(head, p);</span><br><span class="line">        quickSort(p-&gt;next, tail);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ListNode *<span class="title">quickSortList</span><span class="params">(ListNode *head)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!head)</span><br><span class="line">        <span class="keyword">return</span> head;</span><br><span class="line">    quickSort(head, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">return</span> head;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ListNode * head = <span class="keyword">new</span> ListNode(<span class="number">-1</span>);</span><br><span class="line">    ListNode * cur = head;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> val;</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;val);</span><br><span class="line"></span><br><span class="line">        ListNode * node = <span class="keyword">new</span> ListNode(val);</span><br><span class="line">        cur-&gt;next = node;</span><br><span class="line">        cur = cur-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ListNode * result = quickSortList(head-&gt;next);</span><br><span class="line">    <span class="keyword">while</span> (result)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d"</span>, result-&gt;val);</span><br><span class="line">        result = result-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="1560-反转链表"><a class="markdownIt-Anchor" href="#1560-反转链表"></a> 1560. 反转链表</h3>
+<h4 id="题目-13"><a class="markdownIt-Anchor" href="#题目-13"></a> 题目</h4>
+<p><a href="https://www.acwing.com/problem/content/1562/" target="_blank" rel="noopener">https://www.acwing.com/problem/content/1562/</a></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">给定一个常数 K 和一个单链表 L，请你在单链表上每 K 个元素做一次反转，并输出反转完成后的链表。</span><br><span class="line"></span><br><span class="line">如果链表最后一部分不足 K 个元素，则最后一部分不翻转。</span><br><span class="line"></span><br><span class="line">例如，假设 L 为 1→2→3→4→5→6，如果 K=3，则你应该输出 3→2→1→6→5→4；如果 K=4，则你应该输出 4→3→2→1→5→6。</span><br><span class="line"></span><br><span class="line"><span class="section">### 补充</span></span><br><span class="line">1、本题中可能包含不在链表中的节点，这些节点无需考虑。</span><br><span class="line"></span><br><span class="line"><span class="section">### 输入格式</span></span><br><span class="line">第一行包含头节点地址，总节点数量 N 以及常数 K。</span><br><span class="line"></span><br><span class="line">节点地址用一个 5 位非负整数表示（可能有前导 0），NULL 用 −1 表示。</span><br><span class="line"></span><br><span class="line">接下来 N 行，每行描述一个节点的信息，格式如下：</span><br><span class="line"><span class="code">`Address Data Next`</span></span><br><span class="line">其中 Address 是节点地址，Data 是一个整数，Next 是下一个节点的地址。</span><br><span class="line"></span><br><span class="line"><span class="section">### 输出格式</span></span><br><span class="line">将重新排好序的链表，从头节点点开始，依次输出每个节点的信息，格式与输入相同。</span><br><span class="line"></span><br><span class="line"><span class="section">### 数据范围</span></span><br><span class="line">1≤N≤105,</span><br><span class="line">1≤K≤N</span><br><span class="line"></span><br><span class="line"><span class="section">### 输入样例：</span></span><br><span class="line">00100 6 4</span><br><span class="line">00000 4 99999</span><br><span class="line">00100 1 12309</span><br><span class="line">68237 6 -1</span><br><span class="line">33218 3 00000</span><br><span class="line">99999 5 68237</span><br><span class="line">12309 2 33218</span><br><span class="line"></span><br><span class="line"><span class="section">### 输出样例：</span></span><br><span class="line">00000 4 33218</span><br><span class="line">33218 3 12309</span><br><span class="line">12309 2 00100</span><br><span class="line">00100 1 99999</span><br><span class="line">99999 5 68237</span><br><span class="line">68237 6 -1</span><br></pre></td></tr></table></figure>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://www.acwing.com/problem/" target="_blank" rel="noopener">https://www.acwing.com/problem/</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/01/12/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-%E9%93%BE%E8%A1%A8%E9%97%AE%E9%A2%98/" title="算法之美-链表问题" target="_blank" rel="external">http://xboom.github.io/2022/01/12/Algorithms To Live By/算法之美-链表问题/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/01/12/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3/" title="算法之美-滑动窗口"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/01/06/MQ/MQ-Kafka4-%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/" title="MQ-Kafka4-日志存储"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="https://unpkg.com/leancloud-storage@4.12.2/dist/av-live-query-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>

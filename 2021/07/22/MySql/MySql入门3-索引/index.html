@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>MySql入门3-索引 | XBoom Dove</title>
+  <meta name="description" content="索引是一种为了提升查询效率的数据结构,B+树索引并不能找到一个给定键值的具体行。只能找到数据行所在的页，然后数据库通过把页读到内存中进行查找。每个数据页都通过一个双向链表来进行链接  数据页存放的是完整的每行的记录，而在非数据页的索引页中，存放的仅仅是键值及指向数据页的偏移量，而不是一个完整的行记录  索引模型 哈希表：O(1)的时间复杂度，适用于等值查询，不支持范围查询  有序数组：lgN的时间">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySql入门3-索引">
+<meta property="og:url" content="http://xboom.github.io/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A83-%E7%B4%A2%E5%BC%95/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="索引是一种为了提升查询效率的数据结构,B+树索引并不能找到一个给定键值的具体行。只能找到数据行所在的页，然后数据库通过把页读到内存中进行查找。每个数据页都通过一个双向链表来进行链接  数据页存放的是完整的每行的记录，而在非数据页的索引页中，存放的仅仅是键值及指向数据页的偏移量，而不是一个完整的行记录  索引模型 哈希表：O(1)的时间复杂度，适用于等值查询，不支持范围查询  有序数组：lgN的时间">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722071044.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625074303.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625074614.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625074833.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625075901.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722065426.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722063406.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722064447.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210628233551.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210628234453.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210628235935.png">
+<meta property="article:published_time" content="2021-07-21T23:18:54.000Z">
+<meta property="article:modified_time" content="2022-06-25T07:00:00.114Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="MySql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722071044.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A83-%E7%B4%A2%E5%BC%95/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">18</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/" rel="tag">golang</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.3px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.3px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.7px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.1px;">gRPC</a> <a href="/tags/go-zero/" style="font-size: 13.8px;">go-zero</a> <a href="/tags/golang/" style="font-size: 13px;">golang</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/17/Go/Go%E5%85%A5%E9%97%A818-Fuzzing/" class="title">Go入门18-Fuzzing</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-17T09:06:06.892Z" itemprop="datePublished">2022-09-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/golang/">golang</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/14/Go/Go%E5%85%A5%E9%97%A820-Goland%E6%BF%80%E6%B4%BB/" class="title">Go入门20-Goland激活</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-14T13:27:28.900Z" itemprop="datePublished">2022-09-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/10/Go/Go%E5%85%A5%E9%97%A815-Sync/" class="title">Go入门15-Sync</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-10T00:59:08.235Z" itemprop="datePublished">2022-09-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A816-%E5%B7%A5%E4%BD%9C%E5%8C%BA/" class="title">Go入门16-工作区</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/08/31/Go/Go%E5%85%A5%E9%97%A814-%E6%B3%9B%E5%9E%8B/" class="title">Go入门14-泛型</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-08-31T14:04:54.799Z" itemprop="datePublished">2022-08-31</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#索引模型"><span class="toc-number">1.</span> <span class="toc-text"> 索引模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#索引维护"><span class="toc-number">2.</span> <span class="toc-text"> 索引维护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查询过程"><span class="toc-number">3.</span> <span class="toc-text"> 查询过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#更新过程"><span class="toc-number">4.</span> <span class="toc-text"> 更新过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#change-buffer"><span class="toc-number">4.1.</span> <span class="toc-text"> change buffer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#change-buffer使用场景"><span class="toc-number">4.2.</span> <span class="toc-text"> change buffer使用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#语句更新过程"><span class="toc-number">4.3.</span> <span class="toc-text"> 语句更新过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#change-buffer-和-redo-log"><span class="toc-number">4.4.</span> <span class="toc-text"> change buffer 和 redo log</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#索引选择"><span class="toc-number">5.</span> <span class="toc-text"> 索引选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">6.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-MySql/MySql入门3-索引" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySql入门3-索引
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A83-%E7%B4%A2%E5%BC%95/" class="article-date">
+	  <time datetime="2021-07-21T23:18:54.000Z" itemprop="datePublished">2021-07-22</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/MySql/">MySql</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/MySql/" rel="tag">MySql</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A83-%E7%B4%A2%E5%BC%95/" class="leancloud_visitors"  data-flag-title="MySql入门3-索引">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A83-%E7%B4%A2%E5%BC%95/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 5.2k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 19(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>索引是一种为了提升查询效率的数据结构,B+树索引并不能找到一个给定键值的具体行。只能找到数据行所在的页，然后数据库通过把页读到内存中进行查找。每个数据页都通过一个双向链表来进行链接</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722071044.png" alt="image-20210722071044091" style="zoom:50%;" />
+<p>数据页存放的是完整的每行的记录，而在非数据页的索引页中，存放的仅仅是键值及指向数据页的偏移量，而不是一个完整的行记录</p>
+<h3 id="索引模型"><a class="markdownIt-Anchor" href="#索引模型"></a> 索引模型</h3>
+<p><strong>哈希表</strong>：O(1)的时间复杂度，适用于等值查询，不支持范围查询</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625074303.png" alt="img" style="zoom:50%;" />
+<p><strong>有序数组</strong>：lgN的时间复杂度(二分查找)，支持等值查询和范围查询，但插入效率低，适用于静态存储引擎(数据不再变化)</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625074614.png" alt="img" style="zoom:50%;" />
+<p><strong>搜索树</strong>：InnoDB使用B+树结构建立索引，父节点左子树所有节点的值小于父节点的值，右子树所有节点的值大于父节点的值。</p>
+<blockquote>
+<p>InnoDB的为N叉树，差不多为1200</p>
+</blockquote>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625074833.png" alt="img" style="zoom:50%;" />
+<p>MySql默认一个节点的长度为16K，整数(bigint)字段索引长度为 8B，每个索引还跟着6B的指向其子树的指针；所以16K/14B ≈ 1170</p>
+<ol>
+<li>
+<p>在 InnoDB 中，每一张表其实就是多个 B+ 树，即一个主键索引树和多个非主键索引树。</p>
+</li>
+<li>
+<p>执行查询的效率，使用主键索引 &gt; 使用非主键索引 &gt; 不使用索引</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>为什么主键比非主键快(主键索引和非主键索引)？</strong></p>
+<ul>
+<li>主键索引的b+树的叶子节点存储的是具体的行数据，非叶子节点存储的是主键的值。叶子节点之间通过链表连接，也称为 <strong>聚簇索引</strong></li>
+<li>非主键索引的叶子节点存储的是主键的值，所以通过非主键索引查询数据时，先找到主键，再去主键索引上根据主键找到具体的行数据，也称 <strong>二级索引</strong>。这个过程叫做<strong>回表</strong></li>
+</ul>
+</blockquote>
+<ol start="3">
+<li>如果不使用索引进行查询，则从主索引 B+ 树的叶子节点进行遍历</li>
+</ol>
+<p>例如：存在下列这样一个表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create table T(</span><br><span class="line">	id int primary key, </span><br><span class="line">	k int not null, </span><br><span class="line">	name varchar(16),</span><br><span class="line">index (k))engine=InnoDB;</span><br></pre></td></tr></table></figure>
+<p>R1~R5 的 (ID,k) 值分别为 (100,1)、(200,2)、(300,3)、(500,5) 和 (600,6) 则</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625075901.png" alt="img" style="zoom:50%;" />
+<p>主键索引的叶子节点存的是整行数据。在 InnoDB 里，<strong>主键索引也被称为聚簇索引</strong>(clustered index)</p>
+<p>非主键索引的叶子节点内容是主键的值。在 InnoDB 里，<strong>非主键索引也被称为二级索引</strong>(secondary index)</p>
+<h3 id="索引维护"><a class="markdownIt-Anchor" href="#索引维护"></a> 索引维护</h3>
+<p>在B+树中，所有记录节点都是按键值的大小顺序存放在同一层的叶子节点上，由各叶子节点进行连接</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722065426.png" alt="image-20210722065426715" style="zoom:80%;" />
+<ol>
+<li>
+<p>B+树的插入操作</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Leaf Page 满</th>
+<th style="text-align:center">Index Page 满</th>
+<th style="text-align:left">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">No</td>
+<td style="text-align:center">No</td>
+<td style="text-align:left">1. 直接将数据插入叶子节点</td>
+</tr>
+<tr>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">No</td>
+<td style="text-align:left">1. 拆分叶子节点<br />2. 将中间的额节点存放入 Index Page中<br />3. 小于中间节点的记录放左边<br />4. 大于或等于中间节点的记录方右边</td>
+</tr>
+<tr>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:left">1. 拆分叶子节点<br />2. 小于中间接待你的记录方左边<br />3. 大于或等于中间节点的记录放右边<br />4. 拆分Index Page<br />5. 小于中间节点的记录放左边<br />6. 大于中间节点的记录放右边<br />7. 中间节点放入上一层 Index Page</td>
+</tr>
+</tbody>
+</table>
+<p>旋转发生在Leaf Page已经满了，但是其左右兄弟节点并没有满的情况下。B+树并不会急于拆分页的操作，而是将记录移动所在页的兄弟节点上。通常情况下，左兄弟会被首先检查用来做旋转操作</p>
+</li>
+<li>
+<p>B+树的删除操作</p>
+<table>
+<thead>
+<tr>
+<th>叶子节点小于填充因子</th>
+<th>中间节点小于填充因子</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No</td>
+<td>No</td>
+<td>1. 直接将记录从叶子节点删除，如果该节点还是Index Page的节点，用该节点的右节点代替</td>
+</tr>
+<tr>
+<td>Yes</td>
+<td>No</td>
+<td>1. 合并叶子节点和它的兄弟节点，同时更新Index Page</td>
+</tr>
+<tr>
+<td>Yes</td>
+<td>Yes</td>
+<td>1. 合并叶子节点和它的兄弟节点<br />2. 更新Index Page<br />3. 合并Index Page 和它的兄弟节点</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<p>最好使用自增主键做为主索引，如上图所示：参见 <a href="">B+树的插入与删除</a></p>
+<ul>
+<li>如果插入新的行 ID 值为 700，则只需要在 R5 的记录后面插入一个新记录。</li>
+<li>如果新插入的 ID 值为 400，需要逻辑上挪动后面的数据，空出位置。而更糟的情况是：
+<ul>
+<li>如果 R5 所在数据页满了，则申请一个新的数据页，然后挪动部分数据过去。这个过程称为<strong>页分裂</strong>，影响性能</li>
+<li>原本放在一个页的数据，现在分到两个页中，整体空间利用率降低大约 50%。当然有分裂就有合并。当相邻两个页由于删除了数据，利用率很低之后，会将数据页做合并。合并的过程，可以认为是分裂过程的逆过程，影响空间利用率</li>
+</ul>
+</li>
+</ul>
+<p>所以在主键选择的时候：</p>
+<ol>
+<li>主键长度越小，普通索引的叶子节点就越小，普通索引占用的空间也就越小</li>
+<li>在KV场景下只有一个索引，且必须是唯一索引，在直接使用业务字段做主键</li>
+</ol>
+<p>索引要根据表中的每一行的记录值来创建，所以需要全表扫描</p>
+<p>加字段或修改字段，也要修改每一行记录中的对应列的数据，所以也要全表扫描</p>
+<h3 id="查询过程"><a class="markdownIt-Anchor" href="#查询过程"></a> 查询过程</h3>
+<p>执行查询语句 <code>select id from T where id = 5</code> <code>id</code>为普通索引，查询过程为：</p>
+<ol>
+<li>先通过 B+ 树从树根开始，按层搜索到叶子节点及数据页</li>
+<li>然后在数据页内部通过二分法来定位记录</li>
+</ol>
+<p>对于普通索引来说，查找到满足条件的第一个记录 (5,500) 后，需要查找下一个记录，直到碰到第一个不满足 k=5 条件的记录。</p>
+<p>对于唯一索引来说，由于索引定义了唯一性，查找到第一个满足条件的记录后，就会停止继续检索</p>
+<p>InnoDB 的数据是按数据页为单位来读写的。也就是说，当需要读一条记录的时候，并不是将这个记录本身从磁盘读出来，而是以页为单位，将其整体读入内存。在 InnoDB 中，每个数据页的大小默认是 <strong>16KB</strong></p>
+<p>执行查询语句 <code>select * from T where k between 3 and 5</code> 查询过程为：</p>
+<ol>
+<li>在 k 索引树上找到 k=3 的记录，取得 ID = 300；</li>
+<li>再到 ID 索引树查到 ID=300 对应的 R3；</li>
+<li>在 k 索引树取下一个值 k=5，取得 ID=500；</li>
+<li>再回到 ID 索引树查到 ID=500 对应的 R4；</li>
+<li>在 k 索引树取下一个值 k=6，不满足条件，循环结束</li>
+</ol>
+<p>执行查询语句 <code>select ID from T where k between 3 and 5</code></p>
+<ol>
+<li>在 k 索引树上找到 k=3 的记录，取得 ID = 300；</li>
+<li>在 k 索引树取下一个值 k=5，取得 ID=500；</li>
+<li>在 k 索引树取下一个值 k=6，不满足条件，循环结束</li>
+</ol>
+<p>ID 的值已经在 k 索引树上了，通过普通索引直接查询到结果不需要回表，索引 k 已经“覆盖了”查询需求，称为<strong>覆盖索引</strong></p>
+<p>B+树的最左前缀原则</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 身份证信息</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`tuser`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`id_card`</span> <span class="built_in">varchar</span>(<span class="number">32</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`name`</span> <span class="built_in">varchar</span>(<span class="number">32</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`age`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`ismale`</span> <span class="built_in">tinyint</span>(<span class="number">1</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`id_card`</span> (<span class="string">`id_card`</span>),</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`name_age`</span> (<span class="string">`name`</span>,<span class="string">`age`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span></span><br></pre></td></tr></table></figure>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722063406.jpg" alt="img" style="zoom:50%;" />
+<ol>
+<li>
+<p><code>where name like ‘张 %’</code>。这时，查找到第一个符合条件的记录是 ID3，然后向后遍历，直到不满足条件为止</p>
+</li>
+<li>
+<p><code>Where b &gt; 10</code>，是无法使用 (a,b) 这个联合索引的，不得不维护另外一个索引，也就是说你需要同时维护 (a,b)、(b) 这两个索引</p>
+</li>
+<li>
+<p>为了考虑空间，字段长(name,age)的只建立一次，短(age)的建立两次</p>
+</li>
+<li>
+<p>以联合索引（name, age）为例，检索出表中“名字第一个字是张，而且年龄是 10 岁的所有男孩&quot;</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210722064447.jpg" alt="img" style="zoom:50%;" />
+<p>InnoDB 在 (name,age) 索引内部就判断了 age 是否等于 10，对于不等于 10 的记录，只需要对 ID4、ID5 这两条记录回表取数据判断，就只需要回表 2 次</p>
+<blockquote>
+<p>【索引下推】Index Condition Pushdown，简称 ICP。 是Mysql 5.6版本引入的技术优化。旨在 在“仅能利用最左前缀索的场景”下（而不是能利用全部联合索引），对不在最左前缀索引中的其他联合索引字段加以利用——在遍历索引时，就用这些其他字段进行过滤(where条件里的匹配)。过滤会减少遍历索引查出的主键条数，从而减少回表次数，提示整体性能。 ------------------ 如果查询利用到了索引下推ICP技术，在Explain输出的Extra字段中会有“Using index condition”。即代表本次查询会利用到索引，且会利用到索引下推。 ------------------ 索引下推技术的实现——在遍历索引的那一步，由只传入可以利用到的字段值，改成了多传入下推字段值</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="更新过程"><a class="markdownIt-Anchor" href="#更新过程"></a> 更新过程</h3>
+<h4 id="change-buffer"><a class="markdownIt-Anchor" href="#change-buffer"></a> change buffer</h4>
+<p>当需要更新一个数据页时，如果数据页在内存中就直接更新，而如果这个数据页还没有在内存中的话，在不影响数据一致性的前提下，InnoDB 会将这些更新操作缓存在 change buffer 中，这样就不需要从磁盘中读入这个数据页了。在下次查询需要访问这个数据页的时候，将数据页读入内存，然后执行 change buffer 中与这个页有关的操作</p>
+<p><code>change buffer</code>可以看成也是一个数据页，需要被持久化到 系统表空间（ibdata1），以及把这个change buffer页的改动记录在redo log里，事后刷进系统表空间（ibdata1）</p>
+<p>将 <code>change buffer</code> 中的操作应用到原数据页，得到最新结果的过程称为 merge。除了访问这个数据页会触发 merge 外，系统有后台线程会定期 merge。在数据库正常关闭（shutdown）的过程中，也会执行 merge 操作。</p>
+<h4 id="change-buffer使用场景"><a class="markdownIt-Anchor" href="#change-buffer使用场景"></a> change buffer使用场景</h4>
+<p>对于唯一索引来说，所有的更新操作都要先判断这个操作是否违反唯一性约束。比如，要插入 (4,400) 这个记录，就要先判断现在表中是否已经存在 k=4 的记录，而这必须要将数据页读入内存才能判断。如果都已经读入到内存了，那直接更新内存会更快，就没必要使用 change buffer 了</p>
+<blockquote>
+<p>普通索引和唯一索引的查询性能几乎一样, 但是写性能是普通索引快, 因为可以用到change buffer, 唯一索引会导致内存命中率下降</p>
+</blockquote>
+<p>change buffer 用的是 buffer pool 里的内存，因此不能无限增大。change buffer 的大小，可以通过参数 <code>innodb_change_buffer_max_size</code> 来动态设置。</p>
+<ul>
+<li>设置为 50 的时候，表示 change buffer 的大小最多只能占用 buffer pool 的 50%</li>
+<li>设置为0 表示关闭change buffer功能</li>
+</ul>
+<h4 id="语句更新过程"><a class="markdownIt-Anchor" href="#语句更新过程"></a> 语句更新过程</h4>
+<p>如果要在这张表中插入一个新记录 (4,400) 的话，InnoDB 的处理流程是怎样的</p>
+<p>第一种情况当记录要更新的目标页在内存中</p>
+<ul>
+<li>对于唯一索引来说，找到 3 和 5 之间的位置，判断到没有冲突，插入这个值，语句执行结束</li>
+<li>对于普通索引来说，找到 3 和 5 之间的位置，插入这个值，语句执行结束</li>
+</ul>
+<p>第二种情况当记录要更新的目标页不在内存中</p>
+<ul>
+<li>对于唯一索引来说，需要将数据页读入内存，判断到没有冲突，插入这个值，语句执行结束</li>
+<li>对于普通索引来说，则是将更新记录在 change buffer，语句执行就结束了</li>
+</ul>
+<p>将数据从磁盘读入内存涉及随机 IO 的访问，是数据库里面成本最高的操作之一。change buffer 因为减少了随机磁盘访问，所以对更新性能的提升是会很明显的。之前我就碰到过一件事儿，有个 DBA 的同学跟我反馈说，他负责的某个业务的库内存命中率突然从 99% 降低到了 75%，整个系统处于阻塞状态，更新语句全部堵住。而探究其原因后，我发现这个业务有大量插入数据的操作，而他在前一天把其中的某个普通索引改成了唯一索引</p>
+<blockquote>
+<p>innodb 普通索引修改成唯一索引产生的 生产事故, 写多读少使用 changebuffer 可以加快执行速度(减少数据页磁盘 io); 但是,如果业务模型是 写后立马会做查询, 则会触发 changebuff 立即 merge 到磁盘, 这样 的场景磁盘 io 次数不会减少,反而会增加 changebuffer 的维护代价</p>
+</blockquote>
+<p>change buffer 的使用场景</p>
+<p>对于写多读少的业务来说，页面在写完以后马上被访问到的概率比较小，此时 change buffer 的使用效果最好。这种业务模型常见的就是账单类、日志类的系统。</p>
+<p>反过来，假设一个业务的更新模式是写入之后马上会做查询，那么即使满足了条件，将更新先记录在 change buffer，但之后由于马上要访问这个数据页，会立即触发 merge 过程。这样随机访问 IO 的次数不会减少，反而增加了 change buffer 的维护代价</p>
+<h4 id="change-buffer-和-redo-log"><a class="markdownIt-Anchor" href="#change-buffer-和-redo-log"></a> change buffer 和 redo log</h4>
+<p>redo log是物理日志，记录的是数据页的修改，但是如果数据页不在内存中怎么办呢？都没有去修改数据页，redo log中记什么？所以这时候change buffer登场了，如果修改的不是唯一索引，而是普通索引，不用再去磁盘随机IO了，直接将这个修改记录在change buffer中。也可以说，数据页在内存，那就修改数据页，写redo log，如果数据页不在内存，修改的也不是唯一索引，而是普通索引，那就写change buffer。并把这个change buffer写入到redo log，防止更新丢失。</p>
+<p>现在让我们看看在表中插入一条数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; insert into t(id,k) values(id1,k1),(id2,k2);</span><br></pre></td></tr></table></figure>
+<p>假设当前 k 索引树的状态，查找到位置后，k1 所在的数据页在内存 (InnoDB buffer pool) 中，k2 所在的数据页不在内存中。如图 2 所示是带 change buffer 的更新状态图</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210628233551.png" alt="image-20210628233551613" style="zoom:50%;" />
+<blockquote>
+<p>数据表空间：就是一个个的表数据文件，对应的磁盘文件就是“表名.ibd”；</p>
+<p>系统表空间：用来放系统信息，如数据字典等，对应的磁盘文件是“ibdata1”</p>
+</blockquote>
+<p>更新语句的操作如下：</p>
+<ol>
+<li>Page 1在内存中，直接更新内存</li>
+<li>Page 2 不在内存中，就在内存的 change buffer 区域，记录下“我要往 Page 2 插入一行”这个信息</li>
+<li>将上述两个动作记入 redo log 中</li>
+</ol>
+<p>做完上面这些，事务就可以完成了。所以，你会看到，执行这条更新语句的成本很低，就是写了两处内存，然后写了一处磁盘（两次操作合在一起写了一次磁盘），而且还是顺序写的。同时 写入 change buffer 和 数据表空间都是后台空间，不影响更新的响应时间</p>
+<p>然后执行查询语句，如果读语句发生在更新语句后不久，内存中的数据都还在，那么此时的这两个读操作就与系统表空间（ibdata1）和 redo log（ib_log_fileX）无关了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from t where k in (k1, k2)</span><br></pre></td></tr></table></figure>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210628234453.png" alt="img" style="zoom:50%;" />
+<ol>
+<li>
+<p>读 Page 1 的时候，直接从内存返回。</p>
+<blockquote>
+<p>WAL 之后如果读数据，是不是一定要读盘，是不是一定要从 redo log 里面把数据更新以后才可以返回？其实是不用的。你可以看一下图 3 的这个状态，虽然磁盘上还是之前的数据，但是这里直接从内存返回结果，结果是正确的。</p>
+</blockquote>
+</li>
+<li>
+<p>要读 Page 2 的时候，需要把 Page 2 从磁盘读入内存中，然后应用 change buffer 里面的操作日志，生成一个正确的版本并返回结果。可以看到，直到需要读 Page 2 的时候，这个数据页才会被读入内存</p>
+</li>
+</ol>
+<p>redo log 主要节省的是随机写磁盘的 IO 消耗（转成顺序写），而 change buffer 主要节省的则是随机读磁盘的 IO 消耗</p>
+<p>redo日志有分几十种类型的。redo做的事情，简单讲就是记录页的变化（WAL将页变化的乱序写转换成了顺序写）。页是分多种的，比如 B+树索引页（主键 / 二级索引）、undo页（数据的多版本MVCC）、以及现在的change buffer页等等，这些页被redo记录后，就可以不着急刷盘了。</p>
+<p>change buffer记录索引页的变化；但是change buffer本身也是要持久化的，而它持久化的工作和其他页一样，交给了redo日志来帮忙完成；</p>
+<p>redo日志记录的是change buffer页的变化。</p>
+<p>change buffer持久化文件是 ibdata1，索引页持久化文件是 t.ibd</p>
+<p>change buffer 一开始是写内存的，那么如果这个时候机器掉电重启，会不会导致 change buffer 丢失呢？</p>
+<p>1.change buffer有一部分在内存有一部分在ibdata. 做purge操作,应该就会把change buffer里相应的数据持久化到ibdata</p>
+<p>2.redo log里记录了数据页的修改以及change buffer新写入的信息 如果掉电,持久化的change buffer数据已经purge,不用恢复。主要分析没有持久化的数据 情况又分为以下几种:</p>
+<ul>
+<li>change buffer写入,redo log虽然做了fsync但未commit,binlog未fsync到磁盘,这部分数据丢失</li>
+<li>change buffer写入,redo log写入但没有commit,binlog以及fsync到磁盘,先从binlog恢复redo log,再从redo log恢复change buffer</li>
+<li>change buffer写入,redo log和binlog都已经fsync.那么直接从redo log里恢复。</li>
+</ul>
+<p>merge 的执行流程是这样的：从磁盘读入数据页到内存（老版本的数据页）；从 change buffer 里找出这个数据页的 change buffer 记录 (可能有多个），依次应用，得到新版数据页；写 redo log。这个 redo log 包含了数据的变更和 change buffer 的变更。</p>
+<h3 id="索引选择"><a class="markdownIt-Anchor" href="#索引选择"></a> 索引选择</h3>
+<p>在 MySQL 中一张表可以支持多个索引。但写 SQL 语句的时候并没有主动指定使用哪个索引，MySql是怎么决定使用哪个索引的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">force Index(a) #强制使用指定的索引</span><br></pre></td></tr></table></figure>
+<p>使用下面三条SQL语句查看查询过程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set long_query_time&#x3D;0;</span><br><span class="line">select * from t where a between 10000 and 20000; &#x2F;*Q1*&#x2F;</span><br><span class="line">select * from t force index(a) where a between 10000 and 20000;&#x2F;*Q2*&#x2F;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>将慢查询的日志阀值设置为0，则接下来所有查询操作都记录到慢查询日志中</li>
+<li>Q1 使用默认查询语句</li>
+<li>Q2 强制使用索引a进行查询</li>
+</ol>
+<p>优化器的逻辑</p>
+<ol>
+<li>行数</li>
+<li>临时表</li>
+<li>是否排序</li>
+</ol>
+<p>扫描行数是怎么判断的？</p>
+<p>MySql在执行语句之前，并不能精确地知道满足这个条件的记录有多少条，而只能根据统计信息来估算记录数</p>
+<p>一个索引上不同的值越多，这个索引的区分度就越好。而一个索引上不同的值的个数，我们称之为“基数”（cardinality）。也就是说，这个基数越大，索引的区分度越好</p>
+<p>使用 show index 方法，看到一个索引的基数。</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210628235935.png" alt="img" /></p>
+<p>如果正确的使用索引</p>
+<ol>
+<li>使用强制语句 force index(a)</li>
+<li>引导 MySQL 使用我们期望的索引，如 <code>order by b limit 1</code> 改成 <code>order by b,a limit 1</code></li>
+</ol>
+<p>之前优化器选择使用索引 b，是因为它认为使用索引 b 可以避免排序（b 本身是索引，已经是有序的了，如果选择索引 b 的话，不需要再做排序，只需要遍历），所以即使扫描行数多，也判定为代价更小。现在 order by b,a 这种写法，要求按照 b,a 排序，就意味着使用这两个索引都需要排序。因此，扫描行数成了影响决策的主要条件，于是此时优化器选了只需要扫描 1000 行的索引 a</p>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li>《高性能myql》</li>
+<li>《InnoDB技术内幕-索引与算法》</li>
+<li><a href="https://time.geekbang.org/column/article/70848" target="_blank" rel="noopener">https://time.geekbang.org/column/article/70848</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A83-%E7%B4%A2%E5%BC%95/" title="MySql入门3-索引" target="_blank" rel="external">http://xboom.github.io/2021/07/22/MySql/MySql入门3-索引/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A81-%E6%9E%B6%E6%9E%84/" title="MySql入门1-架构"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/07/11/Go/Go%E5%85%A5%E9%97%A85-Map/" title="Go入门5-Map"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="https://unpkg.com/leancloud-storage@4.12.2/dist/av-live-query-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>
