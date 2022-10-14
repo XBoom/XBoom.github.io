@@ -18,12 +18,12 @@
   
   
   <title>Go入门6-内存管理 | XBoom Dove</title>
-  <meta name="description" content="程序中的数据和变量都会被分配到程序所在的虚拟内存中，内存空间包含两个重要区域：栈区（Stack）和堆区（Heap）。函数调用的参数、返回值以及局部变量大都会被分配到栈上，这部分内存会由编译器进行管理；不同编程语言使用不同的方法管理堆区的内存。 Golang内存分配算法主要源自 Google 为 C 语言开发的TCMalloc算法，全称Thread-Caching Malloc  TCMalloc">
+  <meta name="description" content="物理内存 VS 虚拟内存 内存分配器实际上操作的不是物理内存而是虚拟内存 Golang内存分配算法主要源自 Google 为 C 语言开发的TCMalloc算法，全称Thread-Caching Malloc。核心思想就是把内存分为多级管理，从而降低锁的粒度。 将可用的堆内存采用二级分配的方式进行管理：每个线程都会自行维护一个独立的内存池，进行内存分配时优先从该内存池中分配，当内存池不足时才会向">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Go入门6-内存管理">
 <meta property="og:url" content="http://xboom.github.io/2021/09/09/Go/Go%E5%85%A5%E9%97%A86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="程序中的数据和变量都会被分配到程序所在的虚拟内存中，内存空间包含两个重要区域：栈区（Stack）和堆区（Heap）。函数调用的参数、返回值以及局部变量大都会被分配到栈上，这部分内存会由编译器进行管理；不同编程语言使用不同的方法管理堆区的内存。 Golang内存分配算法主要源自 Google 为 C 语言开发的TCMalloc算法，全称Thread-Caching Malloc  TCMalloc">
+<meta property="og:description" content="物理内存 VS 虚拟内存 内存分配器实际上操作的不是物理内存而是虚拟内存 Golang内存分配算法主要源自 Google 为 C 语言开发的TCMalloc算法，全称Thread-Caching Malloc。核心思想就是把内存分为多级管理，从而降低锁的粒度。 将可用的堆内存采用二级分配的方式进行管理：每个线程都会自行维护一个独立的内存池，进行内存分配时优先从该内存池中分配，当内存池不足时才会向">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711161230.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711161604.png">
@@ -50,7 +50,7 @@
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150923.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711151026.png">
 <meta property="article:published_time" content="2021-09-08T16:08:22.000Z">
-<meta property="article:modified_time" content="2022-06-25T07:00:00.114Z">
+<meta property="article:modified_time" content="2022-10-01T14:54:12.333Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Go">
 <meta name="twitter:card" content="summary">
@@ -217,7 +217,7 @@
   <div class="widget">
     <h3 class="widget-title">Categories</h3>
     <div class="widget-body">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">18</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">18</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/gRPC/">gRPC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -227,7 +227,7 @@
   <div class="widget">
     <h3 class="widget-title">Tags</h3>
     <div class="widget-body">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gRPC/" rel="tag">gRPC</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/" rel="tag">golang</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -237,7 +237,7 @@
   <div class="widget">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget-body tagcloud">
-      <a href="/tags/Algorithm/" style="font-size: 13.3px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.3px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.7px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.1px;">gRPC</a> <a href="/tags/go-zero/" style="font-size: 13.8px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+      <a href="/tags/Algorithm/" style="font-size: 13.3px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.3px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.7px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/gRPC/" style="font-size: 13.1px;">gRPC</a> <a href="/tags/go-zero/" style="font-size: 13.8px;">go-zero</a> <a href="/tags/golang/" style="font-size: 13px;">golang</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
     </div>
   </div>
 
@@ -246,7 +246,7 @@
   <div class="widget">
     <h3 class="widget-title">Archive</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -265,10 +265,25 @@
                 <a class="category-link" href="/categories/Go/">Go</a>
               </p>
               <p class="item-title">
-                <a href="/2022/09/17/Go/Go18-Fuzzing/" class="title">Go18-Fuzzing</a>
+                <a href="/2022/09/17/Go/Go%E5%85%A5%E9%97%A818-Fuzzing/" class="title">Go入门18-Fuzzing</a>
               </p>
               <p class="item-date">
                 <time datetime="2022-09-17T09:06:06.892Z" itemprop="datePublished">2022-09-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/golang/">golang</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/14/Go/Go%E5%85%A5%E9%97%A820-Goland%E6%BF%80%E6%B4%BB/" class="title">Go入门20-Goland激活</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-14T13:27:28.900Z" itemprop="datePublished">2022-09-14</time>
               </p>
             </div>
           </li>
@@ -318,21 +333,6 @@
             </div>
           </li>
           
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/Go/">Go</a>
-              </p>
-              <p class="item-title">
-                <a href="/2022/08/27/Go/Go%E5%85%A5%E9%97%A813-style/" class="title">Go入门13-style</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2022-08-27T01:45:57.712Z" itemprop="datePublished">2022-08-27</time>
-              </p>
-            </div>
-          </li>
-          
       </ul>
     </div>
   </div>
@@ -348,7 +348,7 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#tcmalloc"><span class="toc-number">1.</span> <span class="toc-text"> TCMalloc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存分配器"><span class="toc-number">2.</span> <span class="toc-text"> 内存分配器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#设计原理"><span class="toc-number">2.1.</span> <span class="toc-text"> 设计原理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#分配方法"><span class="toc-number">2.1.1.</span> <span class="toc-text"> 分配方法</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#线性分配器"><span class="toc-number">2.1.1.1.</span> <span class="toc-text"> 线性分配器</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#空闲链表分配器"><span class="toc-number">2.1.1.2.</span> <span class="toc-text"> 空闲链表分配器</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#分级分配"><span class="toc-number">2.1.2.</span> <span class="toc-text"> 分级分配</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#对象大小"><span class="toc-number">2.1.2.1.</span> <span class="toc-text"> 对象大小</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#多级缓存"><span class="toc-number">2.1.2.2.</span> <span class="toc-text"> 多级缓存</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#虚拟内存分布"><span class="toc-number">2.1.3.</span> <span class="toc-text"> 虚拟内存分布</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#线性内存"><span class="toc-number">2.1.3.1.</span> <span class="toc-text"> 线性内存</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#稀疏内存"><span class="toc-number">2.1.3.2.</span> <span class="toc-text"> 稀疏内存</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#地址空间"><span class="toc-number">2.1.4.</span> <span class="toc-text"> 地址空间</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存管理组件"><span class="toc-number">3.</span> <span class="toc-text"> 内存管理组件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#内存管理单元"><span class="toc-number">3.0.1.</span> <span class="toc-text"> 内存管理单元</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#线程缓存"><span class="toc-number">3.0.2.</span> <span class="toc-text"> 线程缓存</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#中心缓存"><span class="toc-number">3.0.3.</span> <span class="toc-text"> 中心缓存</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基础概念"><span class="toc-number">4.</span> <span class="toc-text"> 基础概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存管理单元-2"><span class="toc-number">5.</span> <span class="toc-text"> 内存管理单元</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存管理元件"><span class="toc-number">6.</span> <span class="toc-text"> 内存管理元件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#mcache"><span class="toc-number">6.1.</span> <span class="toc-text"> mcache</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mcentral"><span class="toc-number">6.2.</span> <span class="toc-text"> mcentral</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mheap"><span class="toc-number">6.3.</span> <span class="toc-text"> mheap</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存分配流程"><span class="toc-number">7.</span> <span class="toc-text"> 内存分配流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">8.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#物理内存-vs-虚拟内存"><span class="toc-number">1.</span> <span class="toc-text"> 物理内存 VS 虚拟内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcmalloc"><span class="toc-number">2.</span> <span class="toc-text"> TCMalloc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存分配器"><span class="toc-number">3.</span> <span class="toc-text"> 内存分配器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#设计原理"><span class="toc-number">3.1.</span> <span class="toc-text"> 设计原理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#分配方法"><span class="toc-number">3.1.1.</span> <span class="toc-text"> 分配方法</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#线性分配器"><span class="toc-number">3.1.1.1.</span> <span class="toc-text"> 线性分配器</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#空闲链表分配器"><span class="toc-number">3.1.1.2.</span> <span class="toc-text"> 空闲链表分配器</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#分级分配"><span class="toc-number">3.1.2.</span> <span class="toc-text"> 分级分配</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#对象大小"><span class="toc-number">3.1.2.1.</span> <span class="toc-text"> 对象大小</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#多级缓存"><span class="toc-number">3.1.2.2.</span> <span class="toc-text"> 多级缓存</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#虚拟内存分布"><span class="toc-number">3.1.3.</span> <span class="toc-text"> 虚拟内存分布</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#线性内存"><span class="toc-number">3.1.3.1.</span> <span class="toc-text"> 线性内存</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#稀疏内存"><span class="toc-number">3.1.3.2.</span> <span class="toc-text"> 稀疏内存</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#地址空间"><span class="toc-number">3.1.4.</span> <span class="toc-text"> 地址空间</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存管理组件"><span class="toc-number">4.</span> <span class="toc-text"> 内存管理组件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#内存管理单元"><span class="toc-number">4.0.1.</span> <span class="toc-text"> 内存管理单元</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#线程缓存"><span class="toc-number">4.0.2.</span> <span class="toc-text"> 线程缓存</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#中心缓存"><span class="toc-number">4.0.3.</span> <span class="toc-text"> 中心缓存</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基础概念"><span class="toc-number">5.</span> <span class="toc-text"> 基础概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存管理单元-2"><span class="toc-number">6.</span> <span class="toc-text"> 内存管理单元</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存管理元件"><span class="toc-number">7.</span> <span class="toc-text"> 内存管理元件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#mcache"><span class="toc-number">7.1.</span> <span class="toc-text"> mcache</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mcentral"><span class="toc-number">7.2.</span> <span class="toc-text"> mcentral</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mheap"><span class="toc-number">7.3.</span> <span class="toc-text"> mheap</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存分配流程"><span class="toc-number">8.</span> <span class="toc-text"> 内存分配流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">9.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -388,18 +388,16 @@
 
 
         
-	<span class="article-read hidden-xs">
-	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
-	    <span id="busuanzi_container_page_pv">
-			<span id="busuanzi_value_page_pv">0</span>
-		</span>
-	</span>
 
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2021/09/09/Go/Go%E5%85%A5%E9%97%A86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="leancloud_visitors"  data-flag-title="Go入门6-内存管理">0</span>
+    </span>
 
         <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/09/09/Go/Go%E5%85%A5%E9%97%A86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/#comments" class="article-comment-link">Comments</a></span>
         
 	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 8.2k(words)</span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 8.3k(words)</span>
 	
 	
 		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Time: 33(minutes)</span>
@@ -409,8 +407,10 @@
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p>程序中的数据和变量都会被分配到程序所在的虚拟内存中，内存空间包含两个重要区域：栈区（Stack）和堆区（Heap）。函数调用的参数、返回值以及局部变量大都会被分配到栈上，这部分内存会由编译器进行管理；不同编程语言使用不同的方法管理堆区的内存。</p>
-<p>Golang内存分配算法主要源自 Google 为 C 语言开发的<code>TCMalloc算法</code>，全称<code>Thread-Caching Malloc</code></p>
+        <h3 id="物理内存-vs-虚拟内存"><a class="markdownIt-Anchor" href="#物理内存-vs-虚拟内存"></a> 物理内存 VS 虚拟内存</h3>
+<p>内存分配器实际上操作的不是物理内存而是虚拟内存</p>
+<p>Golang内存分配算法主要源自 Google 为 C 语言开发的<code>TCMalloc算法</code>，全称<code>Thread-Caching Malloc</code>。核心思想就是把内存分为多级管理，从而降低锁的粒度。</p>
+<p>将可用的堆内存采用二级分配的方式进行管理：<strong>每个线程都会自行维护一个独立的内存池</strong>，进行内存分配时优先从该内存池中分配，当内存池不足时才会向全局内存池申请，以避免不同线程对全局内存池的频繁竞争</p>
 <h3 id="tcmalloc"><a class="markdownIt-Anchor" href="#tcmalloc"></a> TCMalloc</h3>
 <ul>
 <li>TCMalloc用固定大小的page(页)来执行内存获取、分配等操作。跟Linux物理内存页的划分有同样的道理。</li>
@@ -740,6 +740,7 @@
 <h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
 <ol>
 <li><a href="https://qcrao.com/2019/03/13/graphic-go-memory-allocation/" target="_blank" rel="noopener">https://qcrao.com/2019/03/13/graphic-go-memory-allocation/</a></li>
+<li><a href="https://www.infoq.cn/article/IEhRLwmmIM7-11RYaLHR" target="_blank" rel="noopener">https://www.infoq.cn/article/IEhRLwmmIM7-11RYaLHR</a></li>
 <li><a href="https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/" target="_blank" rel="noopener">https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/</a></li>
 </ol>
 
@@ -917,9 +918,97 @@ window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
 
 
    
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
 
 
 
