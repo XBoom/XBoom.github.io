@@ -301,6 +301,10 @@
     <lastmod>2022-06-25</lastmod>
   </url>
   <url>
+    <loc>http://xboom.github.io/2021/10/10/Redis/Redis%E5%85%A5%E9%97%A84-RDB/</loc>
+    <lastmod>2022-06-25</lastmod>
+  </url>
+  <url>
     <loc>http://xboom.github.io/2021/09/12/Redis/Redis%E5%85%A5%E9%97%A82-%E7%BB%93%E6%9E%84%E5%AF%B9%E8%B1%A1/</loc>
     <lastmod>2022-06-25</lastmod>
   </url>
@@ -310,10 +314,6 @@
   </url>
   <url>
     <loc>http://xboom.github.io/2021/10/10/Redis/Redis%E5%85%A5%E9%97%A85-AOF/</loc>
-    <lastmod>2022-06-25</lastmod>
-  </url>
-  <url>
-    <loc>http://xboom.github.io/2021/10/10/Redis/Redis%E5%85%A5%E9%97%A84-RDB/</loc>
     <lastmod>2022-06-25</lastmod>
   </url>
   <url>
@@ -377,11 +377,11 @@
     <lastmod>2022-06-25</lastmod>
   </url>
   <url>
-    <loc>http://xboom.github.io/2020/11/01/TCP/TCP-2-%E8%B6%85%E6%97%B6%E4%B8%8E%E9%87%8D%E4%BC%A0/</loc>
+    <loc>http://xboom.github.io/2020/11/06/TCP/TCP-4-%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/</loc>
     <lastmod>2022-06-25</lastmod>
   </url>
   <url>
-    <loc>http://xboom.github.io/2020/11/06/TCP/TCP-4-%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/</loc>
+    <loc>http://xboom.github.io/2020/11/01/TCP/TCP-2-%E8%B6%85%E6%97%B6%E4%B8%8E%E9%87%8D%E4%BC%A0/</loc>
     <lastmod>2022-06-25</lastmod>
   </url>
   <url>
