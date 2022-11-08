@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>算法-001-语言基础 | XBoom Dove</title>
+  <meta name="description" content="C++基础  第一份代码 1234567#include &lt;bits&#x2F;stdc++.h&gt;using namespace std;int main() &amp;#123;    cout &lt;&lt; &quot;hello world&quot;;		&#x2F;&#x2F;输出 hello world    return 0;									&#x2F;&#x2F;结束返回&amp;#125;   #include 其实是一个预处理命令，意思为将一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法-001-语言基础">
+<meta property="og:url" content="http://xboom.github.io/2022/11/05/Algorithm/%E7%AE%97%E6%B3%95-001-%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="C++基础  第一份代码 1234567#include &lt;bits&#x2F;stdc++.h&gt;using namespace std;int main() &amp;#123;    cout &lt;&lt; &quot;hello world&quot;;		&#x2F;&#x2F;输出 hello world    return 0;									&#x2F;&#x2F;结束返回&amp;#125;   #include 其实是一个预处理命令，意思为将一">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Snipaste_2022-11-06_14-25-48-struct_base1.png">
+<meta property="article:published_time" content="2022-11-05T14:24:00.240Z">
+<meta property="article:modified_time" content="2022-11-08T16:24:40.970Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Algorithm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Snipaste_2022-11-06_14-25-48-struct_base1.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/11/05/Algorithm/%E7%AE%97%E6%B3%95-001-%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ETCD/">ETCD</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">19</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">19</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.56px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.44px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13.22px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.89px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.11px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.22px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.11px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.33px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.11px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.67px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.56px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.33px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/go-zero/" style="font-size: 13.78px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.33px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithm/">Algorithm</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/11/05/Algorithm/%E7%AE%97%E6%B3%95-001-%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/" class="title">算法-001-语言基础</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-11-05T14:24:00.240Z" itemprop="datePublished">2022-11-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Grpc/">Grpc</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/10/14/Grpc/Grpc-03-%E8%A7%A3%E6%9E%90%E5%99%A8/" class="title">Grpc-03-解析器</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-10-14T14:52:55.214Z" itemprop="datePublished">2022-10-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/17/Go/Go%E5%85%A5%E9%97%A818-Fuzzing/" class="title">Go入门18-Fuzzing</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-17T09:06:06.892Z" itemprop="datePublished">2022-09-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/14/Go/Go%E5%85%A5%E9%97%A820-Goland%E6%BF%80%E6%B4%BB/" class="title">Go入门20-Goland激活</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-14T13:27:28.900Z" itemprop="datePublished">2022-09-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithm/">Algorithm</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/09/14/Algorithm/%E7%AE%97%E6%B3%95-000-%E6%A6%82%E8%BF%B0/" class="title">算法-000-概述</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-09-14T13:27:28.897Z" itemprop="datePublished">2022-09-14</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#c基础"><span class="toc-number">1.</span> <span class="toc-text"> C++基础</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一份代码"><span class="toc-number">1.1.</span> <span class="toc-text"> 第一份代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#输入输出"><span class="toc-number">1.2.</span> <span class="toc-text"> 输入输出</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#define-命令"><span class="toc-number">1.3.</span> <span class="toc-text"> define 命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#c-中的空白字符"><span class="toc-number">1.4.</span> <span class="toc-text"> C++ 中的空白字符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#变量"><span class="toc-number">1.5.</span> <span class="toc-text"> 变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#高级数据结构"><span class="toc-number">1.6.</span> <span class="toc-text"> 高级数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#数组"><span class="toc-number">1.6.1.</span> <span class="toc-text"> 数组</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#结构体"><span class="toc-number">1.6.2.</span> <span class="toc-text"> 结构体</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#指针"><span class="toc-number">1.6.3.</span> <span class="toc-text"> 指针</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#c标准库"><span class="toc-number">2.</span> <span class="toc-text"> C++标准库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#stl容器"><span class="toc-number">2.1.</span> <span class="toc-text"> STL容器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#迭代器"><span class="toc-number">2.2.</span> <span class="toc-text"> 迭代器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#序列式容器"><span class="toc-number">2.3.</span> <span class="toc-text"> 序列式容器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#vector"><span class="toc-number">2.3.1.</span> <span class="toc-text"> vector</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#元素访问"><span class="toc-number">2.3.1.1.</span> <span class="toc-text"> 元素访问</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#迭代器-2"><span class="toc-number">2.3.1.2.</span> <span class="toc-text"> 迭代器</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#长度与容量"><span class="toc-number">2.3.1.3.</span> <span class="toc-text"> 长度与容量</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#元素增删及修改"><span class="toc-number">2.3.1.4.</span> <span class="toc-text"> 元素增删及修改</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#array"><span class="toc-number">2.3.2.</span> <span class="toc-text"> array</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#元素访问-2"><span class="toc-number">2.3.2.1.</span> <span class="toc-text"> 元素访问</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#容量"><span class="toc-number">2.3.2.2.</span> <span class="toc-text"> 容量</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#操作"><span class="toc-number">2.3.2.3.</span> <span class="toc-text"> 操作</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#deque"><span class="toc-number">2.3.3.</span> <span class="toc-text"> deque</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#元素访问-3"><span class="toc-number">2.3.3.1.</span> <span class="toc-text"> 元素访问</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#迭代器-3"><span class="toc-number">2.3.3.2.</span> <span class="toc-text"> 迭代器</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#长度"><span class="toc-number">2.3.3.3.</span> <span class="toc-text"> 长度</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#元素增删及修改-2"><span class="toc-number">2.3.3.4.</span> <span class="toc-text"> 元素增删及修改</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#list"><span class="toc-number">2.3.4.</span> <span class="toc-text"> List</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#元素访问-4"><span class="toc-number">2.3.4.1.</span> <span class="toc-text"> 元素访问</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#操作-2"><span class="toc-number">2.3.4.2.</span> <span class="toc-text"> 操作</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#forward_list"><span class="toc-number">2.3.5.</span> <span class="toc-text"> forward_list</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#关联容器"><span class="toc-number">2.4.</span> <span class="toc-text"> 关联容器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#set"><span class="toc-number">2.4.1.</span> <span class="toc-text"> set</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#操作-3"><span class="toc-number">2.4.1.1.</span> <span class="toc-text"> 操作</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#迭代器-4"><span class="toc-number">2.4.1.2.</span> <span class="toc-text"> 迭代器</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#自定义比较"><span class="toc-number">2.4.1.3.</span> <span class="toc-text"> 自定义比较</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#查找操作"><span class="toc-number">2.4.1.4.</span> <span class="toc-text"> 查找操作</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#map"><span class="toc-number">2.4.2.</span> <span class="toc-text"> map</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#插入与删除操作"><span class="toc-number">2.4.2.1.</span> <span class="toc-text"> 插入与删除操作</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#查询操作"><span class="toc-number">2.4.2.2.</span> <span class="toc-text"> 查询操作</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#容器适配器"><span class="toc-number">2.5.</span> <span class="toc-text"> 容器适配器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#栈"><span class="toc-number">2.5.1.</span> <span class="toc-text"> 栈</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#定义"><span class="toc-number">2.5.1.1.</span> <span class="toc-text"> 定义</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#操作-4"><span class="toc-number">2.5.1.2.</span> <span class="toc-text"> 操作</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#队列"><span class="toc-number">2.5.2.</span> <span class="toc-text"> 队列</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#定义-2"><span class="toc-number">2.5.2.1.</span> <span class="toc-text"> 定义</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#操作-5"><span class="toc-number">2.5.2.2.</span> <span class="toc-text"> 操作</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#优先队列"><span class="toc-number">2.5.3.</span> <span class="toc-text"> 优先队列</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#定义-3"><span class="toc-number">2.5.3.1.</span> <span class="toc-text"> 定义</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#操作-6"><span class="toc-number">2.5.3.2.</span> <span class="toc-text"> 操作</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stl算法"><span class="toc-number">2.6.</span> <span class="toc-text"> STL算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bitset"><span class="toc-number">2.7.</span> <span class="toc-text"> bitSet</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#操作-7"><span class="toc-number">2.7.1.</span> <span class="toc-text"> 操作</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#构造函数"><span class="toc-number">2.7.2.</span> <span class="toc-text"> 构造函数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#运算符"><span class="toc-number">2.7.3.</span> <span class="toc-text"> 运算符</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#成员函数"><span class="toc-number">2.7.4.</span> <span class="toc-text"> 成员函数</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#string"><span class="toc-number">2.8.</span> <span class="toc-text"> string</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#操作-8"><span class="toc-number">2.8.1.</span> <span class="toc-text"> 操作</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pair"><span class="toc-number">2.9.</span> <span class="toc-text"> pair</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#定义-4"><span class="toc-number">2.9.1.</span> <span class="toc-text"> 定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#访问"><span class="toc-number">2.9.2.</span> <span class="toc-text"> 访问</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#比较"><span class="toc-number">2.9.3.</span> <span class="toc-text"> 比较</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#赋值与交换"><span class="toc-number">2.9.4.</span> <span class="toc-text"> 赋值与交换</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">3.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Algorithm/算法-001-语言基础" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      算法-001-语言基础
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/11/05/Algorithm/%E7%AE%97%E6%B3%95-001-%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/" class="article-date">
+	  <time datetime="2022-11-05T14:24:00.240Z" itemprop="datePublished">2022-11-05</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Algorithm/">Algorithm</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Algorithm/" rel="tag">Algorithm</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/11/05/Algorithm/%E7%AE%97%E6%B3%95-001-%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 8.7k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Count: 35(minutes)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="c基础"><a class="markdownIt-Anchor" href="#c基础"></a> C++基础</h3>
+<h4 id="第一份代码"><a class="markdownIt-Anchor" href="#第一份代码"></a> 第一份代码</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"hello world"</span>;		<span class="comment">//输出 hello world</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;									<span class="comment">//结束返回</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>
+<p><code>#include</code> 其实是一个预处理命令，意思为将一个文件“放”在这条语句处，被“放”的文件被称为头文件。也就是说，在编译时，编译器会“复制”头文件 <code>bits/stdc++.h</code> 中的内容，“粘贴”到 <code>#include &lt;bits/stdc++.h&gt;</code> 这条语句处</p>
+<blockquote>
+<p>可以自定义头文件，如：<code>myheader.h</code>。然后，将其放到和你的代码相同的目录里，再 <code>#include &quot;myheader.h&quot;</code> 即可。</p>
+<p>注意自定义的头文件需要使用引号而非尖括号。</p>
+<p>可以使用编译命令 <code>-I &lt;header_file_path&gt;</code> 来告诉编译器在哪找头文件，就不需要将头文件放到和代码相同的目录里了</p>
+</blockquote>
+</li>
+<li>
+<p>如果不写 <code>return</code> 语句的话，程序正常结束默认返回值也是 0。</p>
+</li>
+</ol>
+<h4 id="输入输出"><a class="markdownIt-Anchor" href="#输入输出"></a> 输入输出</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   <span class="keyword">int</span> x, y;</span><br><span class="line">   <span class="built_in">cin</span> &gt;&gt; x &gt;&gt; y;   <span class="comment">//输入x, y</span></span><br><span class="line">   <span class="built_in">cout</span> &lt;&lt; x &lt;&lt; y &lt;&lt; <span class="built_in">endl</span>;  <span class="comment">//输出x, y </span></span><br><span class="line">   </span><br><span class="line">   <span class="keyword">int</span> m, n;</span><br><span class="line">   <span class="built_in">scanf</span>(<span class="string">"%d %d"</span>, &amp;m, &amp;n);</span><br><span class="line">   <span class="built_in">printf</span>(<span class="string">"%d %d\n"</span>, m, n);</span><br><span class="line">   <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//输入 1 2 3 4</span></span><br><span class="line"><span class="comment">//输出 12</span></span><br><span class="line"><span class="comment">//		3 4</span></span><br></pre></td></tr></table></figure>
+<p><code>scanf</code> 与 <code>printf</code> 其实是 C 语言提供的函数。大多数情况下，它们的速度比 <code>cin</code> 和 <code>cout</code> 更快，并且能够方便地控制输入输出格式</p>
+<blockquote>
+<p><code>cin</code>/<code>cout</code> 比 <code>scanf</code>/<code>printf</code>慢是指两个原因：</p>
+<ol>
+<li>(主要)和底层C I/O lib的sync;</li>
+<li>I/O一起使用的<code>endl</code>每次会强制flush stream buffer, 在大量I/O时会不必要地拖慢速度(这也是为什么大家推荐用 <code>\n</code>），但主要拖慢的原因还是sync， 所以在<code>sync_with_stdio(false)</code>后之间没有差别，有时<code>cin/cout</code>会更快</li>
+</ol>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">%d 表示读入/输出的变量是一个有符号整型 (<span class="keyword">int</span> 型）的变量</span><br><span class="line">%s 表示字符串。</span><br><span class="line">%c 表示字符。</span><br><span class="line">%lf 表示双精度浮点数 (<span class="keyword">double</span>)。</span><br><span class="line">%lld 表示长整型 (<span class="keyword">long</span> <span class="keyword">long</span>)。根据系统不同，也可能是 %I64d。</span><br><span class="line">%u 表示无符号整型 (<span class="keyword">unsigned</span> <span class="keyword">int</span>)。</span><br><span class="line">%llu 表示无符号长整型 (<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span>)，也可能是 %I64u。</span><br><span class="line">                       </span><br><span class="line">除了类型标识符以外，还有一些控制格式的方式。比如：</span><br><span class="line">%<span class="number">1</span>d 表示长度为 <span class="number">1</span> 的整型。在读入时，即使没有空格也可以逐位读入数字。在输出时，若指定的长度大于数字的位数，就会在数字前用空格填充。若指定的长度小于数字的位数，就没有效果。</span><br><span class="line">%<span class="number">.6</span>lf，用于输出，保留六位小数</span><br></pre></td></tr></table></figure>
+<h4 id="define-命令"><a class="markdownIt-Anchor" href="#define-命令"></a> define 命令</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> n 1111</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> sum(x, y) ((x) + (y))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> square(x) ((x) * (x))</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   <span class="built_in">cout</span> &lt;&lt; n &lt;&lt; <span class="built_in">endl</span>;	<span class="comment">//输出 1111</span></span><br><span class="line">   <span class="built_in">cout</span> &lt;&lt; sum(<span class="number">1</span>,<span class="number">2</span>);  <span class="comment">//输出 3</span></span><br><span class="line">   </span><br><span class="line">   <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line">   count &lt;&lt; square(++i) &lt;&lt; i &lt;&lt; <span class="built_in">endl</span>;	<span class="comment">//invalid operands of types '&lt;unresolved overloaded function type&gt;'</span></span><br><span class="line">   <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>n</code> 不是变量，而是编译器会将代码中所有 n 文本替换为 233，但是作为标识符一部分的; <code>n</code> 的就不会被替换，如 fn 不会被替换成 f233，同样，字符串内的也不会被替换</p>
+<p>还能用来做预处理</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> LINUX</span></span><br><span class="line"><span class="comment">// code for linux</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="comment">// code for other OS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<h4 id="c-中的空白字符"><a class="markdownIt-Anchor" href="#c-中的空白字符"></a> C++ 中的空白字符</h4>
+<p>在 C++ 中，所有空白字符（空格、制表符、换行），多个或是单个，都被视作是一样的。（当然，引号中视作字符串的一部分的不算。）</p>
+<h4 id="变量"><a class="markdownIt-Anchor" href="#变量"></a> 变量</h4>
+<p>C++ 的类型系统由如下几部分组成：</p>
+<ol>
+<li>
+<p>基础类型（括号内为代表关键词/代表类型）</p>
+<ol>
+<li>无类型/<code>void</code> 型 (<code>void</code>)</li>
+<li>（C++11 起）空指针类型 (<code>std::nullptr_t</code>)</li>
+<li>算术类型
+<ol>
+<li>整数类型 (<code>char</code>,<code>short</code>,<code>int</code>,<code>long</code>,<code>long long</code>)</li>
+<li>布尔类型/<code>bool</code> 型 (<code>bool</code>) ，1个字节</li>
+<li>字符类型 (<code>char</code>)，</li>
+<li>浮点类型 (<code>float</code>,<code>double</code>,<code>long double</code>)</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p>复合类型</p>
+</li>
+</ol>
+<blockquote>
+<p>为方便使用，<code>stdbool.h</code> 中提供了 <code>bool</code>,<code>true</code>,<code>false</code> 三个宏</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> bool _Bool</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> true 1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> false 0</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>注意：C++ 中布尔类型和字符类型会被视作特殊的整型。在几乎所有的情况下都 <strong>不应该</strong> 将除 <code>signed char</code> 和 <code>unsigned char</code> 之外的字符类型作为整型使用</p>
+<h4 id="高级数据结构"><a class="markdownIt-Anchor" href="#高级数据结构"></a> 高级数据结构</h4>
+<h5 id="数组"><a class="markdownIt-Anchor" href="#数组"></a> 数组</h5>
+<p>数组的声明形如 <code>a[d]</code>，其中，<code>a</code> 是数组的名字，<code>d</code> 是数组中元素的个数。在编译时，<code>d</code> 应该是已知的，也就是说，<strong><code>d</code> 应该是一个整型的常量表达式</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">int</span> d1 = <span class="number">42</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> d2 = <span class="number">42</span>;</span><br><span class="line"><span class="keyword">int</span> arr1[d1];  <span class="comment">// 错误：d1 不是常量表达式</span></span><br><span class="line"><span class="keyword">int</span> arr2[d2];  <span class="comment">// 正确：arr2 是一个长度为 42 的数组</span></span><br></pre></td></tr></table></figure>
+<p>不能将一个数组直接赋值给另外一个数组</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> arr1[<span class="number">3</span>];</span><br><span class="line"><span class="keyword">int</span> arr2 = arr1;  <span class="comment">// 错误</span></span><br><span class="line">arr2 = arr1;      <span class="comment">// 错误</span></span><br></pre></td></tr></table></figure>
+<p><strong>应该尽量将较大的数组定义为全局变量</strong>。因为局部变量会被创建在栈区中，过大（大于栈的大小）的数组会爆栈，进而导致 RE。如果将数组声明在全局作用域中，就会在静态区中创建数组</p>
+<h5 id="结构体"><a class="markdownIt-Anchor" href="#结构体"></a> 结构体</h5>
+<p>结构体(struct)，可以看做是一系列称为成员元素的组合体。可以看做是自定义的数据类型</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Object</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> weight;</span><br><span class="line">  <span class="keyword">int</span> value;</span><br><span class="line">&#125; e[array_length];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Object a;</span><br><span class="line">Object b, B[array_length], tmp;</span><br><span class="line">Object *c;</span><br></pre></td></tr></table></figure>
+<h5 id="指针"><a class="markdownIt-Anchor" href="#指针"></a> 指针</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Edge</span> &#123;</span></span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">  ...</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  Edge* nxt;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="c标准库"><a class="markdownIt-Anchor" href="#c标准库"></a> C++标准库</h3>
+<h4 id="stl容器"><a class="markdownIt-Anchor" href="#stl容器"></a> STL容器</h4>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Snipaste_2022-11-06_14-25-48-struct_base1.png" alt="Snipaste_2022-11-06_14-25-48-struct_base1" style="zoom: 33%;" />
+<p>STL一共分为三类容器</p>
+<ul>
+<li>
+<p>序列式容器</p>
+<ul>
+<li><strong>向量</strong>(<code>vector</code>) 后端可高效增加元素的顺序表。</li>
+<li><strong>数组</strong>(<code>array</code>) C++11，定长的顺序表，C 风格数组的简单包装。</li>
+<li><strong>双端队列</strong>(<code>deque</code>) 双端都可高效增加元素的顺序表。</li>
+<li><strong>列表</strong>(<code>list</code>) 可以沿双向遍历的链表。</li>
+<li><strong>单向列表</strong>(<code>forward_list</code>) 只能沿一个方向遍历的链表。</li>
+</ul>
+</li>
+<li>
+<p>关联式容器</p>
+<ul>
+<li><strong>集合</strong>(<code>set</code>) 用以有序地存储 <strong>互异</strong> 元素的容器。其实现是由节点组成的红黑树，每个节点都包含着一个元素，节点之间以某种比较元素大小的谓词进行排列。</li>
+<li><strong>多重集合</strong>(<code>multiset</code>) 用以有序地存储元素的容器。允许存在相等的元素。</li>
+<li><strong>映射</strong>(<code>map</code>) 由 {键，值} 对组成的集合，以某种比较键大小关系的谓词进行排列。</li>
+<li><strong>多重映射</strong>(<code>multimap</code>) 由 {键，值} 对组成的多重集合，亦即允许键有相等情况的映射。</li>
+</ul>
+</li>
+<li>
+<p>无序(关联式)容器</p>
+<ul>
+<li><strong>无序（多重）集合</strong>(<code>unordered_set</code>/<code>unordered_multiset</code>)，与 <code>set</code>/<code>multiset</code> 的区别在与元素无序，只关心”元素是否存在“，使用哈希实现。</li>
+<li><strong>无序（多重）映射</strong>(<code>unordered_map</code>/<code>unordered_multimap</code>)，与 <code>map</code>/<code>multimap</code> 的区别在与键 (key) 无序，只关心 “键与值的对应关系”，使用哈希实现。</li>
+</ul>
+</li>
+<li>
+<p>容器适配器</p>
+<p>容器适配器其实并不是容器。它们不具有容器的某些特点（如：有迭代器、有 <code>clear()</code> 函数……）。</p>
+<blockquote>
+<p>”适配器是使一种事物的行为类似于另外一种事物行为的一种机制”，适配器对容器进行包装，使其表现出另外一种行为。</p>
+</blockquote>
+<ul>
+<li>
+<p><strong>栈</strong>(<code>stack</code>) 后进先出 (LIFO) 的容器，默认是对双端队列（<code>deque</code>) 的包装。</p>
+</li>
+<li>
+<p><strong>队列</strong>(<code>queue</code>) 先进先出 (FIFO) 的容器，默认是对双端队列（<code>deque</code>) 的包装。</p>
+</li>
+<li>
+<p><strong>优先队列</strong>(<code>priority_queue</code>) 元素的次序是由作用于所存储的值对上的某种谓词决定的的一种队列，默认是对向量（<code>vector</code>) 的包装</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>容器的声明都是 <code>containerName&lt;typeName,...&gt; name</code> 的形式，但模板参数（<code>&lt;&gt;</code> 内的参数）的个数、形式会根据具体容器而变</p>
+<p>共有函数</p>
+<ul>
+<li><code>=</code>：有赋值运算符以及复制构造函数。</li>
+<li><code>begin()</code>：返回指向开头元素的迭代器。</li>
+<li><code>end()</code>：返回指向末尾的下一个元素的迭代器。<code>end()</code> 不指向某个元素，但它是末尾元素的后继。</li>
+<li><code>size()</code>：返回容器内的元素个数。</li>
+<li><code>max_size()</code>：返回容器 <strong>理论上</strong> 能存储的最大元素个数。依容器类型和所存储变量的类型而变。</li>
+<li><code>empty()</code>：返回容器是否为空。</li>
+<li><code>swap()</code>：交换两个容器。</li>
+<li><code>clear()</code>：清空容器。</li>
+<li><code>==</code>/<code>!=</code>/<code>&lt;</code>/<code>&gt;</code>/<code>&lt;=</code>/<code>&gt;=</code>：按 <strong>字典序</strong> 比较两个容器的大小。（比较元素大小时 <code>map</code> 的每个元素相当于 <code>set&lt;pair&lt;key, value&gt; &gt;</code>，无序容器不支持 <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code>。）</li>
+</ul>
+<h4 id="迭代器"><a class="markdownIt-Anchor" href="#迭代器"></a> 迭代器</h4>
+<p>指向某个 STL 容器 <code>container</code> 中元素的迭代器的类型一般为 <code>container::iterator</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">data</span><span class="params">(<span class="number">10</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; data.<span class="built_in">size</span>(); i++)</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; data[i] &lt;&lt; <span class="built_in">endl</span>;  <span class="comment">// 使用下标访问元素</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::iterator iter = data.<span class="built_in">begin</span>(); iter != data.<span class="built_in">end</span>(); iter++)</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; *iter &lt;&lt; <span class="built_in">endl</span>;  <span class="comment">// 使用迭代器访问元素</span></span><br><span class="line"><span class="comment">// 在C++11后可以使用 auto iter = data.begin() 来简化上述代码</span></span><br></pre></td></tr></table></figure>
+<p>在 STL 的定义中，迭代器根据其支持的操作依次分为以下几类：</p>
+<ul>
+<li>InputIterator（输入迭代器）：只要求支持拷贝、自增和解引访问。</li>
+<li>OutputIterator（输出迭代器）：只要求支持拷贝、自增和解引赋值。</li>
+<li>ForwardIterator（向前迭代器）：同时满足 InputIterator 和 OutputIterator 的要求。</li>
+<li>BidirectionalIterator（双向迭代器）：在 ForwardIterator 的基础上支持自减（即反向访问）。</li>
+<li>RandomAccessIterator（随机访问迭代器）：在 BidirectionalIterator 的基础上支持加减运算和比较运算（即随机访问）</li>
+</ul>
+<p>其他使用：</p>
+<ol>
+<li>使用 <code>std::advance(it, n)</code> 将迭代器 <code>it</code> 向后移动 <code>n</code> 步；若 <code>n</code> 为负数，则对应向前移动。迭代器必须满足双向迭代器，否则行为未定义。</li>
+<li>在 C++11 以后可以使用 <code>std::next(it)</code> 获得向前迭代器 <code>it</code> 的后继（此时迭代器 <code>it</code> 不变），<code>std::next(it, n)</code> 获得向前迭代器 <code>it</code> 的第 <code>n</code> 个后继。</li>
+<li>在 C++11 以后可以使用 <code>std::prev(it)</code> 获得双向迭代器 <code>it</code> 的前驱（此时迭代器 <code>it</code> 不变），<code>std::prev(it, n)</code> 获得双向迭代器 <code>it</code> 的第 <code>n</code> 个前驱。</li>
+<li>STL 容器一般支持从一端或两端开始的访问，以及对 const 修饰符的支持。
+<ul>
+<li>容器的 <code>begin()</code>函数可以获得指向容器第一个元素的迭代器，</li>
+<li><code>rbegin()</code> 函数可以获得指向容器最后一个元素的反向迭代器，</li>
+<li><code>cbegin()</code> 函数可以获得指向容器第一个元素的 const 迭代器，</li>
+<li><code>end()</code> 函数可以获得指向容器尾端（<strong>“尾端”并不是最后一个元素，可以看作是最后一个元素的后继；“尾端”的前驱是容器里的最后一个元素，其本身不指向任何一个元素</strong>）的迭代器</li>
+</ul>
+</li>
+</ol>
+<h4 id="序列式容器"><a class="markdownIt-Anchor" href="#序列式容器"></a> 序列式容器</h4>
+<h5 id="vector"><a class="markdownIt-Anchor" href="#vector"></a> vector</h5>
+<p><code>std::vector</code> 是 STL 提供的 <strong>内存连续的</strong>、<strong>可变长度</strong> 的数组（亦称列表）数据结构。能够提供线性复杂度的插入和删除，以及常数复杂度的随机访问</p>
+<ul>
+<li><code>vector</code> 可以动态分配内存</li>
+<li><code>vector</code> 重写了比较运算符及赋值运算符，例如可以利用 <code>vector&lt;char&gt;</code> 实现字符串比较</li>
+<li><code>vector</code> 便利的初始化，从 C++11 起 <code>vector</code> 还支持列表初始化，例如 <code>vector&lt;int&gt; data = {1, 2, 3};</code></li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建空vector; 常数复杂度</span></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v0;</span><br><span class="line"><span class="comment">// 1+. 这句代码可以使得向vector中插入前3个元素时，保证常数时间复杂度</span></span><br><span class="line">v0.reserve(<span class="number">3</span>); 		<span class="comment">//！！！！类似go中初始化切片长度</span></span><br><span class="line"><span class="comment">// 2. 创建一个初始空间为3的vector，其元素的默认值是0; 线性复杂度</span></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v1</span><span class="params">(<span class="number">3</span>)</span></span>;</span><br><span class="line"><span class="comment">// 3. 创建一个初始空间为3的vector，其元素的默认值是2; 线性复杂度</span></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v2</span><span class="params">(<span class="number">3</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line"><span class="comment">// 4. 创建一个初始空间为3的vector，其元素的默认值是1，</span></span><br><span class="line"><span class="comment">// 并且使用v2的空间配置器; 线性复杂度</span></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v3</span><span class="params">(<span class="number">3</span>, <span class="number">1</span>, v2.get_allocator())</span></span>;</span><br><span class="line"><span class="comment">// 5. 创建一个v2的拷贝vector v4， 其内容元素和v2一样; 线性复杂度</span></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v4</span><span class="params">(v2)</span></span>;</span><br><span class="line"><span class="comment">// 6. 创建一个v4的拷贝vector v5，其内容是&#123;v4[1], v4[2]&#125;; 线性复杂度</span></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v5</span><span class="params">(v4.<span class="built_in">begin</span>() + <span class="number">1</span>, v4.<span class="built_in">begin</span>() + <span class="number">3</span>)</span></span>;	<span class="comment">//!!!! 不包含后面一个</span></span><br><span class="line"><span class="comment">// 7. 移动v2到新创建的vector v6，不发生拷贝; 常数复杂度; 需要 C++11</span></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v6</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">move</span>(v2))</span></span>;  <span class="comment">// 或者 v6 = std::move(v2);</span></span><br></pre></td></tr></table></figure>
+<h6 id="元素访问"><a class="markdownIt-Anchor" href="#元素访问"></a> 元素访问</h6>
+<p><code>vector</code> 提供了如下几种方法进行元素访问</p>
+<ol>
+<li><code>at()</code>: <code>v.at(pos)</code> 返回容器中下标为 <code>pos</code> 的引用。如果数组越界抛出 <code>std::out_of_range</code> 类型的异常。</li>
+<li><code>operator[]</code>: <code>v[pos]</code> 返回容器中下标为 <code>pos</code> 的引用。不执行越界检查。</li>
+<li><code>front()</code>: <code>v.front()</code> 返回首元素的<strong>引用</strong></li>
+<li><code>back()</code>: <code>v.back()</code> 返回末尾元素的引用。</li>
+<li><code>data()</code>:<code>v.data()</code> 返回指向数组第一个元素的指针。</li>
+</ol>
+<h6 id="迭代器-2"><a class="markdownIt-Anchor" href="#迭代器-2"></a> 迭代器</h6>
+<p>vector 提供了如下几种迭代器</p>
+<ol>
+<li><code>begin()/cbegin()</code>：返回指向首元素的迭代器，其中 <code>*begin = front</code>。</li>
+<li><code>end()/cend()</code>：返回指向数组尾端占位符的迭代器，注意是没有元素的。</li>
+<li><code>rbegin()/crbegin()</code>：返回指向逆向数组的首元素的逆向迭代器，可以理解为正向容器的末元素。</li>
+<li><code>rend()/crend()</code>：返回指向逆向数组末元素后一位置的迭代器，对应容器首的前一个位置，没有元素</li>
+</ol>
+<h6 id="长度与容量"><a class="markdownIt-Anchor" href="#长度与容量"></a> 长度与容量</h6>
+<ul>
+<li>
+<p><code>empty()</code> 返回一个 <code>bool</code> 值，即 <code>v.begin() == v.end()</code>，<code>true</code> 为空，<code>false</code> 为非空。</p>
+</li>
+<li>
+<p><code>size()</code> 返回容器长度（元素数量），即 <code>std::distance(v.begin(), v.end())</code>。</p>
+</li>
+<li>
+<p><code>resize()</code> 改变 <code>vector</code> 的长度，多退少补。补充元素可以由参数指定。</p>
+</li>
+<li>
+<p><code>max_size()</code> 返回容器的最大可能长度。</p>
+</li>
+<li>
+<p><code>reserve()</code> 使得 <code>vector</code> 预留一定的内存空间，避免不必要的内存拷贝。</p>
+</li>
+<li>
+<p><code>capacity()</code> 返回容器的容量，即不发生拷贝的情况下容器的长度上限。</p>
+</li>
+<li>
+<p><code>shrink_to_fit()</code> 使得 <code>vector</code> 的容量与长度一致，多退但不会少。</p>
+</li>
+</ul>
+<h6 id="元素增删及修改"><a class="markdownIt-Anchor" href="#元素增删及修改"></a> 元素增删及修改</h6>
+<ul>
+<li><code>clear()</code> 清除所有元素</li>
+<li><code>insert()</code> 支持在某个迭代器位置插入元素、可以插入多个。<strong>复杂度与 <code>pos</code> 距离末尾长度成线性而非常数的</strong></li>
+<li><code>erase()</code> 删除某个迭代器或者区间的元素，返回最后被删除的迭代器。复杂度与 <code>insert</code> 一致。</li>
+<li><code>push_back()</code> 在末尾插入一个元素，均摊复杂度为 <strong>常数</strong>，最坏为线性复杂度。</li>
+<li><code>pop_back()</code> 删除末尾元素，常数复杂度。</li>
+<li><code>swap()</code> 与另一个容器进行交换，此操作是 <strong>常数复杂度</strong> 而非线性的</li>
+</ul>
+<p>注意：</p>
+<p>标准库特别提供了对 <code>bool</code> 的 <code>vector</code> 特化，每个“<code>bool</code>”只占 1 bit，且支持动态增长。但是其 <code>operator[]</code> 的返回值的类型不是 <code>bool&amp;</code> 而是 <code>vector&lt;bool&gt;::reference</code>。因此，使用 <code>vector&lt;bool&gt;</code> 使需谨慎，可以考虑使用 <code>deque&lt;bool&gt;</code> 或 <code>vector&lt;char&gt;</code> 替代。如果要节省空间，请直接使用 bitset</p>
+<h5 id="array"><a class="markdownIt-Anchor" href="#array"></a> array</h5>
+<p><code>std::array</code> 是 STL 提供的 <strong>内存连续的</strong>、<strong>固定长度</strong> 的数组数据结构。其本质是对原生数组的直接封装</p>
+<h6 id="元素访问-2"><a class="markdownIt-Anchor" href="#元素访问-2"></a> 元素访问</h6>
+<ul>
+<li><code>at</code>访问指定的元素，同时进行越界检查</li>
+<li><code>operator[]</code>访问指定的元素，<strong>不</strong> 进行越界检查</li>
+<li><code>front</code>访问第一个元素</li>
+<li><code>back</code>访问最后一个元素</li>
+<li><code>data</code>返回指向内存中数组第一个元素的指针</li>
+</ul>
+<h6 id="容量"><a class="markdownIt-Anchor" href="#容量"></a> 容量</h6>
+<ul>
+<li><code>empty</code>: 检查容器是否为空</li>
+<li><code>size</code>: 返回容纳的元素数</li>
+<li><code>max_size</code>: 返回可容纳的最大元素数</li>
+</ul>
+<h6 id="操作"><a class="markdownIt-Anchor" href="#操作"></a> 操作</h6>
+<ul>
+<li><code>fill</code>： 已指定值填充容器</li>
+<li><code>swap</code>: 交换内容</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建空array，长度为3; 常数复杂度</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">array</span>&lt;<span class="keyword">int</span>, 3&gt; v0;</span><br><span class="line"><span class="comment">// 2. 用指定常数创建array; 常数复杂度</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">array</span>&lt;<span class="keyword">int</span>, 3&gt; v1&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br><span class="line"></span><br><span class="line">v0.<span class="built_in">fill</span>(<span class="number">1</span>);  <span class="comment">// 填充数组</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 访问数组</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i != arr.<span class="built_in">size</span>(); ++i) <span class="built_in">cout</span> &lt;&lt; arr[i] &lt;&lt; <span class="string">" "</span>;</span><br></pre></td></tr></table></figure>
+<h5 id="deque"><a class="markdownIt-Anchor" href="#deque"></a> deque</h5>
+<p><code>std::deque</code> 是 STL 提供的双端队列数据结构。能够提供线性复杂度的插入和删除，以及常数复杂度的随机访问。</p>
+<p><code>deque</code> 的迭代器函数与 <code>vector</code> 相同</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 定义一个int类型的空双端队列 v0</span></span><br><span class="line"><span class="built_in">deque</span>&lt;<span class="keyword">int</span>&gt; v0;</span><br><span class="line"><span class="comment">// 2. 定义一个int类型的双端队列 v1，并设置初始大小为10; 线性复杂度</span></span><br><span class="line"><span class="function"><span class="built_in">deque</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v1</span><span class="params">(<span class="number">10</span>)</span></span>;</span><br><span class="line"><span class="comment">// 3. 定义一个int类型的双端队列 v2，并初始化为10个1; 线性复杂度</span></span><br><span class="line"><span class="function"><span class="built_in">deque</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v2</span><span class="params">(<span class="number">10</span>, <span class="number">1</span>)</span></span>;</span><br><span class="line"><span class="comment">// 4. 复制已有的双端队列 v1; 线性复杂度</span></span><br><span class="line"><span class="function"><span class="built_in">deque</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v3</span><span class="params">(v1)</span></span>;</span><br><span class="line"><span class="comment">// 5. 创建一个v2的拷贝deque v4，其内容是v4[0]至v4[2]; 线性复杂度</span></span><br><span class="line"><span class="function"><span class="built_in">deque</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v4</span><span class="params">(v2.<span class="built_in">begin</span>(), v2.<span class="built_in">begin</span>() + <span class="number">3</span>)</span></span>;</span><br><span class="line"><span class="comment">// 6. 移动v2到新创建的deque v5，不发生拷贝; 常数复杂度; 需要 C++11</span></span><br><span class="line"><span class="function"><span class="built_in">deque</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v5</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">move</span>(v2))</span></span>;</span><br></pre></td></tr></table></figure>
+<h6 id="元素访问-3"><a class="markdownIt-Anchor" href="#元素访问-3"></a> 元素访问</h6>
+<p>与 vector 一致，但无法访问底层内存。其高效的元素访问速度可参考实现细节部分</p>
+<ul>
+<li><code>at()</code> 返回容器中指定位置元素的引用，执行越界检查，常数复杂度</li>
+<li><code>operator[]</code> 返回容器中指定位置元素的引用。不执行越界检查，常数复杂度</li>
+<li><code>front()</code> 返回首元素的引用</li>
+<li><code>back()</code> 返回末尾元素的引用</li>
+</ul>
+<h6 id="迭代器-3"><a class="markdownIt-Anchor" href="#迭代器-3"></a> 迭代器</h6>
+<p>与 <code>vector</code> 一致</p>
+<ol>
+<li><code>begin()/cbegin()</code>：返回指向首元素的迭代器，其中 <code>*begin = front</code>。</li>
+<li><code>end()/cend()</code>：返回指向数组尾端占位符的迭代器，注意是没有元素的。</li>
+<li><code>rbegin()/crbegin()</code>：返回指向逆向数组的首元素的逆向迭代器，可以理解为正向容器的末元素。</li>
+<li><code>rend()/crend()</code>：返回指向逆向数组末元素后一位置的迭代器，对应容器首的前一个位置，没有元素</li>
+</ol>
+<h6 id="长度"><a class="markdownIt-Anchor" href="#长度"></a> 长度</h6>
+<p>与 <code>vector</code> 一致，但是没有 <code>reserve()</code> 和 <code>capacity()</code> 函数。（仍然有 <code>shrink_to_fit()</code> 函数）</p>
+<ul>
+<li><code>empty()</code> 返回一个 <code>bool</code> 值，即 <code>v.begin() == v.end()</code>，<code>true</code> 为空，<code>false</code> 为非空。</li>
+<li><code>size()</code> 返回容器长度（元素数量），即 <code>std::distance(v.begin(), v.end())</code>。</li>
+<li><code>resize()</code> 改变 <code>vector</code> 的长度，多退少补。补充元素可以由参数指定。</li>
+<li><code>max_size()</code> 返回容器的最大可能长度。</li>
+<li><code>shrink_to_fit()</code> 使得 <code>vector</code> 的容量与长度一致，多退但不会少。</li>
+</ul>
+<h6 id="元素增删及修改-2"><a class="markdownIt-Anchor" href="#元素增删及修改-2"></a> 元素增删及修改</h6>
+<p>与 <code>vector</code> 一致，并额外有向队列头部增加元素的函数</p>
+<ul>
+<li><code>clear()</code> 清除所有元素</li>
+<li><code>insert()</code> 支持在某个迭代器位置插入元素、可以插入多个。<strong>复杂度与 <code>pos</code> 与两端距离较小者成线性</strong></li>
+<li><code>erase()</code> 删除某个迭代器或者区间的元素，返回最后被删除的迭代器。复杂度与 <code>insert</code> 一致</li>
+<li><code>push_front()</code> 在头部插入一个元素，<strong>常数复杂度</strong></li>
+<li><code>pop_front()</code> 删除头部元素，<strong>常数复杂度</strong></li>
+<li><code>push_back()</code> 在末尾插入一个元素，<strong>常数复杂度</strong></li>
+<li><code>pop_back()</code> 删除末尾元素，<strong>常数复杂度</strong></li>
+<li><code>swap()</code> 与另一个容器进行交换，此操作是 <strong>常数复杂度</strong> 而非线性的</li>
+</ul>
+<h5 id="list"><a class="markdownIt-Anchor" href="#list"></a> List</h5>
+<p><code>std::list</code> 是 STL 提供的 双向链表 数据结构。能够提供线性复杂度的随机访问，以及常数复杂度的插入和删除</p>
+<h6 id="元素访问-4"><a class="markdownIt-Anchor" href="#元素访问-4"></a> 元素访问</h6>
+<p>由于 <code>list</code> 的实现是链表，因此它不提供随机访问的接口。若需要访问中间元素，则需要使用迭代器。</p>
+<ul>
+<li><code>front()</code> 返回首元素的引用</li>
+<li><code>back()</code> 返回末尾元素的引用</li>
+</ul>
+<h6 id="操作-2"><a class="markdownIt-Anchor" href="#操作-2"></a> 操作</h6>
+<p>list<code>类型还提供了一些针对其特性实现的 STL 算法函数。</code></p>
+<ul>
+<li><code>splice()</code>: 从另一个<code>list</code>中移动元素</li>
+<li><code>remove()</code>: 移除满足特定标准的元素</li>
+<li><code>sort()</code>: 对元素进行排序</li>
+<li><code>unique()</code>: 删除连续的重复元素</li>
+<li><code>merge()</code>:合并二个已排序列表</li>
+</ul>
+<h5 id="forward_list"><a class="markdownIt-Anchor" href="#forward_list"></a> forward_list</h5>
+<p><code>std::forward_list</code> 是 STL 提供的 单向链表 数据结构，相比于 <code>std::list</code> 减小了空间开销。</p>
+<p><code>forward_list</code> 的使用方法与 <code>list</code> 几乎一致，但是迭代器只有单向的，因此其具体用法不作详细介绍</p>
+<h4 id="关联容器"><a class="markdownIt-Anchor" href="#关联容器"></a> 关联容器</h4>
+<h5 id="set"><a class="markdownIt-Anchor" href="#set"></a> set</h5>
+<p><code>set</code> 是关联容器，含有键值类型对象的已排序集，搜索、移除和插入拥有对数复杂度。<code>set</code> 内部通常采用红黑树实现。平衡二叉树的特性使得 <code>set</code> 非常适合处理需要同时兼顾查找、插入与删除的情况。</p>
+<p><code>set</code> 中不会出现值相同的元素。如果需要有相同元素的集合，则使用 <code>multiset</code>。<code>multiset</code> 的使用方法与 <code>set</code> 的使用方法基本相同</p>
+<h6 id="操作-3"><a class="markdownIt-Anchor" href="#操作-3"></a> 操作</h6>
+<ul>
+<li><code>insert(x)</code> 当容器中没有等价元素的时候，将元素 x 插入到 <code>set</code> 中。</li>
+<li><code>erase(x)</code> 删除值为 x 的 <strong>所有</strong> 元素，返回删除元素的个数。</li>
+<li><code>erase(pos)</code> 删除迭代器为 pos 的元素，要求迭代器必须合法。</li>
+<li><code>erase(first,last)</code> 删除迭代器在 范围内的所有元素。</li>
+<li><code>clear()</code> 清空 <code>set</code></li>
+</ul>
+<h6 id="迭代器-4"><a class="markdownIt-Anchor" href="#迭代器-4"></a> 迭代器</h6>
+<p><code>set</code> 提供了以下几种迭代器：</p>
+<ol>
+<li><code>begin()/cbegin()</code> : 返回指向首元素的迭代器，其中 <code>*begin = front</code>。</li>
+<li><code>end()/cend()</code> : 返回指向数组尾端占位符的迭代器，注意是没有元素的。</li>
+<li><code>rbegin()/crbegin()</code> : 返回指向逆向数组的首元素的逆向迭代器，可以理解为正向容器的末元素。</li>
+<li><code>rend()/crend()</code> : 返回指向逆向数组末元素后一位置的迭代器，对应容器首的前一个位置，没有元素。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set&lt;int&gt; s;</span><br><span class="line">typedef set&lt;int&gt;::iterator si;</span><br><span class="line">for (si it &#x3D; s.begin(); it !&#x3D; s.end(); it++) cout &lt;&lt; *it &lt;&lt; endl;</span><br></pre></td></tr></table></figure>
+<h6 id="自定义比较"><a class="markdownIt-Anchor" href="#自定义比较"></a> 自定义比较</h6>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cmp</span> &#123;</span></span><br><span class="line">  <span class="function"><span class="keyword">bool</span> <span class="title">operator</span><span class="params">()</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span> </span>&#123; <span class="keyword">return</span> a &gt; b; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span>&lt;<span class="keyword">int</span>, cmp&gt; s;</span><br></pre></td></tr></table></figure>
+<h6 id="查找操作"><a class="markdownIt-Anchor" href="#查找操作"></a> 查找操作</h6>
+<ul>
+<li><code>count(x)</code> 返回 <code>set</code> 内键为 x 的元素数量。</li>
+<li><code>find(x)</code> 在 <code>set</code> 内存在键为 x 的元素时会返回该元素的迭代器，否则返回 <code>end()</code>。</li>
+<li><code>lower_bound(x)</code> 返回指向首个不小于给定键的元素的迭代器。如果不存在这样的元素，返回 <code>end()</code>。</li>
+<li><code>upper_bound(x)</code> 返回指向首个大于给定键的元素的迭代器。如果不存在这样的元素，返回 <code>end()</code>。</li>
+<li><code>empty()</code> 返回容器是否为空。</li>
+<li><code>size()</code> 返回容器内元素个数</li>
+</ul>
+<blockquote>
+<p><code>set</code> 在贪心中的使用</p>
+<p>在贪心算法中经常会需要出现类似 <strong>找出并删除最小的大于等于某个值的元素</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 现存可用的元素</span></span><br><span class="line"><span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt; <span class="built_in">available</span>;</span><br><span class="line"><span class="comment">// 需要大于等于的值</span></span><br><span class="line"><span class="keyword">int</span> x;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查找最小的大于等于x的元素</span></span><br><span class="line"><span class="built_in">set</span>&lt;<span class="keyword">int</span>&gt;::iterator it = <span class="built_in">available</span>.lower_bound(x);</span><br><span class="line"><span class="keyword">if</span> (it == <span class="built_in">available</span>.<span class="built_in">end</span>()) &#123;</span><br><span class="line">  <span class="comment">// 不存在这样的元素，则进行相应操作……</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// 找到了这样的元素，将其从现存可用元素中移除</span></span><br><span class="line">  <span class="built_in">available</span>.erase(it);</span><br><span class="line">  <span class="comment">// 进行相应操作……</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h5 id="map"><a class="markdownIt-Anchor" href="#map"></a> map</h5>
+<p><code>map</code> 是有序键值对容器，它的元素的键是唯一的。搜索、移除和插入操作拥有对数复杂度。<code>map</code>通常实现为红黑树。</p>
+<h6 id="插入与删除操作"><a class="markdownIt-Anchor" href="#插入与删除操作"></a> 插入与删除操作</h6>
+<ul>
+<li>可以直接通过下标访问来进行查询或插入操作。例如 <code>mp[&quot;Alan&quot;]=100</code>。</li>
+<li>通过向 <code>map</code> 中插入一个类型为 <code>pair&lt;Key, T&gt;</code> 的值可以达到插入元素的目的，例如 <code>mp.insert(pair&lt;string,int&gt;(&quot;Alan&quot;,100));</code>；</li>
+<li><code>erase(key)</code> 函数会删除键为 <code>key</code> 的 <strong>所有</strong> 元素。返回值为删除元素的数量。</li>
+<li><code>erase(pos)</code>: 删除迭代器为 pos 的元素，要求迭代器必须合法。</li>
+<li><code>erase(first,last)</code>: 删除迭代器在 范围内的所有元素。</li>
+<li><code>clear()</code> 函数会清空整个容器</li>
+</ul>
+<h6 id="查询操作"><a class="markdownIt-Anchor" href="#查询操作"></a> 查询操作</h6>
+<ul>
+<li><code>count(x)</code>: 返回容器内键为 x 的元素数量。复杂度为 （关于容器大小对数复杂度，加上匹配个数）。</li>
+<li><code>find(x)</code>: 若容器内存在键为 x 的元素，会返回该元素的迭代器；否则返回 <code>end()</code>。</li>
+<li><code>lower_bound(x)</code>: 返回指向首个不小于给定键的元素的迭代器。</li>
+<li><code>upper_bound(x)</code>: 返回指向首个大于给定键的元素的迭代器。若容器内所有元素均小于或等于给定键，返回 <code>end()</code>。</li>
+<li><code>empty()</code>: 返回容器是否为空。</li>
+<li><code>size()</code>: 返回容器内元素个数。</li>
+</ul>
+<p>使用样例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 存储状态与对应的答案</span></span><br><span class="line"><span class="built_in">map</span>&lt;<span class="built_in">string</span>, <span class="keyword">int</span>&gt; record;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 新搜索到的状态与对应答案</span></span><br><span class="line"><span class="built_in">string</span> status;</span><br><span class="line"><span class="keyword">int</span> ans;</span><br><span class="line"><span class="comment">// 查找对应的状态是否出现过</span></span><br><span class="line"><span class="built_in">map</span>&lt;<span class="built_in">string</span>, <span class="keyword">int</span>&gt;::iterator it = record.<span class="built_in">find</span>(status);</span><br><span class="line"><span class="keyword">if</span> (it == record.<span class="built_in">end</span>()) &#123;</span><br><span class="line">  <span class="comment">// 尚未搜索过该状态，将其加入状态记录中</span></span><br><span class="line">  record[status] = ans;</span><br><span class="line">  <span class="comment">// 进行相应操作……</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// 已经搜索过该状态，进行相应操作……</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="容器适配器"><a class="markdownIt-Anchor" href="#容器适配器"></a> 容器适配器</h4>
+<h5 id="栈"><a class="markdownIt-Anchor" href="#栈"></a> 栈</h5>
+<p>STL 栈 (<code>std::stack</code>) 是一种后进先出 (Last In, First Out) 的容器适配器，仅支持查询或删除最后一个加入的元素（栈顶元素），不支持随机访问，且为了保证数据的严格有序性，<strong>不支持迭代器</strong></p>
+<h6 id="定义"><a class="markdownIt-Anchor" href="#定义"></a> 定义</h6>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stack&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">stack</span>&lt;TypeName&gt; s;  <span class="comment">// 使用默认底层容器 deque，数据类型为 TypeName</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">stack</span>&lt;TypeName, Container&gt; s;  <span class="comment">// 使用 Container 作为底层容器</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">stack</span>&lt;TypeName&gt; <span class="title">s2</span><span class="params">(s1)</span></span>;        <span class="comment">// 将 s1 复制一份用于构造 s2</span></span><br></pre></td></tr></table></figure>
+<h6 id="操作-4"><a class="markdownIt-Anchor" href="#操作-4"></a> 操作</h6>
+<ul>
+<li><code>top()</code> 访问栈顶元素（如果栈为空，此处会出错）</li>
+<li><code>push(x)</code> 向栈中插入元素 x</li>
+<li><code>pop()</code> 删除栈顶元素</li>
+<li><code>size()</code> 查询容器中的元素数量</li>
+<li><code>empty()</code> 询问容器是否为空</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; s1;</span><br><span class="line">s1.push(<span class="number">2</span>);</span><br><span class="line">s1.push(<span class="number">1</span>);</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">stack</span>&lt;<span class="keyword">int</span>&gt; <span class="title">s2</span><span class="params">(s1)</span></span>;</span><br><span class="line">s1.pop();</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; s1.<span class="built_in">size</span>() &lt;&lt; <span class="string">" "</span> &lt;&lt; s2.<span class="built_in">size</span>() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;  <span class="comment">// 1 2</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; s1.top() &lt;&lt; <span class="string">" "</span> &lt;&lt; s2.top() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;    <span class="comment">// 2 1</span></span><br><span class="line">s1.pop();</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; s1.empty() &lt;&lt; <span class="string">" "</span> &lt;&lt; s2.empty() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;  <span class="comment">// 1 0</span></span><br></pre></td></tr></table></figure>
+<h5 id="队列"><a class="markdownIt-Anchor" href="#队列"></a> 队列</h5>
+<p>STL 队列 (<code>std::queue</code>) 是一种先进先出 (First In, First Out) 的容器适配器，仅支持查询或删除第一个加入的元素（队首元素），不支持随机访问，且为了保证数据的严格有序性，<strong>不支持迭代器</strong></p>
+<h6 id="定义-2"><a class="markdownIt-Anchor" href="#定义-2"></a> 定义</h6>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">queue</span>&lt;TypeName&gt; q;  <span class="comment">// 使用默认底层容器 deque，数据类型为 TypeName</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">queue</span>&lt;TypeName, Container&gt; q;  <span class="comment">// 使用 Container 作为底层容器</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">queue</span>&lt;TypeName&gt; <span class="title">q2</span><span class="params">(q1)</span></span>;  <span class="comment">// 将 s1 复制一份用于构造 q2</span></span><br></pre></td></tr></table></figure>
+<h6 id="操作-5"><a class="markdownIt-Anchor" href="#操作-5"></a> 操作</h6>
+<p>以下所有函数均为常数复杂度</p>
+<ul>
+<li><code>front()</code> 访问队首元素（如果队列为空，此处会出错）</li>
+<li><code>push(x)</code> 向队列中插入元素 x</li>
+<li><code>pop()</code> 删除队首元素</li>
+<li><code>size()</code> 查询容器中的元素数量</li>
+<li><code>empty()</code> 询问容器是否为空</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt; q1;</span><br><span class="line">q1.push(<span class="number">2</span>);</span><br><span class="line">q1.push(<span class="number">1</span>);</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt; <span class="title">q2</span><span class="params">(q1)</span></span>;</span><br><span class="line">q1.pop();</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; q1.<span class="built_in">size</span>() &lt;&lt; <span class="string">" "</span> &lt;&lt; q2.<span class="built_in">size</span>() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;    <span class="comment">// 1 2</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; q1.front() &lt;&lt; <span class="string">" "</span> &lt;&lt; q2.front() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;  <span class="comment">// 1 2</span></span><br><span class="line">q1.pop();</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; q1.empty() &lt;&lt; <span class="string">" "</span> &lt;&lt; q2.empty() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;  <span class="comment">// 1 0</span></span><br></pre></td></tr></table></figure>
+<h5 id="优先队列"><a class="markdownIt-Anchor" href="#优先队列"></a> 优先队列</h5>
+<h6 id="定义-3"><a class="markdownIt-Anchor" href="#定义-3"></a> 定义</h6>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::priority_queue&lt;TypeName&gt; q;             <span class="comment">// 数据类型为 TypeName</span></span><br><span class="line"><span class="built_in">std</span>::priority_queue&lt;TypeName, Container&gt; q;  <span class="comment">// 使用 Container 作为底层容器</span></span><br><span class="line"><span class="built_in">std</span>::priority_queue&lt;TypeName, Container, Compare&gt; q;</span><br><span class="line"><span class="comment">// 使用 Container 作为底层容器，使用 Compare 作为比较类型</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 默认使用底层容器 vector</span></span><br><span class="line"><span class="comment">// 比较类型 less&lt;TypeName&gt;（此时为它的 top() 返回为最大值）</span></span><br><span class="line"><span class="comment">// 若希望 top() 返回最小值，可令比较类型为 greater&lt;TypeName&gt;</span></span><br><span class="line"><span class="comment">// 注意：不可跳过 Container 直接传入 Compare</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 从 C++11 开始，如果使用 lambda 函数自定义 Compare</span></span><br><span class="line"><span class="comment">// 则需要将其作为构造函数的参数代入，如：</span></span><br><span class="line"><span class="keyword">auto</span> cmp = [](<span class="keyword">const</span> <span class="built_in">std</span>::pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; &amp;l, <span class="keyword">const</span> <span class="built_in">std</span>::pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; &amp;r) &#123;</span><br><span class="line">  <span class="keyword">return</span> l.second &lt; r.second;</span><br><span class="line">&#125;;</span><br><span class="line">std::priority_queue&lt;std::pair&lt;int, int&gt;, std::vector&lt;std::pair&lt;int, int&gt; &gt;,decltype(cmp)&gt; pq(cmp);</span><br></pre></td></tr></table></figure>
+<h6 id="操作-6"><a class="markdownIt-Anchor" href="#操作-6"></a> 操作</h6>
+<p>以下所有函数均为常数复杂度</p>
+<ul>
+<li><code>top()</code> 访问堆顶元素（此时优先队列不能为空）</li>
+<li><code>empty()</code> 询问容器是否为空</li>
+<li><code>size()</code> 查询容器中的元素数量</li>
+</ul>
+<p>以下所有函数均为对数复杂度</p>
+<ul>
+<li><code>push(x)</code> 插入元素，并对底层容器排序</li>
+<li><code>pop()</code> 删除堆顶元素（此时优先队列不能为空）</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::priority_queue&lt;<span class="keyword">int</span>&gt; q1;</span><br><span class="line"><span class="built_in">std</span>::priority_queue&lt;<span class="keyword">int</span>, <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &gt; q2;</span><br><span class="line"><span class="comment">// C++11 后空格可省略</span></span><br><span class="line"><span class="built_in">std</span>::priority_queue&lt;<span class="keyword">int</span>, <span class="built_in">std</span>::<span class="built_in">deque</span>&lt;<span class="keyword">int</span>&gt;, <span class="built_in">std</span>::greater&lt;<span class="keyword">int</span>&gt; &gt; q3;</span><br><span class="line"><span class="comment">// q3 为小根堆</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">5</span>; i++) q1.push(i);</span><br><span class="line"><span class="comment">// q1 中元素 :  [1, 2, 3, 4, 5]</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; q1.top() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"><span class="comment">// 输出结果 : 5</span></span><br><span class="line">q1.pop();</span><br><span class="line"><span class="comment">// 堆中元素 : [1, 2, 3, 4]</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; q1.<span class="built_in">size</span>() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"><span class="comment">// 输出结果 ：4</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">5</span>; i++) q3.push(i);</span><br><span class="line"><span class="comment">// q3 中元素 :  [1, 2, 3, 4, 5]</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; q3.top() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"><span class="comment">// 输出结果 : 1</span></span><br></pre></td></tr></table></figure>
+<h4 id="stl算法"><a class="markdownIt-Anchor" href="#stl算法"></a> STL算法</h4>
+<p>STL 提供了大约 100 个实现算法的模版函数，基本都包含在 <code>&lt;algorithm&gt;</code> 之中，还有一部分包含在 <code>&lt;numeric&gt;</code> 和 <code>&lt;functional&gt;</code></p>
+<ul>
+<li>
+<p><code>find</code>：顺序查找。<code>find(v.begin(), v.end(), value)</code>，其中 <code>value</code> 为需要查找的值。</p>
+</li>
+<li>
+<p><code>find_end</code>：逆序查找。<code>find_end(v.begin(), v.end(), value)</code>。</p>
+</li>
+<li>
+<p><code>reverse</code>：翻转数组、字符串。<code>reverse(v.begin(), v.end())</code> 或 <code>reverse(a + begin, a + end)</code>。</p>
+</li>
+<li>
+<p><code>unique</code>：去除容器中相邻的重复元素。<code>unique(ForwardIterator first, ForwardIterator last)</code>，返回值为指向 <strong>去重后</strong> 容器结尾的迭代器，原容器大小不变。与 <code>sort</code> 结合使用可以实现完整容器去重。</p>
+</li>
+<li>
+<p><code>sort</code>：排序。<code>sort(v.begin(), v.end(), cmp)</code> 或 <code>sort(a + begin, a + end, cmp)</code>，其中 <code>end</code> 是排序的数组最后一个元素的后一位，<code>cmp</code> 为自定义的比较函数。</p>
+</li>
+<li>
+<p><code>stable_sort</code>：稳定排序，用法同 <code>sort()</code>。</p>
+</li>
+<li>
+<p><code>nth_element</code>：按指定范围进行分类，即找出序列中第 大的元素，使其左边均为小于它的数，右边均为大于它的数。<code>nth_element(v.begin(), v.begin() + mid, v.end(), cmp)</code>或 <code>nth_element(a + begin, a + begin + mid, a + end, cmp)</code>。</p>
+</li>
+<li>
+<p><code>binary_search</code>：二分查找。<code>binary_search(v.begin(), v.end(), value)</code>，其中 <code>value</code> 为需要查找的值。</p>
+</li>
+<li>
+<p><code>merge</code>：将两个（已排序的）序列 <strong>有序合并</strong> 到第三个序列的 <strong>插入迭代器</strong>上。<code>merge(v1.begin(), v1.end(), v2.begin(), v2.end() ,back_inserter(v3))</code>。</p>
+</li>
+<li>
+<p><code>inplace_merge</code>：将两个（已按小于运算符排序的）：<code>[first,middle), [middle,last)</code>范围 <strong>原地合并为一个有序序列</strong>。<code>inplace_merge(v.begin(), v.begin() + middle, v.end())</code>。</p>
+</li>
+<li>
+<p><code>lower_bound</code>：在一个有序序列中进行二分查找，返回指向第一个 <strong>大于等于</strong> 的元素的位置的迭代器。如果不存在这样的元素，则返回尾迭代器。<code>lower_bound(v.begin(),v.end(),x)</code>。</p>
+</li>
+<li>
+<p><code>upper_bound</code>：在一个有序序列中进行二分查找，返回指向第一个 <strong>大于</strong> 的元素的位置的迭代器。如果不存在这样的元素，则返回尾迭代器。<code>upper_bound(v.begin(),v.end(),x)</code></p>
+</li>
+</ul>
+<h4 id="bitset"><a class="markdownIt-Anchor" href="#bitset"></a> bitSet</h4>
+<p><code>std::bitset</code> 是标准库中的一个存储 <code>0/1</code> 的大小不可变容器。严格来讲，它并不属于 STL。由于内存地址是按字节即 <code>byte</code> 寻址，而非比特 <code>bit</code>，一个 <code>bool</code> 类型的变量，虽然只能表示 <code>0/1</code>, 但是也占了 1 byte 的内存。<code>bitset</code> 就是通过固定的优化，使得一个字节的八个比特能分别储存 8 位的 <code>0/1</code></p>
+<h5 id="操作-7"><a class="markdownIt-Anchor" href="#操作-7"></a> 操作</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bitset&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">bitset</span>&lt;1000&gt; bs;  <span class="comment">// a bitset with 1000 bits</span></span><br></pre></td></tr></table></figure>
+<h5 id="构造函数"><a class="markdownIt-Anchor" href="#构造函数"></a> 构造函数</h5>
+<ul>
+<li><code>bitset()</code>: 每一位都是 <code>false</code>。</li>
+<li><code>bitset(unsigned long val)</code>: 设为 <code>val</code> 的二进制形式。</li>
+<li><code>bitset(const string&amp; str)</code>: 设为 串 <code>str</code>。</li>
+</ul>
+<h5 id="运算符"><a class="markdownIt-Anchor" href="#运算符"></a> 运算符</h5>
+<ul>
+<li><code>operator []</code>: 访问其特定的一位。</li>
+<li><code>operator ==/!=</code>: 比较两个 <code>bitset</code> 内容是否完全一样。</li>
+<li><code>operator &amp;/&amp;=/|/| =/^/^=/~</code>: 进行按位与/或/异或/取反操作。<strong><code>bitset</code> 只能与 <code>bitset</code>进行位运算</strong>，若要和整型进行位运算，要先将整型转换为 <code>bitset</code>。</li>
+<li><code>operator &lt;&gt;/&lt;&lt;=/&gt;&gt;=</code>: 进行二进制左移/右移。</li>
+<li><code>operator &lt;&gt;</code>: 流运算符，这意味着你可以通过 <code>cin/cout</code> 进行输入输出</li>
+</ul>
+<h5 id="成员函数"><a class="markdownIt-Anchor" href="#成员函数"></a> 成员函数</h5>
+<ul>
+<li><code>count()</code>: 返回 <code>true</code> 的数量。</li>
+<li><code>size()</code>: 返回 <code>bitset</code> 的大小。</li>
+<li><code>test(pos)</code>: 它和 <code>vector</code> 中的 <code>at()</code> 的作用是一样的，和 <code>[]</code> 运算符的区别就是越界检查。</li>
+<li><code>any()</code>: 若存在某一位是 <code>true</code> 则返回 <code>true</code>，否则返回 <code>false</code>。</li>
+<li><code>none()</code>: 若所有位都是 <code>false</code> 则返回 <code>true</code>，否则返回 <code>false</code>。</li>
+<li><code>all()</code>: 若所有位都是 <code>true</code> 则返回 <code>true</code>，否则返回 <code>false</code>。</li>
+<li>
+<ol>
+<li><code>set()</code>: 将整个 <code>bitset</code> 设置成 <code>true</code>。</li>
+<li><code>set(pos, val = true)</code>: 将某一位设置成 <code>true</code>/<code>false</code>。</li>
+</ol>
+</li>
+<li>
+<ol>
+<li><code>reset()</code>: 将整个 <code>bitset</code> 设置成 <code>false</code>。</li>
+<li><code>reset(pos)</code>: 将某一位设置成 <code>false</code>。相当于 <code>set(pos, false)</code>。</li>
+</ol>
+</li>
+<li>
+<ol>
+<li><code>flip()</code>: 翻转每一位。（，相当于异或一个全是 的 <code>bitset</code>）</li>
+<li><code>flip(pos)</code>: 翻转某一位。</li>
+</ol>
+</li>
+<li><code>to_string()</code>: 返回转换成的字符串表达。</li>
+<li><code>to_ulong()</code>: 返回转换成的 <code>unsigned long</code> 表达 (<code>long</code> 在 NT 及 32 位 POSIX 系统下与 <code>int</code> 一样，在 64 位 POSIX 下与 <code>long long</code> 一样）。</li>
+<li><code>to_ullong()</code>:返回转换成的 <code>unsigned long long</code> 表达</li>
+</ul>
+<h4 id="string"><a class="markdownIt-Anchor" href="#string"></a> string</h4>
+<p><code>std::string</code> 是在标准库 <code>&lt;string&gt;</code>（注意不是 C 语言中的 <code>&lt;string.h&gt;</code> 库）中提供的一个类，本质上是 <code>std::basic_string&lt;char&gt;</code> 的别称</p>
+<p>和许多 STL 容器相同，<strong><code>string</code> 能动态分配空间</strong>，所以可以直接使用 <code>std::cin</code> 来输入，但其速度则同样较慢。</p>
+<p><code>string</code> 的加法运算符可以直接拼接两个字符串或一个字符串和一个字符。和 <code>std::vector</code> 类似，<code>string</code> 重载了比较运算符，同样是按字典序比较的，所以可以直接调用 <code>std::sort</code> 对若干字符串进行排序</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">printf</span>(<span class="string">"%s"</span>, s);          <span class="comment">// 编译错误</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">"%s"</span>, s.data());   <span class="comment">// 编译通过，但是是 undefined behavior</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">"%s"</span>, s.c_str());  <span class="comment">// 一定能够正确输出</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">"s 的长度为 %lu"</span>, s.<span class="built_in">size</span>());</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">"s 的长度为 %lu"</span>, s.length());</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">"s 的长度为 %lu"</span>, <span class="built_in">strlen</span>(s.c_str()));</span><br></pre></td></tr></table></figure>
+<h5 id="操作-8"><a class="markdownIt-Anchor" href="#操作-8"></a> 操作</h5>
+<ul>
+<li><code>find(str,pos)</code> 函数可以用来查找字符串中一个字符/字符串在 <code>pos</code>（含）之后第一次出现的位置（若不传参给 <code>pos</code> 则默认为 <code>0</code>）。如果没有出现，则返回 <code>string::npos</code>（被定义为 <code>-1</code>，但类型仍为 <code>size_t</code>/<code>unsigned long</code>）</li>
+<li><code>substr(pos, len)</code> 函数的参数返回从 <code>pos</code> 位置开始截取最多 <code>len</code> 个字符组成的字符串（如果从 <code>pos</code> 开始的后缀长度不足 <code>len</code> 则截取这个后缀）</li>
+<li><code>insert(index,count,ch)</code>和 <code>insert(index,str)</code> 是比较常见的插入函数。它们分别表示在 <code>index</code> 处连续插入 <code>count</code> 次字符串 <code>ch</code> 和插入字符串 <code>str</code></li>
+<li><code>replace(pos,count,str)</code> 和 <code>replace(first,last,str)</code> 是比较常见的替换函数。它们分别表示将从 <code>pos</code> 位置开始 <code>count</code> 个字符的子串替换为 <code>str</code> 以及将以 <code>first</code> 开始（含）、<code>last</code> 结束（不含）的子串替换为 <code>str</code>，其中 <code>first</code> 和 <code>last</code> 均为迭代器</li>
+</ul>
+<h4 id="pair"><a class="markdownIt-Anchor" href="#pair"></a> pair</h4>
+<p><code>std::pair</code> 是标准库中定义的一个类模板。用于将两个变量关联在一起，组成一个“对”，而且两个变量的数据类型可以是不同的</p>
+<h5 id="定义-4"><a class="markdownIt-Anchor" href="#定义-4"></a> 定义</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">pair&lt;int, double&gt; p0(1, 2.0);</span><br><span class="line"></span><br><span class="line"><span class="comment">//先定义后赋值</span></span><br><span class="line">pair&lt;<span class="keyword">int</span>, <span class="keyword">double</span>&gt; p1;</span><br><span class="line">p1.first = <span class="number">1</span>;</span><br><span class="line">p1.second = <span class="number">2.0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用 make_pair</span></span><br><span class="line">pair&lt;<span class="keyword">int</span>, <span class="keyword">double</span>&gt; p2 = make_pair(<span class="number">1</span>, <span class="number">2.0</span>);</span><br></pre></td></tr></table></figure>
+<h5 id="访问"><a class="markdownIt-Anchor" href="#访问"></a> 访问</h5>
+<p>通过成员函数 <code>first</code> 与 <code>second</code>，可以访问 <code>pair</code> 中包含的两个变量</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i = p0.first;</span><br><span class="line"><span class="keyword">double</span> d = p0.second;</span><br><span class="line"></span><br><span class="line"><span class="comment">//也可以直接修改</span></span><br><span class="line">p1.first++;</span><br></pre></td></tr></table></figure>
+<h5 id="比较"><a class="markdownIt-Anchor" href="#比较"></a> 比较</h5>
+<p><code>pair</code> 已经预先定义了所有的比较运算符，包括 <code>&lt;</code>、<code>&gt;</code>、<code>&lt;=</code>、<code>&gt;=</code>、<code>==</code>、<code>!=</code>。当然，这需要组成 <code>pair</code> 的两个变量所属的数据类型定义了 <code>==</code> 和/或 <code>&lt;</code> 运算符。</p>
+<p>其中，<code>&lt;</code>、<code>&gt;</code>、<code>&lt;=</code>、<code>&gt;=</code> 四个运算符会先比较两个 <code>pair</code> 中的第一个变量，在第一个变量相等的情况下再比较第二个变量。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (p2 &gt;= p3) &#123;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">"do something here"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于 <code>pair</code> 定义了 STL 中常用的 <code>&lt;</code> 与 <code>==</code>，使得其能够很好的与其他 STL 函数或数据结构配合</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">priority_queue&lt;pair&lt;<span class="keyword">int</span>, <span class="keyword">double</span>&gt; &gt; q;</span><br></pre></td></tr></table></figure>
+<h5 id="赋值与交换"><a class="markdownIt-Anchor" href="#赋值与交换"></a> 赋值与交换</h5>
+<p>可以将 <code>pair</code> 的值赋给另一个类型一致的 <code>pair</code>，也可以使用 <code>swap</code> 函数交换 <code>pair</code> 的值</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">p0 = p1;</span><br><span class="line"></span><br><span class="line">swap(p0, p1);</span><br><span class="line">p2.swap(p3);</span><br></pre></td></tr></table></figure>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://oi.wiki/lang/helloworld/" target="_blank" rel="noopener">https://oi.wiki/lang/helloworld/</a></li>
+<li><a href="https://zh.cppreference.com/w/cpp/container/vector" target="_blank" rel="noopener">https://zh.cppreference.com/w/cpp/container/vector</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/11/05/Algorithm/%E7%AE%97%E6%B3%95-001-%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/" title="算法-001-语言基础" target="_blank" rel="external">http://xboom.github.io/2022/11/05/Algorithm/算法-001-语言基础/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me the code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2022/10/14/Grpc/Grpc-03-%E8%A7%A3%E6%9E%90%E5%99%A8/" title="Grpc-03-解析器"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+</body>
+</html>
