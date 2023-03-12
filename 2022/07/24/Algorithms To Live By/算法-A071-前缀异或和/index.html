@@ -17,21 +17,21 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>设计模式-组合模式 | XBoom Dove</title>
-  <meta name="description" content="组合模式是一种结构型设计模式， 你可以使用它将对象组合成树状结构， 并且能像使用独立对象一样使用它们  实现代码 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576">
+  <title>算法-A071-前缀异或和 | XBoom Dove</title>
+  <meta name="description" content="前缀异或和问题是通过 前缀和 + 状态压缩 + 哈希表来处理连续 xxx 问题，发现是有规律的  通过前缀异或和获取每个位置的状态 使用哈希表记录每个状态第一次出现的位置 如果状态小于一定数量，可以通过状态压缩(BitMask)记录   问题 问题1：统计美丽子数组数目 12345678910111213141516171819class Solution &amp;#123;public:    lon">
 <meta property="og:type" content="article">
-<meta property="og:title" content="设计模式-组合模式">
-<meta property="og:url" content="http://xboom.github.io/2022/08/14/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:title" content="算法-A071-前缀异或和">
+<meta property="og:url" content="http://xboom.github.io/2022/07/24/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-A071-%E5%89%8D%E7%BC%80%E5%BC%82%E6%88%96%E5%92%8C/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="组合模式是一种结构型设计模式， 你可以使用它将对象组合成树状结构， 并且能像使用独立对象一样使用它们  实现代码 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576">
+<meta property="og:description" content="前缀异或和问题是通过 前缀和 + 状态压缩 + 哈希表来处理连续 xxx 问题，发现是有规律的  通过前缀异或和获取每个位置的状态 使用哈希表记录每个状态第一次出现的位置 如果状态小于一定数量，可以通过状态压缩(BitMask)记录   问题 问题1：统计美丽子数组数目 12345678910111213141516171819class Solution &amp;#123;public:    lon">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-08-14T10:02:10.000Z">
-<meta property="article:modified_time" content="2022-08-14T10:02:10.000Z">
+<meta property="article:published_time" content="2022-07-24T06:48:35.000Z">
+<meta property="article:modified_time" content="2023-03-12T14:42:13.600Z">
 <meta property="article:author" content="XBoom Dove">
-<meta property="article:tag" content="Design Patterns">
+<meta property="article:tag" content="Algorithms To Live By">
 <meta name="twitter:card" content="summary">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://xboom.github.io/2022/08/14/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/index.html">
+  <link rel="canonical" href="http://xboom.github.io/2022/07/24/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-A071-%E5%89%8D%E7%BC%80%E5%BC%82%E6%88%96%E5%92%8C/index.html">
   
   
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -323,21 +323,21 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#实现代码"><span class="toc-number">1.</span> <span class="toc-text"> 实现代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#单元测试"><span class="toc-number">2.</span> <span class="toc-text"> 单元测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">4.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题"><span class="toc-number">1.</span> <span class="toc-text"> 问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">2.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#顺序练习"><span class="toc-number">3.</span> <span class="toc-text"> 顺序练习</span></a></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Design Patterns/设计模式-组合模式" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Algorithms To Live By/算法-A071-前缀异或和" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      设计模式-组合模式
+      算法-A071-前缀异或和
     </h1>
   
 
@@ -345,20 +345,20 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2022/08/14/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/" class="article-date">
-	  <time datetime="2022-08-14T10:02:10.000Z" itemprop="datePublished">2022-08-14</time>
+	<a href="/2022/07/24/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-A071-%E5%89%8D%E7%BC%80%E5%BC%82%E6%88%96%E5%92%8C/" class="article-date">
+	  <time datetime="2022-07-24T06:48:35.000Z" itemprop="datePublished">2022-07-24</time>
 	</a>
 </span>
         
   <span class="article-category">
     <i class="icon icon-folder"></i>
-    <a class="article-category-link" href="/categories/Design-Patterns/">Design Patterns</a>
+    <a class="article-category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
   </span>
 
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a>
+	<a class="article-tag-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a>
   </span>
 
 
@@ -366,30 +366,67 @@
 
 	<span class="article-read hidden-xs">
     	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2022/08/14/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/" class="leancloud_visitors"  data-flag-title="设计模式-组合模式">0</span>
+    	<span id="/2022/07/24/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-A071-%E5%89%8D%E7%BC%80%E5%BC%82%E6%88%96%E5%92%8C/" class="leancloud_visitors"  data-flag-title="算法-A071-前缀异或和">0</span>
     </span>
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/08/14/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/#comments" class="article-comment-link">Comments</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/07/24/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-A071-%E5%89%8D%E7%BC%80%E5%BC%82%E6%88%96%E5%92%8C/#comments" class="article-comment-link">Comments</a></span>
         
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p><strong>组合模式</strong>是一种结构型设计模式， 你可以使用它将对象组合成树状结构， 并且能像使用独立对象一样使用它们</p>
-<h3 id="实现代码"><a class="markdownIt-Anchor" href="#实现代码"></a> 实现代码</h3>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> composite</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Component <span class="keyword">interface</span> &#123;</span><br><span class="line">	Parent() Component</span><br><span class="line">	SetParent(Component)</span><br><span class="line">	Name() <span class="keyword">string</span></span><br><span class="line">	SetName(<span class="keyword">string</span>)</span><br><span class="line">	AddChild(Component)</span><br><span class="line">	Print(<span class="keyword">string</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	LeafNode = <span class="literal">iota</span></span><br><span class="line">	CompositeNode</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewComponent</span><span class="params">(kind <span class="keyword">int</span>, name <span class="keyword">string</span>)</span> <span class="title">Component</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> c Component</span><br><span class="line">	<span class="keyword">switch</span> kind &#123;</span><br><span class="line">	<span class="keyword">case</span> LeafNode:</span><br><span class="line">		c = NewLeaf()</span><br><span class="line">	<span class="keyword">case</span> CompositeNode:</span><br><span class="line">		c = NewComposite()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	c.SetName(name)</span><br><span class="line">	<span class="keyword">return</span> c</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> component <span class="keyword">struct</span> &#123;</span><br><span class="line">	parent Component</span><br><span class="line">	name   <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *component)</span> <span class="title">Parent</span><span class="params">()</span> <span class="title">Component</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> c.parent</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *component)</span> <span class="title">SetParent</span><span class="params">(parent Component)</span></span> &#123;</span><br><span class="line">	c.parent = parent</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *component)</span> <span class="title">Name</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> c.name</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *component)</span> <span class="title">SetName</span><span class="params">(name <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	c.name = name</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *component)</span> <span class="title">AddChild</span><span class="params">(Component)</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *component)</span> <span class="title">Print</span><span class="params">(<span class="keyword">string</span>)</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Leaf <span class="keyword">struct</span> &#123;</span><br><span class="line">	component</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewLeaf</span><span class="params">()</span> *<span class="title">Leaf</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;Leaf&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Leaf)</span> <span class="title">Print</span><span class="params">(pre <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">"%s-%s\n"</span>, pre, c.Name())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Composite <span class="keyword">struct</span> &#123;</span><br><span class="line">	component</span><br><span class="line">	childs []Component</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewComposite</span><span class="params">()</span> *<span class="title">Composite</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;Composite&#123;</span><br><span class="line">		childs: <span class="built_in">make</span>([]Component, <span class="number">0</span>),</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Composite)</span> <span class="title">AddChild</span><span class="params">(child Component)</span></span> &#123;</span><br><span class="line">	child.SetParent(c)</span><br><span class="line">	c.childs = <span class="built_in">append</span>(c.childs, child)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Composite)</span> <span class="title">Print</span><span class="params">(pre <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">"%s+%s\n"</span>, pre, c.Name())</span><br><span class="line">	pre += <span class="string">" "</span></span><br><span class="line">	<span class="keyword">for</span> _, comp := <span class="keyword">range</span> c.childs &#123;</span><br><span class="line">		comp.Print(pre)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="单元测试"><a class="markdownIt-Anchor" href="#单元测试"></a> 单元测试</h3>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> composite</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ExampleComposite</span><span class="params">()</span></span> &#123;</span><br><span class="line">	root := NewComponent(CompositeNode, <span class="string">"root"</span>)</span><br><span class="line">	c1 := NewComponent(CompositeNode, <span class="string">"c1"</span>)</span><br><span class="line">	c2 := NewComponent(CompositeNode, <span class="string">"c2"</span>)</span><br><span class="line">	c3 := NewComponent(CompositeNode, <span class="string">"c3"</span>)</span><br><span class="line"></span><br><span class="line">	l1 := NewComponent(LeafNode, <span class="string">"l1"</span>)</span><br><span class="line">	l2 := NewComponent(LeafNode, <span class="string">"l2"</span>)</span><br><span class="line">	l3 := NewComponent(LeafNode, <span class="string">"l3"</span>)</span><br><span class="line"></span><br><span class="line">	root.AddChild(c1)</span><br><span class="line">	root.AddChild(c2)</span><br><span class="line">	c1.AddChild(c3)</span><br><span class="line">	c1.AddChild(l1)</span><br><span class="line">	c2.AddChild(l2)</span><br><span class="line">	c2.AddChild(l3)</span><br><span class="line"></span><br><span class="line">	root.Print(<span class="string">""</span>)</span><br><span class="line">	<span class="comment">// Output:</span></span><br><span class="line">	<span class="comment">// +root</span></span><br><span class="line">	<span class="comment">//  +c1</span></span><br><span class="line">	<span class="comment">//   +c3</span></span><br><span class="line">	<span class="comment">//   -l1</span></span><br><span class="line">	<span class="comment">//  +c2</span></span><br><span class="line">	<span class="comment">//   -l2</span></span><br><span class="line">	<span class="comment">//   -l3</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <p>前缀异或和问题是通过 前缀和 + 状态压缩 + 哈希表来处理连续 xxx 问题，发现是有规律的</p>
+<ul>
+<li>通过前缀异或和获取每个位置的状态</li>
+<li>使用哈希表记录每个状态第一次出现的位置</li>
+<li>如果状态小于一定数量，可以通过状态压缩(BitMask)记录</li>
+</ul>
+<h3 id="问题"><a class="markdownIt-Anchor" href="#问题"></a> 问题</h3>
+<p><strong>问题1</strong>：统计美丽子数组数目</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">long</span> <span class="keyword">long</span> <span class="title">beautifulSubarrays</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> <span class="keyword">long</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">//计算前缀异或和！！！</span></span><br><span class="line">        <span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">temp</span><span class="params">(nums.<span class="built_in">size</span>() + <span class="number">1</span>)</span></span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            temp[i + <span class="number">1</span>] = temp[i] ^ nums[i]; <span class="comment">//temp[i] 表示包含了 nums[i] 的异或和</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//计算数据对总数！！！</span></span><br><span class="line">        <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;dict;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> x : temp) &#123;</span><br><span class="line">            <span class="comment">//printf("%d %d \n", x, dict[x]);</span></span><br><span class="line">            res += dict[x]++;   <span class="comment">//这样算，每次 加1 类似 1 + 2 + 3 + n -&gt; 计算 n个数字一共有多少个数据对</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这里有两个知识点：</p>
+<ol>
+<li>子数组的异或和等于前缀和的异或和 <code>AB ^ A = B</code></li>
+<li>注意 <code>res += dict[mod]++;</code>,可以理解为动态计算 <code>1 + 2 + 3 + .... + n</code></li>
+</ol>
+<p>问题2：和可被 K 整除的子数组</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">subarraysDivByK</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; dict;</span><br><span class="line">        dict[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> s = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            s += nums[i];</span><br><span class="line">						<span class="comment">//当被除数为负数时取模结果为负数，需要纠正(保证取余一定为正)</span></span><br><span class="line">            <span class="keyword">int</span> mod = (s % k + k) % k;</span><br><span class="line">            res += dict[mod]++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这里的知识点表示：</p>
+<ol>
+<li>
+<p>C++取余是向0取整，所以就有</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">7</span>/<span class="number">4</span>= <span class="number">1</span></span><br><span class="line"><span class="number">7</span>/(<span class="number">-4</span>)= <span class="number">-1</span></span><br><span class="line"><span class="number">7</span>%<span class="number">4</span>= <span class="number">3</span></span><br><span class="line"><span class="number">7</span>%(<span class="number">-4</span>)= <span class="number">3</span></span><br><span class="line">(<span class="number">-7</span>)/<span class="number">4</span>= <span class="number">-1</span></span><br><span class="line">(<span class="number">-7</span>)%<span class="number">4</span>= <span class="number">-3</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>一个负数取余可能出现模为负数的情况，可以通过 <code>mod = (s % k + k) % k</code> 解决</p>
+</li>
+</ol>
+<p>问题3：找出最长的超赞子字符串</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">longestAwesome</span><span class="params">(<span class="built_in">string</span> s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> temp = <span class="number">0</span>;</span><br><span class="line">        <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; dict;</span><br><span class="line">        <span class="keyword">int</span> l = <span class="number">0</span>;</span><br><span class="line">        dict[<span class="number">0</span>] = <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            temp ^= (<span class="number">1</span> &lt;&lt; (s[i] - <span class="string">'0'</span>));</span><br><span class="line"></span><br><span class="line">						<span class="comment">//status1 与 status2 两个状态相同，那么所有的都出现了偶数次</span></span><br><span class="line">            <span class="keyword">if</span>(dict.count(temp) != <span class="number">0</span>) &#123;</span><br><span class="line">                l = <span class="built_in">max</span>(l, i - dict[temp]);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                dict[temp] = i;</span><br><span class="line">            &#125;</span><br><span class="line">						<span class="comment">//status1 与 status2 只差一位不同，找出这一位</span></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> k = <span class="number">0</span>; k &lt; <span class="number">10</span>; k++) &#123;</span><br><span class="line">                <span class="keyword">if</span>(dict.count(temp ^ (<span class="number">1</span> &lt;&lt; k))) &#123;</span><br><span class="line">                    l = <span class="built_in">max</span>(l, i - dict[temp ^ (<span class="number">1</span> &lt;&lt; k)]);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> l;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>注意点：</p>
+<ol>
+<li>为什么在查找 只差一位的情况时没有进行存储，因为当前前缀异或和的值是 <code>temp</code></li>
+</ol>
 <h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
 <ul>
-<li>可以利用多态和递归机制更方便地使用复杂树结构。</li>
-<li><em>开闭原则</em>。 无需更改现有代码， 就可以在应用中添加新元素， 使其成为对象树的一部分</li>
+<li>遇到奇偶个数校验，想到 <strong>XOR</strong></li>
+<li>遇到有限的参数(小于20个)表状态， 想到<strong>状态压缩</strong> （bitmask）</li>
+<li>遇到求最长的连续子串使得和为k 想到 <strong>前缀和 + 哈希表</strong> 记录第一次出现某一状态的位置。</li>
 </ul>
-<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
-<ol>
-<li><a href="https://refactoringguru.cn/design-patterns/composite" target="_blank" rel="noopener">https://refactoringguru.cn/design-patterns/composite</a></li>
-<li><a href="https://lailin.xyz/post/composite.html" target="_blank" rel="noopener">https://lailin.xyz/post/composite.html</a></li>
-</ol>
+<h3 id="顺序练习"><a class="markdownIt-Anchor" href="#顺序练习"></a> 顺序练习</h3>
+<ul>
+<li>两数之和</li>
+<li>和为K的子数组</li>
+<li>和可被K整除的子数组</li>
+<li>使数组和能被 P 整除</li>
+<li>连续的子数组和</li>
+<li>连续数组</li>
+<li>面试题 17.05. 字母与数字</li>
+<li>最美子字符串的数目</li>
+<li>和相同的二元子数组</li>
+<li>每个元音包含偶数次的最长子字符串</li>
+<li>找出最长的超赞子字符串</li>
+</ul>
 
       
     </div>
@@ -400,7 +437,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://xboom.github.io/2022/08/14/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/" title="设计模式-组合模式" target="_blank" rel="external">http://xboom.github.io/2022/08/14/Design Patterns/设计模式-组合模式/</a>
+      <a href="http://xboom.github.io/2022/07/24/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-A071-%E5%89%8D%E7%BC%80%E5%BC%82%E6%88%96%E5%92%8C/" title="算法-A071-前缀异或和" target="_blank" rel="external">http://xboom.github.io/2022/07/24/Algorithms To Live By/算法-A071-前缀异或和/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -448,12 +485,12 @@
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/2022/08/14/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" title="设计模式-单例模式"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+      <a href="/2022/07/31/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/" title="微服务-缓存一致性"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
     </li>
     
     
     <li class="next">
-      <a href="/2022/08/14/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F/" title="设计模式-解释器模式"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2022/07/22/GoZero/GoZero8-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%93%E5%AD%98/" title="go-zero8-数据库缓存"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
