@@ -27,25 +27,29 @@ var _hmt = _hmt || [];
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>算法之美-LRU | XBoom Dove</title>
-  <meta name="description" content="问题背景 LRU(Least Recently Used)，最近最少使用。根据时间维度来选择将要淘汰的元素，即删除掉最长时间没被访问的元素。 实现一个LRU算法需要解决的问题：  一个存储最近使用元素的结构，能够快速定位到元素(map) 如何计算元素被最少使用了，当添加或更新元素的时候方便查询最少使用元素(双向链表) 最近最少使用存在数量上限。(容量capacity)   实现原理  双向链表按">
+  <title>MySql入门1-一条sql | XBoom Dove</title>
+  <meta name="description" content="一条SQL MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么   连接器 连接器：负责跟客户端建立连接、获取权限、维持和管理连接  连接命令：mysql -h$ip -P$port -u$user -p  连接默认端口是3306，可通过修改my.cnf配置文件指定端口 如果客户端太长时间没动静，连接器会自动断开。由参数wait_timeout控制的，默认值是8小时  s">
 <meta property="og:type" content="article">
-<meta property="og:title" content="算法之美-LRU">
-<meta property="og:url" content="http://xboom.github.io/2022/01/13/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-LRU/index.html">
+<meta property="og:title" content="MySql入门1-一条sql">
+<meta property="og:url" content="http://xboom.github.io/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A81-%E4%B8%80%E6%9D%A1sql/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="问题背景 LRU(Least Recently Used)，最近最少使用。根据时间维度来选择将要淘汰的元素，即删除掉最长时间没被访问的元素。 实现一个LRU算法需要解决的问题：  一个存储最近使用元素的结构，能够快速定位到元素(map) 如何计算元素被最少使用了，当添加或更新元素的时候方便查询最少使用元素(双向链表) 最近最少使用存在数量上限。(容量capacity)   实现原理  双向链表按">
+<meta property="og:description" content="一条SQL MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么   连接器 连接器：负责跟客户端建立连接、获取权限、维持和管理连接  连接命令：mysql -h$ip -P$port -u$user -p  连接默认端口是3306，可通过修改my.cnf配置文件指定端口 如果客户端太长时间没动静，连接器会自动断开。由参数wait_timeout控制的，默认值是8小时  s">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/algori-Live-1.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/algori-live-lru-1.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/algori-live-lru-2.png">
-<meta property="article:published_time" content="2022-01-12T16:05:08.000Z">
-<meta property="article:modified_time" content="2022-07-24T06:48:35.000Z">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210718145041.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-9.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-10.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-11.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-12.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-13.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-14.png">
+<meta property="article:published_time" content="2021-07-21T23:20:02.000Z">
+<meta property="article:modified_time" content="2023-03-26T14:23:26.389Z">
 <meta property="article:author" content="XBoom Dove">
-<meta property="article:tag" content="Algorithms To Live By">
+<meta property="article:tag" content="MySql">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/algori-Live-1.png">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210718145041.png">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://xboom.github.io/2022/01/13/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-LRU/index.html">
+  <link rel="canonical" href="http://xboom.github.io/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A81-%E4%B8%80%E6%9D%A1sql/index.html">
   
   
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -337,21 +341,21 @@ var _hmt = _hmt || [];
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题背景"><span class="toc-number">1.</span> <span class="toc-text"> 问题背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现原理"><span class="toc-number">2.</span> <span class="toc-text"> 实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#删除节点"><span class="toc-number">2.1.</span> <span class="toc-text"> 删除节点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#新增节点"><span class="toc-number">2.2.</span> <span class="toc-text"> 新增节点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#技术内幕"><span class="toc-number">3.</span> <span class="toc-text"> 技术内幕</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#对象定义"><span class="toc-number">3.1.</span> <span class="toc-text"> 对象定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#删除元素"><span class="toc-number">3.2.</span> <span class="toc-text"> 删除元素</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#添加元素"><span class="toc-number">3.3.</span> <span class="toc-text"> 添加元素</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">4.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一条sql"><span class="toc-number">1.</span> <span class="toc-text"> 一条SQL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#连接器"><span class="toc-number">1.1.</span> <span class="toc-text"> 连接器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询缓存"><span class="toc-number">1.2.</span> <span class="toc-text"> 查询缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#分析器"><span class="toc-number">1.3.</span> <span class="toc-text"> 分析器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询优化器"><span class="toc-number">1.4.</span> <span class="toc-text"> 查询优化器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#执行器"><span class="toc-number">1.5.</span> <span class="toc-text"> 执行器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bin-log"><span class="toc-number">1.6.</span> <span class="toc-text"> bin log</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#inndb-存储引擎"><span class="toc-number">1.7.</span> <span class="toc-text"> Inndb 存储引擎</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#buffer-pool"><span class="toc-number">1.7.1.</span> <span class="toc-text"> buffer Pool</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#undo-log"><span class="toc-number">1.7.2.</span> <span class="toc-text"> undo log</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#redo-log"><span class="toc-number">1.7.3.</span> <span class="toc-text"> redo log</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">2.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Algorithms To Live By/算法之美-LRU" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-MySql/MySql入门1-一条sql" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      算法之美-LRU
+      MySql入门1-一条sql
     </h1>
   
 
@@ -359,20 +363,20 @@ var _hmt = _hmt || [];
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2022/01/13/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-LRU/" class="article-date">
-	  <time datetime="2022-01-12T16:05:08.000Z" itemprop="datePublished">2022-01-13</time>
+	<a href="/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A81-%E4%B8%80%E6%9D%A1sql/" class="article-date">
+	  <time datetime="2021-07-21T23:20:02.000Z" itemprop="datePublished">2021-07-22</time>
 	</a>
 </span>
         
   <span class="article-category">
     <i class="icon icon-folder"></i>
-    <a class="article-category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
+    <a class="article-category-link" href="/categories/MySql/">MySql</a>
   </span>
 
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a>
+	<a class="article-tag-link" href="/tags/MySql/" rel="tag">MySql</a>
   </span>
 
 
@@ -380,49 +384,195 @@ var _hmt = _hmt || [];
 
 	<span class="article-read hidden-xs">
     	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2022/01/13/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-LRU/" class="leancloud_visitors"  data-flag-title="算法之美-LRU">0</span>
+    	<span id="/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A81-%E4%B8%80%E6%9D%A1sql/" class="leancloud_visitors"  data-flag-title="MySql入门1-一条sql">0</span>
     </span>
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/01/13/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-LRU/#comments" class="article-comment-link">Comments</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A81-%E4%B8%80%E6%9D%A1sql/#comments" class="article-comment-link">Comments</a></span>
         
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <h3 id="问题背景"><a class="markdownIt-Anchor" href="#问题背景"></a> 问题背景</h3>
-<p>LRU(Least Recently Used)，最近最少使用。根据时间维度来选择将要淘汰的元素，即删除掉最长时间没被访问的元素。</p>
-<p>实现一个LRU算法需要解决的问题：</p>
+        <h3 id="一条sql"><a class="markdownIt-Anchor" href="#一条sql"></a> 一条SQL</h3>
+<p>MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210718145041.png" alt="image-20210718145041739" style="zoom:50%;" />
+<h4 id="连接器"><a class="markdownIt-Anchor" href="#连接器"></a> 连接器</h4>
+<p><strong>连接器</strong>：负责跟客户端建立连接、获取权限、维持和管理连接</p>
+<blockquote>
+<p>连接命令：<code>mysql -h$ip -P$port -u$user -p</code></p>
+</blockquote>
+<p>连接默认端口是<strong>3306</strong>，可通过修改<code>my.cnf</code>配置文件指定端口</p>
+<p>如果客户端太长时间没动静，连接器会自动断开。由参数wait_timeout控制的，默认值是8小时</p>
+<blockquote>
+<p>show variables like ‘wait_timeout’;</p>
+</blockquote>
 <ol>
-<li>一个存储最近使用元素的结构，能够快速定位到元素(map)</li>
-<li>如何计算元素被最少使用了，当添加或更新元素的时候方便查询最少使用元素(双向链表)</li>
-<li>最近最少使用存在数量上限。(容量capacity)</li>
+<li>定期断开长连接。使用一段时间，或者程序里面判断执行过一个占用内存的大查询后，断开连接，之后要查询再重连。</li>
+<li>如果你用的是 MySQL 5.7 或更新版本，可在每次执行一个比较大的操作后，通过执 <em>mysql_reset_connection</em> 来重新初始化连接资源。这个过程不需要重连和重新做权限验证，但是会将连接恢复到刚刚创建完时的状态</li>
 </ol>
-<h3 id="实现原理"><a class="markdownIt-Anchor" href="#实现原理"></a> 实现原理</h3>
+<p>可以使用TCP/IP套接字，命名管道和共享内存，UNIX域套接字进行连接</p>
+<h4 id="查询缓存"><a class="markdownIt-Anchor" href="#查询缓存"></a> 查询缓存</h4>
+<p>查询缓存：连接建立完成后，就可以执行 select 语句了，执行查询缓存。</p>
+<p><strong>之前执行过的语句及其结果可能会以 key-value 对的形式，被直接缓存在内存中</strong>，key 是查询的语句，value 是查询的结果</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#关闭缓存</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> query_cache_type = <span class="keyword">OFF</span>;</span><br><span class="line"><span class="comment">#查看缓存是否被禁用</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">VARIABLES</span> <span class="keyword">LIKE</span> <span class="string">'query_cache_type'</span>;</span><br></pre></td></tr></table></figure>
+<p>查询缓存默认是开启的，但是在8.0版本之后已经弃用了查询缓存功能</p>
+<h4 id="分析器"><a class="markdownIt-Anchor" href="#分析器"></a> 分析器</h4>
+<p>分析器的作用就是将 Mysql 语句解析成数据库自己认识的样子</p>
+<h4 id="查询优化器"><a class="markdownIt-Anchor" href="#查询优化器"></a> 查询优化器</h4>
+<p>当语句被解析成自己认识的样子之后，并不是立即就执行，而是按照自己认为效率最高的方式去执行，即<strong>最优查询路径</strong></p>
+<ol>
+<li>索引使用：如果表中存在适当的索引，则 MySQL 可以使用索引来查找需要更新的行，从而避免全表扫描，提高查询效率。</li>
+<li>优化 WHERE 子句：WHERE 子句用于指定需要更新的行。MySQL 优化器会根据 WHERE 子句的复杂度和索引情况来选择最优的查询路径。</li>
+<li>最小化日志写入：MySQL 的 InnoDB 存储引擎支持事务和回滚机制，更新操作会生成事务日志，影响性能。优化器会尝试最小化日志写入，提高性能。</li>
+<li>减少锁的使用：更新操作可能会引起表锁或行锁，锁的使用会对性能产生负面影响。优化器会尝试减少锁的使用</li>
+</ol>
+<h4 id="执行器"><a class="markdownIt-Anchor" href="#执行器"></a> 执行器</h4>
+<p>当优化器选出最优索引等步骤后，会去调用存储引擎接口，开始执行被MySQL解析过和优化过的SQL语句</p>
+<h4 id="bin-log"><a class="markdownIt-Anchor" href="#bin-log"></a> bin log</h4>
+<p>从图中可以看出，Mysql 有一个<code>bin log</code> 并不属于存储引擎，它与存储引擎的 <code>redo log</code> 是有区别的</p>
+<table>
+<thead>
+<tr>
+<th>性质</th>
+<th>redo log</th>
+<th>bin log</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文件大小</td>
+<td>redo log 的大小是固定的（配置中也可以设置，一般默认的就足够了）</td>
+<td>bin log 可通过配置参数max_bin log_size设置每个bin log文件的大小(但是一般不建议修改)</td>
+</tr>
+<tr>
+<td>实现方式</td>
+<td>redo log是InnoDB引擎层实现的（也就是说是 Innodb 存储引擎独有的）</td>
+<td>bin log是 MySQL 层实现的，所有引擎都可以使用 bin log日志</td>
+</tr>
+<tr>
+<td>记录方式</td>
+<td>redo log 采用循环写的方式记录，当写到结尾时，会回到开头循环写日志。</td>
+<td>bin log 通过追加的方式记录，当文件大小大于给定值后，后续的日志会记录到新的文件上</td>
+</tr>
+<tr>
+<td>使用场景</td>
+<td>redo log适用于崩溃恢复(crash-safe)（这一点其实非常类似与 Redis 的持久化特征）</td>
+<td>bin log 适用于主从复制和数据恢复</td>
+</tr>
+</tbody>
+</table>
+<p>bin log 的刷盘是有相关的策略的，策略可以通过<code>sync_bin log</code>来修改，默认为 0，表示先写入 os cache，也就是说在提交事务的时候，数据不会直接到磁盘中，这样如果宕机bin log数据仍然会丢失。所以建议将sync_bin log设置为 1 表示直接将数据写入到磁盘文件中。</p>
+<p>刷入 bin log 有以下几种模式</p>
 <ul>
-<li>双向链表按照被使用的顺序存储了这些键值对，靠近头部的键值对是最近使用的，而靠近尾部的键值对是最久未使用的。</li>
-<li>哈希表即为普通的哈希映射（HashMap），通过缓存数据的键映射到其在双向链表中的位置</li>
+<li><strong>STATMENT</strong></li>
 </ul>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/algori-Live-1.png" alt="algori-Live-1" style="zoom:67%;" />
-<h4 id="删除节点"><a class="markdownIt-Anchor" href="#删除节点"></a> 删除节点</h4>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/algori-live-lru-1.png" alt="algori-live-lru-1" style="zoom:67%;" />
-<p>删除的时候链表和map中的都需要删除</p>
-<h4 id="新增节点"><a class="markdownIt-Anchor" href="#新增节点"></a> 新增节点</h4>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/algori-live-lru-2.png" alt="algori-live-lru-2" style="zoom:67%;" />
-<p>注意：</p>
+<p>基于 SQL 语句的复制(statement-based replication, SBR)，每一条会修改数据的 SQL 语句会记录到 bin log 中</p>
+<p>【优点】:  不需要记录每一行的变化，减少了 bin log 日志量，节约了 IO , 从而提高了性能</p>
+<p>【缺点】：在某些情况下会导致主从数据不一致，比如执行sysdate()、sleep()等</p>
+<ul>
+<li><strong>ROW</strong></li>
+</ul>
+<p>基于行的复制(row-based replication, RBR)，不记录每条SQL语句的上下文信息，仅需记录哪条数据被修改了</p>
+<p>【优点】：不会出现某些特定情况下的存储过程、或 function、或 trigger 的调用和触发无法被正确复制的问题</p>
+<p>【缺点】：会产生大量的日志，尤其是 alter table 的时候会让日志暴涨</p>
+<ul>
+<li><strong>MIXED</strong></li>
+</ul>
+<p>基于 STATMENT 和 ROW 两种模式的混合复制( mixed-based replication, MBR )，一般的复制使用 STATEMENT 模式保存 bin log ，对于 STATEMENT 模式无法复制的操作使用 ROW 模式保存 bin log</p>
+<h4 id="inndb-存储引擎"><a class="markdownIt-Anchor" href="#inndb-存储引擎"></a> Inndb 存储引擎</h4>
+<p>执行器调用不同的存储引擎接口执行SQL语句，以常用的 Inndb存储引擎为例，看看下面这条语句会发生</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> students <span class="keyword">SET</span> stuName = <span class="string">'小强'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<h5 id="buffer-pool"><a class="markdownIt-Anchor" href="#buffer-pool"></a> buffer Pool</h5>
+<p>如果每次操作直接在磁盘中操作，那么读写速度肯定不会高，所以每次在执行 SQL 的时候都会将其数据加载到内存中，这块内存就是 InnoDB 中一个非常重要的组件：<strong>缓冲池 Buf</strong></p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-9.png" alt="img" style="zoom:70%;" />
+<p>按照上面的那幅图，这条 SQL 语句的执行步骤大致是这样子的</p>
+<ul>
+<li>innodb 存储引擎会在缓冲池中查找 id=1 的这条数据是否存在</li>
+<li>发现不存在，那么就会去磁盘中加载，并将其存放在缓冲池中</li>
+<li>该条记录会被加上一个独占锁</li>
+</ul>
+<h5 id="undo-log"><a class="markdownIt-Anchor" href="#undo-log"></a> undo log</h5>
+<p>记录语句执行前的记录值</p>
+<p>将数据加载到 <code>Buffer Pool</code> 的同时还会往 <code>undo log</code> 中插入一条日志，也就是将 <code>id = 1</code> 原来的值记录下来</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-10.png" alt="img" style="zoom:70%;" />
+<h5 id="redo-log"><a class="markdownIt-Anchor" href="#redo-log"></a> redo log</h5>
+<p>记录语句执行后的记录值，<strong>不管事务是否提交都会记录下来</strong>。此时执行 <code>update students set stuName='小强' where id=1;</code> ，那么这条操作就会被记录到 <code>redo log buffer</code> 中，存储到 buffer 中很好理解，就是为了提高效率</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-11.png" alt="img" style="zoom:70%;" />
+<p>到目前为止一切都准备就绪，就需要提交事务。为了保证提交事务之后保证数据能够更新成功，就需要在提交前将</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-12.png" alt="img" style="zoom:70%;" />
+<p><code>redo Log Buffer</code> 中的数据持久化到磁盘中，所以这里一般是立即刷入磁盘。</p>
+<blockquote>
+<p>问题1：是否可以认为，提交事务成功就是指缓存 <code>redo log buffer</code> 刷入到了磁盘中？</p>
+<p>答：只有当 redo log 完全持久化到磁盘中之后，MySQL才会将该事务标记为以提交，这个过程称为 <code>redo log 的持久化</code></p>
+<p>问题2：那么不同的刷盘策略怎么保证事务的执行成功？</p>
+<p>问题3：如果存在多个事务，是否存在多个redo log buffer ？</p>
+<p>答：每个数据库实例，只有一个 <code>redo log buffer</code></p>
+</blockquote>
+<p>到目前为止，从执行器开始调用存储引擎接口的流程如下：</p>
 <ol>
-<li><code>list</code>节点中也要存储<code>Map</code>的<code>key</code></li>
+<li>
+<p>准备更新一条 SQL 语句</p>
+</li>
+<li>
+<p><code>MySQL(innodb)</code>会先去缓冲池 <code>BufferPool</code> 中去查找这条数据，没找到就会去磁盘中查找，如果查找到就会将这条数据加载到缓冲池 <code>BufferPool</code> 中</p>
+</li>
+<li>
+<p>在加载到 <code>Buffer Pool</code> 的同时，会将这条数据的原始记录保存到 <code>undo log</code> 文件中</p>
+</li>
+<li>
+<p><code>innodb</code> 会在 <code>Buffer Pool</code> 中执行更新操作</p>
+</li>
+<li>
+<p>更新后的数据会记录在 <code>redo log buffer</code> 中</p>
+</li>
+<li>
+<p>MySQL 提交事务的时候，会将 <code>redo log buffer</code> 中的数据写入到 <code>redo log</code> 文件中，刷磁盘可以通过 <code>innodb_flush_log_at_trx_commit</code> 参数来设置</p>
+<ul>
+<li>
+<p>值为 0 表示不刷入磁盘</p>
+</li>
+<li>
+<p>值为 1 表示立即刷入磁盘</p>
+</li>
+<li>
+<p>值为 2 表示先刷到 os cache</p>
+</li>
+</ul>
+</li>
+<li>
+<p>myslq 重启的时候会将 redo 日志恢复到缓冲池中</p>
+</li>
 </ol>
-<h3 id="技术内幕"><a class="markdownIt-Anchor" href="#技术内幕"></a> 技术内幕</h3>
-<p>代码路径：<code>core/collection/cache.go</code></p>
-<h4 id="对象定义"><a class="markdownIt-Anchor" href="#对象定义"></a> 对象定义</h4>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">lru <span class="keyword">interface</span> &#123;</span><br><span class="line">	add(key <span class="keyword">string</span>)			<span class="comment">//新增</span></span><br><span class="line">	remove(key <span class="keyword">string</span>)	<span class="comment">//删除</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">emptyLru <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">keyLru <span class="keyword">struct</span> &#123;</span><br><span class="line">	limit    <span class="keyword">int</span>				<span class="comment">//容量限制</span></span><br><span class="line">	evicts   *list.List	<span class="comment">//双向链表</span></span><br><span class="line">	elements <span class="keyword">map</span>[<span class="keyword">string</span>]*list.Element	<span class="comment">//map根据key存储双向链表位置</span></span><br><span class="line">	onEvict  <span class="function"><span class="keyword">func</span><span class="params">(key <span class="keyword">string</span>)</span>	//自定义触发函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="删除元素"><a class="markdownIt-Anchor" href="#删除元素"></a> 删除元素</h4>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(klru *keyLru)</span> <span class="title">remove</span><span class="params">(key <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> elem, ok := klru.elements[key]; ok &#123;	<span class="comment">//通过map判断元素是否存在</span></span><br><span class="line">		klru.removeElement(elem)	<span class="comment">//删除节点</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(klru *keyLru)</span> <span class="title">removeOldest</span><span class="params">()</span></span> &#123;</span><br><span class="line">	elem := klru.evicts.Back()	<span class="comment">//获取尾部节点</span></span><br><span class="line">	<span class="keyword">if</span> elem != <span class="literal">nil</span> &#123;</span><br><span class="line">		klru.removeElement(elem)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(klru *keyLru)</span> <span class="title">removeElement</span><span class="params">(e *list.Element)</span></span> &#123;</span><br><span class="line">	klru.evicts.Remove(e)		<span class="comment">//删除双向链表节点</span></span><br><span class="line">	key := e.Value.(<span class="keyword">string</span>)</span><br><span class="line">	<span class="built_in">delete</span>(klru.elements, key)		<span class="comment">//删除map中节点</span></span><br><span class="line">	klru.onEvict(key)				<span class="comment">//触发自定义逻辑</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="添加元素"><a class="markdownIt-Anchor" href="#添加元素"></a> 添加元素</h4>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(klru *keyLru)</span> <span class="title">add</span><span class="params">(key <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">   <span class="keyword">if</span> elem, ok := klru.elements[key]; ok &#123;	<span class="comment">//如果元素存在则将节点移动到链表头</span></span><br><span class="line">      klru.evicts.MoveToFront(elem)</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Add new item</span></span><br><span class="line">   elem := klru.evicts.PushFront(key)			<span class="comment">//放入链表头部</span></span><br><span class="line">   klru.elements[key] = elem							<span class="comment">//存放节点</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// Verify size not exceeded</span></span><br><span class="line">   <span class="keyword">if</span> klru.evicts.Len() &gt; klru.limit &#123;		<span class="comment">//如果节点数量超过限制，则删除尾部节点</span></span><br><span class="line">      klru.removeOldest()</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结合<code>bin log</code>来看，MySQL 在提交事务的时候，不仅仅会将 <code>redo log buffer</code> 中的数据写入到 <code>redo log</code> 文件中，同时也会将本次修改的数据记录到 <code>bin log</code> 文件中，同时会<strong>将本次修改的<code>bin log</code>文件名和修改的内容在<code>bin log</code>中的位置记录到<code>redo log</code>中，最后还会在<code>redo log</code>写入 <code>commit</code> 标记，表示本次事务被成功的提交了</strong></p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-13.png" alt="img" style="zoom:67%;" />
+<p>那么这里就有几种可能</p>
+<ol>
+<li>如果在数据被写入到<code>bin log</code>文件的时候，刚写完，数据库宕机了，数据会丢失吗？
+<ul>
+<li>首先可以确定的是，只要<code>redo log</code>最后没有 <code>commit</code> 标记，说明本次的事务一定是失败的。</li>
+<li>但是数据是没有丢失了，因为已经被记录到<code>redo log</code>的磁盘文件中了。在 MySQL 重启的时候，就会将 <code>redo log</code> 中的数据恢复（加载）到<code>Buffer Pool</code>中</li>
+</ul>
+</li>
+</ol>
+<p>// TODO</p>
+<p>MySQL有一个后台线程，在某个时机将 <code>Buffer Pool</code> 中的数据刷到 MySQL 数据库中，这样就将内存和数据库的数据保持统一了。</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-14.png" alt="img" style="zoom:80%;" />
+<p>从准备更新一条数据到事务的提交的流程描述</p>
+<ul>
+<li>首先执行器根据 MySQL 的执行计划来查询数据，先是从缓存池中查询数据，如果没有就会去数据库中查询，如果查询到了就将其放到缓存池中</li>
+<li>在数据被缓存到缓存池的同时，会写入 <code>undo log</code> 日志文件</li>
+<li>更新的动作是在 <code>BufferPool</code> 中完成的，同时会将更新后的数据添加到 <code>redo log buffer</code> 中</li>
+<li>完成以后就可以提交事务，在提交的同时会做以下三件事
+<ul>
+<li>将<code>redo log buffer</code>中的数据刷入到 <code>redo log</code> 文件中</li>
+<li>将本次操作记录写入到 <code>bin log</code>文件中</li>
+<li>将 <code>bin log</code> 文件名字和更新内容在 <code>bin log</code> 中的位置记录到<code>redo log</code>中，同时在 <code>redo log</code> 最后添加 <code>commit</code> 标记</li>
+</ul>
+</li>
+</ul>
 <h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
 <ol>
-<li><a href="https://talkgo.org/t/topic/2280" target="_blank" rel="noopener">https://talkgo.org/t/topic/2280</a></li>
+<li><a href="https://pdai.tech/md/db/sql-mysql/sql-mysql-execute.html" target="_blank" rel="noopener">https://pdai.tech/md/db/sql-mysql/sql-mysql-execute.html</a></li>
 </ol>
 
       
@@ -434,7 +584,7 @@ var _hmt = _hmt || [];
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://xboom.github.io/2022/01/13/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-LRU/" title="算法之美-LRU" target="_blank" rel="external">http://xboom.github.io/2022/01/13/Algorithms To Live By/算法之美-LRU/</a>
+      <a href="http://xboom.github.io/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A81-%E4%B8%80%E6%9D%A1sql/" title="MySql入门1-一条sql" target="_blank" rel="external">http://xboom.github.io/2021/07/22/MySql/MySql入门1-一条sql/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -482,12 +632,12 @@ var _hmt = _hmt || [];
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/2022/02/09/Protocol/%E5%8D%8F%E8%AE%AE3-Quic/" title="协议3-Quic"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+      <a href="/2021/07/24/MySql/MySql%E5%85%A5%E9%97%A82-%E6%96%87%E4%BB%B6/" title="MySql入门2-文件"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
     </li>
     
     
     <li class="next">
-      <a href="/2022/01/12/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-%E9%93%BE%E8%A1%A8%E9%97%AE%E9%A2%98/" title="算法之美-链表问题"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A83-%E7%B4%A2%E5%BC%95/" title="MySql入门3-索引"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
