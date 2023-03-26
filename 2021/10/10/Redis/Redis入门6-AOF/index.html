@@ -18,20 +18,24 @@
   
   
   <title>Redis入门6-AOF | XBoom Dove</title>
-  <meta name="description" content="除了RDB持久功能之外，Redis还提供了AOF(Append Only File)持久化功能。  RDB 持久化通过保存数据库中的键值对来记录数据库状态 AOF持久化是通过保存Redis 服务器锁执行的写命令来记录数据库状态   被写入AOF文件的命令是以Redis的命令请求协议格式保存的，Redis的命令请求协议是纯文本格式，直接打开AOF文件，观察内容  AOF 持久化的实现 AOF持久化功">
+  <meta name="description" content="除了RDB持久功能之外，Redis还提供了AOF(Append Only File)持久化功能。  RDB 持久化通过保存数据库中的键值对来记录数据库状态 AOF持久化是通过保存Redis 服务器锁执行的写命令来记录数据库状态   被写入AOF文件的命令是以Redis的命令请求协议格式保存的，Redis的命令请求协议是纯文本格式，可直接打开AOF文件，观察内容  AOF 持久化的实现 AOF持久化">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis入门6-AOF">
 <meta property="og:url" content="http://xboom.github.io/2021/10/10/Redis/Redis%E5%85%A5%E9%97%A86-AOF/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="除了RDB持久功能之外，Redis还提供了AOF(Append Only File)持久化功能。  RDB 持久化通过保存数据库中的键值对来记录数据库状态 AOF持久化是通过保存Redis 服务器锁执行的写命令来记录数据库状态   被写入AOF文件的命令是以Redis的命令请求协议格式保存的，Redis的命令请求协议是纯文本格式，直接打开AOF文件，观察内容  AOF 持久化的实现 AOF持久化功">
+<meta property="og:description" content="除了RDB持久功能之外，Redis还提供了AOF(Append Only File)持久化功能。  RDB 持久化通过保存数据库中的键值对来记录数据库状态 AOF持久化是通过保存Redis 服务器锁执行的写命令来记录数据库状态   被写入AOF文件的命令是以Redis的命令请求协议格式保存的，Redis的命令请求协议是纯文本格式，可直接打开AOF文件，观察内容  AOF 持久化的实现 AOF持久化">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010193031.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010200827.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-x-aof-1.jpg">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010202741.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010203018.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-x-aof-2.jpg">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010203744.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-x-aof-3.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-x-rdb-4.jpg">
 <meta property="article:published_time" content="2021-10-10T12:42:44.000Z">
-<meta property="article:modified_time" content="2023-03-17T13:55:09.567Z">
+<meta property="article:modified_time" content="2023-03-26T09:16:01.722Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary">
@@ -198,7 +202,7 @@
   <div class="widget">
     <h3 class="widget-title">Categories</h3>
     <div class="widget-body">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">22</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">22</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -208,7 +212,7 @@
   <div class="widget">
     <h3 class="widget-title">Tags</h3>
     <div class="widget-body">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">22</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">22</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -227,7 +231,7 @@
   <div class="widget">
     <h3 class="widget-title">Archive</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">28</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">28</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -329,13 +333,22 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#aof-持久化的实现"><span class="toc-number">1.</span> <span class="toc-text"> AOF 持久化的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#命令追加"><span class="toc-number">1.1.</span> <span class="toc-text"> 命令追加</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#文件的写入与同步"><span class="toc-number">1.2.</span> <span class="toc-text"> 文件的写入与同步</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#aof文件的载入与数据还原"><span class="toc-number">2.</span> <span class="toc-text"> AOF文件的载入与数据还原</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#aof-重写"><span class="toc-number">3.</span> <span class="toc-text"> AOF 重写</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#aof文件重写的实现"><span class="toc-number">3.1.</span> <span class="toc-text"> AOF文件重写的实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#aof后台重写"><span class="toc-number">3.2.</span> <span class="toc-text"> AOF后台重写</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文献"><span class="toc-number">5.</span> <span class="toc-text"> 参考文献</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#aof-持久化的实现"><span class="toc-number">1.</span> <span class="toc-text"> AOF 持久化的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#命令追加"><span class="toc-number">1.1.</span> <span class="toc-text"> 命令追加</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#写会策略"><span class="toc-number">1.2.</span> <span class="toc-text"> 写会策略</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#aof文件的载入与数据还原"><span class="toc-number">2.</span> <span class="toc-text"> AOF文件的载入与数据还原</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#aof-重写"><span class="toc-number">3.</span> <span class="toc-text"> AOF 重写</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#重写的原理"><span class="toc-number">3.1.</span> <span class="toc-text"> 重写的原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#aof后台重写"><span class="toc-number">3.2.</span> <span class="toc-text"> AOF后台重写</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#持久化配置"><span class="toc-number">3.3.</span> <span class="toc-text"> 持久化配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#混合模式"><span class="toc-number">4.</span> <span class="toc-text"> 混合模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文献"><span class="toc-number">6.</span> <span class="toc-text"> 参考文献</span></a></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VS0LP704XX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-VS0LP704XX');
+</script>
   <article id="post-Redis/Redis入门6-AOF" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
@@ -387,24 +400,45 @@
 <li>AOF持久化是通过保存Redis 服务器锁执行的写命令来记录数据库状态</li>
 </ul>
 <p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010193031.png" alt="image-20211010193031845" /></p>
-<p>被写入AOF文件的命令是以Redis的命令请求协议格式保存的，Redis的命令请求协议是纯文本格式，直接打开AOF文件，观察内容</p>
+<p>被写入AOF文件的命令是以Redis的命令请求协议格式保存的，Redis的命令请求协议是纯文本格式，可直接打开AOF文件，观察内容</p>
 <h3 id="aof-持久化的实现"><a class="markdownIt-Anchor" href="#aof-持久化的实现"></a> AOF 持久化的实现</h3>
 <p>AOF持久化功能的实现可以分为命令的追加(append)、文件写入、文件同步(sync)三个步骤</p>
 <h4 id="命令追加"><a class="markdownIt-Anchor" href="#命令追加"></a> 命令追加</h4>
-<p>当AOF持久化功能处于打开状态时，服务器在执行一个写命令之后，会以协议格式将被执行的写命令追加到服务器状态的aof_buf缓冲区的末尾</p>
-<h4 id="文件的写入与同步"><a class="markdownIt-Anchor" href="#文件的写入与同步"></a> 文件的写入与同步</h4>
+<p>当AOF持久化功能处于打开状态时，服务器在执行一个写命令之后，会以协议格式将被执行的写命令追加到服务器状态的<code>aof_buf</code>缓冲区的末尾，为什么要在写命令之后再去写日志</p>
+<ul>
+<li>
+<p>优点：</p>
+<ul>
+<li><strong>避免额外的检查开销</strong>：Redis 在向 AOF 里面记录日志的时候，并不会先去对这些命令进行语法检查。所以，如果先记日志再执行命令的话，日志中就有可能记录了错误的命令，Redis 在使用日志恢复数据时，就可能会出错。</li>
+</ul>
+</li>
+<li>
+<p>缺点：</p>
+<ul>
+<li>AOF磁盘占用更大:由于存储的是命令，所以会占用更多的磁盘</li>
+<li>AOF重放日志耗时</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>为什么 mysql 是先写日志再执行命令，而Redis 是先执行命令而后写日志？</p>
+<p>答：是由于两者的应用场景不一致。</p>
+<p>MySQL是关系型数据库，为了保证数据的一致性和可靠性。在执行命令之前先将命令写入日志 redo log中，等到命令执行成功后再将数据写入磁盘中。这样即使在执行命令时出现异常或者系统崩溃，也可以通过redo log进行数据恢复。</p>
+<p>Redis是一种内存型数据库，数据持久化属于低频要求操作。在执行修改操作时，Redis会将命令写入AOF缓存区中，等到缓存区积累到一定的数据量或者经过一定的时间后，才将数据写入磁盘中，避免频繁的磁盘写入，提高Redis的性能。Redis在命令持久化上不需要像MySQL那样保证绝对的数据一致性和可靠性，可以采用先执行命令后写入日志的方式</p>
+</blockquote>
+<h4 id="写会策略"><a class="markdownIt-Anchor" href="#写会策略"></a> 写会策略</h4>
 <blockquote>
 <p>这里的同步是操作系统在write 写入文件时,通常将数据保存在一个内存缓冲区，然后将缓冲区中的数据写入到磁盘的过程</p>
 </blockquote>
 <p>Redis的服务器进程就是一个事件循环(loop)，这个循环中的文件事件负责接收客户端的命令请求以及回复，时间事件则负责执行像serverCron函数这样需要定时运行的函数</p>
 <p>服务器在处理文件事件时可能会执行写命令，使得一些内容被追加到aof_buf缓冲区里面，所以每次结束一个事件循环之前，都会调用 <code>flushAppendOnlyFile</code> 函数，考虑是否将aof_buf缓冲区中的内容写入和保存到AOF文件里面</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">def <span class="title">eventLoop</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">	<span class="keyword">while</span> True:</span></span><br><span class="line">	# 处理文件时间，接收命令请求以及发送命令回复</span><br><span class="line">	# 处理命令请求时可能会有新内容被追加到 aof_buf 缓冲区中</span><br><span class="line">	processFileEvents()</span><br><span class="line">  </span><br><span class="line">  # 处理时间事件</span><br><span class="line">  processTimeEvents()</span><br><span class="line">    </span><br><span class="line">  # 考虑是否将 aof_buf 中的内容写入和保存到 AOF 文件里面</span><br><span class="line">  flushAppendOnlyFile()</span><br></pre></td></tr></table></figure>
-<p>通过服务器配置的 appendfsync选型的值来决定AOF持久化行为</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">eventLoop</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">	<span class="comment"># 处理文件时间，接收命令请求以及发送命令回复</span></span><br><span class="line">	<span class="comment"># 处理命令请求时可能会有新内容被追加到 aof_buf 缓冲区中</span></span><br><span class="line">	processFileEvents()</span><br><span class="line">  </span><br><span class="line">  <span class="comment"># 处理时间事件</span></span><br><span class="line">  processTimeEvents()</span><br><span class="line">    </span><br><span class="line">  <span class="comment"># 考虑是否将 aof_buf 中的内容写入和保存到 AOF 文件里面</span></span><br><span class="line">  flushAppendOnlyFile()</span><br></pre></td></tr></table></figure>
+<p>通过服务器配置的 <code>appendfsync</code>选型的值来决定AOF持久化行为</p>
 <table>
 <thead>
 <tr>
 <th>Appendfsync</th>
-<th>flushAppendOnlyFile 函数的行为</th>
+<th>写回策略</th>
 <th>效率</th>
 <th>安全</th>
 </tr>
@@ -412,19 +446,19 @@
 <tbody>
 <tr>
 <td>always</td>
-<td>将aof_buf缓冲区中的所有内容写入并同步到AOF文件</td>
+<td>将<code>aof_buf</code>缓冲区中的所有内容写入并同步到AOF文件</td>
 <td>最慢</td>
 <td>最高</td>
 </tr>
 <tr>
 <td>everysec</td>
-<td>将aof_buf缓冲区的所有内容写入到AOF文件，如果上次同步AOF文件的时间距离现在超过1秒钟，那么子进程对AOF文件进行同步，并且这个同步操作是由换一个线程专门负责执行的</td>
+<td>将<code>aof_buf</code>缓冲区的所有内容写入到AOF文件，如果上次同步AOF文件的时间距离现在超过1秒钟，那么子进程对AOF文件进行同步，并且这个同步操作是由一个线程专门负责执行的</td>
 <td>适中</td>
 <td>适中</td>
 </tr>
 <tr>
 <td>no</td>
-<td>将aof_buf缓冲区的中的所有内容写入到AOF文件，但并不对AOF文件进行同步，何时同步由操作系统自己决定</td>
+<td>将<code>aof_buf</code>缓冲区的中的所有内容写入到AOF文件，但并不对AOF文件进行同步，何时同步由操作系统自己决定</td>
 <td>最快</td>
 <td>最低</td>
 </tr>
@@ -436,7 +470,7 @@
 </blockquote>
 <h3 id="aof文件的载入与数据还原"><a class="markdownIt-Anchor" href="#aof文件的载入与数据还原"></a> AOF文件的载入与数据还原</h3>
 <p>由于AOF 文件里包含了重建数据库状态所需的所有写命令，所以服务器只要读入并重新执行一遍AOF文件里面保存的写命令</p>
-<p>Redis 读取AFO文件并还原数据库状态的详细步骤如下：</p>
+<p>Redis 读取AOF文件并还原数据库状态的详细步骤如下：</p>
 <ol>
 <li>创建一个不带网络链接的伪客户端(fake client)：因为 Redis 的命令智能在客户端上下文中执行，而载入AOF文件时锁使用的命令直接来源于AOF 文件而不是网络连接，所以服务器使用一个伪客户端来执行AOF文件保存的写命令</li>
 <li>从AOF文件中分析并读取出一条写命令</li>
@@ -445,17 +479,22 @@
 </ol>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010200827.png" alt="image-20211010200827302" style="zoom:67%;" />
 <h3 id="aof-重写"><a class="markdownIt-Anchor" href="#aof-重写"></a> AOF 重写</h3>
-<p>因为AOF持久化是通过保存被执行的写命令来记录数据库状态，随着服务器运行时间的流逝，AOF文件中的内容会越来越多。为了解决AOF文件体积膨胀的问题，Redis提供的AOF文件重写(rewrite)功能</p>
-<h4 id="aof文件重写的实现"><a class="markdownIt-Anchor" href="#aof文件重写的实现"></a> AOF文件重写的实现</h4>
-<p>Redis 将生成新AOF文件替换旧AOF文件的功能命令为 “AOF文件重写”。但实际上，AOF文件重写并不需要对现有的AOF文件进行任何读取、分析或写入操作，是通过读取服务器当前的数据库状态来实现的</p>
+<p>AOF持久化是通过保存被执行的写命令来记录数据库状态，随着服务器运行时间的流逝，AOF文件中的内容会越来越多。为了解决AOF文件体积膨胀的问题，Redis提供的AOF文件重写(rewrite)功能</p>
+<p>有两个配置项控制AOF重写的触发：</p>
+<ul>
+<li><code>auto-aof-rewrite-min-size</code>:表示运行AOF重写时文件的最小大小，默认为64MB。</li>
+<li><code>auto-aof-rewrite-percentage</code>:这个值的计算方式是，当前aof文件大小和上一次重写后aof文件大小的差值，再除以上一次重写后aof文件大小。也就是当前aof文件比上一次重写后aof文件的增量大小，和上一次重写后aof文件大小的比值。</li>
+</ul>
+<h4 id="重写的原理"><a class="markdownIt-Anchor" href="#重写的原理"></a> 重写的原理</h4>
+<p>Redis 将生成新AOF文件替换旧AOF文件的功能命令为 “AOF文件重写”。但实际上，<strong>AOF文件重写并不需要对现有的AOF文件进行任何读取、分析或写入操作，是通过读取服务器当前的数据库状态来实现的</strong></p>
 <p>例如：</p>
 <p>保存当前list键(含有6个value)的状态，须在AOF文件中写六条命令，如果服务器想尽量少的命令来记录list键的状态，最简单高效的办法不是去读取和分析现有AOF文件，而是直接从数据库中读取键list的值，用 一条 <code>RPUSH key value...</code> 来代替保存在AOF文件中的六条命令</p>
-<p>这就是 AOF 重写功能的实现原理，因为新AOF文件只包含还原当前数据库状态所必须的命令，所以AOF文件不会浪费任何硬盘空间</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-x-aof-1.jpg" alt="img" style="zoom:20%;" />
 <blockquote>
-<p>在实际执行过程中，为了避免执行命令时造成客户端输入缓冲区溢出，会检查键锁包含的元素数理那个，如果数据超过 redis.h/REDIS_AOF_REWRITE_ITEMS_PRE_CMD 敞亮的值，那么重写程序将使用多条命令来记录键的值，而不单单使用一条命令</p>
+<p>在实际执行过程中，为了避免执行命令时造成客户端输入缓冲区溢出，会检查键锁包含的元素个数，如果数据超过 redis.h/REDIS_AOF_REWRITE_ITEMS_PRE_CMD 的值，那么重写程序将使用多条命令来记录键的值，而不单单使用一条命令</p>
 </blockquote>
 <h4 id="aof后台重写"><a class="markdownIt-Anchor" href="#aof后台重写"></a> AOF后台重写</h4>
-<p>AOF重写程序 aof_rewrite 函数可以很好地完成创建一个新AOF文件的任务，但这个函数进行了大量的写入操作，所以调用这个函数的线程将会被长时间阻塞。将其放到子进程里执行可以达到两个目的：</p>
+<p>AOF重写程序 <code>aof_rewrite</code> 函数可以很好地完成创建一个新AOF文件的任务，但这个函数进行了大量的写入操作，所以调用这个函数的线程将会被长时间阻塞。将其放到子进程里执行可以达到两个目的：</p>
 <ol>
 <li>子进程进行AOF重写期间，服务器进程(父进程)可以继续处理命令请求</li>
 <li>子进程带有服务器进程的数据副本，使用子进程而不是线程，避免使用锁的情况下，保证数据安全性</li>
@@ -483,8 +522,32 @@
 <li>对新的AOF文件进行改名，原子地(atomic)覆盖现有的AOF文件，完成新旧两个AOF文件的替换</li>
 </ol>
 <p>这个信号处理函数执行完毕之后，父进程就可以像往常一样接受命令请求</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-x-aof-2.jpg" alt="img" style="zoom:50%;" />
 <p>整个AOF后台重写过程，只有信号处理函数执行时会对服务器进程(父进程)造成阻塞，在其他时候，AOF后台重写都不会阻塞父进程</p>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010203744.png" alt="image-20211010203744239" style="zoom:67%;" />
+<p><strong>主线程fork出子进程的是如何复制内存数据的</strong></p>
+<p><code>fork</code>采用操作系统提供的写时复制**(copy on write)**机制，避免一次性拷贝大量内存数据给子进程造成阻塞。fork子进程时，子进程时会拷贝父进程的页表，即虚实映射关系（虚拟内存和物理内存的映射索引表），而不会拷贝物理内存。这个拷贝会消耗大量cpu资源，并且拷贝完成前会阻塞主线程，阻塞时间取决于内存中的数据量，数据量越大，则内存页表越大。拷贝完成后，父子进程使用相同的内存地址空间。</p>
+<p>主进程可以有数据写入，这时候就会拷贝物理内存中的数据。如下图（进程1看做是主进程，进程2看做是子进程）：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-x-aof-3.png" alt="img" style="zoom:80%;" />
+<p>在主进程有数据写入时，而这个数据刚好在页c中，操作系统会创建这个页面的副本（页c的副本），即拷贝当前页的物理数据，将其映射到主进程中，而子进程还是使用原来的的页c</p>
+<p><strong>在重写日志整个过程时，主线程有哪些地方会被阻塞</strong>？</p>
+<ol>
+<li>fork子进程时，需要拷贝虚拟页表，会对主线程阻塞。</li>
+<li>主进程有bigkey写入时，操作系统会创建页面的副本，并拷贝原有的数据，会对主线程阻塞。</li>
+<li>子进程重写日志完成后，主进程<strong>追加aof重写缓冲区</strong>时可能会对主线程阻塞。</li>
+</ol>
+<p><strong>为什么AOF重写不复用原AOF日志</strong>？</p>
+<ol>
+<li>父子进程写同一个文件会产生竞争问题，影响父进程的性能。</li>
+<li>如果AOF重写过程中失败了，相当于污染了原本的AOF文件，无法做恢复数据使用。</li>
+</ol>
+<h4 id="持久化配置"><a class="markdownIt-Anchor" href="#持久化配置"></a> 持久化配置</h4>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> appendonly参数开启AOF持久化</span></span><br><span class="line">appendonly no</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> AOF持久化的文件名，默认是appendonly.aof</span></span><br><span class="line">appendfilename "appendonly.aof"</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> AOF文件的保存位置和RDB文件的位置相同，都是通过dir参数设置的</span></span><br><span class="line">dir ./</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 同步策略</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> appendfsync always</span></span><br><span class="line">appendfsync everysec</span><br><span class="line"><span class="meta">#</span><span class="bash"> appendfsync no</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> aof重写期间是否同步</span></span><br><span class="line">no-appendfsync-on-rewrite no</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 重写触发配置</span></span><br><span class="line">auto-aof-rewrite-percentage 100</span><br><span class="line">auto-aof-rewrite-min-size 64mb</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 加载aof出错如何处理</span></span><br><span class="line">aof-load-truncated yes</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 文件重写策略</span></span><br><span class="line">aof-rewrite-incremental-fsync yes</span><br></pre></td></tr></table></figure>
+<h3 id="混合模式"><a class="markdownIt-Anchor" href="#混合模式"></a> 混合模式</h3>
+<p>Redis 4.0 中提出了一个<strong>混合使用 AOF 日志和内存快照</strong>的方法。内存快照以一定的频率执行，在两次快照之间，使用 AOF 日志记录这期间的所有命令操作。</p>
+<p>这样，快照不用很频繁地执行，避免了频繁 fork 对主线程的影响。AOF 日志也只用记录两次快照间的操作，降低了出现文件过大的风险，减少重写开销。</p>
+<p>如下图所示，T1 和 T2 时刻的修改，用 AOF 日志记录，等到第二次做全量快照时，就可以清空 AOF 日志，因为此时的修改都已经记录到快照中了，恢复时就不再用日志了。</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-x-rdb-4.jpg" alt="img" style="zoom:20%;" />
 <h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
 <ol>
 <li>
@@ -515,6 +578,7 @@
 <h3 id="参考文献"><a class="markdownIt-Anchor" href="#参考文献"></a> 参考文献</h3>
 <ol>
 <li>《Redis 设计与实现》</li>
+<li><a href="https://pdai.tech/md/db/nosql-redis/db-redis-x-rdb-aof.html" target="_blank" rel="noopener">https://pdai.tech/md/db/nosql-redis/db-redis-x-rdb-aof.html</a></li>
 </ol>
 
       
@@ -574,7 +638,7 @@
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/2021/10/15/Redis/Redis%E5%85%A5%E9%97%A87-%E9%9B%86%E7%BE%A4/" title="Redis入门7-集群"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+      <a href="/2021/10/15/Redis/Redis%E5%85%A5%E9%97%A88-%E4%BA%8B%E4%BB%B6/" title="Redis入门8-事件"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
     </li>
     
     
@@ -601,6 +665,7 @@
   </div>
 </nav>
   
+
 
 
 </main>

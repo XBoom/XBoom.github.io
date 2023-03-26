@@ -17,23 +17,28 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>Linux新手1-内核入门 | XBoom Dove</title>
-  <meta name="description" content="编译内核代码  下载内核代码 从国内镜像网站下载最新的内核源码linux-5.9.1，并进行解压 12xz -d linux-5.9.1.tar.xztar xvf linux-5.9.1.tar  配置内核 对内核进行配置是为了得到内核配置文件.config。通过对内核进行配置，可以使未来编译成功的内核增加或减少对一些内核特性的支持。对内核进行配置有多种方法：基于文本&#x2F;图形等，这里采用make">
+  <title>Redis入门8-事件 | XBoom Dove</title>
+  <meta name="description" content="Redis服务器是一个事件驱动程序，服务器需要处理以下两类事件：  文件事件(file event)：Redis 服务器通过套接字与客户端(或其他Redis服务器)进行连接、而文件事件就是服务器对套接字操作的抽象。服务器通过监听并处理这些事件来完成一些列网络通信操作 时间事件(time event)：Redis 服务器中的一些操作(比如 serverCron函数) 需要在给定的时间点执行，而时间事">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux新手1-内核入门">
-<meta property="og:url" content="http://xboom.github.io/2020/10/25/Linux/Linux%E6%96%B0%E6%89%8B1-%E5%86%85%E6%A0%B8%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:title" content="Redis入门8-事件">
+<meta property="og:url" content="http://xboom.github.io/2021/10/15/Redis/Redis%E5%85%A5%E9%97%A88-%E4%BA%8B%E4%BB%B6/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="编译内核代码  下载内核代码 从国内镜像网站下载最新的内核源码linux-5.9.1，并进行解压 12xz -d linux-5.9.1.tar.xztar xvf linux-5.9.1.tar  配置内核 对内核进行配置是为了得到内核配置文件.config。通过对内核进行配置，可以使未来编译成功的内核增加或减少对一些内核特性的支持。对内核进行配置有多种方法：基于文本&#x2F;图形等，这里采用make">
+<meta property="og:description" content="Redis服务器是一个事件驱动程序，服务器需要处理以下两类事件：  文件事件(file event)：Redis 服务器通过套接字与客户端(或其他Redis服务器)进行连接、而文件事件就是服务器对套接字操作的抽象。服务器通过监听并处理这些事件来完成一些列网络通信操作 时间事件(time event)：Redis 服务器中的一些操作(比如 serverCron函数) 需要在给定的时间点执行，而时间事">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20201022001432.png">
-<meta property="article:published_time" content="2020-10-25T02:24:18.000Z">
-<meta property="article:modified_time" content="2022-06-25T07:00:00.000Z">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010214336.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010214918.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010215137.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-redis-event-0.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010220322.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010221320.png">
+<meta property="article:published_time" content="2021-10-15T11:04:44.000Z">
+<meta property="article:modified_time" content="2023-03-25T14:36:26.692Z">
 <meta property="article:author" content="XBoom Dove">
-<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20201022001432.png">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010214336.png">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://xboom.github.io/2020/10/25/Linux/Linux%E6%96%B0%E6%89%8B1-%E5%86%85%E6%A0%B8%E5%85%A5%E9%97%A8/index.html">
+  <link rel="canonical" href="http://xboom.github.io/2021/10/15/Redis/Redis%E5%85%A5%E9%97%A88-%E4%BA%8B%E4%BB%B6/index.html">
   
   
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -325,7 +330,7 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#编译内核代码"><span class="toc-number">1.</span> <span class="toc-text"> 编译内核代码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#下载内核代码"><span class="toc-number">1.1.</span> <span class="toc-text"> 下载内核代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#配置内核"><span class="toc-number">1.2.</span> <span class="toc-text"> 配置内核</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#编译内核"><span class="toc-number">1.3.</span> <span class="toc-text"> 编译内核</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#安装内核"><span class="toc-number">1.4.</span> <span class="toc-text"> 安装内核</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#创建initrdimg文件"><span class="toc-number">1.5.</span> <span class="toc-text"> 创建initrd.img文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#更新grub"><span class="toc-number">1.6.</span> <span class="toc-text"> 更新grub</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hello-kernel"><span class="toc-number">2.</span> <span class="toc-text"> Hello Kernel</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#编写一个helloc文件"><span class="toc-number">2.1.</span> <span class="toc-text"> 编写一个Hello.c文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#编写makefile文件"><span class="toc-number">2.2.</span> <span class="toc-text"> 编写Makefile文件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">3.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#文件事件"><span class="toc-number">1.</span> <span class="toc-text"> 文件事件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#文件事件处理器的构成"><span class="toc-number">1.1.</span> <span class="toc-text"> 文件事件处理器的构成</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#io多路复用程序的实现"><span class="toc-number">1.2.</span> <span class="toc-text"> I&#x2F;O多路复用程序的实现</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#时间事件"><span class="toc-number">2.</span> <span class="toc-text"> 时间事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事件的调度与执行"><span class="toc-number">3.</span> <span class="toc-text"> 事件的调度与执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文献"><span class="toc-number">4.</span> <span class="toc-text"> 参考文献</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -341,14 +346,14 @@
 
   gtag('config', 'G-VS0LP704XX');
 </script>
-  <article id="post-Linux/Linux新手1-内核入门" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Redis/Redis入门8-事件" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      Linux新手1-内核入门
+      Redis入门8-事件
     </h1>
   
 
@@ -356,20 +361,20 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2020/10/25/Linux/Linux%E6%96%B0%E6%89%8B1-%E5%86%85%E6%A0%B8%E5%85%A5%E9%97%A8/" class="article-date">
-	  <time datetime="2020-10-25T02:24:18.000Z" itemprop="datePublished">2020-10-25</time>
+	<a href="/2021/10/15/Redis/Redis%E5%85%A5%E9%97%A88-%E4%BA%8B%E4%BB%B6/" class="article-date">
+	  <time datetime="2021-10-15T11:04:44.000Z" itemprop="datePublished">2021-10-15</time>
 	</a>
 </span>
         
   <span class="article-category">
     <i class="icon icon-folder"></i>
-    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+    <a class="article-category-link" href="/categories/Redis/">Redis</a>
   </span>
 
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/tags/Linux/" rel="tag">Linux</a>
+	<a class="article-tag-link" href="/tags/Redis/" rel="tag">Redis</a>
   </span>
 
 
@@ -377,125 +382,81 @@
 
 	<span class="article-read hidden-xs">
     	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2020/10/25/Linux/Linux%E6%96%B0%E6%89%8B1-%E5%86%85%E6%A0%B8%E5%85%A5%E9%97%A8/" class="leancloud_visitors"  data-flag-title="Linux新手1-内核入门">0</span>
+    	<span id="/2021/10/15/Redis/Redis%E5%85%A5%E9%97%A88-%E4%BA%8B%E4%BB%B6/" class="leancloud_visitors"  data-flag-title="Redis入门8-事件">0</span>
     </span>
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/10/25/Linux/Linux%E6%96%B0%E6%89%8B1-%E5%86%85%E6%A0%B8%E5%85%A5%E9%97%A8/#comments" class="article-comment-link">Comments</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/10/15/Redis/Redis%E5%85%A5%E9%97%A88-%E4%BA%8B%E4%BB%B6/#comments" class="article-comment-link">Comments</a></span>
         
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <h3 id="编译内核代码"><a class="markdownIt-Anchor" href="#编译内核代码"></a> 编译内核代码</h3>
-<h4 id="下载内核代码"><a class="markdownIt-Anchor" href="#下载内核代码"></a> 下载内核代码</h4>
-<p>从国内镜像网站下载最新的内核源码<a href="https://mirror.bjtu.edu.cn/kernel/linux/kernel/v5.x/linux-5.9.1.tar.xz" target="_blank" rel="noopener">linux-5.9.1</a>，并进行解压</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xz -d linux-5.9.1.tar.xz</span><br><span class="line">tar xvf linux-5.9.1.tar</span><br></pre></td></tr></table></figure>
-<h4 id="配置内核"><a class="markdownIt-Anchor" href="#配置内核"></a> 配置内核</h4>
-<p>对内核进行配置是为了得到内核配置文件.config。通过对内核进行配置，可以使未来编译成功的内核增加或减少对一些内核特性的支持。对内核进行配置有多种方法：基于文本/图形等，这里采用make menuconfig方式：</p>
-<blockquote>
-<p>由于该配置方式基于ncurses库，所以在启动配置界面前要先安装ncurses库</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install -y ncurses-devel  # make menuconfig requires the ncurses libraries</span><br><span class="line">make menuconfig</span><br></pre></td></tr></table></figure>
-<p>配置界面成功如下</p>
-<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20201022001432.png" alt="image-20201022001432829" /></p>
-<p>对内核按照默认的配置方式进行编译，因此当配置菜单启动后直接退出并保存即可。此时就在内核源码根目录下生成了.config文件</p>
-<h4 id="编译内核"><a class="markdownIt-Anchor" href="#编译内核"></a> 编译内核</h4>
-<p>编译内核包含两部分的工作，</p>
+        <p>Redis服务器是一个事件驱动程序，服务器需要处理以下两类事件：</p>
+<ol>
+<li>文件事件(file event)：Redis 服务器通过套接字与客户端(或其他Redis服务器)进行连接、而文件事件就是服务器对套接字操作的抽象。服务器通过监听并处理这些事件来完成一些列网络通信操作</li>
+<li>时间事件(time event)：Redis 服务器中的一些操作(比如 serverCron函数) 需要在给定的时间点执行，而时间事件就是服务器对这类定时操作的抽象</li>
+</ol>
+<h3 id="文件事件"><a class="markdownIt-Anchor" href="#文件事件"></a> 文件事件</h3>
+<p>Redis 基于 Reactor 模式开发了自己的网络事件处理器：这个处理器被称为文件处理器(file event handler)</p>
 <ul>
-<li>其一是编译内核，即编译配置选项中标记为Y的那部分，这部分内核最终形成bzIamge镜像文件；</li>
-<li>其二是编译内核模块，即编译配置选项中标记为M的那部分内核，这部分形成以.ko结尾的内核模块目标文件。</li>
+<li>文件事件处理器使用 I/O多路复用(multiplexing)程序来同时坚挺多个套接字，并根据套接字目前执行的任务来为套接字关联不同的事件处理器</li>
+<li>当被监听的套接字准备号执行链接应答、读取、写入、关闭等操作时，与操作相对应的文件事件就会产生，这时文件时间处理器就会调用套接字之前关联号的事件处理器来处理这些事件</li>
 </ul>
-<p>上述两部分编译工作可以依次通过make bzImage和make modules完成，也可以通过一条make命令直接完成。</p>
-<p>编译内核的整个过程比较漫长，可以对make加-j参数来提高编译的效率。在make时使用该选项会为编译过程分配n个并发任务，这样可以缩短编译时间。n的取值为cpu个数的二倍。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make -j4</span><br></pre></td></tr></table></figure>
-<p>如果不想看到垃圾信息又不想错过告警和错误信息，可以使用重定向文件写入，编译信息会写到文件中，同时错误和告警信息都会在屏幕上显示</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &gt; ../detritus</span><br></pre></td></tr></table></figure>
-<h4 id="安装内核"><a class="markdownIt-Anchor" href="#安装内核"></a> 安装内核</h4>
-<p>安装过程分为两部分，首先对内核模块进行安装，这个过程会将刚刚编译内核模块时生成的内核模块复制到/lib/modules/5.9.1/目录下，其中5.9.1为对应的内核版本。使用的命令如下：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo make modules_install</span><br></pre></td></tr></table></figure>
-<p>接着使用下述命令安装编译好的内核：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
-<p>安装内核的过程主要完成了以下的工作：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010214336.png" alt="image-20211010214336313" style="zoom:67%;" />
+<h4 id="文件事件处理器的构成"><a class="markdownIt-Anchor" href="#文件事件处理器的构成"></a> 文件事件处理器的构成</h4>
+<p>文件事件处理器由四部分组成，分别是：套接字、I/O多路复用程序、文件事件分派器(dispatcher)、事件处理器</p>
+<p>I/O多路复用程序负责监听多个套接字、并向文件事件分派器传送那些产生了事件的套接字。</p>
+<p>尽快多个文件事件可能会并发地出现。但I/O多路复用程序会<strong>将所有产生的事件的套接字多放到一个队列里面</strong>，通过这个队列，<strong>有序</strong>、<strong>同步</strong>、<strong>每次一个套接字</strong>的方式向文件事件分派器传送套接字，当上一个套接字产生的事件被处理完毕之后(该套接字为事件锁关联的事件处理器执行完毕)，I/O多路复用程序才会继续向文件事件分派器传送下一个套接字</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010214918.png" alt="image-20211010214918846" style="zoom:67%;" />
+<p>这些处理器其实就是一个个的函数，一次Redis客户端与服务器进行连接并发送命令的过程就是</p>
+<ul>
+<li>
+<p>客户端向服务端发起<strong>建立 socket 连接的请求</strong>，那么监听套接字将产生 AE_READABLE 事件，触发连接应答处理器执行。处理器会对客户端的连接请求</p>
+</li>
+<li>
+<p>进行<strong>应答</strong>，然后创建客户端套接字，以及客户端状态，并将客户端套接字的 AE_READABLE 事件与命令请求处理器关联。</p>
+</li>
+<li>
+<p>客户端建立连接后，向服务器<strong>发送命令</strong>，那么客户端套接字将产生 AE_READABLE 事件，触发命令请求处理器执行，处理器读取客户端命令，然后传递给相关程序去执行。</p>
+</li>
+<li>
+<p><strong>执行命令获得相应的命令回复</strong>，为了将命令回复传递给客户端，服务器将客户端套接字的 AE_WRITEABLE 事件与命令回复处理器关联。当客户端试图读取命令回复时，客户端套接字产生 AE_WRITEABLE 事件，触发命令回复处理器将命令回复全部写入到套接字中。</p>
+</li>
+</ul>
+<h4 id="io多路复用程序的实现"><a class="markdownIt-Anchor" href="#io多路复用程序的实现"></a> I/O多路复用程序的实现</h4>
+<p>Redis 的I/O多路复用程序的所有功能都是通过包装常见的select、epoll、evport和kqueue这些I/O多路复用函数库来实现的，每个I/O多路复用函数库在Redis源码中读对应一个单独的文件，比如ae_select.c、ae_epoll.c、ae_kqueue.c。诸如此类</p>
+<p>为每个I/O多路复用函数库都实现了相同的api，所以I/O多路复用程序底层实现是可以互换的</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010215137.png" alt="image-20211010215137555" style="zoom:67%;" />
+<p>Redis 线程不会阻塞在某一个特定的监听或已连接套接字上，Redis 可以同时和多个客户端连接并处理请求，从而提升并发性。</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-redis-event-0.jpg" alt="img" style="zoom:20%;" />
+<p>select/epoll 一旦监测到 FD 上有请求到达时，就会触发相应的事件。这些事件会被放进一个事件队列，Redis 单线程对该事件队列不断进行处理。这样一来，Redis 无需一直轮询是否有请求实际发生，这就可以避免造成 CPU 资源浪费。同时，Redis 在对事件队列中的事件进行处理时，会调用相应的处理函数，这就实现了基于事件的回调。</p>
+<blockquote>
+<p>类似于 大家去医院一起挂号，登记，然后一起排队等待医生的处理</p>
+</blockquote>
+<h3 id="时间事件"><a class="markdownIt-Anchor" href="#时间事件"></a> 时间事件</h3>
+<p>服务器将所有时间事件都放在一个无序链表(不按when属性的大小排序)中，每当时间时间执行器运行时，它就遍历整个链表，查找所有已达到的时间事件，并调用相应的事件处理器</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010220322.png" alt="image-20211010220322769" style="zoom:50%;" />
+<p>时间事件应用实例 <code>redis.c/serverCron</code> 函数，主要工作有</p>
 <ol>
-<li>
-<p>将编译内核时生成的内核镜像bzImage拷贝到/boot目录下，并将这个镜像命名为vmlinuz-5.9.1。如果使用x86的cpu，则该镜像位于arch/x86/boot/目录下（处于正在编译的内核源码下）。</p>
-</li>
-<li>
-<p>将~/linux-5.9.1/目录下的System.map拷贝到/boot/目录下，重新命名为System.map-5.9.1。该文件中存放了内核的符号表。</p>
-</li>
-<li>
-<p>将~/linux-5.9.1/目录下的.config拷贝到/boot/目录下，重新命名为config-5.9.1。</p>
-</li>
+<li>更新服务器的各类统计信息，比如时间、内存占用、数据库占用情况</li>
+<li>清理数据库中的过期键值对</li>
+<li>关闭和清理连接失效的客户端</li>
+<li>尝试执行AOF或RDB持久化操作</li>
+<li>如果服务器是主服务器，那么对从服务器进行定期同步</li>
+<li>如果处理集群模式，对集群进行定期同步和连接测试</li>
 </ol>
-<h4 id="创建initrdimg文件"><a class="markdownIt-Anchor" href="#创建initrdimg文件"></a> 创建initrd.img文件</h4>
-<p>initrd.img即为初始化的ramdisk文件，它是一个镜像文件，将一些最基本的驱动程序和命令工具打包到镜像文件里。该镜像文件的作用是在系统还没有挂载根分区前，系统需要执行一些操作，比如挂载scsi驱动，此时将initrd文件释放到内存中，作为一个虚拟的根分区，然后执行相关脚本，运行insmod命令加载需要的模块。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mkinitramfs 5.9.1 -o /boot/initrd.img-5.9.1</span><br></pre></td></tr></table></figure>
-<h4 id="更新grub"><a class="markdownIt-Anchor" href="#更新grub"></a> 更新grub</h4>
-<p>最后一步则是更新grub启动菜单，使用下面的命令则可以自动更新启动菜单：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo update-grub2</span><br></pre></td></tr></table></figure>
-<p>这样会将刚才编译好的内核放在启动菜单的首位，如果需要修改启动菜单中默认系统的启动顺序，则修改/boot/grub/grub.cfg文件中的set default=的值即可</p>
-<p>内核就这样编译完毕了</p>
-<h3 id="hello-kernel"><a class="markdownIt-Anchor" href="#hello-kernel"></a> Hello Kernel</h3>
-<h4 id="编写一个helloc文件"><a class="markdownIt-Anchor" href="#编写一个helloc文件"></a> 编写一个Hello.c文件</h4>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//必选</span></span><br><span class="line"><span class="comment">//模块许可声明</span></span><br><span class="line">MODULE_LICENSE(<span class="string">"GPL"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//模块加载函数</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">hello_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    printk(KERN_ALERT <span class="string">"hello,I am edsionte\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//模块卸载函数</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">hello_exit</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    printk(KERN_ALERT <span class="string">"goodbye,kernel\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//模块注册</span></span><br><span class="line">module_init(hello_init);</span><br><span class="line">module_exit(hello_exit);</span><br><span class="line"></span><br><span class="line"><span class="comment">//可选</span></span><br><span class="line">MODULE_AUTHOR(<span class="string">"xboom dove"</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">"This is a simple example!\n"</span>);</span><br><span class="line">MODULE_ALIAS(<span class="string">"A simplest example"</span>);</span><br></pre></td></tr></table></figure>
-<p>一个模块程序的中，<strong>模块加载函数</strong>，<strong>模块卸载函数</strong>以及<strong>模块许可声明</strong>是必须有的</p>
-<p>编写了模块加载函数后，还必须用<code>module_init(mode_name);</code>的形式注册这个函数。当接下来用<code>insmod</code>加载模块时，内核会自动去寻找并执行内核加载函数，完成一些初始化工作。类似的当使用<code>rmmod</code>命令时，内核会自动去执行内核卸载函数。</p>
-<blockquote>
-<p>注意这里的printk函数，可以简单的理解为它是内核中的printf函数，初次使用很容易将其打成printf</p>
-</blockquote>
-<h4 id="编写makefile文件"><a class="markdownIt-Anchor" href="#编写makefile文件"></a> 编写Makefile文件</h4>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">obj-m += hello.o</span><br><span class="line"></span><br><span class="line"><span class="comment">#generate the path</span></span><br><span class="line">CURRENT_PATH:=<span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#the current kernel version number</span></span><br><span class="line">LINUX_KERNEL:=<span class="variable">$(<span class="built_in">shell</span> uname -r)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#the absolute path</span></span><br><span class="line">LINUX_KERNEL_PATH:=/lib/modules/<span class="variable">$(LINUX_KERNEL)</span>/build</span><br><span class="line"></span><br><span class="line"><span class="comment">#complie object</span></span><br><span class="line"></span><br><span class="line"><span class="section">all:</span></span><br><span class="line">    make -C <span class="variable">$(LINUX_KERNEL_PATH)</span> M=<span class="variable">$(CURRENT_PATH)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="comment">#clean</span></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C <span class="variable">$(LINUX_KERNEL_PATH)</span> M=<span class="variable">$(CURRENT_PATH)</span> clean</span><br></pre></td></tr></table></figure>
-<p>在当前目录下运行<code>make</code>命令，就会生成<strong>hello.ko</strong>文件，即模块目标文件。接下来：</p>
+<h3 id="事件的调度与执行"><a class="markdownIt-Anchor" href="#事件的调度与执行"></a> 事件的调度与执行</h3>
+<p>服务器同时存在文件事件和时间时间两种事件类型，所以服务器必须同时这两种事件进行调度，</p>
+<ul>
+<li>决定何时应该处理文件时间，何时又应该处理时间时间</li>
+<li>需要花多长时间来处理事件</li>
+</ul>
+<p>事件的调度和执行由 ae.c/aeProcessEvents 函数负责</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">aeMain</span><span class="params">(aeEventLoop *eventLoop)</span> </span>&#123;</span><br><span class="line">    eventLoop-&gt;<span class="built_in">stop</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (!eventLoop-&gt;<span class="built_in">stop</span>) &#123;</span><br><span class="line">        aeProcessEvents(eventLoop, AE_ALL_EVENTS|</span><br><span class="line">                                   AE_CALL_BEFORE_SLEEP|</span><br><span class="line">                                   AE_CALL_AFTER_SLEEP);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20211010221320.png" alt="image-20211010221320033" style="zoom:67%;" />
+<h3 id="参考文献"><a class="markdownIt-Anchor" href="#参考文献"></a> 参考文献</h3>
 <ol>
-<li>
-<p>使用<code>insmod hello.ko</code> 添加该模块</p>
-<blockquote>
-<p>如果报错 “Cannot generate ORC metadata for CONFIG_UNWINDER_ORC=y, please install libelf-dev, libelf-devel or elfutils-libelf-devel”</p>
-<p>Centos: <code>yum install elfutils-libelf-devel</code></p>
-<p>Ubuntu：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt install libelf-dev</span><br><span class="line">apt install libssl-dev</span><br></pre></td></tr></table></figure>
-</blockquote>
-</li>
-<li>
-<p>查看已经加载的模块 <code>lsmod</code></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost linuxDemo]# lsmod |grep hello</span><br><span class="line">hello                  16384  0</span><br></pre></td></tr></table></figure>
-</li>
-<li>
-<p>使用rmmod hello.ko 卸载该模块</p>
-</li>
-<li>
-<p>使用 <code>dmesg</code>命令查看<code>printk</code>中显示的语句</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[339722.818996] hello: loading out-of-tree module taints kernel.</span><br><span class="line">[339722.819088] hello: module verification failed: signature and/or required key missing - tainting kernel</span><br><span class="line">[339722.819609] hello,I am edsionte</span><br><span class="line">[339764.633084] goodbye,kernel</span><br><span class="line">[339786.267993] hello,I am edsionte</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<blockquote>
-<p>linux内核从3.7 开始加入模块签名检查机制，如果内核选项CONFIG_MODULE_SIG和CONFIG_MODULE_SIG_FORCE打开的话，</p>
-<p>当加载模块时内核会检查模块的签名，如果签名不存在或者签名内容不一致，会强制退出模块的加载</p>
-<p>提示&quot;module verification failed: signature and/or required key missing - tainting kernel&quot; 关闭方式：</p>
-<p>在Makefile中添加 <code>CONFIG_MODULE_SIG=n</code> 然后重新重新编译内核</p>
-</blockquote>
-<p>其实第一步<code>insmod</code>还有另外一种办法：</p>
-<ol>
-<li>
-<p>将hello.ko文件拷贝到/lib/module/#uname -r#/目录下，</p>
-<blockquote>
-<p>#uname -r#意思是，在终端中输入<br />
-<code>uname -r</code>后显示的内核版本及名称，例如mini2440中#uname -r#就是2.6.32.2-FriendlyARM。</p>
-</blockquote>
-</li>
-<li>
-<p>然后<code>depmod</code>（会在/lib/modules/#uname -r#/目录下生成modules.dep和modules.dep.bb文件，表明模块的依赖关系）</p>
-</li>
-<li>
-<p>最后<code>modprobe hello</code>（注意这里无需输入.ko后缀）即可</p>
-</li>
-</ol>
-<p><strong>两种方法的区别：</strong></p>
-<p><code>modprobe</code>和insmod类似，都是用来动态加载驱动模块的，区别在于<code>modprobe</code>可以解决<code>load module</code>时的依赖关系，它是通过/lib/modules/#uname -r/modules.dep(.bb)文件来查找依赖关系的；而<code>insmod</code>不能解决依赖问题。</p>
-<h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
-<ol>
-<li><a href="http://edsionte.com/techblog/archives/3289" target="_blank" rel="noopener">Linux内核新手区</a></li>
-<li>《Linux内核设计与实现》</li>
+<li>《Redis 设计与实现》</li>
 </ol>
 
       
@@ -507,7 +468,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://xboom.github.io/2020/10/25/Linux/Linux%E6%96%B0%E6%89%8B1-%E5%86%85%E6%A0%B8%E5%85%A5%E9%97%A8/" title="Linux新手1-内核入门" target="_blank" rel="external">http://xboom.github.io/2020/10/25/Linux/Linux新手1-内核入门/</a>
+      <a href="http://xboom.github.io/2021/10/15/Redis/Redis%E5%85%A5%E9%97%A88-%E4%BA%8B%E4%BB%B6/" title="Redis入门8-事件" target="_blank" rel="external">http://xboom.github.io/2021/10/15/Redis/Redis入门8-事件/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -555,12 +516,12 @@
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/2020/11/01/TCP/TCP-2-%E8%B6%85%E6%97%B6%E4%B8%8E%E9%87%8D%E4%BC%A0/" title="TCP-2-超时与重传"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+      <a href="/2021/10/15/Redis/Redis%E5%85%A5%E9%97%A87-%E9%9B%86%E7%BE%A4/" title="Redis入门7-集群"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
     </li>
     
     
     <li class="next">
-      <a href="/2020/10/01/Linux/Linux%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-0-Tools/" title="Linux性能优化-0-Tools"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2021/10/10/Redis/Redis%E5%85%A5%E9%97%A86-AOF/" title="Redis入门6-AOF"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     

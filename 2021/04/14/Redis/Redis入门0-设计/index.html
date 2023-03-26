@@ -18,20 +18,16 @@
   
   
   <title>Redis入门0-设计 | XBoom Dove</title>
-  <meta name="description" content="前言 Redis的设计与实现主要关注以下几点：  高性能：线程模型(CPU)、数据结构(内存)、AOF(IO)、epoll网络框架(网络) 高可靠：主从复制、哨兵模式、RDB 高课拓展：数据分片，负载均衡    AOF AOF是写后日志，先执行命令，把数据写入内存，然后将命令已文本的形式追加到日志文件中(主线程执行) 优点：  只有命令能执行成功，才会被记录到日志中，否则直接返回错误，避免记录错">
+  <meta name="description" content="前言 Redis的设计与实现主要关注以下几点：  高性能：线程模型(CPU)、数据结构(内存)、AOF(IO)、epoll网络框架(网络) 高可靠：主从复制、哨兵模式、RDB 高课拓展：数据分片，负载均衡   想系统的学习Redis参考将其章节分为  数据结构 底层结构 结构对象 数据库 RDB AOF 集群 缓存 事务 发布与订阅 Lua脚本 Stream 多版本 实战经验 常见问题  参考资">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis入门0-设计">
 <meta property="og:url" content="http://xboom.github.io/2021/04/14/Redis/Redis%E5%85%A5%E9%97%A80-%E8%AE%BE%E8%AE%A1/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="前言 Redis的设计与实现主要关注以下几点：  高性能：线程模型(CPU)、数据结构(内存)、AOF(IO)、epoll网络框架(网络) 高可靠：主从复制、哨兵模式、RDB 高课拓展：数据分片，负载均衡    AOF AOF是写后日志，先执行命令，把数据写入内存，然后将命令已文本的形式追加到日志文件中(主线程执行) 优点：  只有命令能执行成功，才会被记录到日志中，否则直接返回错误，避免记录错">
+<meta property="og:description" content="前言 Redis的设计与实现主要关注以下几点：  高性能：线程模型(CPU)、数据结构(内存)、AOF(IO)、epoll网络框架(网络) 高可靠：主从复制、哨兵模式、RDB 高课拓展：数据分片，负载均衡   想系统的学习Redis参考将其章节分为  数据结构 底层结构 结构对象 数据库 RDB AOF 集群 缓存 事务 发布与订阅 Lua脚本 Stream 多版本 实战经验 常见问题  参考资">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/79/e7/79da7093ed998a99d9abe91e610b74e7.jpg">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/65/08/6528c699fdcf40b404af57040bb8d208.jpg">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/6b/e8/6b054eb1aed0734bd81ddab9a31d0be8.jpg">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210413235036.jpg">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/e4/20/e4c5846616c19fe03dbf528437beb320.jpg">
 <meta property="article:published_time" content="2021-04-13T16:07:16.000Z">
-<meta property="article:modified_time" content="2023-03-17T13:57:06.069Z">
+<meta property="article:modified_time" content="2023-03-23T14:31:25.545Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary">
@@ -198,7 +194,7 @@
   <div class="widget">
     <h3 class="widget-title">Categories</h3>
     <div class="widget-body">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">22</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">22</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -208,7 +204,7 @@
   <div class="widget">
     <h3 class="widget-title">Tags</h3>
     <div class="widget-body">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">22</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">22</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -227,7 +223,7 @@
   <div class="widget">
     <h3 class="widget-title">Archive</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">28</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">28</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -329,13 +325,22 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#aof"><span class="toc-number">2.</span> <span class="toc-text"> AOF</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#aof重写"><span class="toc-number">2.1.</span> <span class="toc-text"> AOF重写</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rdb"><span class="toc-number">3.</span> <span class="toc-text"> RDB</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#aof与rdb混合"><span class="toc-number">3.1.</span> <span class="toc-text"> AOF与RDB混合</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text"> 前言</span></a></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VS0LP704XX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-VS0LP704XX');
+</script>
   <article id="post-Redis/Redis入门0-设计" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
@@ -389,79 +394,31 @@
 <li>高课拓展：数据分片，负载均衡</li>
 </ol>
 <p><img src="https://static001.geekbang.org/resource/image/79/e7/79da7093ed998a99d9abe91e610b74e7.jpg" alt="img" /></p>
-<h3 id="aof"><a class="markdownIt-Anchor" href="#aof"></a> AOF</h3>
-<p>AOF是写后日志，先执行命令，把数据写入内存，然后将命令已文本的形式追加到日志文件中(<strong>主线程执行</strong>)</p>
-<p><strong>优点</strong>：</p>
-<ul>
-<li>只有命令能执行成功，才会被记录到日志中，否则直接返回错误，避免记录错误日志。</li>
-<li>不会阻塞当前操作命令</li>
-</ul>
-<p><strong>缺点</strong>：</p>
-<ul>
-<li>会阻塞下一个操作命令</li>
-<li>如果执行完操作命令还没来得及写入文件就宕机，则会有丢失的风险</li>
-</ul>
-<p>提供三种AOF文件的写回操作：</p>
+<p>想系统的学习Redis参考将其章节分为</p>
 <ol>
-<li>
-<p><strong>Always</strong>，同步写回：每个写命令执行完，立马同步地将日志写回磁盘</p>
-<blockquote>
-<p>可以做到基本不丢失数据，但太影响主线程性能</p>
-</blockquote>
-</li>
-<li>
-<p><strong>Everysec</strong>，每秒写回：每个写命令执行完，只是先把日志写到 AOF 文件的内存缓冲区，每隔一秒把缓冲区中的内容写入磁盘</p>
-<blockquote>
-<p>减少对系统性能的影响，如果发生宕机，上一秒内未落盘的命令操作仍然会丢失</p>
-</blockquote>
-</li>
-<li>
-<p><strong>No</strong>，操作系统控制的写回：每个写命令执行完，只是先把日志写到 AOF 文件的内存缓冲区，由操作系统决定何时将缓冲区内容写回磁盘</p>
-<blockquote>
-<p>落盘的时机随机，只要 AOF 记录没有写回磁盘，一旦宕机对应的数据就丢失了</p>
-</blockquote>
-</li>
+<li>数据结构</li>
+<li>底层结构</li>
+<li>结构对象</li>
+<li>数据库</li>
+<li>RDB</li>
+<li>AOF</li>
+<li>集群</li>
+<li>缓存</li>
+<li>事务</li>
+<li>发布与订阅</li>
+<li>Lua脚本</li>
+<li>Stream</li>
+<li>多版本</li>
+<li>实战经验</li>
+<li>常见问题</li>
 </ol>
-<h4 id="aof重写"><a class="markdownIt-Anchor" href="#aof重写"></a> AOF重写</h4>
-<p>AOF 是以文件的形式在记录接收到的所有写命令。随着接收的写命令越来越多，AOF 文件会越来越大。</p>
-<p>AOF文件过大存在的问题：</p>
+<p>参考资料</p>
 <ol>
-<li>文件系统本身对文件大小有限制，无法保存过大的文件；</li>
-<li>如果文件太大，之后再往里面追加命令记录的话，效率也会变低；</li>
-<li>如果日志文件太大，整个恢复过程就会非常缓慢，会影响到 Redis 的正常使用</li>
+<li>《Redis设计与实现》</li>
+<li><a href="https://pdai.tech/md/db/nosql-redis/db-redis-overview.html" target="_blank" rel="noopener">https://pdai.tech/md/db/nosql-redis/db-redis-overview.html</a></li>
+<li><a href="https://time.geekbang.org/column/100056701?tab=catalog" target="_blank" rel="noopener">https://time.geekbang.org/column/100056701?tab=catalog</a></li>
+<li><a href="https://time.geekbang.org/column/intro/100084301?tab=catalog" target="_blank" rel="noopener">https://time.geekbang.org/column/intro/100084301?tab=catalog</a></li>
 </ol>
-<p>使用AOF重写过程解决文件过大的问题</p>
-<p><img src="https://static001.geekbang.org/resource/image/65/08/6528c699fdcf40b404af57040bb8d208.jpg" alt="img" /></p>
-<p>虽然 AOF 重写后，日志文件会缩小，但把整个数据库的操作日志都写回磁盘是一个非常耗时的过程，所以AOF重写由后台子进程 <em>bgrewriteaof</em> 来完成的，过程为『一次拷贝，两处日志』</p>
-<p><strong>一个拷贝</strong>(内存)：每次执行重写，主线程 fork 出后台的 <em>bgrewriteaof</em> 子进程。此时，fork 会把主线程的内存拷贝一份给 bgrewriteaof 子进程，内存包含数据库最新数据，将其记入重写日志。</p>
-<p><strong>两处日志</strong>(写时复制)：</p>
-<ul>
-<li>第一处日志指正在使用的 AOF 日志，新操作被写到它的缓冲区。即使宕机，这个 AOF 日志的操作仍然是齐全的，可以用于恢复。</li>
-<li>第二处日志指新的 AOF 重写日志。新操作也会被写到重写日志的缓冲区，以保证数据库最新状态的记录。此时就可以用新的 AOF 文件替代旧文件了</li>
-</ul>
-<p><img src="https://static001.geekbang.org/resource/image/6b/e8/6b054eb1aed0734bd81ddab9a31d0be8.jpg" alt="img" /></p>
-<blockquote>
-<p>Redis机器上最好关闭内存大页机制(Huge Page，页面大小2M)，进程申请内存时阻塞的概率降低</p>
-</blockquote>
-<p>缺点是：AOF记录的是操作命令，而不是实际的数据，所以故障恢复时，需要逐一把操作日志都执行一遍。如果操作日志非常多，Redis 就会恢复得很缓慢，影响到正常使用。则使用内存快照RDB(Redis Database)</p>
-<h3 id="rdb"><a class="markdownIt-Anchor" href="#rdb"></a> RDB</h3>
-<p>RDB记录的是某一时刻的数据(全量快照)，并不是操作。在数据恢复时，可直接把 RDB 文件读入内存完成恢复</p>
-<p>RDB提供了两个命令来生成RDB文件：save和bgsave</p>
-<ul>
-<li>Save:在主线程中执行，会导致阻塞</li>
-<li>bgsave:创建一个子进程，专门用于写入RDB文件(默认配置)</li>
-</ul>
-<p>生成RDB文件是需要时间的，如果生成的这段时间时间里又有新数据怎么办？</p>
-<p>答：Redis 使用写时复制技术（Copy-On-Write, COW），在执行快照的同时，正常处理写操作</p>
-<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210413235036.jpg" alt="img" /></p>
-<h4 id="aof与rdb混合"><a class="markdownIt-Anchor" href="#aof与rdb混合"></a> AOF与RDB混合</h4>
-<p>跟 AOF 相比，快照的恢复速度快，但快照的频率不好把握，如果频率太低，两次快照间一旦宕机，就可能有比较多的数据丢失。如果频率太高，又会产生额外开销</p>
-<blockquote>
-<p>使用参数：aof-use-rdb-preamble yes</p>
-</blockquote>
-<p>过程如下：</p>
-<p>T1 和 T2 时刻的修改，用 AOF 日志记录，等到第二次做全量快照时，就可以清空 AOF 日志，因为此时的修改都已经记录到快照中了，恢复时就不再用日志了。这样快照不用频繁操作，AOF也只需记录两次快照之间的操作，避免重写开销</p>
-<p><img src="https://static001.geekbang.org/resource/image/e4/20/e4c5846616c19fe03dbf528437beb320.jpg" alt="img" /></p>
 
       
     </div>
@@ -547,6 +504,7 @@
   </div>
 </nav>
   
+
 
 
 </main>

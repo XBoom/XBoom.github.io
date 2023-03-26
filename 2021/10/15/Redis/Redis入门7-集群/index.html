@@ -26,11 +26,17 @@
 <meta property="og:description" content="Redis 集群是一种分布式的 Redis 系统，通过数据分片和负载均衡来提高 Redis 的性能和可用性。下面介绍几种常见的 Redis 集群方案：  主从模式：Redis 主从复制是一种基于主从架构的数据复制方式，其中一个 Redis 服务器作为主节点，实现读写分离 Redis Sentinel：Redis 官方提供的高可用方案，可以监控 Redis 节点的状态，并在节点故障时进行自动切换。R">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-master-slave.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-redis-copy-2.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-redis-copy-3.jpg">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-sentinel.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-sentinei-2.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-redis-sen-4.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-redis-sen-5.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-cluster.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-cluster-5.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-cluster-7.png">
 <meta property="article:published_time" content="2021-10-15T11:04:44.000Z">
-<meta property="article:modified_time" content="2023-03-18T07:22:05.421Z">
+<meta property="article:modified_time" content="2023-03-26T10:40:51.569Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="TCP&#x2F;IP">
 <meta name="twitter:card" content="summary">
@@ -197,7 +203,7 @@
   <div class="widget">
     <h3 class="widget-title">Categories</h3>
     <div class="widget-body">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">22</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">22</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -207,7 +213,7 @@
   <div class="widget">
     <h3 class="widget-title">Tags</h3>
     <div class="widget-body">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">22</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">22</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -226,7 +232,7 @@
   <div class="widget">
     <h3 class="widget-title">Archive</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">28</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">28</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -328,13 +334,22 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#主从模式"><span class="toc-number">1.</span> <span class="toc-text"> 主从模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#哨兵模式"><span class="toc-number">2.</span> <span class="toc-text"> 哨兵模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#哨兵的原理"><span class="toc-number">2.1.</span> <span class="toc-text"> 哨兵的原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#redis-sharding"><span class="toc-number">2.2.</span> <span class="toc-text"> Redis Sharding</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#客户端分片"><span class="toc-number">2.2.1.</span> <span class="toc-text"> 客户端分片</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#代理分片"><span class="toc-number">2.2.2.</span> <span class="toc-text"> 代理分片</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redis-cluster"><span class="toc-number">3.</span> <span class="toc-text"> Redis Cluster</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#主从模式"><span class="toc-number">1.</span> <span class="toc-text"> 主从模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#主从复制原理"><span class="toc-number">1.1.</span> <span class="toc-text"> 主从复制原理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#全量复制"><span class="toc-number">1.1.1.</span> <span class="toc-text"> 全量复制</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#增量同步"><span class="toc-number">1.1.2.</span> <span class="toc-text"> 增量同步</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#哨兵模式"><span class="toc-number">2.</span> <span class="toc-text"> 哨兵模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#哨兵的原理"><span class="toc-number">2.1.</span> <span class="toc-text"> 哨兵的原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#故障转移"><span class="toc-number">2.2.</span> <span class="toc-text"> 故障转移</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redis-cluster"><span class="toc-number">3.</span> <span class="toc-text"> Redis Cluster</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#redis-sharding"><span class="toc-number">3.1.</span> <span class="toc-text"> Redis Sharding</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#客户端分片"><span class="toc-number">3.1.1.</span> <span class="toc-text"> 客户端分片</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#代理分片"><span class="toc-number">3.1.2.</span> <span class="toc-text"> 代理分片</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#cluster集群模式"><span class="toc-number">3.2.</span> <span class="toc-text"> Cluster集群模式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#keys-hash-tags"><span class="toc-number">3.2.1.</span> <span class="toc-text"> keys hash tags</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#请求重定向"><span class="toc-number">3.2.2.</span> <span class="toc-text"> 请求重定向</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#ask重定向"><span class="toc-number">3.2.3.</span> <span class="toc-text"> ASK重定向</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#smart客户端"><span class="toc-number">3.2.4.</span> <span class="toc-text"> smart客户端</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VS0LP704XX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-VS0LP704XX');
+</script>
   <article id="post-Redis/Redis入门7-集群" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
@@ -402,11 +417,65 @@
 <p>不足: 不具备自动容错和恢复功能，主节点故障，集群则无法进行工作，可用性比较低，从节点升主节点需要人工手动干预。</p>
 </li>
 </ul>
-<p>当主数据库崩溃时，需要手动切换从数据库成为主数据库:</p>
+<p>当主数据库崩溃时，<strong>需要手动切换从数据库成为主数据库</strong>:</p>
 <ol>
 <li>在从数据库中使用<code>SLAVE NO ONE</code>命令将从数据库提升成主数据继续服务。</li>
 <li>启动之前崩溃的主数据库，然后使用<code>SLAVEOF</code>命令将其设置成新的主数据库的从数据库，即可同步数据。</li>
 </ol>
+<h4 id="主从复制原理"><a class="markdownIt-Anchor" href="#主从复制原理"></a> 主从复制原理</h4>
+<p>为了实现主从复制，那么就会存在以下几个问题</p>
+<ol>
+<li>如何确定主从关系的</li>
+<li>如何进行全量同步与增量同步的</li>
+<li>同步过程中新的写命令是如何处理的</li>
+</ol>
+<h5 id="全量复制"><a class="markdownIt-Anchor" href="#全量复制"></a> 全量复制</h5>
+<p>全量复制分为三个阶段</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-redis-copy-2.jpg" alt="img" style="zoom:20%;" />
+<p>第一阶段：从库发送 <code>psync</code> 命令，表示要进行数据同步。<code>psync</code> 命令包含了主库的 runID 和复制进度 offset 两个参数。</p>
+<ul>
+<li>
+<p><strong>runID</strong>，是每个 Redis 实例启动时都会自动生成的一个随机 ID，用来唯一标记这个实例。当从库和主库第一次复制时，因为不知道主库的 <strong>runID</strong>，所以将 <strong>runID</strong> 设为 <code>？</code></p>
+</li>
+<li>
+<p>offset，此时设为 -1，表示第一次复制。</p>
+<p>主库收到 psync 命令后，会用 FULLRESYNC 响应命令带上两个参数：主库 runID 和主库目前的复制进度 offset，返回给从库。</p>
+</li>
+</ul>
+<p>第二阶段：<strong>主库同步数据给从库</strong></p>
+<ul>
+<li>
+<p>主库执行 bgsave 命令，生成 RDB 文件，接着将文件发给从库。</p>
+</li>
+<li>
+<p>从库收到 RDB 文件后，先清空当前数据库，然后加载 RDB 文件。</p>
+<blockquote>
+<p>注意：</p>
+<ol>
+<li>清空当前数据库是为了避免有旧数据</li>
+<li>主库同步数据给从库过程中，主库不会阻塞，过程中新产生的写命令会存储在主库 replication buffer内存中</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<p>第三阶段：<strong>主库会把第二阶段执行过程中新收到的写命令，再发送给从库</strong></p>
+<blockquote>
+<p>如果在同步 replication buffer 过程中，又有新的写命令怎么办？</p>
+<p>同步过程中网络断了，如果不进行全量同步，那么怎么知道数据同步到哪里了？</p>
+</blockquote>
+<h5 id="增量同步"><a class="markdownIt-Anchor" href="#增量同步"></a> 增量同步</h5>
+<p>每次都进行全量同步的陈本很高，所以就添加的增量同步的逻辑</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-redis-copy-3.jpg" alt="img" style="zoom:20%;" />
+<p>这里有两个缓存， <code>replication buffe</code>r 在上一节也是在全量同步过程中用于记录 同步过程中的新写命令</p>
+<ul>
+<li>
+<p><code>repl_backlog_buffer</code>：为了能找到主从差异数据而设计的环形缓冲区，从而避免全量复制带来的性能开销。如果从库断开时间太久，<code>repl_backlog_buffer</code>环形缓冲区被主库的写命令覆盖了，那么从库连上主库后只能乖乖地进行一次全量复制，所以<strong>repl_backlog_buffer配置尽量大一些，可以降低主从断开后全量复制的概率</strong>。而在<code>repl_backlog_buffer</code>中找主从差异的数据后，如何发给从库呢？这就用到了<code>replication buffer</code>。</p>
+</li>
+<li>
+<p><code>replication buffer</code>：Redis和客户端通信也好，和从库通信也好，每个client 都会分配一个 <code>replication buffer</code>进行数据交互，所有数据交互都是通过这个buffer进行的。所以主从在增量同步时，从库作为一个client，也会分配一个buffer，专门用来传播用户的写命令到从库，保证主从数据一致。</p>
+</li>
+</ul>
+<p>**主从模式主服务器必须开启持久化！**因为从库可能会因为主库崩溃没有数据而在同步过程中将从库的数据全部删掉</p>
 <h3 id="哨兵模式"><a class="markdownIt-Anchor" href="#哨兵模式"></a> 哨兵模式</h3>
 <p>主从模式异常情况下，需要人工干预，哨兵模式巧妙解决。哨兵模式核心还是主从复制，只不过在相对于主从模式在主节点宕机导致不可写的情况下，多了一个竞选机制：从所有的从节点竞选出新的主节点。竞选机制的实现，是依赖于在系统中启动一个<code>sentinel</code>进程。</p>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-sentinel.png" alt="redis-sentinel" style="zoom:50%;" />
@@ -415,16 +484,22 @@
 <p>哨兵的作用:</p>
 <ol>
 <li>
-<p>监控所有服务器是否正常运行：通过发送命令返回监控服务器的运行状态，处理监控主服务器、从服务器外，哨兵之间也相互监控。</p>
+<p><strong>监控（Monitoring）</strong>：哨兵会不断地检查主节点和从节点是否运作正常。</p>
 </li>
 <li>
-<p>故障切换：当哨兵监测到master宕机，会自动将slave切换成master，然后通过发布订阅模式通知其他的从服务器，修改配置文件，让它们切换master。同时那台有问题的旧主也会变为新主的从，也就是说当旧的主即使恢复时，并不会恢复原来的主身份，而是作为新主的一个从</p>
+<p><strong>自动故障转移（Automatic failover）</strong>：当主节点不能正常工作时，哨兵会开始自动故障转移操作，它会将失效主节点的其中一个从节点升级为新的主节点，并让其他从节点改为复制新的主节点。</p>
+</li>
+<li>
+<p><strong>配置提供者（Configuration provider）</strong>：客户端在初始化时，通过连接哨兵来获得当前Redis服务的主节点地址。</p>
+</li>
+<li>
+<p><strong>通知（Notification）</strong>：哨兵可以将故障转移的结果发送给客户端</p>
 </li>
 </ol>
 <h4 id="哨兵的原理"><a class="markdownIt-Anchor" href="#哨兵的原理"></a> 哨兵的原理</h4>
 <p>哨兵在启动进程时，会读取配置文件的内容，通过如下的配置找出需要监控的主数据库：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sentinel monitor master-name ip port quorum</span><br><span class="line"><span class="meta">#</span><span class="bash">master-name是主数据库的名字</span></span><br><span class="line"><span class="meta">#</span><span class="bash">ip和port 是当前主数据库地址和端口号</span></span><br><span class="line"><span class="meta">#</span><span class="bash">quorum表示在执行故障切换操作前，需要多少哨兵节点同意。</span></span><br></pre></td></tr></table></figure>
-<p>之所以只需要连接主节点，是因为通过主节点的info命令，获取从节点信息，从而和从节点也建立连接，同时也能通过主节点的info信息知道新增从节点的信息。</p>
+<p>之所以只需要连接主节点，是因为<strong>通过主节点的info命令，获取从节点信息，从而和从节点也建立连接</strong>，同时也能通过主节点的info信息知道新增从节点的信息。</p>
 <p>一个哨兵节点可以监控多个主节点，但是并不提倡这么做，因为当哨兵节点崩溃时，同时有多个集群切换会发生故障。哨兵启动后，会与主数据库建立两条连接。</p>
 <ol>
 <li>订阅主数据库<code>_sentinel_:hello</code>频道以获取同样监控该数据库的哨兵节点信息</li>
@@ -437,15 +512,53 @@
 <li>每隔1s向所有主从节点和所有哨兵节点发送ping命令，作用是监控节点是否存活。</li>
 </ol>
 <p><strong>主客观下线</strong></p>
+<ul>
+<li><strong>主观下线</strong>：任何一个哨兵都是可以监控探测，并作出Redis节点下线的判断；</li>
+<li><strong>客观下线</strong>：有哨兵集群共同决定Redis节点是否下线；</li>
+</ul>
 <p>哨兵节点发送ping命令时，当超过一定时间(<code>down-after-millisecond</code>)后，如果节点未回复，则哨兵认为主观下线。主观下线表示当前哨兵认为该节点已经下面，如果该节点为主数据库，哨兵会进一步判断是够需要对其进行故障切换，这时候就要发送命令(<code>SENTINEL is-master-down-by-addr</code>)询问其他哨兵节点是否认为该主节点是主观下线，当达到指定数量(quorum)时，哨兵就会认为是客观下线。</p>
 <p>当主节点客观下线时就需要进行主从切换，主从切换的步骤为：</p>
 <ul>
-<li>选出领头哨兵。</li>
-<li>领头哨兵所有的slave选出优先级高的从数据库。优先级可以通过<code>slave-priority</code>选项设置。</li>
-<li>如果优先级相同，则从复制的命令偏移量越大（即复制同步数据越多，数据越新），越优先。</li>
-<li>如果以上条件都一样，则选择run ID较小的从数据库。</li>
+<li>
+<p>选出领头哨兵(Raft)，需要同时满足以下两个条件</p>
+<ul>
+<li>第一，拿到半数以上的赞成票；</li>
+<li>第二，拿到的票数同时还需要大于等于哨兵配置文件中的 quorum 值</li>
+</ul>
+</li>
+<li>
+<p>过滤出不健康的(下线或者不响应哨兵ping响应)</p>
+</li>
+<li>
+<p>领头哨兵所有的slave选出优先级高的从数据库。优先级可以通过<code>slave-priority</code>选项设置。</p>
+</li>
+<li>
+<p>如果优先级相同，则从复制的命令偏移量越大（即复制同步数据越多，数据越新），越优先。</p>
+</li>
+<li>
+<p>如果以上条件都一样，则选择run ID较小的从数据库。</p>
+</li>
 </ul>
 <p>选出一个从数据库后，哨兵发送<code>slave no one</code>命令升级为主数据库，发送<code>slaveof</code>命令将其他从节点的主数据库设置为新的主数据库。</p>
+<h4 id="故障转移"><a class="markdownIt-Anchor" href="#故障转移"></a> 故障转移</h4>
+<p><strong>转移前</strong></p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-redis-sen-4.png" alt="img" style="zoom:90%;" />
+<ul>
+<li>
+<p>将slave-1脱离原从节点（PS: 5.0 中应该是<code>replicaof no one</code>)，升级主节点，</p>
+</li>
+<li>
+<p>将从节点slave-2指向新的主节点</p>
+</li>
+<li>
+<p>通知客户端主节点已更换</p>
+</li>
+<li>
+<p>将原主节点（oldMaster）变成从节点，指向新的主节点</p>
+</li>
+</ul>
+<p><strong>转移后</strong></p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-redis-sen-5.png" alt="img" style="zoom:80%;" />
 <p><strong>哨兵模式优缺点</strong></p>
 <p><strong>优点</strong></p>
 <ul>
@@ -453,10 +566,11 @@
 </ul>
 <p><strong>缺点</strong></p>
 <ul>
-<li>是一种中心化的集群实现方案：始终只有一个Redis主机来接收和处理写请求，写操作受单机瓶颈影响。</li>
+<li>是一种中心化的集群实现方案：<strong>始终只有一个Redis主机来接收和处理写请求，写操作受单机瓶颈影响</strong>。</li>
 <li>集群里所有节点保存的都是全量数据，浪费内存空间，没有真正实现分布式存储。数据量过大时，主从同步严重影响master的性能。</li>
-<li>Redis主机宕机后，哨兵模式正在投票选举的情况之外，因为投票选举结束之前，谁也不知道主机和从机是谁，此时Redis也会开启保护机制，禁止写操作，直到选举出了新的Redis主机。</li>
+<li>Redis主机宕机后，哨兵模式正在投票选举的情况之外，因为投票选举结束之前，谁也不知道主机和从机是谁，此时<strong>Redis也会开启保护机制，禁止写操作，直到选举出了新的Redis主机</strong>。</li>
 </ul>
+<h3 id="redis-cluster"><a class="markdownIt-Anchor" href="#redis-cluster"></a> Redis Cluster</h3>
 <p>主从模式或哨兵模式每个节点存储的数据都是全量的数据，数据量过大时，就需要对存储的数据进行分片后存储到多个redis实例上。此时就要用到<code>Redis Sharding</code>技术。</p>
 <h4 id="redis-sharding"><a class="markdownIt-Anchor" href="#redis-sharding"></a> Redis Sharding</h4>
 <h5 id="客户端分片"><a class="markdownIt-Anchor" href="#客户端分片"></a> 客户端分片</h5>
@@ -471,13 +585,7 @@
 <li>优点：客户端无序关心存储、分片逻辑，减少客户端与Redis实例连接数(所以代理也需要可拓展，防止单点故障)</li>
 <li>缺点：请求转发一次会产生性能消耗</li>
 </ul>
-<h3 id="redis-cluster"><a class="markdownIt-Anchor" href="#redis-cluster"></a> Redis Cluster</h3>
-<p>Redis 的哨兵模式虽然已经可以实现高可用，读写分离 ，但是存在几个方面的不足：</p>
-<ul>
-<li>哨兵模式下每台 Redis 服务器都存储相同的数据，很浪费内存空间；数据量太大，主从同步时严重影响了master性能。</li>
-<li>哨兵模式是中心化的集群实现方案，每个从机和主机的耦合度很高，<strong>master宕机到salve选举master恢复期间服务不可用</strong>。</li>
-<li>哨兵模式始终只有一个Redis主机来接收和处理写请求，写操作还是受单机瓶颈影响，没有实现真正的分布式架构。</li>
-</ul>
+<h4 id="cluster集群模式"><a class="markdownIt-Anchor" href="#cluster集群模式"></a> Cluster集群模式</h4>
 <p>redis在3.0上加入了 Cluster 集群模式，实现了 Redis 的分布式存储，也就是说每台 Redis 节点上存储不同的数据。cluster模式为了解决单机Redis容量有限的问题，将数据按一定的规则分配到多台机器，内存/QPS不受限于单机，可受益于分布式集群高扩展性。</p>
 <p>Redis Cluster是一种<strong>服务器Sharding技术</strong>(分片和路由都是在服务端实现)，采用多主多从，每一个分区都是由一个Redis主机和多个从机组成，片区和片区之间是相互平行的。Redis Cluster集群采用了P2P的模式，完全去中心化。</p>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-cluster.png" alt="redis-cluster" style="zoom:50%;" />
@@ -496,6 +604,48 @@
 <p>在 Redis Cluster 中，数据同步通过 <strong>Gossip</strong> 协议实现，每个节点都会周期性地向其他节点发送消息，以获取最新的集群信息和数据同步状态。当某个节点出现故障时，其他节点会立即进行检测和处理，将该节点负责的哈希槽自动迁移至其他节点上，以保证数据的高可用性和一致性</p>
 <p>redis cluster主要是针对海量数据+高并发+高可用的场景，海量数据，如果你的数据量很大，那么建议就用redis cluster，数据量不是很大时，使用sentinel就够了。redis cluster的性能和高可用性均优于哨兵模式。</p>
 <p>Redis Cluster采用<strong>虚拟哈希槽分区</strong>而非一致性hash算法，预先分配一些卡槽，所有的键根据哈希函数映射到这些槽内，每一个分区内的master节点负责维护一部分槽以及槽所映射的键值数据。</p>
+<h5 id="keys-hash-tags"><a class="markdownIt-Anchor" href="#keys-hash-tags"></a> keys hash tags</h5>
+<p>Hash tags提供了一种途径，<strong>用来将多个(相关的)key分配到相同的hash slot中</strong>。这时Redis Cluster中实现multi-key操作的基础。</p>
+<p>hash tag规则如下，如果满足如下规则，<code>{</code>和<code>}</code>之间的字符将用来计算HASH_SLOT，以保证这样的key保存在同一个slot中。</p>
+<ul>
+<li>key包含一个<code>{</code>字符</li>
+<li>并且 如果在这个<code>{</code>的右面有一个<code>}</code>字符</li>
+<li>并且 如果在<code>{</code>和<code>}</code>之间存在至少一个字符</li>
+</ul>
+<p>例如：</p>
+<ul>
+<li>{user1000}.following和{user1000}.followers这两个key会被hash到相同的hash slot中，因为只有user1000会被用来计算hash slot值。</li>
+<li>foo{}{bar}这个key不会启用hash tag因为<strong>第一个</strong>{和}之间没有字符。</li>
+<li>foozap{bar}这个key中的**{**bar部分会被用来计算hash slot</li>
+<li>foo{bar}{zap}这个key中的bar会被用来计算计算hash slot，而zap不会</li>
+</ul>
+<h5 id="请求重定向"><a class="markdownIt-Anchor" href="#请求重定向"></a> 请求重定向</h5>
+<p>Redis cluster采用去中心化的架构，集群的主节点各自负责一部分槽，客户端如何确定key到底会映射到哪个节点上呢？即<strong>请求重定向</strong></p>
+<p>在cluster模式下，<strong>节点对请求的处理过程</strong>如下：</p>
+<ul>
+<li>检查当前key是否存在当前NODE？
+<ul>
+<li>通过crc16(key)/16384计算出slot</li>
+<li>查询负责该slot负责的节点，得到节点指针</li>
+<li>该指针与自身节点比较</li>
+</ul>
+</li>
+<li>若slot不是由自身负责，则返回<strong>MOVED重定向</strong></li>
+<li>若slot由自身负责，且key在slot中，则返回该key对应结果</li>
+<li>若key不存在此slot中，检查该slot是否正在迁出(MIGRATING）？</li>
+<li>若key正在迁出，返回<strong>ASK错误重定向</strong>客户端到迁移的目的服务器上</li>
+<li>若Slot未迁出，检查Slot是否导入中？</li>
+<li>若Slot导入中且有ASKING标记，则直接操作</li>
+<li>否则返回MOVED重定向</li>
+</ul>
+<p>这个过程中有两点需要具体理解下： <strong>MOVED重定向</strong> 和 <strong>ASK重定向</strong>。</p>
+<h5 id="ask重定向"><a class="markdownIt-Anchor" href="#ask重定向"></a> ASK重定向</h5>
+<p>ASK重定向发生与集群伸缩时候，会要求访问目标</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-cluster-5.png" alt="img" style="zoom:50%;" />
+<h5 id="smart客户端"><a class="markdownIt-Anchor" href="#smart客户端"></a> smart客户端</h5>
+<p>为了降低上述两种重定向复杂性，提供了smart客户端(HedisCluster)来降低复杂度，其实就是客户端内部缓存(key-&gt;slot-&gt;node)的映射关系</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/redis-cluster-7.png" alt="img" style="zoom:50%;" />
+<p>Redis Cluster 不建议使用发布订阅！会将每条publish数据在所有节点之间广播一次</p>
 <h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
 <p>Redis 主从复制是一种基于<strong>主从架构</strong>的数据复制方式，其中一个 Redis 服务器作为主节点，负责数据写入和数据同步，其他 Redis 服务器作为从节点，负责数据的读取和数据同步。Redis 主从复制提供了数据备份和负载均衡的功能，适用于单节点读写比较频繁的场景。</p>
 <p>Redis Cluster 是一种基于<strong>分布式架构</strong>的集群方案，其中多个 Redis 节点通过哈希槽的方式将数据分散到不同的节点中进行存储和访问。Redis Cluster 提供了数据的自动分片和负载均衡的功能，可以动态地增加或删除节点，并支持故障恢复和数据同步。Redis Cluster 适用于大规模的数据存储和高并发访问的场景。</p>
@@ -574,7 +724,7 @@
     
     
     <li class="next">
-      <a href="/2021/10/10/Redis/Redis%E5%85%A5%E9%97%A86-AOF/" title="Redis入门6-AOF"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2021/10/15/Redis/Redis%E5%85%A5%E9%97%A88-%E4%BA%8B%E4%BB%B6/" title="Redis入门8-事件"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
@@ -596,6 +746,7 @@
   </div>
 </nav>
   
+
 
 
 </main>
