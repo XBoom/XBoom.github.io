@@ -17,17 +17,17 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>Redis入门8-缓存问题 | XBoom Dove</title>
+  <title>Redis入门9-缓存 | XBoom Dove</title>
   <meta name="description" content="问题背景：当前需要实现一个硬件准入的功能，通过获取数据库中设备过期记录，判断设备是否能够正常使用 这里除了之前学到的  自适应熔断 自适应降载&#x2F;速率限制  也需要用到缓存，对于缓存的异常一直弄混了，直到看到一种解释：  缓存雪崩：大量的key都没有了，请求像雪崩一样打到数据库上 缓存击穿：Redis这个盾被刺了一个洞(单个key没有了，热点Key)，这个Key的请求像剑一样刺破盾刺向数据库 缓存穿">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Redis入门8-缓存问题">
+<meta property="og:title" content="Redis入门9-缓存">
 <meta property="og:url" content="http://xboom.github.io/2021/10/20/Redis/Redis%E5%85%A5%E9%97%A89-%E7%BC%93%E5%AD%98/index.html">
 <meta property="og:site_name" content="XBoom Dove">
 <meta property="og:description" content="问题背景：当前需要实现一个硬件准入的功能，通过获取数据库中设备过期记录，判断设备是否能够正常使用 这里除了之前学到的  自适应熔断 自适应降载&#x2F;速率限制  也需要用到缓存，对于缓存的异常一直弄混了，直到看到一种解释：  缓存雪崩：大量的key都没有了，请求像雪崩一样打到数据库上 缓存击穿：Redis这个盾被刺了一个洞(单个key没有了，热点Key)，这个Key的请求像剑一样刺破盾刺向数据库 缓存穿">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/reids-monitor.png">
 <meta property="article:published_time" content="2021-10-20T11:04:44.000Z">
-<meta property="article:modified_time" content="2023-03-26T11:02:37.386Z">
+<meta property="article:modified_time" content="2023-03-26T11:54:13.505Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary">
@@ -348,7 +348,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Redis入门8-缓存问题
+      Redis入门9-缓存
     </h1>
   
 
@@ -377,7 +377,7 @@
 
 	<span class="article-read hidden-xs">
     	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2021/10/20/Redis/Redis%E5%85%A5%E9%97%A89-%E7%BC%93%E5%AD%98/" class="leancloud_visitors"  data-flag-title="Redis入门8-缓存问题">0</span>
+    	<span id="/2021/10/20/Redis/Redis%E5%85%A5%E9%97%A89-%E7%BC%93%E5%AD%98/" class="leancloud_visitors"  data-flag-title="Redis入门9-缓存">0</span>
     </span>
 
         <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/10/20/Redis/Redis%E5%85%A5%E9%97%A89-%E7%BC%93%E5%AD%98/#comments" class="article-comment-link">Comments</a></span>
@@ -507,7 +507,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://xboom.github.io/2021/10/20/Redis/Redis%E5%85%A5%E9%97%A89-%E7%BC%93%E5%AD%98/" title="Redis入门8-缓存问题" target="_blank" rel="external">http://xboom.github.io/2021/10/20/Redis/Redis入门9-缓存/</a>
+      <a href="http://xboom.github.io/2021/10/20/Redis/Redis%E5%85%A5%E9%97%A89-%E7%BC%93%E5%AD%98/" title="Redis入门9-缓存" target="_blank" rel="external">http://xboom.github.io/2021/10/20/Redis/Redis入门9-缓存/</a>
     </li>
     
     <li class="post-copyright-license">
