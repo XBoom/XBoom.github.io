@@ -28,12 +28,12 @@ var _hmt = _hmt || [];
   
   
   <title>MySql入门1-一条sql | XBoom Dove</title>
-  <meta name="description" content="一条SQL MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么   连接器 连接器：负责跟客户端建立连接、获取权限、维持和管理连接  连接命令：mysql -h$ip -P$port -u$user -p  连接默认端口是3306，可通过修改my.cnf配置文件指定端口 如果客户端太长时间没动静，连接器会自动断开。由参数wait_timeout控制的，默认值是8小时  s">
+  <meta name="description" content="MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么   Server层  连接器 连接器负责跟客户端建立连接、获取权限、维持和管理连接，连接默认端口是3306，可通过修改my.cnf配置文件指定端口  连接命令：mysql -h$ip -P$port -u$user -p  如果客户端太长时间没动静，连接器会自动断开。由参数wait_timeout控制的，默认值是8小时">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySql入门1-一条sql">
 <meta property="og:url" content="http://xboom.github.io/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A81-%E4%B8%80%E6%9D%A1sql/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="一条SQL MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么   连接器 连接器：负责跟客户端建立连接、获取权限、维持和管理连接  连接命令：mysql -h$ip -P$port -u$user -p  连接默认端口是3306，可通过修改my.cnf配置文件指定端口 如果客户端太长时间没动静，连接器会自动断开。由参数wait_timeout控制的，默认值是8小时  s">
+<meta property="og:description" content="MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么   Server层  连接器 连接器负责跟客户端建立连接、获取权限、维持和管理连接，连接默认端口是3306，可通过修改my.cnf配置文件指定端口  连接命令：mysql -h$ip -P$port -u$user -p  如果客户端太长时间没动静，连接器会自动断开。由参数wait_timeout控制的，默认值是8小时">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210718145041.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-9.png">
@@ -43,7 +43,7 @@ var _hmt = _hmt || [];
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-13.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-14.png">
 <meta property="article:published_time" content="2021-07-21T23:20:02.000Z">
-<meta property="article:modified_time" content="2023-03-26T14:23:26.389Z">
+<meta property="article:modified_time" content="2023-05-13T13:34:21.975Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="MySql">
 <meta name="twitter:card" content="summary">
@@ -210,7 +210,7 @@ var _hmt = _hmt || [];
   <div class="widget">
     <h3 class="widget-title">Categories</h3>
     <div class="widget-body">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">22</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -220,7 +220,7 @@ var _hmt = _hmt || [];
   <div class="widget">
     <h3 class="widget-title">Tags</h3>
     <div class="widget-body">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">22</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">23</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
     </div>
   </div>
 
@@ -239,7 +239,7 @@ var _hmt = _hmt || [];
   <div class="widget">
     <h3 class="widget-title">Archive</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">28</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">May 2023</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -255,13 +255,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Go/">Go</a>
+                <a class="category-link" href="/categories/Design-Patterns/">Design Patterns</a>
               </p>
               <p class="item-title">
-                <a href="/2023/03/05/Go/Go%E5%85%A5%E9%97%A823-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/" class="title">Go入门22-协程池问题</a>
+                <a href="/2023/05/26/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-17-%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" class="title">设计模式-17-策略模式</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-03-05T06:46:45.000Z" itemprop="datePublished">2023-03-05</time>
+                <time datetime="2023-05-26T14:20:58.534Z" itemprop="datePublished">2023-05-26</time>
               </p>
             </div>
           </li>
@@ -270,13 +270,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
+                <a class="category-link" href="/categories/Design-Patterns/">Design Patterns</a>
               </p>
               <p class="item-title">
-                <a href="/2023/02/02/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/" class="title">算法-E10C-最大公约数</a>
+                <a href="/2023/05/26/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-16-%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/" class="title">设计模式-16-模板方法模式</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-02-02T12:25:25.494Z" itemprop="datePublished">2023-02-02</time>
+                <time datetime="2023-05-26T14:20:58.534Z" itemprop="datePublished">2023-05-26</time>
               </p>
             </div>
           </li>
@@ -285,13 +285,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Go/">Go</a>
+                <a class="category-link" href="/categories/Design-Patterns/">Design Patterns</a>
               </p>
               <p class="item-title">
-                <a href="/2023/01/10/Go/Go%E5%85%A5%E9%97%A822-arena/" class="title">Go入门21-arena</a>
+                <a href="/2023/05/26/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-14-%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/" class="title">设计模式-14-享元模式</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-01-10T08:00:20.000Z" itemprop="datePublished">2023-01-10</time>
+                <time datetime="2023-05-26T14:20:58.533Z" itemprop="datePublished">2023-05-26</time>
               </p>
             </div>
           </li>
@@ -300,13 +300,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Go/">Go</a>
+                <a class="category-link" href="/categories/Design-Patterns/">Design Patterns</a>
               </p>
               <p class="item-title">
-                <a href="/2023/01/04/Go/Go%E5%85%A5%E9%97%A821-SetFinalizer/" class="title">Go入门21-SetFinalizer</a>
+                <a href="/2023/05/26/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-13-%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/" class="title">设计模式-13-组合模式</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-01-04T13:45:13.344Z" itemprop="datePublished">2023-01-04</time>
+                <time datetime="2023-05-26T14:20:58.533Z" itemprop="datePublished">2023-05-26</time>
               </p>
             </div>
           </li>
@@ -315,13 +315,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
+                <a class="category-link" href="/categories/Design-Patterns/">Design Patterns</a>
               </p>
               <p class="item-title">
-                <a href="/2022/12/11/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-%E5%85%AB%E6%95%B0%E7%A0%81%E9%97%AE%E9%A2%98/" class="title">算法之美-八数码问题</a>
+                <a href="/2023/05/26/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-15-%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/" class="title">设计模式-15-观察者模式</a>
               </p>
               <p class="item-date">
-                <time datetime="2022-12-11T09:47:28.000Z" itemprop="datePublished">2022-12-11</time>
+                <time datetime="2023-05-26T14:20:58.533Z" itemprop="datePublished">2023-05-26</time>
               </p>
             </div>
           </li>
@@ -341,7 +341,7 @@ var _hmt = _hmt || [];
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一条sql"><span class="toc-number">1.</span> <span class="toc-text"> 一条SQL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#连接器"><span class="toc-number">1.1.</span> <span class="toc-text"> 连接器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询缓存"><span class="toc-number">1.2.</span> <span class="toc-text"> 查询缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#分析器"><span class="toc-number">1.3.</span> <span class="toc-text"> 分析器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询优化器"><span class="toc-number">1.4.</span> <span class="toc-text"> 查询优化器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#执行器"><span class="toc-number">1.5.</span> <span class="toc-text"> 执行器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bin-log"><span class="toc-number">1.6.</span> <span class="toc-text"> bin log</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#inndb-存储引擎"><span class="toc-number">1.7.</span> <span class="toc-text"> Inndb 存储引擎</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#buffer-pool"><span class="toc-number">1.7.1.</span> <span class="toc-text"> buffer Pool</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#undo-log"><span class="toc-number">1.7.2.</span> <span class="toc-text"> undo log</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#redo-log"><span class="toc-number">1.7.3.</span> <span class="toc-text"> redo log</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">2.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#server层"><span class="toc-number">1.</span> <span class="toc-text"> Server层</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#连接器"><span class="toc-number">1.1.</span> <span class="toc-text"> 连接器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询缓存"><span class="toc-number">1.2.</span> <span class="toc-text"> 查询缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#分析器"><span class="toc-number">1.3.</span> <span class="toc-text"> 分析器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询优化器"><span class="toc-number">1.4.</span> <span class="toc-text"> 查询优化器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#执行器"><span class="toc-number">1.5.</span> <span class="toc-text"> 执行器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bin-log"><span class="toc-number">1.6.</span> <span class="toc-text"> bin log</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#inndb-存储引擎"><span class="toc-number">2.</span> <span class="toc-text"> Inndb 存储引擎</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#buffer-pool"><span class="toc-number">2.1.</span> <span class="toc-text"> buffer Pool</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#undo-log"><span class="toc-number">2.2.</span> <span class="toc-text"> undo log</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#redo-log"><span class="toc-number">2.3.</span> <span class="toc-text"> redo log</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">3.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -393,15 +393,14 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <h3 id="一条sql"><a class="markdownIt-Anchor" href="#一条sql"></a> 一条SQL</h3>
-<p>MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么</p>
+        <p>MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么</p>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210718145041.png" alt="image-20210718145041739" style="zoom:50%;" />
+<h3 id="server层"><a class="markdownIt-Anchor" href="#server层"></a> Server层</h3>
 <h4 id="连接器"><a class="markdownIt-Anchor" href="#连接器"></a> 连接器</h4>
-<p><strong>连接器</strong>：负责跟客户端建立连接、获取权限、维持和管理连接</p>
+<p>连接器负责跟客户端建立连接、获取权限、维持和管理连接，连接默认端口是<strong>3306</strong>，可通过修改<code>my.cnf</code>配置文件指定端口</p>
 <blockquote>
 <p>连接命令：<code>mysql -h$ip -P$port -u$user -p</code></p>
 </blockquote>
-<p>连接默认端口是<strong>3306</strong>，可通过修改<code>my.cnf</code>配置文件指定端口</p>
 <p>如果客户端太长时间没动静，连接器会自动断开。由参数wait_timeout控制的，默认值是8小时</p>
 <blockquote>
 <p>show variables like ‘wait_timeout’;</p>
@@ -412,8 +411,7 @@ var _hmt = _hmt || [];
 </ol>
 <p>可以使用TCP/IP套接字，命名管道和共享内存，UNIX域套接字进行连接</p>
 <h4 id="查询缓存"><a class="markdownIt-Anchor" href="#查询缓存"></a> 查询缓存</h4>
-<p>查询缓存：连接建立完成后，就可以执行 select 语句了，执行查询缓存。</p>
-<p><strong>之前执行过的语句及其结果可能会以 key-value 对的形式，被直接缓存在内存中</strong>，key 是查询的语句，value 是查询的结果</p>
+<p>连接建立完成后，就可以执行 select 语句了，执行查询缓存。<strong>之前执行过的语句及其结果可能会以 key-value 对的形式，被直接缓存在内存中</strong>，key 是查询的语句，value 是查询的结果</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#关闭缓存</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> query_cache_type = <span class="keyword">OFF</span>;</span><br><span class="line"><span class="comment">#查看缓存是否被禁用</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">VARIABLES</span> <span class="keyword">LIKE</span> <span class="string">'query_cache_type'</span>;</span><br></pre></td></tr></table></figure>
 <p>查询缓存默认是开启的，但是在8.0版本之后已经弃用了查询缓存功能</p>
 <h4 id="分析器"><a class="markdownIt-Anchor" href="#分析器"></a> 分析器</h4>
@@ -429,7 +427,8 @@ var _hmt = _hmt || [];
 <h4 id="执行器"><a class="markdownIt-Anchor" href="#执行器"></a> 执行器</h4>
 <p>当优化器选出最优索引等步骤后，会去调用存储引擎接口，开始执行被MySQL解析过和优化过的SQL语句</p>
 <h4 id="bin-log"><a class="markdownIt-Anchor" href="#bin-log"></a> bin log</h4>
-<p>从图中可以看出，Mysql 有一个<code>bin log</code> 并不属于存储引擎，它与存储引擎的 <code>redo log</code> 是有区别的</p>
+<p>MySQL的二进制日志<code>bin log</code>是一种记录数据库事务的二进制文件，它可以用于数据恢复、复制和备份等操作。在MySQL中，<code>bin log</code>文件的大小是由<code>max_binlog_size</code>参数来控制的，默认值为1073741824(即1GB)</p>
+<p><code>bin log</code> 并不属于存储引擎，与存储引擎的 <code>redo log</code> 是有区别的：</p>
 <table>
 <thead>
 <tr>
@@ -441,48 +440,58 @@ var _hmt = _hmt || [];
 <tbody>
 <tr>
 <td>文件大小</td>
-<td>redo log 的大小是固定的（配置中也可以设置，一般默认的就足够了）</td>
-<td>bin log 可通过配置参数max_bin log_size设置每个bin log文件的大小(但是一般不建议修改)</td>
+<td><code>redo log</code> 的大小是固定的（配置中也可以设置，一般默认的就足够了）</td>
+<td><code>bin log</code> 可通过配置参数<code>max_binlog_size</code>设置每个<code>bin log</code>文件的大小</td>
 </tr>
 <tr>
 <td>实现方式</td>
-<td>redo log是InnoDB引擎层实现的（也就是说是 Innodb 存储引擎独有的）</td>
-<td>bin log是 MySQL 层实现的，所有引擎都可以使用 bin log日志</td>
+<td><code>redo log</code>是InnoDB引擎层实现的（也就是说是 Innodb 存储引擎独有的）</td>
+<td><code>bin log</code>是 MySQL 层实现的，所有引擎都可以使用 <code>bin log</code>日志</td>
 </tr>
 <tr>
 <td>记录方式</td>
-<td>redo log 采用循环写的方式记录，当写到结尾时，会回到开头循环写日志。</td>
-<td>bin log 通过追加的方式记录，当文件大小大于给定值后，后续的日志会记录到新的文件上</td>
+<td><code>redo log</code> 采用循环写的方式记录，当写到结尾时，会回到开头循环写日志。</td>
+<td><code>bin log</code>通过追加的方式记录，当文件大小大于给定值后，后续的日志会记录到新的文件上</td>
 </tr>
 <tr>
 <td>使用场景</td>
-<td>redo log适用于崩溃恢复(crash-safe)（这一点其实非常类似与 Redis 的持久化特征）</td>
-<td>bin log 适用于主从复制和数据恢复</td>
+<td><code>redo log</code>适用于崩溃恢复(crash-safe)</td>
+<td><code>bin log</code>适用于主从复制和数据恢复</td>
 </tr>
 </tbody>
 </table>
-<p>bin log 的刷盘是有相关的策略的，策略可以通过<code>sync_bin log</code>来修改，默认为 0，表示先写入 os cache，也就是说在提交事务的时候，数据不会直接到磁盘中，这样如果宕机bin log数据仍然会丢失。所以建议将sync_bin log设置为 1 表示直接将数据写入到磁盘文件中。</p>
-<p>刷入 bin log 有以下几种模式</p>
-<ul>
-<li><strong>STATMENT</strong></li>
-</ul>
-<p>基于 SQL 语句的复制(statement-based replication, SBR)，每一条会修改数据的 SQL 语句会记录到 bin log 中</p>
+<p><code>bin log</code> 的刷盘是有相关的策略的，策略可以通过<code>sync_binlog</code>来修改，默认为 0，表示先写入 os cache，也就是说在提交事务的时候，数据不会直接到磁盘中，这样如果宕机bin log数据仍然会丢失。所以建议将<code>sync_binlog</code>设置为 1 表示直接将数据写入到磁盘文件中。</p>
+<p>刷入 <code>bin log</code> 有以下几种模式</p>
+<ol>
+<li><strong>STATMENT</strong>：基于 SQL 语句的复制(statement-based replication, SBR)，每一条会修改数据的 SQL 语句会记录到 bin log 中</li>
+</ol>
 <p>【优点】:  不需要记录每一行的变化，减少了 bin log 日志量，节约了 IO , 从而提高了性能</p>
 <p>【缺点】：在某些情况下会导致主从数据不一致，比如执行sysdate()、sleep()等</p>
-<ul>
-<li><strong>ROW</strong></li>
-</ul>
-<p>基于行的复制(row-based replication, RBR)，不记录每条SQL语句的上下文信息，仅需记录哪条数据被修改了</p>
+<ol start="2">
+<li><strong>ROW</strong>：基于行的复制(row-based replication, RBR)，不记录每条SQL语句的上下文信息，仅需记录哪条数据被修改了</li>
+</ol>
 <p>【优点】：不会出现某些特定情况下的存储过程、或 function、或 trigger 的调用和触发无法被正确复制的问题</p>
 <p>【缺点】：会产生大量的日志，尤其是 alter table 的时候会让日志暴涨</p>
-<ul>
-<li><strong>MIXED</strong></li>
-</ul>
-<p>基于 STATMENT 和 ROW 两种模式的混合复制( mixed-based replication, MBR )，一般的复制使用 STATEMENT 模式保存 bin log ，对于 STATEMENT 模式无法复制的操作使用 ROW 模式保存 bin log</p>
-<h4 id="inndb-存储引擎"><a class="markdownIt-Anchor" href="#inndb-存储引擎"></a> Inndb 存储引擎</h4>
+<ol start="3">
+<li>
+<p><strong>MIXED</strong>：基于 <code>STATMENT</code> 和 <code>ROW</code> 两种模式的混合复制( mixed-based replication, MBR )，一般的复制使用 <code>STATEMENT</code> 模式保存 <code>bin log</code> ，对于 <code>STATEMENT</code> 模式无法复制的操作使用 ROW 模式保存 <code>bin log</code></p>
+<blockquote>
+<p>这些操作是无法使用 STATEMENT模式复制的:</p>
+<ol>
+<li>使用用户自定义函数(UDF)的语句。</li>
+<li>非确定性函数，如RAND()或NOW()等。</li>
+<li>存储过程或函数调用，因为复制不会在从服务器上执行它们之前检查是否存在相同的存储过程或函数。</li>
+<li>使用临时表的语句，因为临时表的定义和数据仅在当前会话中存在，而不是全局的。</li>
+<li>使用HANDLER语句的操作，如HANDLER READ或HANDLER OPEN，因为这些语句不生成可以在复制流中复制的SQL语句。</li>
+<li>执行DDL操作，如CREATE TABLE或ALTER TABLE等。这些语句不会记录在二进制日志中，而只是通过MySQL服务器在系统表中进行更改</li>
+</ol>
+</blockquote>
+</li>
+</ol>
+<h3 id="inndb-存储引擎"><a class="markdownIt-Anchor" href="#inndb-存储引擎"></a> Inndb 存储引擎</h3>
 <p>执行器调用不同的存储引擎接口执行SQL语句，以常用的 Inndb存储引擎为例，看看下面这条语句会发生</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> students <span class="keyword">SET</span> stuName = <span class="string">'小强'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure>
-<h5 id="buffer-pool"><a class="markdownIt-Anchor" href="#buffer-pool"></a> buffer Pool</h5>
+<h4 id="buffer-pool"><a class="markdownIt-Anchor" href="#buffer-pool"></a> buffer Pool</h4>
 <p>如果每次操作直接在磁盘中操作，那么读写速度肯定不会高，所以每次在执行 SQL 的时候都会将其数据加载到内存中，这块内存就是 InnoDB 中一个非常重要的组件：<strong>缓冲池 Buf</strong></p>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-9.png" alt="img" style="zoom:70%;" />
 <p>按照上面的那幅图，这条 SQL 语句的执行步骤大致是这样子的</p>
@@ -491,11 +500,11 @@ var _hmt = _hmt || [];
 <li>发现不存在，那么就会去磁盘中加载，并将其存放在缓冲池中</li>
 <li>该条记录会被加上一个独占锁</li>
 </ul>
-<h5 id="undo-log"><a class="markdownIt-Anchor" href="#undo-log"></a> undo log</h5>
-<p>记录语句执行前的记录值</p>
+<h4 id="undo-log"><a class="markdownIt-Anchor" href="#undo-log"></a> undo log</h4>
+<p><strong>记录语句执行前的记录值</strong></p>
 <p>将数据加载到 <code>Buffer Pool</code> 的同时还会往 <code>undo log</code> 中插入一条日志，也就是将 <code>id = 1</code> 原来的值记录下来</p>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-10.png" alt="img" style="zoom:70%;" />
-<h5 id="redo-log"><a class="markdownIt-Anchor" href="#redo-log"></a> redo log</h5>
+<h4 id="redo-log"><a class="markdownIt-Anchor" href="#redo-log"></a> redo log</h4>
 <p>记录语句执行后的记录值，<strong>不管事务是否提交都会记录下来</strong>。此时执行 <code>update students set stuName='小强' where id=1;</code> ，那么这条操作就会被记录到 <code>redo log buffer</code> 中，存储到 buffer 中很好理解，就是为了提高效率</p>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-11.png" alt="img" style="zoom:70%;" />
 <p>到目前为止一切都准备就绪，就需要提交事务。为了保证提交事务之后保证数据能够更新成功，就需要在提交前将</p>
