@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Grpc-01-概述 | XBoom Dove</title>
+  <meta name="description" content="从协议-http2 知道了 grpc 是基于 http2，优化了通信效率，整体流程如下图所示，细节后续在慢慢增加  带着问题看世界：  基本的使用是怎么样的 使用的基本原理是什么   基本使用 可参考 grpc-go 源码例子 examples&#x2F;helloworld&#x2F;helloworld&#x2F;  proto 123456789101112131415161718192021package hellow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Grpc-01-概述">
+<meta property="og:url" content="http://xboom.github.io/2022/10/03/Grpc/Grpc-01-%E6%A6%82%E8%BF%B0/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="从协议-http2 知道了 grpc 是基于 http2，优化了通信效率，整体流程如下图所示，细节后续在慢慢增加  带着问题看世界：  基本的使用是怎么样的 使用的基本原理是什么   基本使用 可参考 grpc-go 源码例子 examples&#x2F;helloworld&#x2F;helloworld&#x2F;  proto 123456789101112131415161718192021package hellow">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE1ODI5MjI=,size_16,color_FFFFFF,t_70.jpeg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/grpc_sayhello.png">
+<meta property="article:published_time" content="2022-10-03T14:58:29.000Z">
+<meta property="article:modified_time" content="2023-05-27T10:54:41.259Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Grpc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE1ODI5MjI=,size_16,color_FFFFFF,t_70.jpeg">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/10/03/Grpc/Grpc-01-%E6%A6%82%E8%BF%B0/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">23</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.1px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.6px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.8px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.5px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.8px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/go-zero/" style="font-size: 13.7px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" class="title">Go入门15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/03/05/Go/Go%E5%85%A5%E9%97%A824-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/" class="title">Go入门24-协程池问题</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-03-05T06:46:45.000Z" itemprop="datePublished">2023-03-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/02/02/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/" class="title">算法-E10C-最大公约数</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-02T12:25:25.494Z" itemprop="datePublished">2023-02-02</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/10/Go/Go%E5%85%A5%E9%97%A823-arena/" class="title">Go入门23-arena</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-10T08:00:20.000Z" itemprop="datePublished">2023-01-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/04/Go/Go%E5%85%A5%E9%97%A821-SetFinalizer/" class="title">Go入门21-SetFinalizer</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-04T13:45:13.344Z" itemprop="datePublished">2023-01-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本使用"><span class="toc-number">1.</span> <span class="toc-text"> 基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#proto"><span class="toc-number">1.1.</span> <span class="toc-text"> proto</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务端"><span class="toc-number">1.2.</span> <span class="toc-text"> 服务端:</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#客户端"><span class="toc-number">1.3.</span> <span class="toc-text"> 客户端</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现架构"><span class="toc-number">2.</span> <span class="toc-text"> 实现架构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#客户端发送"><span class="toc-number">2.1.</span> <span class="toc-text"> 客户端发送</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#建立grpc连接"><span class="toc-number">2.1.1.</span> <span class="toc-text"> 建立grpc连接</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#构建grpc-client"><span class="toc-number">2.1.2.</span> <span class="toc-text"> 构建grpc client</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#方法发送"><span class="toc-number">2.1.3.</span> <span class="toc-text"> 方法发送</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务端接受"><span class="toc-number">2.2.</span> <span class="toc-text"> 服务端接受</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#构建grpc-server"><span class="toc-number">2.2.1.</span> <span class="toc-text"> 构建grpc server</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#可选参数"><span class="toc-number">2.2.1.1.</span> <span class="toc-text"> 可选参数</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#服务工人"><span class="toc-number">2.2.1.2.</span> <span class="toc-text"> 服务工人</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#服务注册"><span class="toc-number">2.2.2.</span> <span class="toc-text"> 服务注册</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#开启服务"><span class="toc-number">2.2.3.</span> <span class="toc-text"> 开启服务</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">3.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Grpc/Grpc-01-概述" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Grpc-01-概述
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/10/03/Grpc/Grpc-01-%E6%A6%82%E8%BF%B0/" class="article-date">
+	  <time datetime="2022-10-03T14:58:29.000Z" itemprop="datePublished">2022-10-03</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Grpc/">Grpc</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Grpc/" rel="tag">Grpc</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/10/03/Grpc/Grpc-01-%E6%A6%82%E8%BF%B0/" class="leancloud_visitors"  data-flag-title="Grpc-01-概述">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/10/03/Grpc/Grpc-01-%E6%A6%82%E8%BF%B0/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>从<a href="https://www.yuankang.top/2021/11/02/Protocol/%E5%8D%8F%E8%AE%AE2-HTTP2/" target="_blank" rel="noopener">协议-http2</a> 知道了 grpc 是基于 http2，优化了通信效率，整体流程如下图所示，细节后续在慢慢增加</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE1ODI5MjI=,size_16,color_FFFFFF,t_70.jpeg" alt="grpc客户端跟grpc服务器端整个交互过程大概经历了哪些阶段" style="zoom:50%;" />
+<p>带着问题看世界：</p>
+<ol>
+<li>基本的使用是怎么样的</li>
+<li>使用的基本原理是什么</li>
+</ol>
+<h3 id="基本使用"><a class="markdownIt-Anchor" href="#基本使用"></a> 基本使用</h3>
+<p>可参考 <a href="https://github.com/grpc/grpc-go" target="_blank" rel="noopener">grpc-go</a> 源码例子 <code>examples/helloworld/helloworld/</code></p>
+<h4 id="proto"><a class="markdownIt-Anchor" href="#proto"></a> proto</h4>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> helloworld;</span><br><span class="line"></span><br><span class="line"><span class="comment">// The greeting service definition.</span></span><br><span class="line"><span class="comment">// The greeting service definition.</span></span><br><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">Greeter</span> </span>&#123;</span><br><span class="line">  <span class="comment">// Sends a greeting</span></span><br><span class="line">  <span class="function"><span class="keyword">rpc</span> SayHello (HelloRequest) <span class="keyword">returns</span> (HelloReply) &#123;&#125;</span></span><br><span class="line"><span class="function">  <span class="keyword">rpc</span> SayHello1 (HelloRequest) <span class="keyword">returns</span> (stream HelloReply) &#123;&#125;</span></span><br><span class="line"><span class="function">  <span class="keyword">rpc</span> SayHello2 (stream HelloRequest) <span class="keyword">returns</span> (HelloReply) &#123;&#125;</span></span><br><span class="line"><span class="function">  <span class="keyword">rpc</span> SayHello3 (stream HelloRequest) <span class="keyword">returns</span> (stream HelloReply) &#123;&#125;</span></span><br><span class="line"><span class="function">&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">// The request message containing the user's name.</span></span><br><span class="line"><span class="function">message HelloRequest &#123;</span></span><br><span class="line"><span class="function">  string name = 1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// The response message containing the greetings</span></span><br><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">HelloReply</span> </span>&#123;</span><br><span class="line">  <span class="built_in">string</span> <span class="class"><span class="keyword">message</span> = 1;</span></span><br><span class="line"><span class="class">&#125;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>消息除了rpc 是否存在其他的定义方法</p>
+</blockquote>
+<ul>
+<li>单一请求</li>
+<li>客户端流式请求</li>
+<li>服务端流式请求</li>
+<li>双向流失请求</li>
+</ul>
+<h4 id="服务端"><a class="markdownIt-Anchor" href="#服务端"></a> 服务端:</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1. 监听网络端口</span></span><br><span class="line">lis, err := net.Listen(<span class="string">"tcp"</span>, fmt.Sprintf(<span class="string">":%d"</span>, *port))</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	log.Fatalf(<span class="string">"failed to listen: %v"</span>, err)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//2. 初始化Grpc服务端</span></span><br><span class="line">s := grpc.NewServer()</span><br><span class="line"><span class="comment">//3. 注册服务端接口</span></span><br><span class="line">pb.RegisterGreeterServer(s, &amp;server&#123;&#125;)</span><br><span class="line">log.Printf(<span class="string">"server listening at %v"</span>, lis.Addr())</span><br><span class="line"><span class="comment">//4. 监听请求</span></span><br><span class="line"><span class="keyword">if</span> err := s.Serve(lis); err != <span class="literal">nil</span> &#123;</span><br><span class="line">	log.Fatalf(<span class="string">"failed to serve: %v"</span>, err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出一共经历了四步</p>
+<ol>
+<li>监听TCP连接</li>
+<li>初始化grpc服务端</li>
+<li>注册服务端业务</li>
+<li>grpc处理TCP请求</li>
+</ol>
+<h4 id="客户端"><a class="markdownIt-Anchor" href="#客户端"></a> 客户端</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1. 建立TCP连接</span></span><br><span class="line">conn, err := grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    log.Fatalf(<span class="string">"did not connect: %v"</span>, err)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">defer</span> conn.Close()</span><br><span class="line"><span class="comment">//2. 初始化客户端</span></span><br><span class="line">c := pb.NewGreeterClient(conn)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 发送消息并接受响应</span></span><br><span class="line">ctx, cancel := context.WithTimeout(context.Background(), time.Second)</span><br><span class="line"><span class="keyword">defer</span> cancel()</span><br><span class="line">r, err := c.SayHello(ctx, &amp;pb.HelloRequest&#123;Name: *name&#125;)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    log.Fatalf(<span class="string">"could not greet: %v"</span>, err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出一共经历了三步</p>
+<ol>
+<li>监听TCP连接</li>
+<li>初始化grpc客户端</li>
+<li>发送并接受响应</li>
+</ol>
+<p>从 <code>proto</code> 生成的文件可以发现 <code>helloworld_grpc.pb.go</code> 描述信息</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Greeter_ServiceDesc = grpc.ServiceDesc&#123;</span><br><span class="line">	ServiceName: <span class="string">"helloworld.Greeter"</span>,</span><br><span class="line">	HandlerType: (*GreeterServer)(<span class="literal">nil</span>),</span><br><span class="line">	Methods: []grpc.MethodDesc&#123;</span><br><span class="line">		&#123;</span><br><span class="line">			MethodName: <span class="string">"SayHello"</span>,</span><br><span class="line">			Handler:    _Greeter_SayHello_Handler,</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;,</span><br><span class="line">	Streams:  []grpc.StreamDesc&#123;&#125;,</span><br><span class="line">	Metadata: <span class="string">"examples/helloworld/helloworld/helloworld.proto"</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="实现架构"><a class="markdownIt-Anchor" href="#实现架构"></a> 实现架构</h3>
+<p>运用上述的代码执行一次通信，可以看到通信的效果是</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/grpc_sayhello.png" alt="grpc_sayhello" style="zoom:30%;" />
+<h4 id="客户端发送"><a class="markdownIt-Anchor" href="#客户端发送"></a> 客户端发送</h4>
+<p>代码路径(带备注，版本 1.45.0-dev)：<a href="%60https://github.com/XBoom/read-grpc-go%60">read-grpc-go</a></p>
+<p>发送端的使用流程只有三个步骤</p>
+<ol>
+<li>完成grpc连接</li>
+<li>初始化grpc客户端</li>
+<li>开始发送消息</li>
+</ol>
+<h5 id="建立grpc连接"><a class="markdownIt-Anchor" href="#建立grpc连接"></a> 建立grpc连接</h5>
+<p>从时序图可以看出，完成grpc一共会分为两个步骤，建立TCP连接，设置帧</p>
+<ol>
+<li>通过解析器解析地址完成</li>
+<li>与解析器的地址建立TCP连接</li>
+<li>设置 Setting 帧</li>
+</ol>
+<h5 id="构建grpc-client"><a class="markdownIt-Anchor" href="#构建grpc-client"></a> 构建grpc client</h5>
+<p>这里不需要初始化什么，直接将 grpc 连接对象封装到 proto 客户端对象中</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewGreeterClient</span><span class="params">(cc grpc.ClientConnInterface)</span> <span class="title">GreeterClient</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;greeterClient&#123;cc&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="方法发送"><a class="markdownIt-Anchor" href="#方法发送"></a> 方法发送</h5>
+<p>通过proto生成的 一元调用方法类似</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *greeterClient)</span> <span class="title">SayHello</span><span class="params">(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption)</span> <span class="params">(*HelloReply, error)</span></span> &#123;</span><br><span class="line">	out := <span class="built_in">new</span>(HelloReply)	<span class="comment">//回复对象</span></span><br><span class="line">	err := c.cc.Invoke(ctx, <span class="string">"/helloworld.Greeter/SayHello"</span>, in, out, opts...)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> out, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>核心就是这个 <code>Invoke</code> 函数进行请求调用</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">invoke</span><span class="params">(ctx context.Context, method <span class="keyword">string</span>, req, reply <span class="keyword">interface</span>&#123;&#125;, cc *ClientConn, opts ...CallOption)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	cs, err := newClientStream(ctx, unaryStreamDesc, cc, method, opts...)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> err := cs.SendMsg(req); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> cs.RecvMsg(reply)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里就分为了三步：</p>
+<ol>
+<li>构建一个新的流</li>
+<li>流进行消息发送</li>
+<li>流接收消息</li>
+</ol>
+<p>也就是说每次进行单一请求的时候都会使用单独的流进行构建，而 <code>unaryStreamDesc</code> 表示的表示这个流是一个单次调用的流</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> unaryStreamDesc = &amp;StreamDesc&#123;ServerStreams: <span class="literal">false</span>, ClientStreams: <span class="literal">false</span>&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="服务端接受"><a class="markdownIt-Anchor" href="#服务端接受"></a> 服务端接受</h4>
+<p>代码路径(带备注，版本 1.45.0-dev)：<a href="%60https://github.com/XBoom/read-grpc-go%60">read-grpc-go</a></p>
+<p>服务端的使用可以分为四个步骤</p>
+<ol>
+<li>构建网络监听句柄</li>
+<li>构建新grpc server</li>
+<li>将第二步的服务指针注册到proto声明的服务注册函数中</li>
+<li>开始监听服务</li>
+</ol>
+<h5 id="构建grpc-server"><a class="markdownIt-Anchor" href="#构建grpc-server"></a> 构建grpc server</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewServer</span><span class="params">(opt ...ServerOption)</span> *<span class="title">Server</span></span> &#123;</span><br><span class="line">	opts := defaultServerOptions</span><br><span class="line">	<span class="keyword">for</span> _, o := <span class="keyword">range</span> opt &#123;</span><br><span class="line">		o.apply(&amp;opts)</span><br><span class="line">	&#125;</span><br><span class="line">	s := &amp;Server&#123;</span><br><span class="line">		lis:      <span class="built_in">make</span>(<span class="keyword">map</span>[net.Listener]<span class="keyword">bool</span>),</span><br><span class="line">		opts:     opts,</span><br><span class="line">		conns:    <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">map</span>[transport.ServerTransport]<span class="keyword">bool</span>),</span><br><span class="line">		services: <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]*serviceInfo),</span><br><span class="line">		quit:     grpcsync.NewEvent(),</span><br><span class="line">		done:     grpcsync.NewEvent(),</span><br><span class="line">		czData:   <span class="built_in">new</span>(channelzData),</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	<span class="keyword">if</span> s.opts.numServerWorkers &gt; <span class="number">0</span> &#123;</span><br><span class="line">		s.initServerWorkers()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	<span class="keyword">return</span> s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里有二个地方需要注意的</p>
+<h6 id="可选参数"><a class="markdownIt-Anchor" href="#可选参数"></a> 可选参数</h6>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//可选参数接口</span></span><br><span class="line"><span class="keyword">type</span> ServerOption <span class="keyword">interface</span> &#123;</span><br><span class="line">	apply(*serverOptions)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对全局变量进行可选参数应用，这样能够通过在默认的基础上支持外部的自定义应用</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//应用可选参数</span></span><br><span class="line">opts := defaultServerOptions</span><br><span class="line"><span class="keyword">for</span> _, o := <span class="keyword">range</span> opt &#123;</span><br><span class="line">	o.apply(&amp;opts)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当中的 <code>serverOptions</code> 或者说 <code>defaultServerOptions</code> 就是内部默认参数</p>
+<h6 id="服务工人"><a class="markdownIt-Anchor" href="#服务工人"></a> 服务工人</h6>
+<p>这里会设置服务端的消息消费数量</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">initServerWorkers</span><span class="params">()</span></span> &#123;</span><br><span class="line">	s.serverWorkerChannels = <span class="built_in">make</span>([]<span class="keyword">chan</span> *serverWorkerData, s.opts.numServerWorkers)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">uint32</span>(<span class="number">0</span>); i &lt; s.opts.numServerWorkers; i++ &#123;</span><br><span class="line">		s.serverWorkerChannels[i] = <span class="built_in">make</span>(<span class="keyword">chan</span> *serverWorkerData) <span class="comment">//阻塞隧道</span></span><br><span class="line">		<span class="keyword">go</span> s.serverWorker(s.serverWorkerChannels[i])	<span class="comment">//对应服务端数量与隧道</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>每个 serverWorker 都会从ch中读取数据，并再次启动一个 serverWorker</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">serverWorker</span><span class="params">(ch <span class="keyword">chan</span> *serverWorkerData)</span></span> &#123;</span><br><span class="line">  <span class="comment">//确保不会所有的 work 不会同时 reset，增加一个随机数</span></span><br><span class="line">	threshold := serverWorkerResetThreshold + grpcrand.Intn(serverWorkerResetThreshold)</span><br><span class="line">	<span class="keyword">for</span> completed := <span class="number">0</span>; completed &lt; threshold; completed++ &#123;</span><br><span class="line">		data, ok := &lt;-ch</span><br><span class="line">		<span class="keyword">if</span> !ok &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		s.handleStream(data.st, data.stream, s.traceInfo(data.st, data.stream))</span><br><span class="line">    data.wg.Done()	<span class="comment">//记住这个 wg.Done()</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">go</span> s.serverWorker(ch)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个地方与固定的 worker有什么区别吗，为什么要在执行一段时间后，再次拉起一个协程work?</p>
+<p>参考：</p>
+<ol>
+<li><a href="https://github.com/golang/go/issues/18138" target="_blank" rel="noopener">https://github.com/golang/go/issues/18138</a></li>
+<li><a href="https://github.com/grpc/grpc-go/pull/3204" target="_blank" rel="noopener">https://github.com/grpc/grpc-go/pull/3204</a></li>
+<li><a href="https://www.zenlife.tk/goroutine-pool.md?hmsr=toutiao.io&amp;utm_campaign=toutiao.io&amp;utm_medium=toutiao.io&amp;utm_source=toutiao.io" target="_blank" rel="noopener">https://www.zenlife.tk/goroutine-pool.md?hmsr=toutiao.io&amp;utm_campaign=toutiao.io&amp;utm_medium=toutiao.io&amp;utm_source=toutiao.io</a></li>
+</ol>
+<p>这样干的原因是:<code>Goroutine</code> 的默认堆栈大小是 2KB。处理GRPC的时候，至少需要4KB的堆栈。导致每次RPC<code>runtime.morestack</code>：重新分配堆栈信息，并复制更改指针指向。为了避免栈中大量信息每次都需要复制，于是go在运行一段时间后就构建一个新的协程</p>
+<p>问题是：</p>
+<ol>
+<li>栈中的信息不是会被垃圾回收吗，为什么会随着栈的增长而都要复制？
+<ul>
+<li>垃圾回收可能并不及时，导致执行 runtime.morestack 的时候还是需要将历史堆栈信息复制过去</li>
+</ul>
+</li>
+<li>如何避免这种情况
+<ul>
+<li>使用指针传递参数，减少递归调用</li>
+<li>使用协程池</li>
+</ul>
+</li>
+</ol>
+<h5 id="服务注册"><a class="markdownIt-Anchor" href="#服务注册"></a> 服务注册</h5>
+<p>服务注册其实是将 proto 服务对象与 grpc server 对象关联到一起</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">register</span><span class="params">(sd *ServiceDesc, ss <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	s.mu.Lock()	<span class="comment">//写锁</span></span><br><span class="line">	<span class="keyword">defer</span> s.mu.Unlock()</span><br><span class="line">	s.printf(<span class="string">"RegisterService(%q)"</span>, sd.ServiceName)</span><br><span class="line">	<span class="keyword">if</span> s.serve &#123;</span><br><span class="line">		logger.Fatalf(<span class="string">"grpc: Server.RegisterService after Server.Serve for %q"</span>, sd.ServiceName)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> _, ok := s.services[sd.ServiceName]; ok &#123;	<span class="comment">//重复注册没有关系</span></span><br><span class="line">		logger.Fatalf(<span class="string">"grpc: Server.RegisterService found duplicate service registration for %q"</span>, sd.ServiceName)</span><br><span class="line">	&#125;</span><br><span class="line">	info := &amp;serviceInfo&#123;</span><br><span class="line">    serviceImpl: ss,	<span class="comment">//具体实现服务(proto 服务实现 对象)</span></span><br><span class="line">		methods:     <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]*MethodDesc),	<span class="comment">//指的值 rpc service 的方法</span></span><br><span class="line">		streams:     <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]*StreamDesc),	<span class="comment">//指的是 流 service 的方式</span></span><br><span class="line">		mdata:       sd.Metadata,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> sd.Methods &#123;</span><br><span class="line">		d := &amp;sd.Methods[i]</span><br><span class="line">		info.methods[d.MethodName] = d	<span class="comment">//存储 rpc方法</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> sd.Streams &#123;</span><br><span class="line">		d := &amp;sd.Streams[i]</span><br><span class="line">		info.streams[d.StreamName] = d	<span class="comment">//存储 流 方法</span></span><br><span class="line">	&#125;</span><br><span class="line">	s.services[sd.ServiceName] = info	<span class="comment">//存储方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="开启服务"><a class="markdownIt-Anchor" href="#开启服务"></a> 开启服务</h5>
+<p>开启服务之后，表示已经能接受消息</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">Serve</span><span class="params">(lis net.Listener)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> tempDelay time.Duration <span class="comment">// how long to sleep on accept failure</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		rawConn, err := lis.Accept()	<span class="comment">//可以监听多个链接</span></span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="comment">//退避逻辑 一开始 5ms,后续的等待时间 增加2倍，最大值是1s</span></span><br><span class="line">    &#125;</span><br><span class="line">		tempDelay = <span class="number">0</span></span><br><span class="line">		<span class="comment">//单独起协程监听</span></span><br><span class="line">		s.serveWG.Add(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			s.handleRawConn(lis.Addr().String(), rawConn)</span><br><span class="line">			s.serveWG.Done()</span><br><span class="line">		&#125;()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意点：</p>
+<ol>
+<li>当监听失败，那么会使用退避逻辑 <code>一开始 5ms，然后每次延时时间 增加2倍,最大值是1s</code></li>
+<li>每个连接都使用单独的协程进行处理</li>
+</ol>
+<p>然后在连接成功的链接中，再次使用独立的写成处理每个流</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">handleRawConn</span><span class="params">(lisAddr <span class="keyword">string</span>, rawConn net.Conn)</span></span> &#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	rawConn.SetDeadline(time.Now().Add(s.opts.connectionTimeout))	<span class="comment">//设置连接超时时间</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Finish handshaking (HTTP2)</span></span><br><span class="line">	st := s.newHTTP2Transport(rawConn)</span><br><span class="line">	rawConn.SetDeadline(time.Time&#123;&#125;)	<span class="comment">//完成连接，那么连接永远不超时了</span></span><br><span class="line">	<span class="keyword">if</span> st == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> !s.addConn(lisAddr, st) &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    	s.serveStreams(st)	<span class="comment">//使用独立协程处理流(阻塞)</span></span><br><span class="line">		s.removeConn(lisAddr, st)</span><br><span class="line">	&#125;()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>到此就达到了完成连接，开始后续的处理流逻辑</p>
+<h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
+<ol>
+<li><a href="https://blog.csdn.net/u011582922/article/details/119834758" target="_blank" rel="noopener">https://blog.csdn.net/u011582922/article/details/119834758</a></li>
+<li><a href="https://blog.csdn.net/u011582922/article/details/119944259" target="_blank" rel="noopener">https://blog.csdn.net/u011582922/article/details/119944259</a></li>
+<li><a href="https://github.com/grpc/grpc-go/pull/3204" target="_blank" rel="noopener">https://github.com/grpc/grpc-go/pull/3204</a></li>
+<li><a href="https://www.zenlife.tk/goroutine-pool.md?hmsr=toutiao.io&amp;utm_campaign=toutiao.io&amp;utm_medium=toutiao.io&amp;utm_source=toutiao.io" target="_blank" rel="noopener">https://www.zenlife.tk/goroutine-pool.md?hmsr=toutiao.io&amp;utm_campaign=toutiao.io&amp;utm_medium=toutiao.io&amp;utm_source=toutiao.io</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/10/03/Grpc/Grpc-01-%E6%A6%82%E8%BF%B0/" title="Grpc-01-概述" target="_blank" rel="external">http://xboom.github.io/2022/10/03/Grpc/Grpc-01-概述/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/10/05/Grpc/Grpc-02-%E6%B5%81/" title="Grpc-02-流"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/09/17/Go/Go%E5%85%A5%E9%97%A814-%E6%B3%9B%E5%9E%8B/" title="Go入门14-泛型"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>

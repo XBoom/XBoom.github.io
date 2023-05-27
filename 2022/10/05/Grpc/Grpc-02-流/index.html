@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Grpc-02-流 | XBoom Dove</title>
+  <meta name="description" content="上一节中，不管是单次调用还是流式调用都会有一个流的概念，这里分析一下流作用与实现原理 回顾协议说明，在 HTTP&#x2F;2 中，二进制分帧之后，HTTP &#x2F;2 不再依赖 TCP 链接去实现多流并行,  同域名下所有通信都在单个连接上完成。 单个连接可以承载任意数量的双向数据流。 数据流以消息的形式发送，而消息又由一个或多个帧组成，多个帧之间可以乱序发送，因为根据帧首部的流标识可以重新组装。  二进制分帧">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Grpc-02-流">
+<meta property="og:url" content="http://xboom.github.io/2022/10/05/Grpc/Grpc-02-%E6%B5%81/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="上一节中，不管是单次调用还是流式调用都会有一个流的概念，这里分析一下流作用与实现原理 回顾协议说明，在 HTTP&#x2F;2 中，二进制分帧之后，HTTP &#x2F;2 不再依赖 TCP 链接去实现多流并行,  同域名下所有通信都在单个连接上完成。 单个连接可以承载任意数量的双向数据流。 数据流以消息的形式发送，而消息又由一个或多个帧组成，多个帧之间可以乱序发送，因为根据帧首部的流标识可以重新组装。  二进制分帧">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-10-05T14:58:29.000Z">
+<meta property="article:modified_time" content="2023-05-27T10:54:46.383Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Grpc">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/10/05/Grpc/Grpc-02-%E6%B5%81/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">23</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.1px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.6px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.8px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.5px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.8px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/go-zero/" style="font-size: 13.7px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" class="title">Go入门15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/03/05/Go/Go%E5%85%A5%E9%97%A824-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/" class="title">Go入门24-协程池问题</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-03-05T06:46:45.000Z" itemprop="datePublished">2023-03-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/02/02/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/" class="title">算法-E10C-最大公约数</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-02T12:25:25.494Z" itemprop="datePublished">2023-02-02</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/10/Go/Go%E5%85%A5%E9%97%A823-arena/" class="title">Go入门23-arena</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-10T08:00:20.000Z" itemprop="datePublished">2023-01-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/04/Go/Go%E5%85%A5%E9%97%A821-SetFinalizer/" class="title">Go入门21-SetFinalizer</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-04T13:45:13.344Z" itemprop="datePublished">2023-01-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#实现原理"><span class="toc-number">1.</span> <span class="toc-text"> 实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#构建一个流"><span class="toc-number">1.1.</span> <span class="toc-text"> 构建一个流</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#发送消息"><span class="toc-number">1.2.</span> <span class="toc-text"> 发送消息</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#消息准备"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 消息准备</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#消息发送"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 消息发送</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#消息的响应"><span class="toc-number">1.2.3.</span> <span class="toc-text"> 消息的响应</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#接收消息"><span class="toc-number">1.3.</span> <span class="toc-text"> 接收消息</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#流的处理"><span class="toc-number">1.3.1.</span> <span class="toc-text"> 流的处理</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#消息的处理"><span class="toc-number">1.3.2.</span> <span class="toc-text"> 消息的处理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">2.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">3.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Grpc/Grpc-02-流" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Grpc-02-流
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/10/05/Grpc/Grpc-02-%E6%B5%81/" class="article-date">
+	  <time datetime="2022-10-05T14:58:29.000Z" itemprop="datePublished">2022-10-05</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Grpc/">Grpc</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Grpc/" rel="tag">Grpc</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/10/05/Grpc/Grpc-02-%E6%B5%81/" class="leancloud_visitors"  data-flag-title="Grpc-02-流">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/10/05/Grpc/Grpc-02-%E6%B5%81/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>上一节中，不管是单次调用还是流式调用都会有一个流的概念，这里分析一下流作用与实现原理</p>
+<p>回顾协议说明，在 HTTP/2 中，二进制分帧之后，HTTP /2 不再依赖 TCP 链接去实现多流并行,</p>
+<ul>
+<li>同域名下所有通信都在单个连接上完成。</li>
+<li>单个连接可以承载任意数量的双向数据流。</li>
+<li>数据流以消息的形式发送，而消息又由一个或多个帧组成，多个帧之间可以乱序发送，因为根据帧首部的流标识可以重新组装。</li>
+</ul>
+<p>二进制分帧与grpc分片的区别：</p>
+<ul>
+<li>
+<p><strong>实现方式</strong>：TCP 分包是在传输层进行的，即将一个大的数据包分割成多个小的 TCP 包进行传输。而 gRPC 的二进制分帧是在应用层进行的，即将一个大的数据流分割成多个小的 gRPC 帧进行传输。</p>
+</li>
+<li>
+<p><strong>作用不同</strong>：TCP 分包的主要作用是将一个大的数据包分割成多个小的 TCP 包进行传输，以避免网络传输时发生丢包或拥塞等问题。而 gRPC 的二进制分帧的主要作用是将一个大的数据流分割成多个小的 gRPC 帧进行传输，以避免在传输大量数据时需要等待全部数据传输完成的问题。此外，gRPC 的二进制分帧还可以实现多路复用和流控等功能，从而提高数据传输的效率和可靠性。</p>
+</li>
+<li>
+<p><strong>数据格式不同</strong>：TCP 分包只是将一个大的数据包分割成多个小的 TCP 包进行传输，数据格式不变。而 gRPC 的二进制分帧将一个大的数据流分割成多个小的 gRPC 帧进行传输，每个 gRPC 帧都是由消息头和消息体组成的二进制数据，其中消息头包含了帧的元数据信息，如帧的长度、类型、标识符等。</p>
+</li>
+</ul>
+<p>尽管 gRPC 的二进制分帧和 TCP 的分包是不同的概念，但是它们都是为了将一个大的数据流分割成多个小块进行传输，从而提高数据传输的效率和可靠性。</p>
+<h3 id="实现原理"><a class="markdownIt-Anchor" href="#实现原理"></a> 实现原理</h3>
+<p>代码路径：<code>stream.go</code></p>
+<h4 id="构建一个流"><a class="markdownIt-Anchor" href="#构建一个流"></a> 构建一个流</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newClientStream</span><span class="params">(ctx context.Context, desc *StreamDesc, cc *ClientConn, method <span class="keyword">string</span>, opts ...CallOption)</span> <span class="params">(_ ClientStream, err error)</span></span> &#123;</span><br><span class="line">	<span class="comment">//...数据搜集</span></span><br><span class="line">    </span><br><span class="line">	<span class="comment">//第一次调用的时候等待需要等待地址解析完成</span></span><br><span class="line">	<span class="keyword">if</span> err := cc.waitForResolvedAddrs(ctx); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> mc serviceconfig.MethodConfig</span><br><span class="line">	<span class="keyword">var</span> onCommit <span class="function"><span class="keyword">func</span><span class="params">()</span></span></span><br><span class="line">	<span class="keyword">var</span> newStream = <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, done <span class="keyword">func</span>()</span>) <span class="params">(iresolver.ClientStream, error)</span></span> &#123;</span><br><span class="line">		<span class="keyword">return</span> newClientStreamWithParams(ctx, desc, cc, method, mc, onCommit, done, opts...)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//... 如果有拦截器，则构建拦截器的流</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> newStream(ctx, <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>拦截器后续再看，这里需要进一步查看创建流的过程</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newClientStreamWithParams</span><span class="params">(ctx context.Context, desc *StreamDesc, cc *ClientConn, method <span class="keyword">string</span>, mc serviceconfig.MethodConfig, onCommit, doneFunc <span class="keyword">func</span>()</span>, <span class="title">opts</span> ...<span class="title">CallOption</span>) <span class="params">(_ iresolver.ClientStream, err error)</span></span> &#123;</span><br><span class="line">	c := defaultCallInfo()</span><br><span class="line">	<span class="keyword">if</span> mc.WaitForReady != <span class="literal">nil</span> &#123;</span><br><span class="line">		c.failFast = !*mc.WaitForReady</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	callHdr := &amp;transport.CallHdr&#123;</span><br><span class="line">		Host:           cc.authority,</span><br><span class="line">		Method:         method,</span><br><span class="line">		ContentSubtype: c.contentSubtype,</span><br><span class="line">		DoneFunc:       doneFunc,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	cs := &amp;clientStream&#123;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := cs.newAttemptLocked(<span class="literal">false</span> <span class="comment">/* isTransparent */</span>); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		cs.finish(err)</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	op := <span class="function"><span class="keyword">func</span><span class="params">(a *csAttempt)</span> <span class="title">error</span></span> &#123; <span class="keyword">return</span> a.newStream() &#125;</span><br><span class="line">	<span class="keyword">if</span> err := cs.withRetry(op, <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; cs.bufferForRetryLocked(<span class="number">0</span>, op) &#125;); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		cs.finish(err)</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">    </span><br><span class="line">	<span class="keyword">if</span> desc != unaryStreamDesc &#123;	<span class="comment">//非一元调用</span></span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="keyword">select</span> &#123;</span><br><span class="line">			<span class="keyword">case</span> &lt;-cc.ctx.Done():</span><br><span class="line">				cs.finish(ErrClientConnClosing)</span><br><span class="line">			<span class="keyword">case</span> &lt;-ctx.Done():</span><br><span class="line">				cs.finish(toRPCErr(ctx.Err()))</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> cs, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>核心有两点</p>
+<ol>
+<li>
+<p>构建流的过程 使用的是 <code>http2_client</code>库，这个时候才会去发送 <code>头帧</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> HeaderField <span class="keyword">struct</span> &#123;</span><br><span class="line">	Name, Value <span class="keyword">string</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Sensitive means that this header field should never be</span></span><br><span class="line">	<span class="comment">// indexed.</span></span><br><span class="line">	Sensitive <span class="keyword">bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//头帧</span></span><br><span class="line">hdr := &amp;headerFrame&#123;</span><br><span class="line">   hf:        headerFields,	<span class="comment">//切片 键值对</span></span><br><span class="line">   endStream: <span class="literal">false</span>,</span><br><span class="line">   initStream: <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">uint32</span>)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">      t.mu.Lock()</span><br><span class="line">      <span class="keyword">if</span> state := t.state; state != reachable &#123;</span><br><span class="line">         t.mu.Unlock()</span><br><span class="line">         <span class="comment">// Do a quick cleanup.</span></span><br><span class="line">         err := error(errStreamDrain)</span><br><span class="line">         <span class="keyword">if</span> state == closing &#123;</span><br><span class="line">            err = ErrConnClosing</span><br><span class="line">         &#125;</span><br><span class="line">         cleanup(err)</span><br><span class="line">         <span class="keyword">return</span> err</span><br><span class="line">      &#125;</span><br><span class="line">      t.activeStreams[id] = s	<span class="comment">//加入到 t 的activeStreams中</span></span><br><span class="line">      <span class="comment">//...</span></span><br><span class="line">      t.mu.Unlock()</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">   &#125;,</span><br><span class="line">   onOrphaned: cleanup,</span><br><span class="line">   wq:         s.wq,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>如果非一元调用，那么就需要使用一个独立协程等待流结束，关闭流</p>
+</li>
+</ol>
+<h4 id="发送消息"><a class="markdownIt-Anchor" href="#发送消息"></a> 发送消息</h4>
+<p>流构建成功之后，直接调用流的发送消息逻辑</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(cs *clientStream)</span> <span class="title">SendMsg</span><span class="params">(m <span class="keyword">interface</span>&#123;&#125;)</span> <span class="params">(err error)</span></span> &#123;</span><br><span class="line">   <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">      <span class="keyword">if</span> err != <span class="literal">nil</span> &amp;&amp; err != io.EOF &#123;</span><br><span class="line">         <span class="comment">// Call finish on the client stream for errors generated by this SendMsg</span></span><br><span class="line">         <span class="comment">// call, as these indicate problems created by this client.  (Transport</span></span><br><span class="line">         <span class="comment">// errors are converted to an io.EOF error in csAttempt.sendMsg; the real</span></span><br><span class="line">         <span class="comment">// error will be returned from RecvMsg eventually in that case, or be</span></span><br><span class="line">         <span class="comment">// retried.)</span></span><br><span class="line">         cs.finish(err)</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;()</span><br><span class="line">   <span class="keyword">if</span> cs.sentLast &#123;</span><br><span class="line">      <span class="keyword">return</span> status.Errorf(codes.Internal, <span class="string">"SendMsg called after CloseSend"</span>)</span><br><span class="line">   &#125;</span><br><span class="line">    </span><br><span class="line">   <span class="comment">//如果是客户端流</span></span><br><span class="line">   <span class="keyword">if</span> !cs.desc.ClientStreams &#123;</span><br><span class="line">      cs.sentLast = <span class="literal">true</span></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//将数据准备为三部分 头 + 负载 + data</span></span><br><span class="line">   hdr, payload, data, err := prepareMsg(m, cs.codec, cs.cp, cs.comp)</span><br><span class="line">   <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> err</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//... 发送大小限制判断</span></span><br><span class="line">   </span><br><span class="line">   msgBytes := data <span class="comment">// Store the pointer before setting to nil. For binary logging.</span></span><br><span class="line">   op := <span class="function"><span class="keyword">func</span><span class="params">(a *csAttempt)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">      err := a.sendMsg(m, hdr, payload, data)</span><br><span class="line">      <span class="comment">// nil out the message and uncomp when replaying; they are only needed for</span></span><br><span class="line">      <span class="comment">// stats which is disabled for subsequent attempts.</span></span><br><span class="line">      m, data = <span class="literal">nil</span>, <span class="literal">nil</span></span><br><span class="line">      <span class="keyword">return</span> err</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//...使用重试机制进行消息发送</span></span><br><span class="line">   err = cs.withRetry(op, <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; cs.bufferForRetryLocked(<span class="built_in">len</span>(hdr)+<span class="built_in">len</span>(payload), op) &#125;)</span><br><span class="line">   </span><br><span class="line">   <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="消息准备"><a class="markdownIt-Anchor" href="#消息准备"></a> 消息准备</h5>
+<p>将消息体转换为发送前的两部分</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">prepareMsg</span><span class="params">(m <span class="keyword">interface</span>&#123;&#125;, codec baseCodec, cp Compressor, comp encoding.Compressor)</span> <span class="params">(hdr, payload, data []<span class="keyword">byte</span>, err error)</span></span> &#123;</span><br><span class="line">   <span class="comment">//消息重试中可以直接使用</span></span><br><span class="line">   <span class="keyword">if</span> preparedMsg, ok := m.(*PreparedMsg); ok &#123;</span><br><span class="line">      <span class="keyword">return</span> preparedMsg.hdr, preparedMsg.payload, preparedMsg.encodedData, <span class="literal">nil</span></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//1. 消息序列化</span></span><br><span class="line">   <span class="comment">//2. 消息压缩</span></span><br><span class="line">   <span class="comment">//3. 消息头部与负载</span></span><br><span class="line">   hdr, payload = msgHeader(data, compData)</span><br><span class="line">   <span class="keyword">return</span> hdr, payload, data, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>消息发送前的准备最重要的就是 <code>msgHeader</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">msgHeader</span><span class="params">(data, compData []<span class="keyword">byte</span>)</span> <span class="params">(hdr []<span class="keyword">byte</span>, payload []<span class="keyword">byte</span>)</span></span> &#123;</span><br><span class="line">   hdr = <span class="built_in">make</span>([]<span class="keyword">byte</span>, headerLen)	<span class="comment">// headerLen 5字节</span></span><br><span class="line">   <span class="comment">//是否压缩</span></span><br><span class="line">   <span class="keyword">if</span> compData != <span class="literal">nil</span> &#123;</span><br><span class="line">      hdr[<span class="number">0</span>] = <span class="keyword">byte</span>(compressionMade)</span><br><span class="line">      data = compData</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      hdr[<span class="number">0</span>] = <span class="keyword">byte</span>(compressionNone)	</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//四个字节用来记录数据长度，并进行大小端准换</span></span><br><span class="line">   <span class="comment">// Write length of payload into buf</span></span><br><span class="line">   binary.BigEndian.PutUint32(hdr[payloadLen:], <span class="keyword">uint32</span>(<span class="built_in">len</span>(data)))</span><br><span class="line">   <span class="keyword">return</span> hdr, data</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在大小端中，字节的存储顺序是按照其地址的高低位来决定的。</p>
+<ul>
+<li>**大端模式（Big Endian）**是指将高位字节存储在低地址处，低位字节存储在高地址处</li>
+<li>**小端模式（Little Endian）**则是将低位字节存储在低地址处，高位字节存储在高地址处</li>
+</ul>
+<p>举个例子，对于一个 4 字节的整数 0x12345678，它在大端模式下的存储顺序为 0x12 0x34 0x56 0x78，而在小端模式下的存储顺序为 0x78 0x56 0x34 0x12</p>
+</blockquote>
+<h5 id="消息发送"><a class="markdownIt-Anchor" href="#消息发送"></a> 消息发送</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Write formats the data into HTTP2 data frame(s) and sends it out. The caller</span></span><br><span class="line"><span class="comment">// should proceed only if Write returns nil.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *http2Client)</span> <span class="title">Write</span><span class="params">(s *Stream, hdr []<span class="keyword">byte</span>, data []<span class="keyword">byte</span>, opts *Options)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	df := &amp;dataFrame&#123;</span><br><span class="line">		streamID:  s.id,</span><br><span class="line">		endStream: opts.Last,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> hdr != <span class="literal">nil</span> || data != <span class="literal">nil</span> &#123; <span class="comment">// If it's not an empty data frame.</span></span><br><span class="line">		<span class="comment">// Add some data to grpc message header so that we can equally</span></span><br><span class="line">		<span class="comment">// distribute bytes across frames.</span></span><br><span class="line">		emptyLen := http2MaxFrameLen - <span class="built_in">len</span>(hdr)</span><br><span class="line">		<span class="keyword">if</span> emptyLen &gt; <span class="built_in">len</span>(data) &#123;</span><br><span class="line">			emptyLen = <span class="built_in">len</span>(data)</span><br><span class="line">		&#125;</span><br><span class="line">		hdr = <span class="built_in">append</span>(hdr, data[:emptyLen]...)</span><br><span class="line">		data = data[emptyLen:]</span><br><span class="line">		df.h, df.d = hdr, data</span><br><span class="line">		<span class="comment">// TODO(mmukhi): The above logic in this if can be moved to loopyWriter's data handler.</span></span><br><span class="line">		<span class="keyword">if</span> err := s.wq.get(<span class="keyword">int32</span>(<span class="built_in">len</span>(hdr) + <span class="built_in">len</span>(data))); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> err</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t.controlBuf.put(df)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>将<code>hdr + body</code> 组建成数据帧，然后放入帧发送缓存器中</li>
+</ol>
+<h5 id="消息的响应"><a class="markdownIt-Anchor" href="#消息的响应"></a> 消息的响应</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(cs *clientStream)</span> <span class="title">RecvMsg</span><span class="params">(m <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">   <span class="comment">//...</span></span><br><span class="line">   <span class="keyword">var</span> recvInfo *payloadInfo</span><br><span class="line">   <span class="keyword">if</span> cs.binlog != <span class="literal">nil</span> &#123;</span><br><span class="line">      recvInfo = &amp;payloadInfo&#123;&#125;</span><br><span class="line">   &#125;</span><br><span class="line">   err := cs.withRetry(<span class="function"><span class="keyword">func</span><span class="params">(a *csAttempt)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> a.recvMsg(m, recvInfo)</span><br><span class="line">   &#125;, cs.commitAttemptLocked)</span><br><span class="line">   <span class="comment">//...</span></span><br><span class="line">   <span class="keyword">if</span> err != <span class="literal">nil</span> || !cs.desc.ServerStreams &#123;</span><br><span class="line">      <span class="comment">// err != nil or non-server-streaming indicates end of stream.</span></span><br><span class="line">      cs.finish(err)</span><br><span class="line"></span><br><span class="line">     <span class="comment">//...</span></span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实际的读取</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *parser)</span> <span class="title">recvMsg</span><span class="params">(maxReceiveMessageSize <span class="keyword">int</span>)</span> <span class="params">(pf payloadFormat, msg []<span class="keyword">byte</span>, err error)</span></span> &#123;</span><br><span class="line">   <span class="keyword">if</span> _, err := p.r.Read(p.header[:]); err != <span class="literal">nil</span> &#123;	<span class="comment">//先读取头</span></span><br><span class="line">      <span class="keyword">return</span> <span class="number">0</span>, <span class="literal">nil</span>, err</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   pf = payloadFormat(p.header[<span class="number">0</span>])</span><br><span class="line">   length := binary.BigEndian.Uint32(p.header[<span class="number">1</span>:])	<span class="comment">//大小端转换</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> length == <span class="number">0</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> pf, <span class="literal">nil</span>, <span class="literal">nil</span></span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">if</span> <span class="keyword">int64</span>(length) &gt; <span class="keyword">int64</span>(maxInt) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="number">0</span>, <span class="literal">nil</span>, status.Errorf(codes.ResourceExhausted, <span class="string">"grpc: received message larger than max length allowed on current machine (%d vs. %d)"</span>, length, maxInt)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">if</span> <span class="keyword">int</span>(length) &gt; maxReceiveMessageSize &#123;	<span class="comment">//长度限制</span></span><br><span class="line">      <span class="keyword">return</span> <span class="number">0</span>, <span class="literal">nil</span>, status.Errorf(codes.ResourceExhausted, <span class="string">"grpc: received message larger than max (%d vs. %d)"</span>, length, maxReceiveMessageSize)</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   msg = <span class="built_in">make</span>([]<span class="keyword">byte</span>, <span class="keyword">int</span>(length))	<span class="comment">//body读取</span></span><br><span class="line">   <span class="keyword">if</span> _, err := p.r.Read(msg); err != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> err == io.EOF &#123;</span><br><span class="line">         err = io.ErrUnexpectedEOF</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> <span class="number">0</span>, <span class="literal">nil</span>, err</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> pf, msg, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>与发送类似，发送分为四步</p>
+<ol>
+<li>读取帧的头信息(不是头帧，而是每个帧都有头信息)</li>
+<li>大小端转换</li>
+<li>长度限制</li>
+<li>根据帧头的长度阅读消息</li>
+</ol>
+<p>然后通过解压缩(非必要)与反序列化转化为对应的消息，那么通信就完成了</p>
+<h4 id="接收消息"><a class="markdownIt-Anchor" href="#接收消息"></a> 接收消息</h4>
+<h5 id="流的处理"><a class="markdownIt-Anchor" href="#流的处理"></a> 流的处理</h5>
+<p>上面是流处理消息的流程，服务端的流是怎么建立的呢？从前面可以知道，客户端建流其实是发送一个头帧 <code>headerFrame</code> 过去，那么，服务端就需要根据头帧建立不同的流</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">initServerWorkers</span><span class="params">()</span></span> &#123;</span><br><span class="line">	s.serverWorkerChannels = <span class="built_in">make</span>([]<span class="keyword">chan</span> *serverWorkerData, s.opts.numServerWorkers)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">uint32</span>(<span class="number">0</span>); i &lt; s.opts.numServerWorkers; i++ &#123;</span><br><span class="line">		s.serverWorkerChannels[i] = <span class="built_in">make</span>(<span class="keyword">chan</span> *serverWorkerData)</span><br><span class="line">		<span class="keyword">go</span> s.serverWorker(s.serverWorkerChannels[i])</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它是通过 <code>serverWorkerChannels</code> 的隧道，来进行流的处理的，而在协程的处理中，首先由一个专门的函数将数据传输到 <code>serverWorkerChannels</code> 隧道中</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">st.HandleStreams(<span class="function"><span class="keyword">func</span><span class="params">(stream *transport.Stream)</span></span> &#123;</span><br><span class="line">    wg.Add(<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">if</span> s.opts.numServerWorkers &gt; <span class="number">0</span> &#123;</span><br><span class="line">        data := &amp;serverWorkerData&#123;st: st, wg: &amp;wg, stream: stream&#125;</span><br><span class="line">        <span class="keyword">select</span> &#123;</span><br><span class="line">            <span class="keyword">case</span> s.serverWorkerChannels[atomic.AddUint32(&amp;roundRobinCounter, <span class="number">1</span>)%s.opts.numServerWorkers] &lt;- data:</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="comment">// 如果隧道是满的，那么再起一个协程进行流的处理</span></span><br><span class="line">            <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">                s.handleStream(st, stream, s.traceInfo(st, stream))</span><br><span class="line">                wg.Done()</span><br><span class="line">            &#125;()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;	<span class="comment">//单消费者模式</span></span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">            <span class="keyword">defer</span> wg.Done()</span><br><span class="line">            s.handleStream(st, stream, s.traceInfo(st, stream))</span><br><span class="line">        &#125;()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;, <span class="comment">//...)</span></span><br></pre></td></tr></table></figure>
+<p>那么数据又是如何转换为流的呢</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *http2Server)</span> <span class="title">HandleStreams</span><span class="params">(handle <span class="keyword">func</span>(*Stream)</span>, <span class="title">traceCtx</span> <span class="title">func</span><span class="params">(context.Context, <span class="keyword">string</span>)</span> <span class="title">context</span>.<span class="title">Context</span>)</span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> <span class="built_in">close</span>(t.readerDone)</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		t.controlBuf.throttle()</span><br><span class="line">		frame, err := t.framer.fr.ReadFrame() <span class="comment">//循环读取帧</span></span><br><span class="line">		atomic.StoreInt64(&amp;t.lastRead, time.Now().UnixNano())	<span class="comment">//记录最近一次读取时间</span></span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> se, ok := err.(http2.StreamError); ok &#123;	<span class="comment">//如果发生流错误</span></span><br><span class="line">				<span class="keyword">if</span> logger.V(logLevel) &#123;</span><br><span class="line">					logger.Warningf(<span class="string">"transport: http2Server.HandleStreams encountered http2.StreamError: %v"</span>, se)</span><br><span class="line">				&#125;</span><br><span class="line">				t.mu.Lock()</span><br><span class="line">				s := t.activeStreams[se.StreamID]	<span class="comment">//拿出来关掉</span></span><br><span class="line">				t.mu.Unlock()</span><br><span class="line">				<span class="keyword">if</span> s != <span class="literal">nil</span> &#123;</span><br><span class="line">					t.closeStream(s, <span class="literal">true</span>, se.Code, <span class="literal">false</span>)</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					t.controlBuf.put(&amp;cleanupStream&#123;</span><br><span class="line">						streamID: se.StreamID,</span><br><span class="line">						rst:      <span class="literal">true</span>,</span><br><span class="line">						rstCode:  se.Code,</span><br><span class="line">						onWrite:  <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;&#125;,</span><br><span class="line">					&#125;)</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">continue</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">//其他错误</span></span><br><span class="line">			t.Close()</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">//不同类型帧的处理</span></span><br><span class="line">		<span class="keyword">switch</span> frame := frame.(<span class="keyword">type</span>) &#123;</span><br><span class="line">		<span class="keyword">case</span> *http2.MetaHeadersFrame:</span><br><span class="line">			<span class="keyword">if</span> t.operateHeaders(frame, handle, traceCtx) &#123;</span><br><span class="line">				t.Close()</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line">		<span class="keyword">case</span> *http2.DataFrame:</span><br><span class="line">			t.handleData(frame)</span><br><span class="line">		<span class="comment">//... 不同帧的处理</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意事项：</p>
+<ol>
+<li>
+<p>流错误只会影响一条流，关闭流之后 发送 <code>cleanupStream</code>的帧，StreamError 的目的就是记录流错误</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// StreamError is an error that only affects one stream within an</span></span><br><span class="line"><span class="comment">// HTTP/2 connection.</span></span><br><span class="line"><span class="keyword">type</span> StreamError <span class="keyword">struct</span> &#123;</span><br><span class="line">	StreamID <span class="keyword">uint32</span></span><br><span class="line">	Code     ErrCode</span><br><span class="line">	Cause    error <span class="comment">// optional additional detail</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>来看一下头帧(构建流的时候作用)的操作</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *http2Server)</span> <span class="title">operateHeaders</span><span class="params">(frame *http2.MetaHeadersFrame, handle <span class="keyword">func</span>(*Stream)</span>, <span class="title">traceCtx</span> <span class="title">func</span><span class="params">(context.Context, <span class="keyword">string</span>)</span> <span class="title">context</span>.<span class="title">Context</span>) <span class="params">(fatal <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">// Acquire max stream ID lock for entire duration</span></span><br><span class="line">	t.maxStreamMu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> t.maxStreamMu.Unlock()</span><br><span class="line"></span><br><span class="line">	streamID := frame.Header().StreamID	<span class="comment">//流id</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 当头部大小超过限制，那么服务端会直接清理掉这条流</span></span><br><span class="line">	<span class="keyword">if</span> frame.Truncated &#123;</span><br><span class="line">		t.controlBuf.put(&amp;cleanupStream&#123;</span><br><span class="line">			streamID: streamID,</span><br><span class="line">			rst:      <span class="literal">true</span>,</span><br><span class="line">			rstCode:  http2.ErrCodeFrameSize,</span><br><span class="line">			onWrite:  <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;&#125;,</span><br><span class="line">		&#125;)</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//流ID必定是单数，且大于当前最大流ID</span></span><br><span class="line">	<span class="keyword">if</span> streamID%<span class="number">2</span> != <span class="number">1</span> || streamID &lt;= t.maxStreamID &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">	&#125;</span><br><span class="line">	t.maxStreamID = streamID</span><br><span class="line"></span><br><span class="line">	buf := newRecvBuffer()</span><br><span class="line">	s := &amp;Stream&#123;</span><br><span class="line">		id:  streamID,</span><br><span class="line">		st:  t,</span><br><span class="line">		buf: buf,</span><br><span class="line">		fc:  &amp;inFlow&#123;limit: <span class="keyword">uint32</span>(t.initialWindowSize)&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, hf := <span class="keyword">range</span> frame.Fields &#123;</span><br><span class="line">		<span class="comment">//解析 fields</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//通过头部field帧 grpc-timeout 设置超时时间</span></span><br><span class="line">	<span class="keyword">if</span> timeoutSet &#123;</span><br><span class="line">		s.ctx, s.cancel = context.WithTimeout(t.ctx, timeout)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		s.ctx, s.cancel = context.WithCancel(t.ctx)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Attach the received metadata to the context.</span></span><br><span class="line">	<span class="comment">//跟踪</span></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">    </span><br><span class="line">	t.activeStreams[streamID] = s	<span class="comment">//流加入到 活动流 中</span></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Register the stream with loopy.  //注册流的帧</span></span><br><span class="line">	t.controlBuf.put(&amp;registerStream&#123;</span><br><span class="line">		streamID: s.id,</span><br><span class="line">		wq:       s.wq,</span><br><span class="line">	&#125;)</span><br><span class="line">	handle(s)	<span class="comment">//处理流</span></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>问题1</strong>：<code>streamID%2 != 1</code> 为什么要限制为单数，</p>
+<p>答：防止两端<em>流ID</em>冲突，客户端发起的流具有奇数<em>ID</em>，服务器端发起的流具有<em>偶数ID</em></p>
+<p>可以看到，收到头枕之后会加入到帧缓冲器中，其实也是在服务端会转换为一个 <code>registerStream</code> 的帧放入到帧缓冲器中</p>
+<h5 id="消息的处理"><a class="markdownIt-Anchor" href="#消息的处理"></a> 消息的处理</h5>
+<p>首先，消息是通过服务端work对应的隧道进行生产者-消费者处理的</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">handleStream</span><span class="params">(t transport.ServerTransport, stream *transport.Stream, trInfo *traceInfo)</span></span> &#123;</span><br><span class="line">	sm := stream.Method()</span><br><span class="line">	<span class="comment">//解析 服务与方法</span></span><br><span class="line">	service := sm[:pos]</span><br><span class="line">	method := sm[pos+<span class="number">1</span>:]</span><br><span class="line"></span><br><span class="line">	srv, knownService := s.services[service]	<span class="comment">//查找proto定义的犯法进行处理</span></span><br><span class="line">	<span class="keyword">if</span> knownService &#123;</span><br><span class="line">		<span class="keyword">if</span> md, ok := srv.methods[method]; ok &#123;</span><br><span class="line">			s.processUnaryRPC(t, stream, srv, md, trInfo)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> sd, ok := srv.streams[method]; ok &#123;</span><br><span class="line">			s.processStreamingRPC(t, stream, srv, sd, trInfo)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="comment">//未知的service 或者 method 异常情况处理</span></span><br><span class="line">	<span class="comment">//信息记录</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过 processUnaryRPC 进入到定义中，只需要关心  <code>reply, appErr := md.Handler(info.serviceImpl, ctx, df, s.opts.unaryInt)</code> 执行业务逻辑</p>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<ol>
+<li>
+<p>每个RPC调用都可以看做一个stream，客户端发送请求会创建一个新的流，服务器也会创建流进行消息响应</p>
+</li>
+<li>
+<p>流的状态流转</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> (</span><br><span class="line">   stateIdle streamState = <span class="literal">iota</span></span><br><span class="line">   stateOpen</span><br><span class="line">   stateHalfClosedLocal</span><br><span class="line">   stateHalfClosedRemote</span><br><span class="line">   stateClosed</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
+<ol>
+<li><a href="https://blog.csdn.net/u011582922/article/details/120578941" target="_blank" rel="noopener">https://blog.csdn.net/u011582922/article/details/120578941</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/10/05/Grpc/Grpc-02-%E6%B5%81/" title="Grpc-02-流" target="_blank" rel="external">http://xboom.github.io/2022/10/05/Grpc/Grpc-02-流/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/10/07/Grpc/Grpc-03-%E5%B8%A7%E5%8F%91%E9%80%81%E5%99%A8/" title="Grpc-03-帧发送器"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/10/03/Grpc/Grpc-01-%E6%A6%82%E8%BF%B0/" title="Grpc-01-概述"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Grpc-06-多路复用 | XBoom Dove</title>
+  <meta name="description" content="多路复用是 HTTP&#x2F;2中的重要特性，允许同一个TCP连接上同时传输多个HTTP请求和响应 带着问题看世界：  通过《帧发送器》可知帧是一个一个进行消息发送，多个流的帧如何发送 服务端是如何区分不同的流的帧 帧太大一定会进行分包，最大是多少，服务端如何存储分包的帧，保证它的顺序 服务端如何从分包的数据帧的恢复数据    发送端 多路复用从 《帧接收器》说起，一个请求入上图所示，由头帧跟多个数据帧组">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Grpc-06-多路复用">
+<meta property="og:url" content="http://xboom.github.io/2022/10/13/Grpc/Grpc-06-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="多路复用是 HTTP&#x2F;2中的重要特性，允许同一个TCP连接上同时传输多个HTTP请求和响应 带着问题看世界：  通过《帧发送器》可知帧是一个一个进行消息发送，多个流的帧如何发送 服务端是如何区分不同的流的帧 帧太大一定会进行分包，最大是多少，服务端如何存储分包的帧，保证它的顺序 服务端如何从分包的数据帧的恢复数据    发送端 多路复用从 《帧接收器》说起，一个请求入上图所示，由头帧跟多个数据帧组">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE1ODI5MjI=,size_16,color_FFFFFF,t_70-20230411222936879.png">
+<meta property="article:published_time" content="2022-10-13T14:58:29.000Z">
+<meta property="article:modified_time" content="2023-05-27T10:55:14.892Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Grpc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE1ODI5MjI=,size_16,color_FFFFFF,t_70-20230411222936879.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/10/13/Grpc/Grpc-06-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">23</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.1px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.6px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.8px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.5px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.8px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/go-zero/" style="font-size: 13.7px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" class="title">Go入门15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/03/05/Go/Go%E5%85%A5%E9%97%A824-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/" class="title">Go入门24-协程池问题</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-03-05T06:46:45.000Z" itemprop="datePublished">2023-03-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/02/02/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/" class="title">算法-E10C-最大公约数</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-02T12:25:25.494Z" itemprop="datePublished">2023-02-02</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/10/Go/Go%E5%85%A5%E9%97%A823-arena/" class="title">Go入门23-arena</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-10T08:00:20.000Z" itemprop="datePublished">2023-01-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/04/Go/Go%E5%85%A5%E9%97%A821-SetFinalizer/" class="title">Go入门21-SetFinalizer</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-04T13:45:13.344Z" itemprop="datePublished">2023-01-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#发送端"><span class="toc-number">1.</span> <span class="toc-text"> 发送端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#接收端"><span class="toc-number">2.</span> <span class="toc-text"> 接收端</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#帧的读取"><span class="toc-number">2.1.</span> <span class="toc-text"> 帧的读取</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#帧转换器"><span class="toc-number">2.2.</span> <span class="toc-text"> 帧转换器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据帧处理"><span class="toc-number">2.3.</span> <span class="toc-text"> 数据帧处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#帧缓冲区"><span class="toc-number">2.4.</span> <span class="toc-text"> 帧缓冲区</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#帧的存储"><span class="toc-number">2.4.1.</span> <span class="toc-text"> 帧的存储</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#帧的消费"><span class="toc-number">2.4.2.</span> <span class="toc-text"> 帧的消费</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">4.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Grpc/Grpc-06-多路复用" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Grpc-06-多路复用
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/10/13/Grpc/Grpc-06-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/" class="article-date">
+	  <time datetime="2022-10-13T14:58:29.000Z" itemprop="datePublished">2022-10-13</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Grpc/">Grpc</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Grpc/" rel="tag">Grpc</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/10/13/Grpc/Grpc-06-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/" class="leancloud_visitors"  data-flag-title="Grpc-06-多路复用">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/10/13/Grpc/Grpc-06-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>多路复用是 HTTP/2中的重要特性，允许同一个TCP连接上同时传输多个HTTP请求和响应</p>
+<p>带着问题看世界：</p>
+<ol>
+<li>通过《帧发送器》可知帧是一个一个进行消息发送，多个流的帧如何发送</li>
+<li>服务端是如何区分不同的流的帧</li>
+<li>帧太大一定会进行分包，最大是多少，服务端如何存储分包的帧，保证它的顺序</li>
+<li>服务端如何从分包的数据帧的恢复数据</li>
+</ol>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTE1ODI5MjI=,size_16,color_FFFFFF,t_70-20230411222936879.png" alt="在这里插入图片描述" style="zoom:20%;" />
+<h3 id="发送端"><a class="markdownIt-Anchor" href="#发送端"></a> 发送端</h3>
+<p>多路复用从 《帧接收器》说起，一个请求入上图所示，由头帧跟多个数据帧组成，现在直接看数据帧的发送逻辑</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">it, err := l.cbuf.get(<span class="literal">true</span>)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> err = l.handle(it); err != <span class="literal">nil</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> _, err = l.processData(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面是从发送缓冲区获取数据进行发送，一共分为三步</p>
+<ol>
+<li>
+<p>从缓冲区获取帧(这里的帧是应用帧中的数据帧 <code>dataFrame</code>)</p>
+</li>
+<li>
+<p>将帧进行流的处理</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(l *loopyWriter)</span> <span class="title">preprocessData</span><span class="params">(df *dataFrame)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">   str, ok := l.estdStreams[df.streamID]</span><br><span class="line">   <span class="keyword">if</span> !ok &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">// If we got data for a stream it means that</span></span><br><span class="line">   <span class="comment">// stream was originated and the headers were sent out.</span></span><br><span class="line">   str.itl.enqueue(df)</span><br><span class="line">   <span class="keyword">if</span> str.state == empty &#123;</span><br><span class="line">      str.state = active</span><br><span class="line">      l.activeStreams.enqueue(str)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>意思就是：</p>
+<ol>
+<li>
+<p>根据帧ID <strong>streamID</strong> 从 已经建立连接的流中 <code>estdStreams</code> 获取到流</p>
+<blockquote>
+<p>estdStreams 表示所有已建立但未被清除的流(stream)</p>
+<p>在客户端，表示所有已发送头部信息的流</p>
+<p>在服务端，表示所有已接收头部信息的流</p>
+<p><code>activeStreams</code> 就表示的是已经发送或接收了头帧以及部分数据帧的流</p>
+</blockquote>
+</li>
+<li>
+<p>将帧存入到流的单向链表中</p>
+</li>
+<li>
+<p>如果链表为空(表示仅仅是发送了头帧，还没有数据帧)，那么将流加入到 <code>activeStreams</code> 数据流中</p>
+</li>
+</ol>
+</li>
+<li>
+<p>进行消息发送</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(l *loopyWriter)</span> <span class="title">processData</span><span class="params">()</span> <span class="params">(<span class="keyword">bool</span>, error)</span></span> &#123;</span><br><span class="line">   <span class="comment">//...</span></span><br><span class="line">   <span class="comment">//1. 从数据流中拿第一个流的数据帧</span></span><br><span class="line">   str := l.activeStreams.dequeue() <span class="comment">// Remove the first stream.</span></span><br><span class="line">   <span class="keyword">if</span> str == <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>, <span class="literal">nil</span></span><br><span class="line">   &#125;</span><br><span class="line">   dataItem := str.itl.peek().(*dataFrame)</span><br><span class="line">   <span class="comment">//dataItem 是业务数据帧，在这里讲真正分解为发送的多个数据帧 dataFrame</span></span><br><span class="line">   </span><br><span class="line">   <span class="keyword">if</span> <span class="built_in">len</span>(dataItem.h) == <span class="number">0</span> &amp;&amp; <span class="built_in">len</span>(dataItem.d) == <span class="number">0</span> &#123; <span class="comment">// 如果是空的</span></span><br><span class="line">      <span class="comment">//发送结束帧</span></span><br><span class="line">      <span class="keyword">if</span> err := l.framer.fr.WriteData(dataItem.streamID, dataItem.endStream, <span class="literal">nil</span>); err != <span class="literal">nil</span> &#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="literal">false</span>, err</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">//...根据流的帧后续是否仍然有数据进行处理</span></span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>, <span class="literal">nil</span></span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">var</span> (</span><br><span class="line">      buf []<span class="keyword">byte</span></span><br><span class="line">   )</span><br><span class="line">  </span><br><span class="line">   maxSize := http2MaxFrameLen <span class="comment">//16KB</span></span><br><span class="line">   <span class="comment">//计算一个帧最大值，默认16KB</span></span><br><span class="line">   hSize := min(maxSize, <span class="built_in">len</span>(dataItem.h))				<span class="comment">//头部的最大长度</span></span><br><span class="line">   dSize := min(maxSize-hSize, <span class="built_in">len</span>(dataItem.d)) <span class="comment">//负载的最大长度</span></span><br><span class="line">   <span class="comment">//... 将dataItem 部分数据写入到buf中</span></span><br><span class="line"></span><br><span class="line">   size := hSize + dSize</span><br><span class="line">	 <span class="comment">//...</span></span><br><span class="line">   <span class="keyword">var</span> endStream <span class="keyword">bool</span></span><br><span class="line">   <span class="comment">//是否是流的最后一帧</span></span><br><span class="line">   <span class="keyword">if</span> dataItem.endStream &amp;&amp; <span class="built_in">len</span>(dataItem.h)+<span class="built_in">len</span>(dataItem.d) &lt;= size &#123;</span><br><span class="line">      endStream = <span class="literal">true</span></span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//...</span></span><br><span class="line">   <span class="keyword">if</span> err := l.framer.fr.WriteData(dataItem.streamID, endStream, buf[:size]); err != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>, err</span><br><span class="line">   &#125;</span><br><span class="line">   str.bytesOutStanding += size</span><br><span class="line">   l.sendQuota -= <span class="keyword">uint32</span>(size)</span><br><span class="line">   dataItem.h = dataItem.h[hSize:]	<span class="comment">//剩余头部长度</span></span><br><span class="line">   dataItem.d = dataItem.d[dSize:]	<span class="comment">//剩余负载长度</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">//如果数据为空，则从链表中删除这个数据帧</span></span><br><span class="line">   <span class="keyword">if</span> <span class="built_in">len</span>(dataItem.h) == <span class="number">0</span> &amp;&amp; <span class="built_in">len</span>(dataItem.d) == <span class="number">0</span> &#123; <span class="comment">// All the data from that message was written out.</span></span><br><span class="line">      str.itl.dequeue()</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//如果流中的数据帧为空，那么标记流为 empty</span></span><br><span class="line">   <span class="comment">//如果流中下一个为头帧，那么发送头帧并清理流</span></span><br><span class="line">   <span class="comment">//如果还有一部分数据未发送完毕，那么将剩下的帧存入 activeStreams 的链表中下次再发</span></span><br><span class="line">   <span class="comment">//...发送处理</span></span><br><span class="line">   <span class="keyword">return</span> <span class="literal">false</span>, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对应代码具体步骤如下：</p>
+<ol>
+<li>获取第一个活动流<code>activeStream</code>(有Data)</li>
+<li>拿到流中间的数据帧 <code>dataFrame</code> (应用帧)</li>
+<li>如果需要发送的数据是空的，那么发送数据帧并表示结束 <code>endStream == true</code></li>
+<li>如果有一部分没有发送完毕，那么将剩下的部分作为数据帧存入 activeStreams中下次再计算发送</li>
+</ol>
+</li>
+</ol>
+<p>总结：</p>
+<ol>
+<li>在发送端，由于同一个链接中多个流公用一个帧缓冲区，所以虽然是多路复用，但其实客户端所有的帧还是一个一个发送的。只是可能存在一个流的帧没有发完就会发送另一个流的帧</li>
+<li>一个帧最大为 16KB，剩下部分会作为一个帧重新加入到帧缓冲区链表中，下一次重新计算发送</li>
+</ol>
+<h3 id="接收端"><a class="markdownIt-Anchor" href="#接收端"></a> 接收端</h3>
+<p>接收端可以分为上述三个问题</p>
+<ol>
+<li>如何接收数据帧分帧的</li>
+<li>如何存储数据帧分帧的</li>
+</ol>
+<h4 id="帧的读取"><a class="markdownIt-Anchor" href="#帧的读取"></a> 帧的读取</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(fr *Framer)</span> <span class="title">ReadFrame</span><span class="params">()</span> <span class="params">(Frame, error)</span></span> &#123;</span><br><span class="line">   fr.errDetail = <span class="literal">nil</span></span><br><span class="line">   <span class="keyword">if</span> fr.lastFrame != <span class="literal">nil</span> &#123;</span><br><span class="line">      fr.lastFrame.invalidate()</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//1. 利用第三方依赖，直接读取帧的头部</span></span><br><span class="line">   fh, err := readFrameHeader(fr.headerBuf[:], fr.r)</span><br><span class="line">   <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">if</span> fh.Length &gt; fr.maxReadSize &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nil</span>, ErrFrameTooLarge</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//2. 获取负载长度并读取</span></span><br><span class="line">   payload := fr.getReadBuf(fh.Length)</span><br><span class="line">   <span class="keyword">if</span> _, err := io.ReadFull(fr.r, payload); err != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//根据帧的类型，将真转换为程序数据结构</span></span><br><span class="line">   f, err := typeFrameParser(fh.Type)(fr.frameCache, fh, payload)</span><br><span class="line">   <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> ce, ok := err.(connError); ok &#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="literal">nil</span>, fr.connError(ce.Code, ce.Reason)</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//检查帧的顺序</span></span><br><span class="line">   <span class="keyword">if</span> err := fr.checkFrameOrder(f); err != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//如果是头帧，还需要将其中的元数据再解析一次，最终变为 MetaHeadersFrame 帧</span></span><br><span class="line">   <span class="keyword">if</span> fh.Type == FrameHeaders &amp;&amp; fr.ReadMetaHeaders != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> fr.readMetaFrame(f.(*HeadersFrame))</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> f, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="帧转换器"><a class="markdownIt-Anchor" href="#帧转换器"></a> 帧转换器</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> frameParsers = <span class="keyword">map</span>[FrameType]frameParser&#123;</span><br><span class="line">   FrameData:         parseDataFrame,</span><br><span class="line">   FrameHeaders:      parseHeadersFrame,</span><br><span class="line">   FramePriority:     parsePriorityFrame,</span><br><span class="line">   FrameRSTStream:    parseRSTStreamFrame,</span><br><span class="line">   FrameSettings:     parseSettingsFrame,</span><br><span class="line">   FramePushPromise:  parsePushPromise,</span><br><span class="line">   FramePing:         parsePingFrame,</span><br><span class="line">   FrameGoAway:       parseGoAwayFrame,</span><br><span class="line">   FrameWindowUpdate: parseWindowUpdateFrame,</span><br><span class="line">   FrameContinuation: parseContinuationFrame,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">typeFrameParser</span><span class="params">(t FrameType)</span> <span class="title">frameParser</span></span> &#123;</span><br><span class="line">   <span class="keyword">if</span> f := frameParsers[t]; f != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> f</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> parseUnknownFrame</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="数据帧处理"><a class="markdownIt-Anchor" href="#数据帧处理"></a> 数据帧处理</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *http2Server)</span> <span class="title">handleData</span><span class="params">(f *http2.DataFrame)</span></span> &#123;</span><br><span class="line">   size := f.Header().Length</span><br><span class="line">   <span class="comment">//...流控</span></span><br><span class="line">   <span class="comment">// Select the right stream to dispatch.</span></span><br><span class="line">   s, ok := t.getStream(f)</span><br><span class="line">   <span class="comment">//... </span></span><br><span class="line">   <span class="keyword">if</span> size &gt; <span class="number">0</span> &#123;	<span class="comment">//负载大于0</span></span><br><span class="line">      <span class="comment">//... 流控</span></span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> <span class="built_in">len</span>(f.Data()) &gt; <span class="number">0</span> &#123;</span><br><span class="line">         buffer := t.bufferPool.get()</span><br><span class="line">         buffer.Reset()</span><br><span class="line">         buffer.Write(f.Data())</span><br><span class="line">         s.write(recvMsg&#123;buffer: buffer&#125;)</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">    <span class="comment">//如果流结束了，</span></span><br><span class="line">   <span class="keyword">if</span> f.StreamEnded() &#123;</span><br><span class="line">      <span class="comment">// Received the end of stream from the client.</span></span><br><span class="line">      s.compareAndSwapState(streamActive, streamReadDone)</span><br><span class="line">      s.write(recvMsg&#123;err: io.EOF&#125;)</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>流程：</p>
+<ol>
+<li>如果是数据帧则获取流的大小以及负载</li>
+<li>将负载封装成<code>recvMsg</code>写入到流中</li>
+<li>如果对方告知流结束了，那么将流的状态从 <code>streamActive</code> 改为 <code>streamReadDone</code></li>
+<li>封装帧结束消息 <code>recvMsg{err: io.EOF}</code></li>
+</ol>
+<p>核心就是讲数据写入流中的 <code>s.write(recvMsg{buffer: buffer})</code></p>
+<h4 id="帧缓冲区"><a class="markdownIt-Anchor" href="#帧缓冲区"></a> 帧缓冲区</h4>
+<p>与发送端所有流的帧都放入到一个帧缓冲区不一样，这里的缓冲区是一个缓冲区切片，用于接收同一个流中的分帧数据</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> recvBuffer <span class="keyword">struct</span> &#123;</span><br><span class="line">   c       <span class="keyword">chan</span> recvMsg	<span class="comment">//缓冲区为1 的 channel</span></span><br><span class="line">   mu      sync.Mutex		<span class="comment">//原子锁</span></span><br><span class="line">   backlog []recvMsg		<span class="comment">//缓冲切片</span></span><br><span class="line">   err     error				<span class="comment">//错误信息</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="帧的存储"><a class="markdownIt-Anchor" href="#帧的存储"></a> 帧的存储</h5>
+<p>如果 切片 里面没有没有数据，就直接存入隧道，说明切面的消息已经都消费了</p>
+<p>如果 切片 里面有数据，那么就存入到切片的后面，保证消息的顺序消费</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *recvBuffer)</span> <span class="title">put</span><span class="params">(r recvMsg)</span></span> &#123;</span><br><span class="line">   b.mu.Lock()</span><br><span class="line">   <span class="keyword">if</span> b.err != <span class="literal">nil</span> &#123;</span><br><span class="line">      b.mu.Unlock()</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">   &#125;</span><br><span class="line">   b.err = r.err</span><br><span class="line">   <span class="keyword">if</span> <span class="built_in">len</span>(b.backlog) == <span class="number">0</span> &#123;	<span class="comment">//切片为空，则直接存入隧道</span></span><br><span class="line">      <span class="keyword">select</span> &#123;</span><br><span class="line">      <span class="keyword">case</span> b.c &lt;- r:</span><br><span class="line">         b.mu.Unlock()</span><br><span class="line">         <span class="keyword">return</span></span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   b.backlog = <span class="built_in">append</span>(b.backlog, r)	<span class="comment">//切片不为空则直接存入切片尾部</span></span><br><span class="line">   b.mu.Unlock()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="帧的消费"><a class="markdownIt-Anchor" href="#帧的消费"></a> 帧的消费</h5>
+<p>如果切片长度大于0，说明切片内部有消息，则直接将切片第一条数据传入隧道，这样每次读取隧道中的数据即可，也能缓冲一部分数据</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *recvBuffer)</span> <span class="title">load</span><span class="params">()</span></span> &#123;</span><br><span class="line">   b.mu.Lock()</span><br><span class="line">   <span class="keyword">if</span> <span class="built_in">len</span>(b.backlog) &gt; <span class="number">0</span> &#123;</span><br><span class="line">      <span class="keyword">select</span> &#123;</span><br><span class="line">      <span class="keyword">case</span> b.c &lt;- b.backlog[<span class="number">0</span>]:</span><br><span class="line">         b.backlog[<span class="number">0</span>] = recvMsg&#123;&#125;</span><br><span class="line">         b.backlog = b.backlog[<span class="number">1</span>:]</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   b.mu.Unlock()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>虽然帧被放入到了同一个流的 <code>recvBuffer</code>中，但还是没有说明：<strong>如果一个帧的分帧是前后发送的，但是接收的顺序是乱序的时候，即使顺序消费也无法保证数据帧能够正常的解析</strong>？</p>
+<p>答：这里可以这样想，由于TCP是有序的，那么所有的TCP包都会按照发送顺序在接收端组装完成。也就是说只要发送顺序一定，那么接收端的顺序与发送端的是一样的。又因为同一个连接共用一个帧缓冲器，也就是说同一个流中的帧都是顺序发送的，所以接收端收到的帧的顺序也是不会乱序的。</p>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<ol>
+<li>
+<p>多路复用可以在同一个TCP连接上同时传输多个HTTP请求和响应，避免建立和关闭连接的开销</p>
+</li>
+<li>
+<p>和长连接的区别是: <strong>多路复用</strong> 可以避免 <strong>队头阻塞(Head-of-Line Blocking)</strong> 问题。如果某个请求在传输过程过程中出现阻塞，那么后续的请求也会被阻塞</p>
+</li>
+<li>
+<p>和分包的区别是:HTTP分包是指将一个HTTP消息分为多个TCP数据包(Packet)进行传输，而多路复用是在同一个TCP连接上同时传输多个HTTP请求和响应</p>
+</li>
+<li>
+<p>HTTP2 帧的最大传输字节是 16KB，TCP最大传输MSS是 1460B，IP层最大传输单元 MTU 1500B</p>
+<blockquote>
+<p>HTTP2 的帧有一个固定9B的头部，用于描述帧的类型，长度，标志等信息。其中保存林该帧的有效载荷的长度，最大长度 2^24 - 1 大约为 16KB</p>
+</blockquote>
+</li>
+<li>
+<p>多路复使用相同的 StreamID 来标识属于同一个流，使用recvBuffer进行帧的缓存(多个数据帧)，使用独立协程或者生产者消费者模式进行帧处理</p>
+</li>
+</ol>
+<h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
+<ol>
+<li><a href="https://blog.csdn.net/u011582922/article/details/120426690" target="_blank" rel="noopener">https://blog.csdn.net/u011582922/article/details/120426690</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/10/13/Grpc/Grpc-06-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/" title="Grpc-06-多路复用" target="_blank" rel="external">http://xboom.github.io/2022/10/13/Grpc/Grpc-06-多路复用/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/10/14/Go/Go%E5%85%A5%E9%97%A819-Fuzzing/" title="Go入门19-Fuzzing"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/10/11/Grpc/Grpc-05-%E5%B8%A7/" title="Grpc-03-帧"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>

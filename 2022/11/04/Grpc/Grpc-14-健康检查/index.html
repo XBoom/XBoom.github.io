@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Grpc-14-健康检查 | XBoom Dove</title>
+  <meta name="description" content="前面学习了保持链接，这里看一下健康检查 带着问题看世界  健康检查的作用 健康检查的原理 保持链接与健康检查的区别  首先看一下源码例子中的ReadMe说明，gRPC提供了一个健康检查库，用于向客户端通报系统的健康状况。它通过使用health&#x2F;v1 API提供服务定义。通过使用健康检查库，客户端可以在遇到问题时优雅地避免使用服务器。大多数语言都提供了现成的实现，这使得它在不同系统之间可以互操作。内">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Grpc-14-健康检查">
+<meta property="og:url" content="http://xboom.github.io/2022/11/04/Grpc/Grpc-14-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="前面学习了保持链接，这里看一下健康检查 带着问题看世界  健康检查的作用 健康检查的原理 保持链接与健康检查的区别  首先看一下源码例子中的ReadMe说明，gRPC提供了一个健康检查库，用于向客户端通报系统的健康状况。它通过使用health&#x2F;v1 API提供服务定义。通过使用健康检查库，客户端可以在遇到问题时优雅地避免使用服务器。大多数语言都提供了现成的实现，这使得它在不同系统之间可以互操作。内">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-11-04T14:58:29.000Z">
+<meta property="article:modified_time" content="2023-05-27T10:56:13.039Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Grpc">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/11/04/Grpc/Grpc-14-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">23</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.1px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.6px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.8px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.5px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.8px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/go-zero/" style="font-size: 13.7px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" class="title">Go入门15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/03/05/Go/Go%E5%85%A5%E9%97%A824-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/" class="title">Go入门24-协程池问题</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-03-05T06:46:45.000Z" itemprop="datePublished">2023-03-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/02/02/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/" class="title">算法-E10C-最大公约数</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-02T12:25:25.494Z" itemprop="datePublished">2023-02-02</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/10/Go/Go%E5%85%A5%E9%97%A823-arena/" class="title">Go入门23-arena</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-10T08:00:20.000Z" itemprop="datePublished">2023-01-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/04/Go/Go%E5%85%A5%E9%97%A821-SetFinalizer/" class="title">Go入门21-SetFinalizer</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-04T13:45:13.344Z" itemprop="datePublished">2023-01-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本使用"><span class="toc-number">1.</span> <span class="toc-text"> 基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#客户端"><span class="toc-number">1.1.</span> <span class="toc-text"> 客户端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务端"><span class="toc-number">1.2.</span> <span class="toc-text"> 服务端</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现原理"><span class="toc-number">2.</span> <span class="toc-text"> 实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#客户端-2"><span class="toc-number">2.1.</span> <span class="toc-text"> 客户端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务端-2"><span class="toc-number">2.2.</span> <span class="toc-text"> 服务端</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#维护"><span class="toc-number">2.2.1.</span> <span class="toc-text"> 维护</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#check"><span class="toc-number">2.2.2.</span> <span class="toc-text"> Check</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#watch"><span class="toc-number">2.2.3.</span> <span class="toc-text"> Watch</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">4.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Grpc/Grpc-14-健康检查" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Grpc-14-健康检查
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/11/04/Grpc/Grpc-14-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/" class="article-date">
+	  <time datetime="2022-11-04T14:58:29.000Z" itemprop="datePublished">2022-11-04</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Grpc/">Grpc</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Grpc/" rel="tag">Grpc</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/11/04/Grpc/Grpc-14-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/" class="leancloud_visitors"  data-flag-title="Grpc-14-健康检查">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/11/04/Grpc/Grpc-14-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>前面学习了保持链接，这里看一下健康检查</p>
+<p>带着问题看世界</p>
+<ol>
+<li>健康检查的作用</li>
+<li>健康检查的原理</li>
+<li>保持链接与健康检查的区别</li>
+</ol>
+<p>首先看一下源码例子中的ReadMe说明，gRPC提供了一个健康检查库，用于向客户端通报系统的健康状况。它通过使用health/v1 API提供服务定义。通过使用健康检查库，客户端可以在遇到问题时优雅地避免使用服务器。大多数语言都提供了现成的实现，这使得它在不同系统之间可以互操作。内置健康检查的优势</p>
+<ul>
+<li>健康检查的格式与普通的RPC一样</li>
+<li>重用现有的配额等机制，内部对健康检查有完全的控制权</li>
+</ul>
+<h3 id="基本使用"><a class="markdownIt-Anchor" href="#基本使用"></a> 基本使用</h3>
+<p>内部定义了健康检查的 proto</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">"proto3"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> grpc.health.v1;</span><br><span class="line"></span><br><span class="line">message HealthCheckRequest &#123;</span><br><span class="line">  <span class="keyword">string</span> service = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message HealthCheckResponse &#123;</span><br><span class="line">  enum ServingStatus &#123;</span><br><span class="line">    UNKNOWN = <span class="number">0</span>;</span><br><span class="line">    SERVING = <span class="number">1</span>;</span><br><span class="line">    NOT_SERVING = <span class="number">2</span>;</span><br><span class="line">    SERVICE_UNKNOWN = <span class="number">3</span>;  <span class="comment">// Used only by the Watch method.</span></span><br><span class="line">  &#125;</span><br><span class="line">  ServingStatus status = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">service Health &#123;</span><br><span class="line">  rpc Check(HealthCheckRequest) returns (HealthCheckResponse);</span><br><span class="line"></span><br><span class="line">  rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>一共有两种方式进行健康检查</p>
+<ul>
+<li><code>Check</code> 探测服务器的健康状态</li>
+<li><code>Watch</code> 观察服务端变化，这里注意 是一个<code>服务端流</code>，也就是客户端不断会收到服务端的状态更新</li>
+</ul>
+<p>一般，客户端不需要手动执行 <code>Check</code>操作，而是通过配置 <code>healthCheckConfig</code> ，它会在内部自动执行 <code>Watch</code>操作</p>
+<h4 id="客户端"><a class="markdownIt-Anchor" href="#客户端"></a> 客户端</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// import grpc/health to enable transparent client side checking </span></span><br><span class="line"><span class="keyword">import</span> _ <span class="string">"google.golang.org/grpc/health"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// set up appropriate service config</span></span><br><span class="line">serviceConfig := grpc.WithDefaultServiceConfig(<span class="string">`&#123;</span></span><br><span class="line"><span class="string">  "loadBalancingPolicy": "round_robin",</span></span><br><span class="line"><span class="string">  "healthCheckConfig": &#123;</span></span><br><span class="line"><span class="string">    "serviceName": ""</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;`</span>)</span><br><span class="line"></span><br><span class="line">conn, err := grpc.Dial(..., serviceConfig)</span><br></pre></td></tr></table></figure>
+<h4 id="服务端"><a class="markdownIt-Anchor" href="#服务端"></a> 服务端</h4>
+<p>启动一个协程，来模拟服务端状态变化，核心逻辑就是设置服务的状态</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	port  = flag.Int(<span class="string">"port"</span>, <span class="number">50051</span>, <span class="string">"the port to serve on"</span>)</span><br><span class="line">	sleep = flag.Duration(<span class="string">"sleep"</span>, time.Second*<span class="number">5</span>, <span class="string">"duration between changes in health"</span>)</span><br><span class="line"></span><br><span class="line">	system = <span class="string">""</span> <span class="comment">// empty string represents the health of the system</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	flag.Parse()</span><br><span class="line"></span><br><span class="line">	lis, err := net.Listen(<span class="string">"tcp"</span>, fmt.Sprintf(<span class="string">":%d"</span>, *port))</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">"failed to listen: %v"</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	s := grpc.NewServer()</span><br><span class="line">	healthcheck := health.NewServer()</span><br><span class="line">	healthpb.RegisterHealthServer(s, healthcheck)	<span class="comment">//健康检查</span></span><br><span class="line">	pb.RegisterEchoServer(s, &amp;echoServer&#123;&#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">//健康状态更新</span></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="comment">// asynchronously inspect dependencies and toggle serving status as needed</span></span><br><span class="line">		next := healthpb.HealthCheckResponse_SERVING</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			healthcheck.SetServingStatus(system, next)</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> next == healthpb.HealthCheckResponse_SERVING &#123;</span><br><span class="line">				next = healthpb.HealthCheckResponse_NOT_SERVING</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				next = healthpb.HealthCheckResponse_SERVING</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			time.Sleep(*sleep)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := s.Serve(lis); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">"failed to serve: %v"</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>健康服务器可以返回四种状态：<code>UNKNOWN</code>、<code>SERVING</code>、<code>NOT_SERVING</code>和<code>SERVICE_UNKNOWN</code>。</p>
+<ul>
+<li>
+<p><code>UNKNOWN</code> 表示当前状态尚未知晓。在服务器实例启动时经常会看到这种状态。</p>
+</li>
+<li>
+<p><code>SERVING</code> 表示系统健康，准备好提供服务请求。</p>
+</li>
+<li>
+<p><code>NOT_SERVING</code> 表示系统当前无法处理请求。</p>
+</li>
+<li>
+<p><code>SERVICE_UNKNOWN</code> 表示客户端请求的服务名未被服务器所知。此状态仅由 <code>Watch()</code> 调用报告</p>
+</li>
+</ul>
+<h3 id="实现原理"><a class="markdownIt-Anchor" href="#实现原理"></a> 实现原理</h3>
+<h4 id="客户端-2"><a class="markdownIt-Anchor" href="#客户端-2"></a> 客户端</h4>
+<p>客户端默认初始化<code>Watch</code>函数</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">   internal.HealthCheckFunc = clientHealthCheck</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> healthCheckMethod = <span class="string">"/grpc.health.v1.Health/Watch"</span>	<span class="comment">//指定健康检查方法名称</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">clientHealthCheck</span><span class="params">(ctx context.Context, newStream <span class="keyword">func</span>(<span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, error)</span>, <span class="title">setConnectivityState</span> <span class="title">func</span><span class="params">(connectivity.State, error)</span>, <span class="title">service</span> <span class="title">string</span>) <span class="title">error</span></span> &#123;</span><br><span class="line">   tryCnt := <span class="number">0</span></span><br><span class="line"></span><br><span class="line">retryConnection:</span><br><span class="line">   <span class="keyword">for</span> &#123;</span><br><span class="line">      <span class="comment">//退避重试</span></span><br><span class="line">      <span class="keyword">if</span> tryCnt &gt; <span class="number">0</span> &amp;&amp; !backoffFunc(ctx, tryCnt<span class="number">-1</span>) &#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">      &#125;</span><br><span class="line">      tryCnt++</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> ctx.Err() != <span class="literal">nil</span> &#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">      &#125;</span><br><span class="line">      setConnectivityState(connectivity.Connecting, <span class="literal">nil</span>)	<span class="comment">//设置状态</span></span><br><span class="line">      rawS, err := newStream(healthCheckMethod)						<span class="comment">//构建流链接</span></span><br><span class="line">      <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">         <span class="keyword">continue</span> retryConnection</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      s, ok := rawS.(grpc.ClientStream)</span><br><span class="line">      <span class="keyword">if</span> !ok &#123;</span><br><span class="line">         setConnectivityState(connectivity.Ready, <span class="literal">nil</span>)	<span class="comment">//服务端健康</span></span><br><span class="line">         <span class="keyword">return</span> fmt.Errorf(<span class="string">"newStream returned %v (type %T); want grpc.ClientStream"</span>, rawS, rawS)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> err = s.SendMsg(&amp;healthpb.HealthCheckRequest&#123;Service: service&#125;); err != <span class="literal">nil</span> &amp;&amp; err != io.EOF &#123;</span><br><span class="line">         <span class="comment">// Stream should have been closed, so we can safely continue to create a new stream.</span></span><br><span class="line">         <span class="keyword">continue</span> retryConnection</span><br><span class="line">      &#125;</span><br><span class="line">      s.CloseSend()</span><br><span class="line"></span><br><span class="line">      resp := <span class="built_in">new</span>(healthpb.HealthCheckResponse)</span><br><span class="line">      <span class="keyword">for</span> &#123;	<span class="comment">//不断接收服务端响应</span></span><br><span class="line">         err = s.RecvMsg(resp)</span><br><span class="line"></span><br><span class="line">         <span class="comment">// </span></span><br><span class="line">         <span class="keyword">if</span> status.Code(err) == codes.Unimplemented &#123;	<span class="comment">//表示服务端未支持健康检查</span></span><br><span class="line">            setConnectivityState(connectivity.Ready, <span class="literal">nil</span>)</span><br><span class="line">            <span class="keyword">return</span> err</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         <span class="comment">// 其他错误</span></span><br><span class="line">         <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            setConnectivityState(connectivity.TransientFailure, fmt.Errorf(<span class="string">"connection active but received health check RPC error: %v"</span>, err))</span><br><span class="line">            <span class="keyword">continue</span> retryConnection</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         <span class="comment">//收到消息那么</span></span><br><span class="line">         tryCnt = <span class="number">0</span></span><br><span class="line">         <span class="keyword">if</span> resp.Status == healthpb.HealthCheckResponse_SERVING &#123;	</span><br><span class="line">            setConnectivityState(connectivity.Ready, <span class="literal">nil</span>)</span><br><span class="line">         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            setConnectivityState(connectivity.TransientFailure, fmt.Errorf(<span class="string">"connection active but health check failed. status=%s"</span>, resp.Status))</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>根据策略启动健康检查，<strong>针对的是同一个域名对应的多个子地址</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//开启健康检查</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(ac *addrConn)</span> <span class="title">startHealthCheck</span><span class="params">(ctx context.Context)</span></span> &#123;</span><br><span class="line">   <span class="keyword">var</span> healthcheckManagingState <span class="keyword">bool</span></span><br><span class="line">   <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">      <span class="keyword">if</span> !healthcheckManagingState &#123;</span><br><span class="line">         ac.updateConnectivityState(connectivity.Ready, <span class="literal">nil</span>)</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;()</span><br><span class="line"></span><br><span class="line">   <span class="comment">//... 判断健康检查是否开启</span></span><br><span class="line">   currentTr := ac.transport</span><br><span class="line">   newStream := <span class="function"><span class="keyword">func</span><span class="params">(method <span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, error)</span></span> &#123;</span><br><span class="line">      ac.mu.Lock()</span><br><span class="line">      <span class="keyword">if</span> ac.transport != currentTr &#123;</span><br><span class="line">         ac.mu.Unlock()</span><br><span class="line">         <span class="keyword">return</span> <span class="literal">nil</span>, status.Error(codes.Canceled, <span class="string">"the provided transport is no longer valid to use"</span>)</span><br><span class="line">      &#125;</span><br><span class="line">      ac.mu.Unlock()</span><br><span class="line">      <span class="keyword">return</span> newNonRetryClientStream(ctx, &amp;StreamDesc&#123;ServerStreams: <span class="literal">true</span>&#125;, method, currentTr, ac)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//更新连接状态</span></span><br><span class="line">   setConnectivityState := <span class="function"><span class="keyword">func</span><span class="params">(s connectivity.State, lastErr error)</span></span> &#123;</span><br><span class="line">      ac.mu.Lock()</span><br><span class="line">      <span class="keyword">defer</span> ac.mu.Unlock()</span><br><span class="line">      <span class="keyword">if</span> ac.transport != currentTr &#123;</span><br><span class="line">         <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">      ac.updateConnectivityState(s, lastErr)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">// 独立协程去检查健康状态</span></span><br><span class="line">   <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">      err := ac.cc.dopts.healthCheckFunc(ctx, newStream, setConnectivityState, healthCheckConfig.ServiceName)</span><br><span class="line">      <span class="comment">//....</span></span><br><span class="line">   &#125;()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里可以通过健康检查更新连接状态，但不是唯一更新连接状态的方式</p>
+<h4 id="服务端-2"><a class="markdownIt-Anchor" href="#服务端-2"></a> 服务端</h4>
+<h5 id="维护"><a class="markdownIt-Anchor" href="#维护"></a> 维护</h5>
+<p>首先需要明白服务端是如何维护状态的 <code>SetServingStatus</code> 其实还是需要用户自定义状态</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">SetServingStatus</span><span class="params">(service <span class="keyword">string</span>, servingStatus healthpb.HealthCheckResponse_ServingStatus)</span></span> &#123;</span><br><span class="line">   <span class="comment">//....</span></span><br><span class="line">   s.setServingStatusLocked(service, servingStatus)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">setServingStatusLocked</span><span class="params">(service <span class="keyword">string</span>, servingStatus healthpb.HealthCheckResponse_ServingStatus)</span></span> &#123;</span><br><span class="line">   s.statusMap[service] = servingStatus</span><br><span class="line">   <span class="keyword">for</span> _, update := <span class="keyword">range</span> s.updates[service] &#123;</span><br><span class="line">      <span class="comment">// Clears previous updates, that are not sent to the client, from the channel.</span></span><br><span class="line">      <span class="comment">// This can happen if the client is not reading and the server gets flow control limited.</span></span><br><span class="line">      <span class="keyword">select</span> &#123;</span><br><span class="line">      <span class="keyword">case</span> &lt;-update:</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">// Puts the most recent update to the channel.</span></span><br><span class="line">      update &lt;- servingStatus</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">statusMap <span class="keyword">map</span>[<span class="keyword">string</span>]healthpb.HealthCheckResponse_ServingStatus</span><br><span class="line">updates   <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">map</span>[healthgrpc.Health_WatchServer]<span class="keyword">chan</span> healthpb.HealthCheckResponse_ServingStatus</span><br></pre></td></tr></table></figure>
+<p>这里的状态更新有两种</p>
+<ol>
+<li>更新 <code>statusMap[service]</code> 对应的服务状态</li>
+<li>将状态写入到服务对应的隧道中，隧道中的状态则是通过<code>Watch</code>函数不断地通知客户端(不同的状态才会通知)</li>
+</ol>
+<p>这里有两种特殊的情况可以直接使用内置函数，就是服务恢复正常与停止服务</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">Shutdown</span><span class="params">()</span></span> &#123;</span><br><span class="line">   s.mu.Lock()</span><br><span class="line">   <span class="keyword">defer</span> s.mu.Unlock()</span><br><span class="line">   s.shutdown = <span class="literal">true</span></span><br><span class="line">   <span class="keyword">for</span> service := <span class="keyword">range</span> s.statusMap &#123;</span><br><span class="line">      s.setServingStatusLocked(service, healthpb.HealthCheckResponse_NOT_SERVING)</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">Resume</span><span class="params">()</span></span> &#123;</span><br><span class="line">   s.mu.Lock()</span><br><span class="line">   <span class="keyword">defer</span> s.mu.Unlock()</span><br><span class="line">   s.shutdown = <span class="literal">false</span></span><br><span class="line">   <span class="keyword">for</span> service := <span class="keyword">range</span> s.statusMap &#123;</span><br><span class="line">      s.setServingStatusLocked(service, healthpb.HealthCheckResponse_SERVING)</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里会统一更新服务的状态，而不需要单独设置某个服务的状态更新，一般用于服务启动与恢复。</p>
+<p>接着就是接收客户端的健康检查请求</p>
+<h5 id="check"><a class="markdownIt-Anchor" href="#check"></a> Check</h5>
+<p>当客户端请求服务状态的时候，直接从状态服务中返回结果  <code>statusMap[in.Service]</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">Check</span><span class="params">(ctx context.Context, in *healthpb.HealthCheckRequest)</span> <span class="params">(*healthpb.HealthCheckResponse, error)</span></span> &#123;</span><br><span class="line">   s.mu.RLock()</span><br><span class="line">   <span class="keyword">defer</span> s.mu.RUnlock()</span><br><span class="line">   <span class="keyword">if</span> servingStatus, ok := s.statusMap[in.Service]; ok &#123;</span><br><span class="line">      <span class="keyword">return</span> &amp;healthpb.HealthCheckResponse&#123;</span><br><span class="line">         Status: servingStatus,</span><br><span class="line">      &#125;, <span class="literal">nil</span></span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> <span class="literal">nil</span>, status.Error(codes.NotFound, <span class="string">"unknown service"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="watch"><a class="markdownIt-Anchor" href="#watch"></a> Watch</h5>
+<p><code>watch</code> 其实就是服务端不断地将状态的变化通知给客户端</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Watch implements `service Health`.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">Watch</span><span class="params">(in *healthpb.HealthCheckRequest, stream healthgrpc.Health_WatchServer)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">   service := in.Service</span><br><span class="line">   <span class="comment">// update channel is used for getting service status updates.</span></span><br><span class="line">   update := <span class="built_in">make</span>(<span class="keyword">chan</span> healthpb.HealthCheckResponse_ServingStatus, <span class="number">1</span>)</span><br><span class="line">   s.mu.Lock()</span><br><span class="line">   <span class="comment">// Puts the initial status to the channel.</span></span><br><span class="line">   <span class="keyword">if</span> servingStatus, ok := s.statusMap[service]; ok &#123;</span><br><span class="line">      update &lt;- servingStatus	<span class="comment">//如果服务状态存在，那么写入隧道中</span></span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;					<span class="comment">//如果不存在，则更新未知</span></span><br><span class="line">      update &lt;- healthpb.HealthCheckResponse_SERVICE_UNKNOWN</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 注册状态</span></span><br><span class="line">   <span class="keyword">if</span> _, ok := s.updates[service]; !ok &#123;</span><br><span class="line">      s.updates[service] = <span class="built_in">make</span>(<span class="keyword">map</span>[healthgrpc.Health_WatchServer]<span class="keyword">chan</span> healthpb.HealthCheckResponse_ServingStatus)</span><br><span class="line">   &#125;</span><br><span class="line">   s.updates[service][stream] = update</span><br><span class="line">   <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">      s.mu.Lock()</span><br><span class="line">      <span class="built_in">delete</span>(s.updates[service], stream)</span><br><span class="line">      s.mu.Unlock()</span><br><span class="line">   &#125;()</span><br><span class="line">   s.mu.Unlock()</span><br><span class="line"></span><br><span class="line">   <span class="keyword">var</span> lastSentStatus healthpb.HealthCheckResponse_ServingStatus = <span class="number">-1</span></span><br><span class="line">   <span class="keyword">for</span> &#123;</span><br><span class="line">      <span class="keyword">select</span> &#123;</span><br><span class="line">     </span><br><span class="line">      <span class="keyword">case</span> servingStatus := &lt;-update:	<span class="comment">//监听 update</span></span><br><span class="line">         <span class="keyword">if</span> lastSentStatus == servingStatus &#123;	<span class="comment">//与上一次的状态相同，那么就不会响应</span></span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">         &#125;</span><br><span class="line">         <span class="comment">//否则发送状态</span></span><br><span class="line">         lastSentStatus = servingStatus</span><br><span class="line">         err := stream.Send(&amp;healthpb.HealthCheckResponse&#123;Status: servingStatus&#125;)</span><br><span class="line">         <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> status.Error(codes.Canceled, <span class="string">"Stream has ended."</span>)</span><br><span class="line">         &#125;</span><br><span class="line">      <span class="keyword">case</span> &lt;-stream.Context().Done():</span><br><span class="line">         <span class="keyword">return</span> status.Error(codes.Canceled, <span class="string">"Stream has ended."</span>)</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<ol>
+<li>
+<p>心跳检查是为了客户端可以根据服务端状态进行自定义操作</p>
+</li>
+<li>
+<p>心跳检查启动的时候启动了退避算法，gRPC默认的退避算法是</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> DefaultConfig = Config&#123;</span><br><span class="line">	BaseDelay:  <span class="number">1.0</span> * time.Second,</span><br><span class="line">	Multiplier: <span class="number">1.6</span>,</span><br><span class="line">	Jitter:     <span class="number">0.2</span>,</span><br><span class="line">	MaxDelay:   <span class="number">120</span> * time.Second,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>在<code>Watch</code>中如果与上一次的状态没有变化，则不会通知客户端</p>
+</li>
+<li>
+<p>健康检查针对的是具有相同地址的多个服务，一个服务异常整体连接在不会断开，而是更新连接状态</p>
+<ul>
+<li>针对不能提供服务的服务器端，客户端会将链接状态更新为<code>TransientFailure</code>，但是链接不会断的；当该连接的状态重新更新为<code>Ready</code>时，还可以继续创建流，传输数据。</li>
+<li>针对可以对外提供服务的服务器端，客户端会将链接状态更新为<code>Ready</code>，生成<code>Picker</code>，即将此链接缓存到平衡器里，并且将链接状态更新为<code>Ready</code>，接下来，就可以创建流，传输数据了</li>
+</ul>
+</li>
+<li>
+<p>健康检查可以应用会更新连接状态，且不能自定义 <code>withHealthCheckFunc</code></p>
+</li>
+<li>
+<p>如果在传输过程中收到服务端通知，由于数据发送存在重试机制，所以还是可以从平衡器中选择 <code>Ready</code> 的连接重新传输数据</p>
+</li>
+<li>
+<p>健康检查与保持链接的区别</p>
+<ol>
+<li><code>keepalive</code>和<code>healthcheck</code>都是用于确保通信的可用性和健康状态的机制。</li>
+<li><code>keepalive</code>是一种保持连接活动的机制，用于检测连接是否处于空闲状态，并在需要时发送ping帧以防止连接关闭。<code>keepalive</code>机制确保长时间的空闲连接不会被关闭，以避免重新建立连接的开销</li>
+<li><code>healthcheck</code>是一种检查服务可用性的机制，用于检测服务器是否可用，以及在服务器不可用时采取相应的措施。<code>healthcheck</code>机制通过发送特定的RPC请求来检查服务器的可用性，并根据响应的状态码和错误信息来确定服务器的状态。</li>
+</ol>
+</li>
+</ol>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://github.com/grpc/grpc/blob/master/doc/health-checking.md" target="_blank" rel="noopener">https://github.com/grpc/grpc/blob/master/doc/health-checking.md</a></li>
+<li><a href="https://blog.csdn.net/u011582922/article/details/120052706" target="_blank" rel="noopener">https://blog.csdn.net/u011582922/article/details/120052706</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/11/04/Grpc/Grpc-14-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/" title="Grpc-14-健康检查" target="_blank" rel="external">http://xboom.github.io/2022/11/04/Grpc/Grpc-14-健康检查/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/12/11/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BE%8E-%E5%85%AB%E6%95%B0%E7%A0%81%E9%97%AE%E9%A2%98/" title="算法之美-八数码问题"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/10/31/Grpc/Grpc-13-%E4%BF%9D%E6%8C%81%E9%93%BE%E6%8E%A5/" title="Grpc-13-保持链接"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>

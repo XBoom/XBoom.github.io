@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Grpc-13-保持链接 | XBoom Dove</title>
+  <meta name="description" content="在学习的过程中看到了grpc-go中的两个概念 保持链接 和 心跳检查，这里先学习一下保持链接 带着问题看世界  保持链接的作用 保持链接的原理 它与TCP的 keepalive 有什么区别  首先来看一下官方的介绍，   保持连接功能可以检测TCP层面的连接故障。在某些情况下，TCP连接会丢失数据包(包括FIN)，需要等待系统TCP超时时间(可能为30分钟)才能检测到故障。使用保持连接功能可以让">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Grpc-13-保持链接">
+<meta property="og:url" content="http://xboom.github.io/2022/10/31/Grpc/Grpc-13-%E4%BF%9D%E6%8C%81%E9%93%BE%E6%8E%A5/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="在学习的过程中看到了grpc-go中的两个概念 保持链接 和 心跳检查，这里先学习一下保持链接 带着问题看世界  保持链接的作用 保持链接的原理 它与TCP的 keepalive 有什么区别  首先来看一下官方的介绍，   保持连接功能可以检测TCP层面的连接故障。在某些情况下，TCP连接会丢失数据包(包括FIN)，需要等待系统TCP超时时间(可能为30分钟)才能检测到故障。使用保持连接功能可以让">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-10-31T14:58:29.000Z">
+<meta property="article:modified_time" content="2023-05-27T10:56:04.414Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Grpc">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/10/31/Grpc/Grpc-13-%E4%BF%9D%E6%8C%81%E9%93%BE%E6%8E%A5/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">23</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.1px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.6px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.9px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.8px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.3px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.2px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.4px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.2px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.5px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.8px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.4px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/go-zero/" style="font-size: 13.7px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.4px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" class="title">Go入门15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/03/05/Go/Go%E5%85%A5%E9%97%A824-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/" class="title">Go入门24-协程池问题</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-03-05T06:46:45.000Z" itemprop="datePublished">2023-03-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/02/02/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/" class="title">算法-E10C-最大公约数</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-02T12:25:25.494Z" itemprop="datePublished">2023-02-02</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/10/Go/Go%E5%85%A5%E9%97%A823-arena/" class="title">Go入门23-arena</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-10T08:00:20.000Z" itemprop="datePublished">2023-01-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/04/Go/Go%E5%85%A5%E9%97%A821-SetFinalizer/" class="title">Go入门21-SetFinalizer</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-04T13:45:13.344Z" itemprop="datePublished">2023-01-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本使用"><span class="toc-number">1.</span> <span class="toc-text"> 基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#客户端"><span class="toc-number">1.1.</span> <span class="toc-text"> 客户端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务端"><span class="toc-number">1.2.</span> <span class="toc-text"> 服务端</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现原理"><span class="toc-number">2.</span> <span class="toc-text"> 实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#客户端-2"><span class="toc-number">2.1.</span> <span class="toc-text"> 客户端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务端-2"><span class="toc-number">2.2.</span> <span class="toc-text"> 服务端</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">4.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Grpc/Grpc-13-保持链接" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Grpc-13-保持链接
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/10/31/Grpc/Grpc-13-%E4%BF%9D%E6%8C%81%E9%93%BE%E6%8E%A5/" class="article-date">
+	  <time datetime="2022-10-31T14:58:29.000Z" itemprop="datePublished">2022-10-31</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Grpc/">Grpc</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Grpc/" rel="tag">Grpc</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/10/31/Grpc/Grpc-13-%E4%BF%9D%E6%8C%81%E9%93%BE%E6%8E%A5/" class="leancloud_visitors"  data-flag-title="Grpc-13-保持链接">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/10/31/Grpc/Grpc-13-%E4%BF%9D%E6%8C%81%E9%93%BE%E6%8E%A5/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>在学习的过程中看到了grpc-go中的两个概念 <strong>保持链接</strong> 和 <strong>心跳检查</strong>，这里先学习一下<strong>保持链接</strong></p>
+<p>带着问题看世界</p>
+<ol>
+<li>保持链接的作用</li>
+<li>保持链接的原理</li>
+<li>它与TCP的 <code>keepalive</code> 有什么区别</li>
+</ol>
+<p>首先来看一下<a href="https://github.com/grpc/grpc-go/blob/master/Documentation/keepalive.md" target="_blank" rel="noopener">官方的介绍</a>，</p>
+<ul>
+<li>
+<p>保持连接功能可以检测TCP层面的连接故障。在某些情况下，TCP连接会丢失数据包(包括FIN)，需要等待系统TCP超时时间(可能为30分钟)才能检测到故障。使用保持连接功能可以让gRPC更早地检测到这种故障</p>
+</li>
+<li>
+<p>另外是保持连接活动，比如在L4代理中配置为关闭“空闲连接”的情况下，发送包活消息可以是连接不处于“空闲”状态</p>
+</li>
+</ul>
+<p>这里补充一下TCP的 keepalive 的原理：</p>
+<p>当一方发送一个数据包后，如果对方没有回应，那么TCP协议会按照指数退避的算法重新发送数据包，最多会重发12次。如果在这12次内仍然没有收到对方的响应，则会将连接标记为“超时”，并关闭连接。这个过程通常需要30分钟左右</p>
+<blockquote>
+<p>可以手动修改TCP默认的超时时间</p>
+<p>sudo sysctl -w net.ipv4.tcp_keepalive_time=300</p>
+</blockquote>
+<h3 id="基本使用"><a class="markdownIt-Anchor" href="#基本使用"></a> 基本使用</h3>
+<h4 id="客户端"><a class="markdownIt-Anchor" href="#客户端"></a> 客户端</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> kacp = keepalive.ClientParameters&#123;</span><br><span class="line">   Time:                <span class="number">10</span> * time.Second, <span class="comment">// send pings every 10 seconds if there is no activity</span></span><br><span class="line">   Timeout:             time.Second,      <span class="comment">// wait 1 second for ping ack before considering the connection dead</span></span><br><span class="line">   PermitWithoutStream: <span class="literal">true</span>,             <span class="comment">// send pings even without active streams</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line"></span><br><span class="line">   conn, err := grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithKeepaliveParams(kacp))</span><br><span class="line">   <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>客户端的保持心跳参数一共有三个</p>
+<ol>
+<li><code>Time</code>：在没有活动的情况下，发送 ping 的时间间隔(<strong>不能少于10s</strong>)</li>
+<li><code>Timeout</code>：等待ping确认的超时时间</li>
+<li><code>PermitWithoutStream</code>：及时没有活动的流也要发送<code>ping</code>请求</li>
+</ol>
+<h4 id="服务端"><a class="markdownIt-Anchor" href="#服务端"></a> 服务端</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> kaep = keepalive.EnforcementPolicy&#123;</span><br><span class="line">   MinTime:             <span class="number">5</span> * time.Second, <span class="comment">// If a client pings more than once every 5 seconds, terminate the connection</span></span><br><span class="line">   PermitWithoutStream: <span class="literal">true</span>,            <span class="comment">// Allow pings even when there are no active streams</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> kasp = keepalive.ServerParameters&#123;</span><br><span class="line">   MaxConnectionIdle:     <span class="number">15</span> * time.Second, <span class="comment">// If a client is idle for 15 seconds, send a GOAWAY</span></span><br><span class="line">   MaxConnectionAge:      <span class="number">30</span> * time.Second, <span class="comment">// If any connection is alive for more than 30 seconds, send a GOAWAY</span></span><br><span class="line">   MaxConnectionAgeGrace: <span class="number">5</span> * time.Second,  <span class="comment">// Allow 5 seconds for pending RPCs to complete before forcibly closing connections</span></span><br><span class="line">   Time:                  <span class="number">5</span> * time.Second,  <span class="comment">// Ping the client if it is idle for 5 seconds to ensure the connection is still active</span></span><br><span class="line">   Timeout:               <span class="number">1</span> * time.Second,  <span class="comment">// Wait 1 second for the ping ack before assuming the connection is dead</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	s := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(kaep), grpc.KeepaliveParams(kasp))</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里一共有两个保活配置 <code>EnforcementPolicy</code> 与 <code>ServerParameters</code></p>
+<p><code>EnforcementPolicy</code> 定义了服务端如何执行保活策略</p>
+<ul>
+<li><code>MinTime</code>：如果客户端每隔不到5秒就发送一个ping请求，服务器就终止连接</li>
+<li><code>PermitWithoutStream</code>：表示即使没有活动的流，也允许ping请求</li>
+</ul>
+<p>ServerParameters 定义了保活</p>
+<ul>
+<li><code>MaxConnectionIdle</code>：如果客户端闲置超过 15 秒，则发送 <code>GOAWAY</code></li>
+<li><code>MaxConnectionAge</code>： 如果任何连接存在时间超过 30 秒，则发送 <code>GOAWAY</code></li>
+<li><code>MaxConnectionAgeGrace</code>：允许在强制关闭连接之前等待 5 秒钟以完成待处理的 <code>RPC</code></li>
+<li><code>Time</code>：如果客户端闲置超过 5 秒钟，则发送 <code>ping</code> 以确保连接仍处于活动状态</li>
+<li><code>Timeout</code>：等待 1 秒钟以获取 <code>ping</code> 的响应，在此之后假定连接已断开</li>
+</ul>
+<p><code>MaxConnectionAge</code>是指整个连接（connection）的最长存在时间，不是单个流(stream)的最长存在时间。当一个连接的时间超过了 <code>MaxConnectionAge</code> 指定的时间，服务器会发送一个 <code>GOAWAY</code> 帧，表示不再接受来自该连接的新流。任何新的流的创建请求都会被拒绝，并且服务器会等待 <code>MaxConnectionAgeGrace</code> 指定的一段时间，让尚未完成的 RPC 请求完成。在这段时间内，服务器不会发送任何新的数据帧，但仍会响应已有的流。</p>
+<h3 id="实现原理"><a class="markdownIt-Anchor" href="#实现原理"></a> 实现原理</h3>
+<h4 id="客户端-2"><a class="markdownIt-Anchor" href="#客户端-2"></a> 客户端</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newHTTP2Client</span><span class="params">(connectCtx, ctx context.Context, addr resolver.Address, opts ConnectOptions, onPrefaceReceipt <span class="keyword">func</span>()</span>, <span class="title">onGoAway</span> <span class="title">func</span><span class="params">(GoAwayReason)</span>, <span class="title">onClose</span> <span class="title">func</span><span class="params">()</span>) <span class="params">(_ *http2Client, err error)</span></span> &#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	kp := opts.KeepaliveParams</span><br><span class="line">	<span class="comment">// Validate keepalive parameters.</span></span><br><span class="line">	<span class="keyword">if</span> kp.Time == <span class="number">0</span> &#123;</span><br><span class="line">		kp.Time = defaultClientKeepaliveTime</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> kp.Timeout == <span class="number">0</span> &#123;</span><br><span class="line">		kp.Timeout = defaultClientKeepaliveTimeout</span><br><span class="line">	&#125;</span><br><span class="line">	keepaliveEnabled := <span class="literal">false</span></span><br><span class="line">	<span class="keyword">if</span> kp.Time != infinity &#123;</span><br><span class="line">		<span class="keyword">if</span> err = syscall.SetTCPUserTimeout(conn, kp.Timeout); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">nil</span>, connectionErrorf(<span class="literal">false</span>, err, <span class="string">"transport: failed to set TCP_USER_TIMEOUT: %v"</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line">		keepaliveEnabled = <span class="literal">true</span></span><br><span class="line">	&#125;</span><br><span class="line"> 	<span class="comment">//... </span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> t.keepaliveEnabled &#123;	<span class="comment">//如果开启包活</span></span><br><span class="line">		t.kpDormancyCond = sync.NewCond(&amp;t.mu)</span><br><span class="line">		<span class="keyword">go</span> t.keepalive()</span><br><span class="line">	&#125;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这是在构建链接的时候设置的超时时间 <code>SetTCPUserTimeout</code>，指定发送数据后多久没有收到确认信号就会超时。</p>
+<ul>
+<li>这是设置是设置网络层的，并不会影响gRPC应用层，因为gRPC超时会重试</li>
+<li>并不是所有的操作系统都支持 <code>syscall.SetTCPUserTimeout</code>(可能老的操作系统不支持，Linux、Windows、MacOS都支持)</li>
+</ul>
+<p>如果开启保活，通过开启独立协程发送ping帧确保链接是活的</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *http2Client)</span> <span class="title">keepalive</span><span class="params">()</span></span> &#123;</span><br><span class="line">   p := &amp;ping&#123;data: [<span class="number">8</span>]<span class="keyword">byte</span>&#123;&#125;&#125;</span><br><span class="line">   outstandingPing := <span class="literal">false</span> <span class="comment">//是否有等待响应的ping帧</span></span><br><span class="line">   timeoutLeft := time.Duration(<span class="number">0</span>)	<span class="comment">//记录发送ping之后剩余时间</span></span><br><span class="line">   prevNano := time.Now().UnixNano() <span class="comment">//记录活动时间</span></span><br><span class="line">   timer := time.NewTimer(t.kp.Time)	<span class="comment">//开启定时器</span></span><br><span class="line">   <span class="keyword">for</span> &#123;</span><br><span class="line">      <span class="keyword">select</span> &#123;</span><br><span class="line">      <span class="keyword">case</span> &lt;-timer.C:</span><br><span class="line">         lastRead := atomic.LoadInt64(&amp;t.lastRead)</span><br><span class="line">         <span class="keyword">if</span> lastRead &gt; prevNano &#123;	<span class="comment">//自从上次定时器已经读取过了</span></span><br><span class="line">            outstandingPing = <span class="literal">false</span></span><br><span class="line">            <span class="comment">// Next timer should fire at kp.Time seconds from lastRead time.</span></span><br><span class="line">           <span class="comment">//重新计算下次触发定时器时间(从上次读取时间开始算)</span></span><br><span class="line">            timer.Reset(time.Duration(lastRead) + t.kp.Time - time.Duration(time.Now().UnixNano()))</span><br><span class="line">            prevNano = lastRead</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">         &#125;</span><br><span class="line">         <span class="comment">//outstandingPing  有等待响应的ping帧，且已经超时。表示链接超时关闭</span></span><br><span class="line">         <span class="keyword">if</span> outstandingPing &amp;&amp; timeoutLeft &lt;= <span class="number">0</span> &#123;</span><br><span class="line">            t.Close(connectionErrorf(<span class="literal">true</span>, <span class="literal">nil</span>, <span class="string">"keepalive ping failed to receive ACK within timeout"</span>))</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">         &#125;</span><br><span class="line">         t.mu.Lock()</span><br><span class="line">         <span class="keyword">if</span> t.state == closing &#123;	<span class="comment">//如果链接的状态是关闭中，那么也退出</span></span><br><span class="line">            t.mu.Unlock()</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">         &#125;</span><br><span class="line">         <span class="comment">//如果没有活动流，且没有活动流不允许发送ping帧</span></span><br><span class="line">         <span class="keyword">if</span> <span class="built_in">len</span>(t.activeStreams) &lt; <span class="number">1</span> &amp;&amp; !t.kp.PermitWithoutStream &#123;</span><br><span class="line">            outstandingPing = <span class="literal">false</span></span><br><span class="line">            t.kpDormant = <span class="literal">true</span></span><br><span class="line">            t.kpDormancyCond.Wait() <span class="comment">//在初始化流或者关闭客户端的时候 会触发 t.kpDormancyCond.Signal()</span></span><br><span class="line">         &#125;</span><br><span class="line">         t.kpDormant = <span class="literal">false</span></span><br><span class="line">         t.mu.Unlock()</span><br><span class="line"></span><br><span class="line">         <span class="comment">//没有等待响应的ping帧，就发送ping帧</span></span><br><span class="line">         <span class="keyword">if</span> !outstandingPing &#123;</span><br><span class="line">            <span class="comment">//...</span></span><br><span class="line">            t.controlBuf.put(p)	<span class="comment">//发送ping帧</span></span><br><span class="line">            timeoutLeft = t.kp.Timeout</span><br><span class="line">            outstandingPing = <span class="literal">true</span></span><br><span class="line">         &#125;</span><br><span class="line">         </span><br><span class="line">         sleepDuration := minTime(t.kp.Time, timeoutLeft)</span><br><span class="line">         timeoutLeft -= sleepDuration</span><br><span class="line">         timer.Reset(sleepDuration)	<span class="comment">//计算定时器下一次触发时间</span></span><br><span class="line">      <span class="keyword">case</span> &lt;-t.ctx.Done():</span><br><span class="line">         <span class="keyword">if</span> !timer.Stop() &#123;</span><br><span class="line">            &lt;-timer.C</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实就是根据 ping帧的状态以及链接是否有活动来计算发送ping帧时间。</p>
+<p>有几个注意点</p>
+<ol>
+<li>
+<p>如何判断有ping帧响应的</p>
+<p>其实它并没有判断是有有相应帧，而是是否在指定时间内是否读取到消息即可</p>
+</li>
+<li>
+<p>如果没有活动流又不允许非活动流发送ping，那么它是如何处理的</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//如果没有活动流，且没有活动流不允许发送ping帧</span></span><br><span class="line"> <span class="keyword">if</span> <span class="built_in">len</span>(t.activeStreams) &lt; <span class="number">1</span> &amp;&amp; !t.kp.PermitWithoutStream &#123;</span><br><span class="line">    outstandingPing = <span class="literal">false</span></span><br><span class="line">    t.kpDormant = <span class="literal">true</span></span><br><span class="line">    t.kpDormancyCond.Wait() <span class="comment">//在初始化流或者关闭客户端的时候 会触发 t.kpDormancyCond.Signal()</span></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>而出发 <code>kpDormancyCond.Signal()</code>的位置是 构建流或者关闭连接</p>
+</li>
+</ol>
+<h4 id="服务端-2"><a class="markdownIt-Anchor" href="#服务端-2"></a> 服务端</h4>
+<p>服务端同样也是使用独立协程来运行保活逻辑</p>
+<ol>
+<li>超过 最长闲置时间 <code>MaxConnectionIdle</code> 优雅的关闭连接</li>
+<li>超过 最大连接时间 MaxConnectionAge 优雅的关闭连接</li>
+<li>等待 <code>MaxConnectionAgeGrace</code> 后强制关闭连接。</li>
+<li>以 <code>Time</code> 的频率发送 <code>ping</code> 确保连接存活，并在 <code>Timeout</code> 的额外时间内关闭无响应的连接</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *http2Server)</span> <span class="title">keepalive</span><span class="params">()</span></span> &#123;</span><br><span class="line">   p := &amp;ping&#123;&#125;</span><br><span class="line">   outstandingPing := <span class="literal">false</span> <span class="comment">//是否有等待响应帧</span></span><br><span class="line">   kpTimeoutLeft := time.Duration(<span class="number">0</span>)</span><br><span class="line">   prevNano := time.Now().UnixNano()</span><br><span class="line">   <span class="comment">// Initialize the different timers to their default values.</span></span><br><span class="line">   idleTimer := time.NewTimer(t.kp.MaxConnectionIdle)</span><br><span class="line">   ageTimer := time.NewTimer(t.kp.MaxConnectionAge)</span><br><span class="line">   kpTimer := time.NewTimer(t.kp.Time)</span><br><span class="line">   <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">      idleTimer.Stop()</span><br><span class="line">      ageTimer.Stop()</span><br><span class="line">      kpTimer.Stop()</span><br><span class="line">   &#125;()</span><br><span class="line"></span><br><span class="line">   <span class="keyword">for</span> &#123;</span><br><span class="line">      <span class="keyword">select</span> &#123;</span><br><span class="line">      <span class="keyword">case</span> &lt;-idleTimer.C:	<span class="comment">//闲置定时器</span></span><br><span class="line">         t.mu.Lock()</span><br><span class="line">         idle := t.idle	</span><br><span class="line">         <span class="keyword">if</span> idle.IsZero() &#123; <span class="comment">//未闲置则重置最大闲置时间</span></span><br><span class="line">            t.mu.Unlock()</span><br><span class="line">            idleTimer.Reset(t.kp.MaxConnectionIdle)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">         &#125;</span><br><span class="line">         val := t.kp.MaxConnectionIdle - time.Since(idle)</span><br><span class="line">         t.mu.Unlock()</span><br><span class="line">         <span class="keyword">if</span> val &lt;= <span class="number">0</span> &#123;</span><br><span class="line">            t.Drain()	<span class="comment">//优雅关闭连接</span></span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">         &#125;</span><br><span class="line">         idleTimer.Reset(val)	<span class="comment">//重置闲置连接</span></span><br><span class="line">      <span class="keyword">case</span> &lt;-ageTimer.C:	<span class="comment">//最长连接</span></span><br><span class="line">         t.Drain()</span><br><span class="line">         ageTimer.Reset(t.kp.MaxConnectionAgeGrace)</span><br><span class="line">         <span class="keyword">select</span> &#123;</span><br><span class="line">         <span class="keyword">case</span> &lt;-ageTimer.C:</span><br><span class="line">            <span class="comment">// Close the connection after grace period.</span></span><br><span class="line">            <span class="keyword">if</span> logger.V(logLevel) &#123;</span><br><span class="line">               logger.Infof(<span class="string">"transport: closing server transport due to maximum connection age."</span>)</span><br><span class="line">            &#125;</span><br><span class="line">            t.Close()</span><br><span class="line">         <span class="keyword">case</span> &lt;-t.done:</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">return</span></span><br><span class="line">      <span class="keyword">case</span> &lt;-kpTimer.C:	<span class="comment">//保活定时器</span></span><br><span class="line">         lastRead := atomic.LoadInt64(&amp;t.lastRead)</span><br><span class="line">         <span class="keyword">if</span> lastRead &gt; prevNano &#123;</span><br><span class="line">            <span class="comment">// There has been read activity since the last time we were</span></span><br><span class="line">            <span class="comment">// here. Setup the timer to fire at kp.Time seconds from</span></span><br><span class="line">            <span class="comment">// lastRead time and continue.</span></span><br><span class="line">            outstandingPing = <span class="literal">false</span></span><br><span class="line">            kpTimer.Reset(time.Duration(lastRead) + t.kp.Time - time.Duration(time.Now().UnixNano()))</span><br><span class="line">            prevNano = lastRead</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">if</span> outstandingPing &amp;&amp; kpTimeoutLeft &lt;= <span class="number">0</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> logger.V(logLevel) &#123;</span><br><span class="line">               logger.Infof(<span class="string">"transport: closing server transport due to idleness."</span>)</span><br><span class="line">            &#125;</span><br><span class="line">            t.Close()</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">if</span> !outstandingPing &#123;	<span class="comment">//如果没有等待保活则发送保活帧</span></span><br><span class="line">            <span class="keyword">if</span> channelz.IsOn() &#123;</span><br><span class="line">               atomic.AddInt64(&amp;t.czData.kpCount, <span class="number">1</span>)</span><br><span class="line">            &#125;</span><br><span class="line">            t.controlBuf.put(p)</span><br><span class="line">            kpTimeoutLeft = t.kp.Timeout</span><br><span class="line">            outstandingPing = <span class="literal">true</span></span><br><span class="line">         &#125;</span><br><span class="line">         sleepDuration := minTime(t.kp.Time, kpTimeoutLeft)</span><br><span class="line">         kpTimeoutLeft -= sleepDuration</span><br><span class="line">         kpTimer.Reset(sleepDuration)</span><br><span class="line">      <span class="keyword">case</span> &lt;-t.done:</span><br><span class="line">         <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意点：</p>
+<ol>
+<li>
+<p>连接什么时候闲置的?</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(t.activeStreams) == <span class="number">1</span> &#123;</span><br><span class="line">  t.idle = time.Time&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在处理头帧的时候(构建了一个活跃流)，如果 <code>len(t.activeStreams) == 1</code> ，表示刚新建一个流且仅有一个活跃流，那么这个时候连接是闲置的</p>
+</li>
+<li>
+<p>服务端也会主动发送ping帧</p>
+</li>
+</ol>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<ol>
+<li>
+<p>TCP与gRPC的区别</p>
+<p>TCP的Keepalive是一种机制，它允许在网络连接空闲时发送探测包（keepalive包）来维护连接的状态。这些探测包不包含有效负载，只是一个空的TCP报文段，主要用于检测连接是否仍然活着。</p>
+<p>当TCP连接上没有传输数据时会进入空闲状态，即使连接已经中断或不可用，导致不必要的延迟和资源浪费。Keepalive机制可以在连接空闲时周期性地发送探测包，以检测连接是否仍然活着。如果远程端点没有响应这些探测包，则可以视为连接已经断开，并且可以关闭连接。</p>
+<p>在gRPC中，使用Keepalive可以检测底层TCP连接是否失效，并在检测到连接问题时及时重新建立连接，从而提高网络连接的可靠性和性能。</p>
+</li>
+<li>
+<p>客户端与服务端都会根据配置向对端发送ping帧，只要在指定时间内读取到帧，那么就不会主动发送ping帧</p>
+</li>
+</ol>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://blog.csdn.net/u011582922/article/details/120279303" target="_blank" rel="noopener">https://blog.csdn.net/u011582922/article/details/120279303</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/10/31/Grpc/Grpc-13-%E4%BF%9D%E6%8C%81%E9%93%BE%E6%8E%A5/" title="Grpc-13-保持链接" target="_blank" rel="external">http://xboom.github.io/2022/10/31/Grpc/Grpc-13-保持链接/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/11/04/Grpc/Grpc-14-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5/" title="Grpc-14-健康检查"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/10/28/Grpc/Grpc-12-%E5%B9%B3%E8%A1%A1%E5%99%A8/" title="Grpc-02-平衡器"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>
