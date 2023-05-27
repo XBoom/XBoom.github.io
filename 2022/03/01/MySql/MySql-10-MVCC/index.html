@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>MySql-10-MVCC | XBoom Dove</title>
+  <meta name="description" content="MVCC(Multi Version Concurrency Control)即多版本并发控制，MySQL 中InnoDB中实现了事务(多版本并发控制MVCC+锁)， 通过MVCC解决隔离性问题。  具体来说： 隔离性：MySQL 中使用两种锁机制，分别是行级锁和表级锁。在事务中，当一个事务对某个数据进行修改时，MySQL 会对这个数据进行加锁，其他事务就不能对这个数据进行修改，从而保证隔离性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySql-10-MVCC">
+<meta property="og:url" content="http://xboom.github.io/2022/03/01/MySql/MySql-10-MVCC/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="MVCC(Multi Version Concurrency Control)即多版本并发控制，MySQL 中InnoDB中实现了事务(多版本并发控制MVCC+锁)， 通过MVCC解决隔离性问题。  具体来说： 隔离性：MySQL 中使用两种锁机制，分别是行级锁和表级锁。在事务中，当一个事务对某个数据进行修改时，MySQL 会对这个数据进行加锁，其他事务就不能对这个数据进行修改，从而保证隔离性。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-1.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-2.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-3.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-4.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/mysql-mvcc-3.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/16dddb3da13ee747.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-7.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-8.png">
+<meta property="article:published_time" content="2022-03-01T07:47:24.000Z">
+<meta property="article:modified_time" content="2023-05-27T15:42:23.777Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="MySql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-1.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/03/01/MySql/MySql-10-MVCC/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">23</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.11px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.56px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.89px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.78px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.33px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.22px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.44px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.22px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.56px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.78px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.44px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/go-zero/" style="font-size: 13.67px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.44px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" class="title">Go入门15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/03/05/Go/Go%E5%85%A5%E9%97%A824-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/" class="title">Go入门24-协程池问题</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-03-05T06:46:45.000Z" itemprop="datePublished">2023-03-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/02/02/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/" class="title">算法-E10C-最大公约数</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-02-02T12:25:25.494Z" itemprop="datePublished">2023-02-02</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/10/Go/Go%E5%85%A5%E9%97%A823-arena/" class="title">Go入门23-arena</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-10T08:00:20.000Z" itemprop="datePublished">2023-01-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/01/04/Go/Go%E5%85%A5%E9%97%A821-SetFinalizer/" class="title">Go入门21-SetFinalizer</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-01-04T13:45:13.344Z" itemprop="datePublished">2023-01-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#实现原理"><span class="toc-number">1.</span> <span class="toc-text"> 实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#undo-log"><span class="toc-number">1.1.</span> <span class="toc-text"> undo log</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#read-view"><span class="toc-number">1.2.</span> <span class="toc-text"> Read View</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#整体流程"><span class="toc-number">2.</span> <span class="toc-text"> 整体流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">3.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-MySql/MySql-10-MVCC" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySql-10-MVCC
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/03/01/MySql/MySql-10-MVCC/" class="article-date">
+	  <time datetime="2022-03-01T07:47:24.000Z" itemprop="datePublished">2022-03-01</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/MySql/">MySql</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/MySql/" rel="tag">MySql</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/03/01/MySql/MySql-10-MVCC/" class="leancloud_visitors"  data-flag-title="MySql-10-MVCC">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/03/01/MySql/MySql-10-MVCC/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>MVCC(Multi Version Concurrency Control)即多版本并发控制，MySQL 中InnoDB中实现了事务(多版本并发控制MVCC+锁)， 通过MVCC解决隔离性问题。</p>
+<blockquote>
+<p>具体来说：</p>
+<p>隔离性：MySQL 中使用两种锁机制，分别是行级锁和表级锁。在事务中，当一个事务对某个数据进行修改时，MySQL 会对这个数据进行加锁，其他事务就不能对这个数据进行修改，从而保证隔离性。</p>
+<p>原子性：MySQL 还会将事务的操作记录到日志中，如果事务执行失败，可以通过日志进行回滚，保证了原子性；</p>
+<p>持久性：通过日志进行恢复，保证了持久性。</p>
+</blockquote>
+<p>首先明白两个概念</p>
+<ul>
+<li><strong>当前读</strong>：读取的是记录最新版本，读取时还要保证其他并发事务不能修改当前记录，会对读取的记录进行加锁。像<code>select lock in share mode(共享锁)</code>, <code>select for update ;</code> <code>update</code>, <code>insert</code> ,<code>delete</code>(排他锁)这些操作都是一种当前读。</li>
+<li><strong>快照读</strong>：像<code>不加锁的select操作</code>就是<strong>快照读</strong>，即不加锁的非阻塞读；快照读的前提是隔离级别不是串行级别，串行级别下的快照读会退化成当前读；</li>
+</ul>
+<p>那么 <strong>当前读</strong>、<strong>快照读</strong>和<strong>MVCC</strong>的关系？</p>
+<ul>
+<li>MVCC多版本并发控制指的是 “维持一个数据的多个版本，使得读写操作没有冲突” 这么一个概念，仅仅是一个理想概念</li>
+<li>快照读就是MySQL为我们实现MVCC理想模型的其中一个具体非阻塞读功能。而相对而言，当前读就是悲观锁的具体功能实现</li>
+<li>要说的再细致一些，快照读本身也是一个抽象概念，再深入研究。MVCC模型在MySQL中的具体实现则是由 <strong>4个隐式字段</strong>，<strong>undo日志</strong> ，<strong>Read View</strong> 等去完成的，具体可以看下面的MVCC实现原理</li>
+</ul>
+<blockquote>
+<p>在 MVCC 中事务的所有写操作(INSERT、UPDATE、DELETE)为数据行新增一个最新的版本快照，而读操作是去读旧版本的快照，也就是说，读操作和写操作是分离的，二者之间没有依赖、互斥关系</p>
+<p>MVCC是由MySQL数据库InnoDB存储引擎实现的，并非是由MySQL本身实现的，不同的存储引擎，对MVCC都有不同的实现标准</p>
+</blockquote>
+<p>MVCC 解决了什么问题，有什么好处？</p>
+<p>数据库的并发场景有三种, 分别为：</p>
+<ul>
+<li><strong>读-读</strong>：不存在任何问题，也不需要并发控制</li>
+<li><strong>读-写</strong>：有线程安全问题，可能会造成事务隔离性问题，可能遇到脏读，幻读，不可重复读</li>
+<li><strong>写-写</strong>：有线程安全问题，可能会存在更新丢失问题，比如第一类更新丢失，第二类更新丢失</li>
+</ul>
+<p>MVCC是为了解决数据库采用悲观锁这样性能不佳的形式去解决读-写冲突问题，而提出的解决方案。在数据库中，因为MVCC可以：</p>
+<ul>
+<li><strong>MVCC + 悲观锁</strong> MVCC解决读写冲突，悲观锁解决写写冲突</li>
+<li><strong>MVCC + 乐观锁</strong> MVCC解决读写冲突，乐观锁解决写写冲突</li>
+</ul>
+<p>这种组合的方式就可以最大程度的提高数据库并发性能，并解决读写冲突，和写写冲突导致的问题</p>
+<h3 id="实现原理"><a class="markdownIt-Anchor" href="#实现原理"></a> 实现原理</h3>
+<p>MVCC模型在MySQL中的具体实现则是由 <strong>4个隐式字段</strong>，<strong>undo日志</strong> ，<strong>Read View</strong> 等去完成的，每行记录除了自定义的字段外，还有数据库隐式定义的四个字段</p>
+<ul>
+<li><strong>DB_ROW_ID</strong> 6byte, 隐含的自增ID(隐藏主键)，如果数据表没有主键，InnoDB会自动以<code>DB_ROW_ID</code>产生一个聚簇索引</li>
+<li><strong>DB_TRX_ID</strong> 6byte, 最近修改(修改/插入)事务ID：记录创建这条记录/最后一次修改该记录的事务ID</li>
+<li><strong>DB_ROLL_PTR</strong> 7byte, 回滚指针，指向这条记录的上一个版本(存储于rollback segment里）</li>
+<li><strong>DELETED_BIT</strong> 1byte, 记录被更新或删除并不代表真的删除，而是删除flag变了</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-1.png" alt="img" style="zoom:70%;" />
+<p>这四个字段是记录在 InnoDB 存储引擎的聚簇索引中的数据行中。InnoDB 存储引擎使用聚簇索引来组织数据，并将数据行按照聚簇索引的顺序存储在磁盘上。在聚簇索引中，每个数据行包含了完整的记录信息，包括字段和相关的事务信息</p>
+<p>需要明确两点</p>
+<ol>
+<li><strong>读操作对数据库也是一项事务</strong>，但它的事务id不是 根据 <code>max_trx_id</code> 生成的，而是根据 <code>trx_id</code> 地址计算而来的</li>
+<li>如果事务B对于事务A来说是不可见的，就需要顺着修改记录的版本链，从回滚指针开始往前遍历，直到找到第一个对于事务A来说是可见的事务ID，或者遍历完版本链也未找到（表示这条记录对事务A不可见）</li>
+</ol>
+<h4 id="undo-log"><a class="markdownIt-Anchor" href="#undo-log"></a> undo log</h4>
+<p><code>undo log</code> 在 <a href="https://www.yuankang.top/2021/07/22/MySql/MySql%E5%85%A5%E9%97%A81-%E4%B8%80%E6%9D%A1sql/" target="_blank" rel="noopener">一条sql语句</a> 中会在更新前产生一条 <code>undo log</code> 记录，作用就是保护事务失败之后回滚到历史版本，它一共有三种类型</p>
+<ul>
+<li><strong>Insert undo log</strong> ：插入一条记录时，至少把这条记录的主键值记下来，回滚的时候只需要把这个主键值对应的记录删掉</li>
+<li><strong>Update undo log</strong>：修改一条记录时，至少把修改这条记录前的旧值都记录下来，回滚时再把这条记录更新为旧值</li>
+<li><strong>Delete undo log</strong>：删除一条记录时，至少把这条记录中的内容都记下来，回滚时把由这些内容组成的记录插入到表中
+<ul>
+<li>删除操作都只是设置一下老记录的<code>DELETED_BIT</code>，并不真正将过时的记录删除。</li>
+<li>为了节省磁盘空间，InnoDB有专门的<strong>purge线程</strong>来清理 <code>DELETED_BIT = true</code> 的记录。为了不影响MVCC的正常工作，purge线程自己也维护了一个<code>read view</code>（这个read view相当于系统中最老活跃事务的read view）;如果某个记录的DELETED_BIT为true，并且<code>DB_TRX_ID</code>相对于purge线程的read view可见，那么这条记录一定是可以被安全清除的。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>查询操作(<code>SELECT</code>) 并不会修改任何用户记录，所以并不会记录相应的<code>undo log</code></p>
+</blockquote>
+<p>执行流程：</p>
+<ol>
+<li>
+<p>一个有个事务插入person表插入了一条新记录，记录如下，name为Jerry, age为24岁，隐式主键是1，事务ID和回滚指针，我们假设为NULL</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-2.png" alt="img" /></p>
+</li>
+<li>
+<p>来一个事务1对该记录的name做出修改，改为Tom</p>
+<ul>
+<li>在事务1修改该行(记录)数据时，数据库会先对该行加排他锁</li>
+<li>然后把该行数据拷贝到<code>undo log</code>中，作为旧记录，即在<code>undo log</code>中有当前行的拷贝副本</li>
+<li>拷贝完毕后，修改该行name为Tom，并且修改隐藏字段的事务ID为当前事务1的ID, 我们默认从1开始，之后递增，回滚指针指向拷贝到undo log的副本记录，即表示我的上一个版本就是它</li>
+<li>事务提交后，释放锁</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-3.png" alt="img" style="zoom:80%;" />
+</li>
+<li>
+<p>又来一个事务2修改同一条记录，将age改为30</p>
+<ul>
+<li>
+<p>在事务2修改该行数据时，数据库也先为该行加锁</p>
+</li>
+<li>
+<p>然后把该行数据拷贝到<code>undo log</code>中，作为旧记录，发现该行记录已经有<code>undo log</code>了，那么最新的旧数据作为链表的表头，插在该行记录的<code>undo log</code>最前面</p>
+</li>
+<li>
+<p>修改该行age为30岁，并且修改隐藏字段的事务ID为当前事务2的ID, 那就是2，回滚指针指向刚刚拷贝到<code>undo log</code>的副本记录</p>
+</li>
+<li>
+<p>事务提交，释放锁</p>
+</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-4.png" alt="img" style="zoom:67%;" />
+</li>
+</ol>
+<p>不同事务或者相同事务的对同一记录的修改，会导致该记录的<code>undo log</code>成为一条记录版本线性表，即链表，<code>undo log</code>的链首就是最新的旧记录，链尾就是最早的旧记录(向图中的第一条insert undo log，其实<strong>在事务提交之后可能就被删除丢失</strong>了，该undo log的节点可能是会purge线程清除掉）</p>
+<h4 id="read-view"><a class="markdownIt-Anchor" href="#read-view"></a> Read View</h4>
+<p><code>Read View</code> 就是事务进行快照读操作的时候生产的，每个事务都有自己的 Read View（读视图）。每个事务的读视图是独立的，用于确保事务在读取数据时能够看到一致的数据快照。虽然每个事务有自己的读视图，但是在相同的事务隔离级别下，所有事务的读视图都是基于相同的全局一致性视图(Global Consistent View)。<strong>全局一致性视图是当前系统中所有已提交的事务形成的一个一致的数据快照</strong></p>
+<blockquote>
+<p>在 <code>读已提交</code> 和 <code>可重复读</code> 的隔离级别中，事务在启动的时候会创建一个<strong>读视图(Read View)</strong>，用它来记录当前系统的活跃事务信息，通过读视图来进行本事务之间的<strong>可见性判断</strong>。</p>
+</blockquote>
+<p>其中有四个重要的字段：</p>
+<ul>
+<li>
+<p><strong>creator_trx_id</strong>：表示生成读视图的事务的事务ID</p>
+</li>
+<li>
+<p><strong>m_ids</strong>：表示在生成读视图时，当前系统中活跃着的事务ID列表(<strong>未提交的事务ID列表</strong>)</p>
+</li>
+<li>
+<p><strong>min_trx_id</strong>：表示在生成读视图时，当前系统中活跃着的最小事务ID</p>
+</li>
+<li>
+<p><strong>max_trx_id</strong>：表示在生成读视图时，系统应该分配给下一个事务的事务ID(事务 ID 是累计递增分配的，所以后面分配的事务ID一定会比前面的大)</p>
+<blockquote>
+<p>需要注意<strong>下一个事务ID</strong>的值，并不是<strong>事务ID列表</strong>中的最大值+1，而是当前系统中已存在过的事务的最大值+1。例如当前数据库中活跃的事务有(1,2)，此时事务2提交，同时又开启了新事务，在生成的读视图中，<strong>下一个事务ID</strong>的值为3</p>
+</blockquote>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/mysql-mvcc-3.png" alt="mysql-mvcc-3" /></p>
+</li>
+</ul>
+<p>通过将版本链与读视图两者结合起来，来进行并发事务间可见性的判断，判断规则如下（假设现在要判断事务A是否可以访问到事务B的修改记录）</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/16dddb3da13ee747.jpg" alt="img" style="zoom:70%;" />
+<ul>
+<li>若 事务B的 <code>当前事务ID DB_TRX_ID</code> 小于 事务A中<code>最小事务ID min_trx_id</code>，代表事务B是在事务A生成读视图之前就已经提交了的，所以事务B对于事务A来说是可见的。</li>
+<li>若事务B的 <code>当前事务ID DB_TRX_ID</code>  大于或等于 事务A<code>下一个事务ID</code>，代表事务B是在事务A生成读视图之后才开启，所以事务B对于事务A来说是不可见的。</li>
+<li>若事务B的<code>当前事务ID DB_TRX_ID</code>在事务A的<code>最小事务ID</code>和<code>下一个事务ID</code>之间**(左闭右开，[最小事务ID, 下一个事务ID))**，需要分两种情况讨论：
+<ul>
+<li>若事务B的<code>当前事务ID</code>在事务A的<code>事务ID列表</code>中，代表创建事务A时事务B还是活跃的，未提交，所以事务B对于事务A来说是不可见的。</li>
+<li>若事务B的<code>当前事务ID</code>不在事务A的<code>事务ID列表</code>中，代表创建事务A时事务B已经提交，所以事务B对于事务A来说是可见的。</li>
+</ul>
+</li>
+</ul>
+<p><strong>读视图的创建时机</strong>，事务在启动时会创建一个<strong>读视图（Read View）</strong>，而开启一个事务有两种方式，通过这两种方式开启事务，创建读视图的时机也是不同的：</p>
+<ul>
+<li>如果是以 <code>begin/start transaction</code> 方式开启事务，读视图会在执行第一个快照读语句时创建</li>
+<li>如果以 <code>start transaction with consistent snapshot</code> 方式开启事务，同时便会创建读视图</li>
+</ul>
+<h3 id="整体流程"><a class="markdownIt-Anchor" href="#整体流程"></a> 整体流程</h3>
+<ol>
+<li>当事务2对某行数据执行了快照读，数据库为该行数据生成一个Read View读视图，假设当前事务ID为2，此时还有事务1和事务3在活跃中，事务4在事务2快照读前一刻提交更新了，所以Read View记录了系统当前活跃事务1，3的ID，维护在一个列表上，假设我们称为<code>m_ids</code></li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>事务1</td>
+<td>事务2</td>
+<td>事务3</td>
+<td>事务4</td>
+</tr>
+<tr>
+<td>事务开始</td>
+<td>事务开始</td>
+<td>事务开始</td>
+<td>事务开始</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>修改且已提交</td>
+</tr>
+<tr>
+<td>进行中</td>
+<td>快照读</td>
+<td>进行中</td>
+<td></td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ol start="2">
+<li>
+<p><code>Read View</code> 不仅仅会通过一个列表<code>m_ids</code>来维护事务2执行快照读那刻系统正活跃的事务ID(事务4已经提交，所以不活跃)</p>
+<ul>
+<li><code>min_trx_id</code> = 1，</li>
+<li><code>max_trx_id</code> = 4 + 1 = 5</li>
+<li><code>m_ids</code>集合的值是1,3</li>
+</ul>
+</li>
+<li>
+<p>事务4修改过该行记录，并在事务2执行快照读前，就提交了事务，当前该行当前数据的undo log如下图所示；</p>
+</li>
+</ol>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-7.png" alt="img" /></p>
+<ol start="4">
+<li>
+<p>事务2在快照读该行记录的时候，就会拿该行记录的DB_TRX_ID去跟<code>min_trx_id</code>,<code>max_trx_id</code>和活跃事务ID列表(<code>m_ids</code>)进行比较，判断当前事务2能看到该记录的版本是哪个</p>
+<ol>
+<li><code>DB_TRX_ID</code> = 4  &gt; <code>min_trx_id</code> = 1 且 <code>DB_TRX_ID</code> = 4 &lt; <code>min_trx_id</code> = 5，也就是可能在范围内，可能是活跃的，也可能不活跃</li>
+<li><code>DB_TRX_ID</code> = 4 不在 <code>m_ids</code> = [1, 3] 中，所以符合可见性条件</li>
+</ol>
+</li>
+<li>
+<p>所以事务4修改后提交的最新结果对事务2快照读时是可见的，所以事务2能读到的最新数据记录是事务4所提交的版本，而事务4提交的版本也是全局角度上最新的版本</p>
+</li>
+</ol>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-mvcc-8.png" alt="img" /></p>
+<p>也正是Read View生成时机的不同，从而造成RC(read commited),RR(Repeatable read)级别下快照读的结果的不同</p>
+<p>RR是如何在RC级的基础上解决不可重复读的？</p>
+<p>当前读和快照读在RR级别下的区别：</p>
+<p>表1：</p>
+<table>
+<thead>
+<tr>
+<th>事务A</th>
+<th>事务B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>开启事务</td>
+<td>开启事务</td>
+</tr>
+<tr>
+<td>快照读(无影响)查询金额为500</td>
+<td>快照查询金额为500</td>
+</tr>
+<tr>
+<td>更新金额为400</td>
+<td></td>
+</tr>
+<tr>
+<td>提交事务</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>select 快照读 金额为500</td>
+</tr>
+<tr>
+<td></td>
+<td>select lock in share mode 当前读 金额为 400</td>
+</tr>
+</tbody>
+</table>
+<p>表2：</p>
+<table>
+<thead>
+<tr>
+<th>事务A</th>
+<th>事务B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>开启事务</td>
+<td>开启事务</td>
+</tr>
+<tr>
+<td>快照读(无影响)查询金额为500</td>
+<td></td>
+</tr>
+<tr>
+<td>更新金额为400</td>
+<td></td>
+</tr>
+<tr>
+<td>提交事务</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>select 快照读 金额为400</td>
+</tr>
+<tr>
+<td></td>
+<td>select lock in share mode 当前读 金额为 400</td>
+</tr>
+</tbody>
+</table>
+<p>表1与表2的区别是：</p>
+<ul>
+<li>表1的事务B在事务A修改金额前快照读过一次金额数据</li>
+<li>表2的事务B在事务A修改金额前没有进行过快照读</li>
+</ul>
+<p><strong>事务中快照读的结果是非常依赖该事务首次出现快照读的地方，即某个事务中首次出现快照读的地方非常关键，它有决定该事务后续快照读结果的能力</strong></p>
+<p><strong>删除和更新是一样的，如果事务B的快照读是在事务A操作之后进行的，事务B的快照读也是能读取到最新的数据的</strong></p>
+<p>RC,RR级别下的InnoDB快照读有什么不同？</p>
+<p>正是Read View生成时机的不同，从而造成RC,RR级别下快照读的结果的不同</p>
+<ul>
+<li>在RR级别下的某个事务的对某条记录的第一次快照读会创建一个快照及Read View, 将当前系统活跃的其他事务记录起来，此后在调用快照读的时候，还是使用的是同一个Read View，所以只要当前事务在其他事务提交更新之前使用过快照读，那么之后的快照读使用的都是同一个Read View，所以对之后的修改不可见；</li>
+<li>即RR级别下，快照读生成Read View时，Read View会记录此时所有其他活动事务的快照，这些事务的修改对于当前事务都是不可见的。而早于Read View创建的事务所做的修改均是可见</li>
+<li>而在RC级别下的，事务中，每次快照读都会新生成一个快照和Read View, 这就是我们在RC级别下的事务中可以看到别的事务提交的更新的原因</li>
+</ul>
+<p><strong>在RC隔离级别下，是每个快照读都会生成并获取最新的Read View；而在RR隔离级别下，则是同一个事务中的第一个快照读才会创建Read View, 之后的快照读获取的都是同一个Read View</strong>。</p>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://mp.weixin.qq.com/s/ct74vpWfKwhBJG6cafpBLw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/ct74vpWfKwhBJG6cafpBLw</a></li>
+<li><a href="https://segmentfault.com/a/1190000023827696" target="_blank" rel="noopener">https://segmentfault.com/a/1190000023827696</a></li>
+<li><a href="https://www.modb.pro/db/73927" target="_blank" rel="noopener">https://www.modb.pro/db/73927</a></li>
+<li><a href="https://pdai.tech/md/db/sql-mysql/sql-mysql-mvcc.html" target="_blank" rel="noopener">https://pdai.tech/md/db/sql-mysql/sql-mysql-mvcc.html</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/03/01/MySql/MySql-10-MVCC/" title="MySql-10-MVCC" target="_blank" rel="external">http://xboom.github.io/2022/03/01/MySql/MySql-10-MVCC/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/06/25/Protocol/%E5%8D%8F%E8%AE%AE4-SMB/" title="协议4-SMB"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/02/21/K8S/k8s%E5%85%A5%E9%97%A85-%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C/" title="k8s入门5-容器网络之网络栈"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>
