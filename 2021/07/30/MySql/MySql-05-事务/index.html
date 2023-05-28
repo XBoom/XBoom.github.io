@@ -44,7 +44,7 @@ var _hmt = _hmt || [];
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625071055.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625071200.png">
 <meta property="article:published_time" content="2021-07-30T03:20:52.000Z">
-<meta property="article:modified_time" content="2023-05-27T15:42:36.406Z">
+<meta property="article:modified_time" content="2023-05-28T02:09:14.841Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="MySql">
 <meta name="twitter:card" content="summary">
@@ -416,25 +416,41 @@ var _hmt = _hmt || [];
 <p>还能设置回滚点：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">savepoint &lt;回滚点名字&gt;</span><br><span class="line"></span><br><span class="line">rollback to &lt;回滚点名字&gt;</span><br></pre></td></tr></table></figure>
 </blockquote>
-<p>事务的执行流程如下</p>
-<p>sql:update test set name = ‘test’ where id=2;</p>
-<p>事务完整流程:</p>
-<p>1.事务开始</p>
-<p>2.申请锁资源，对id=2这行数据上排他锁</p>
-<p>3.将需要修改的data pages读取到innodb_buffer_cache</p>
-<p>4.记录id=2的数据到undo log</p>
-<p>5.记录id=2修改后的数据到redo log buffer</p>
-<p>6.将buffer cache中id=2得name改为test</p>
-<p>7.commit，触发二阶段提交2pc</p>
-<p>8.事务结束</p>
-<p>知识点科普:</p>
-<p>WAL：write ahead logging</p>
-<p>针对数据文件的修改，必须遵循日志先行原则。也即是将数据持久化到磁盘之前必须确保redo log落盘。</p>
-<p>二阶段提交(2pc two phase commit):</p>
-<p>二阶段提交,首先redo log prepare,然后写入binlog,最后redo log commit。主要是保证redo log事务写入顺序和binlog 事务顺序一致(通过事务id保证一致)。</p>
-<p>完整流程如下:</p>
-<p>prepare阶段：redo持久化到磁盘(redo group commit)，并将回滚段置为prepared状态，此时binlog不做操作</p>
-<p>commit阶段：innodb释放锁，释放回滚段，设置undo log提交状态，binlog持久化到磁盘，然后存储引擎层提交</p>
+<p>以 <code>update test set name = 'test' where id=2;</code>为例事务的执行流程</p>
+<ol>
+<li>
+<p>事务开始</p>
+</li>
+<li>
+<p>申请锁资源，对id=2这行数据上排他锁</p>
+</li>
+<li>
+<p>将需要修改的data pages读取到innodb_buffer_cache</p>
+</li>
+<li>
+<p>记录id=2的数据到undo log</p>
+</li>
+<li>
+<p>记录id=2修改后的数据到redo log buffer</p>
+</li>
+<li>
+<p>将buffer cache中id=2得name改为test</p>
+</li>
+<li>
+<p>commit，触发二阶段提交2pc</p>
+</li>
+<li>
+<p>事务结束</p>
+</li>
+</ol>
+<p><strong>WAL(write ahead logging)</strong>:针对数据文件的修改，必须遵循日志先行原则。也即是将数据持久化到磁盘之前必须确保redo log落盘。</p>
+<p><strong>二阶段提交(2pc two phase commit)</strong>:</p>
+<ul>
+<li>首先，redo log prepare，redo持久化到磁盘(redo group commit)，并将回滚段置为prepared状态，此时binlog不做操作</li>
+<li>然后写入 binlog</li>
+<li>最后redo log commit，innodb释放锁，释放回滚段，设置undo log提交状态，binlog持久化到磁盘，然后存储引擎层提交</li>
+</ul>
+<p>主要是保证redo log事务写入顺序和binlog 事务顺序一致(通过事务id保证一致)。</p>
 <h3 id="隔离级别"><a class="markdownIt-Anchor" href="#隔离级别"></a> 隔离级别</h3>
 <p>并发可能产生的问题：</p>
 <ul>
