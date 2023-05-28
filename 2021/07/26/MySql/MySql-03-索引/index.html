@@ -45,7 +45,7 @@ var _hmt = _hmt || [];
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210628234453.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210628235935.png">
 <meta property="article:published_time" content="2021-07-25T23:18:54.000Z">
-<meta property="article:modified_time" content="2023-05-28T08:16:56.729Z">
+<meta property="article:modified_time" content="2023-05-28T09:03:58.122Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="MySql">
 <meta name="twitter:card" content="summary">
@@ -502,6 +502,8 @@ var _hmt = _hmt || [];
 <li>主键引用：为了获取具体的行数据，联合索引的叶子节点通常会包含指向主键的引用。这个主键引用可以是主键的值，或者是指向包含主键值的位置的指针。通过主键引用，可以从联合索引快速地定位到相应的行数据。</li>
 <li>覆盖索引：如果联合索引包含了查询所需的所有列，称为覆盖索引（Covering Index）。在这种情况下，可以直接从联合索引中获取所需的数据，而无需回表操作，提高查询性能。</li>
 </ol>
+<p>索引失效的情况：</p>
+<p><strong>失效指的是，条件中如果有or，只要其中一个条件没有索引，其他字段有索引也不会使用</strong></p>
 <h3 id="索引维护"><a class="markdownIt-Anchor" href="#索引维护"></a> 索引维护</h3>
 <p>在B+树中，所有记录节点都是按键值的大小顺序存放在同一层的叶子节点上，由各叶子节点进行连接</p>
 <blockquote>
@@ -680,16 +682,36 @@ var _hmt = _hmt || [];
 <li>是否排序</li>
 </ol>
 <p>扫描行数是怎么判断的？</p>
-<p>MySql在执行语句之前，并不能精确地知道满足这个条件的记录有多少条，而只能根据统计信息来估算记录数</p>
-<p>一个索引上不同的值越多，这个索引的区分度就越好。而一个索引上不同的值的个数，我们称之为“基数”（cardinality）。也就是说，这个基数越大，索引的区分度越好</p>
+<ul>
+<li>
+<p>MySql在执行语句之前，并不能精确地知道满足这个条件的记录有多少条，而只能根据统计信息来估算记录数。一个索引上不同的值越多，这个索引的区分度就越好。而一个索引上不同的值的个数，我们称之为“基数”（cardinality）。也就是说，这个基数越大，索引的区分度越好</p>
+</li>
+<li>
 <p>使用 show index 方法，看到一个索引的基数。</p>
+</li>
+</ul>
 <p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210628235935.png" alt="img" /></p>
 <p>如果正确的使用索引</p>
 <ol>
-<li>使用强制语句 force index(a)</li>
-<li>引导 MySQL 使用我们期望的索引，如 <code>order by b limit 1</code> 改成 <code>order by b,a limit 1</code></li>
+<li>
+<p>使用强制语句 force index(a)</p>
+</li>
+<li>
+<p>引导 MySQL 使用我们期望的索引，如 <code>order by b limit 1</code> 改成 <code>order by b,a limit 1</code></p>
+<p>优化器选择使用索引 b，是因为它认为使用索引 b 可以避免排序(b 本身是索引，已经是有序的了，如果选择索引 b 的话，不需要再做排序，只需要遍历)，所以即使扫描行数多，也判定为代价更小。现在 order by b,a 这种写法，要求按照 b,a 排序，就意味着使用这两个索引都需要排序。因此，扫描行数成了影响决策的主要条件，于是此时优化器选了只需要扫描 1000 行的索引 a</p>
+</li>
 </ol>
-<p>之前优化器选择使用索引 b，是因为它认为使用索引 b 可以避免排序（b 本身是索引，已经是有序的了，如果选择索引 b 的话，不需要再做排序，只需要遍历），所以即使扫描行数多，也判定为代价更小。现在 order by b,a 这种写法，要求按照 b,a 排序，就意味着使用这两个索引都需要排序。因此，扫描行数成了影响决策的主要条件，于是此时优化器选了只需要扫描 1000 行的索引 a</p>
+<p>索引失效的情况：</p>
+<ol>
+<li>不使用索引列进行查询：如果<strong>查询条件中没有使用索引列，数据库引擎将无法使用索引进行优化</strong>，而是需要进行全表扫描。这种情况下索引将失效，查询性能会下降。</li>
+<li>使用函数或表达式对索引列进行操作：<strong>当在索引列上应用函数、运算符或表达式时，索引可能无法被利用</strong>。数据库引擎无法直接在索引上执行这些操作，而是需要在数据行级别上执行，导致索引失效。</li>
+<li>列类型不匹配：<strong>如果查询条件中的列类型与索引列的类型不匹配，索引也无法被使用</strong>。例如，索引列是字符串类型，但查询条件中使用了数字类型，或者索引列是日期类型，但查询条件中使用了字符串类型。</li>
+<li>数据量过小：<strong>如果表中的数据量非常小，即使存在索引，数据库引擎可能会选择全表扫描而不是使用索引</strong>。这是因为全表扫描的成本较低，使用索引反而增加了查询的开销。</li>
+<li>索引列上存在数据类型转换：<strong>如果查询条件中的值需要进行数据类型转换才能与索引列进行比较，索引可能会失效</strong>。例如，查询条件中的值是字符串类型，而索引列是整数类型，会导致索引失效。</li>
+<li>索引列上存在NULL值：某些情况下，如果<strong>索引列包含NULL值</strong>，查询条件中包含对该列的判断，索引可能无法被使用。</li>
+<li>数据分布不均匀：如果<strong>索引列的数据分布不均匀，即某些值的出现频率较高</strong>，而其他值的出现频率较低，索引的选择性较低，可能导致索引失效。</li>
+</ol>
+<p>要避免索引失效，需要根据查询条件、数据类型、数据分布等因素进行索引的设计和优化。同时，使用正确的查询方式，避免对索引列进行函数操作或类型转换，以确保索引能够被有效利用，提高查询性能。</p>
 <h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
 <ol>
 <li>《高性能myql》</li>

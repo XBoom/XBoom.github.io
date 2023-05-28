@@ -44,7 +44,7 @@ var _hmt = _hmt || [];
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625071055.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625071200.png">
 <meta property="article:published_time" content="2021-07-30T03:20:52.000Z">
-<meta property="article:modified_time" content="2023-05-28T02:09:14.841Z">
+<meta property="article:modified_time" content="2023-05-28T16:02:04.728Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="MySql">
 <meta name="twitter:card" content="summary">
@@ -342,7 +342,7 @@ var _hmt = _hmt || [];
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text"> 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#隔离级别"><span class="toc-number">2.</span> <span class="toc-text"> 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事务的基础"><span class="toc-number">3.</span> <span class="toc-text"> 事务的基础</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#redo-log"><span class="toc-number">3.1.</span> <span class="toc-text"> redo log</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#undo-log"><span class="toc-number">3.2.</span> <span class="toc-text"> undo log</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mvcc"><span class="toc-number">3.3.</span> <span class="toc-text"> MVCC</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原子性的实现"><span class="toc-number">4.</span> <span class="toc-text"> 原子性的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#持久性的实现"><span class="toc-number">5.</span> <span class="toc-text"> 持久性的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#隔离性的实现"><span class="toc-number">6.</span> <span class="toc-text"> 隔离性的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#读未提交"><span class="toc-number">6.1.</span> <span class="toc-text"> 读未提交</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#串行话读写锁"><span class="toc-number">6.2.</span> <span class="toc-text"> 串行话(读写锁)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#可重复读"><span class="toc-number">6.3.</span> <span class="toc-text"> 可重复读</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#幻读"><span class="toc-number">6.4.</span> <span class="toc-text"> 幻读</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#当前读"><span class="toc-number">7.</span> <span class="toc-text"> 当前读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#参考链接"><span class="toc-number">7.1.</span> <span class="toc-text"> 参考链接</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text"> 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#隔离级别"><span class="toc-number">2.</span> <span class="toc-text"> 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事务的基础"><span class="toc-number">3.</span> <span class="toc-text"> 事务的基础</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#redo-log"><span class="toc-number">3.1.</span> <span class="toc-text"> Redo Log</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#undo-log"><span class="toc-number">3.2.</span> <span class="toc-text"> undo log</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mvcc"><span class="toc-number">3.3.</span> <span class="toc-text"> MVCC</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原子性的实现"><span class="toc-number">4.</span> <span class="toc-text"> 原子性的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#持久性的实现"><span class="toc-number">5.</span> <span class="toc-text"> 持久性的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#隔离性的实现"><span class="toc-number">6.</span> <span class="toc-text"> 隔离性的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#读未提交"><span class="toc-number">6.1.</span> <span class="toc-text"> 读未提交</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#串行话读写锁"><span class="toc-number">6.2.</span> <span class="toc-text"> 串行话(读写锁)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#可重复读"><span class="toc-number">6.3.</span> <span class="toc-text"> 可重复读</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#幻读"><span class="toc-number">6.4.</span> <span class="toc-text"> 幻读</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#参考链接"><span class="toc-number">6.5.</span> <span class="toc-text"> 参考链接</span></a></li></ol></li></ol>
     </nav>
   </div>
 </aside>
@@ -414,7 +414,7 @@ var _hmt = _hmt || [];
 </ul>
 <blockquote>
 <p>还能设置回滚点：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">savepoint &lt;回滚点名字&gt;</span><br><span class="line"></span><br><span class="line">rollback to &lt;回滚点名字&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">savepoint &lt;回滚点名字&gt;</span><br><span class="line">rollback to &lt;回滚点名字&gt;</span><br></pre></td></tr></table></figure>
 </blockquote>
 <p>以 <code>update test set name = 'test' where id=2;</code>为例事务的执行流程</p>
 <ol>
@@ -458,14 +458,86 @@ var _hmt = _hmt || [];
 <li>不可重复读 non-repeatable read: 前后读取的记录内容不一致(针对其他事务<strong>修改或删除</strong>的操作)</li>
 <li>幻读 phantom read: 前后读取的记录数量不一致(针对其他事务<strong>新增</strong>的操作)</li>
 </ul>
-<p>针对解决上述问题，将事务的隔离级别分为(由低到高)：</p>
+<p>针对解决上述问题，将事务的隔离级别分为(由低到高)，假设两个事务按照下面的流程执行，初始记录 <code>name = A</code></p>
+<table>
+<thead>
+<tr>
+<th>时刻</th>
+<th>事务A</th>
+<th>事务B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>begin;</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td>begin;</td>
+</tr>
+<tr>
+<td>3</td>
+<td>select name from user where id = 1;</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td></td>
+<td>select name from user where id = 1;</td>
+</tr>
+<tr>
+<td>5</td>
+<td></td>
+<td>update user set name=‘B’ where id = 1</td>
+</tr>
+<tr>
+<td>6</td>
+<td>select name from user where id = 1;(N1)</td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td></td>
+<td>commit;</td>
+</tr>
+<tr>
+<td>8</td>
+<td>select name from user where id = 1;(N2)</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td>commit;</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td>select name from user where id = 1;(N3)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li>读未提交 read uncommitted: 一个事务未提交，改动能被另一个事务看到 =&gt; 都发生</li>
-<li>读提交 read committed: 一个事务提交了，改动才能被另一个事务看到 =&gt; 没有赃读</li>
-<li>可重复读 repeatable read(默认级别): 一个事务提交了，改动也不能被另一个事务看到 =&gt; 只有幻读</li>
-<li>串行化 serializable: 后访问的事务必须等待前一个事务执行完成才能访问 =&gt; 都解决</li>
+<li>
+<p>读未提交: 一个事务未提交，改动能被另一个事务看到 =&gt; 都执行。执行结果，N1 = B、N2 = B、N3 = B</p>
+</li>
+<li>
+<p>读提交: 一个事务提交了，改动才能被另一个事务看到 =&gt; 没有赃读。执行结果，N1 = A、N2 = B、N3 = B</p>
+</li>
+<li>
+<p>可重复读(默认级别): 一个事务提交了，改动也不能被另一个事务看到 =&gt; 只有幻读。执行结果，N1 = A、N2 = A、N3 = B</p>
+<blockquote>
+<p>为什么N1 与 N2 都是A，事务在执行期间看到的数据前后必须一致</p>
+</blockquote>
+</li>
+<li>
+<p>串行化 serializable: 后访问的事务必须等待前一个事务执行完成才能访问 =&gt; 都解决。事务A的执行结果，N1 = A、N2 = A、N3 = B</p>
+</li>
 </ul>
-<p>所以总结下来就是：</p>
+<p>事务的隔离级别规定了一个事务中所做的修改，在事务内和事务间的可见性。较低级别的隔离通常可以执行更高的并发，系统开销也更低</p>
 <table>
 <thead>
 <tr>
@@ -504,22 +576,17 @@ var _hmt = _hmt || [];
 </table>
 <p>修改隔离级别语句：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">set session transaction isolation level read uncommitted; #读未提交</span><br><span class="line">set session transaction isolation level read committed;   #读已提交</span><br><span class="line">set session transaction isolation level repeatable read;  #可重复读</span><br><span class="line">set session transaction isolation level serializable;		  #可串行化</span><br><span class="line">set autocommit &#x3D; 0;																				#取消自动提交</span><br><span class="line">select @@tx_isolation; 																		#查询隔离级别</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>当你不再需要该表时， 用 drop</p>
-<p>当你仍要保留该表，但要删除所有记录时， 用 truncate，<strong>不可回滚</strong></p>
-<p>当你要删除部分记录时（always with a WHERE clause), 用 delete</p>
-</blockquote>
 <h3 id="事务的基础"><a class="markdownIt-Anchor" href="#事务的基础"></a> 事务的基础</h3>
 <p>数据库的隔离性包括(ACID)，由不同的功能实现</p>
 <ul>
-<li>Atomicity 原子性: 使用undo log 实现回滚</li>
+<li>Atomicity 原子性: 使用 undo log 实现回滚</li>
 <li>Consistency 一致性: 通过原子性、持久性、隔离性实现数据一致性</li>
 <li>Lsolation 隔离性: 使用锁以及MVCC 实现读写分离、读读并行、读写并行</li>
 <li>Durability 持久性: 通过redo log 恢复，和在并发环境下的隔离做到一致性</li>
 </ul>
 <p><strong>redo log</strong> 称为重做日志，是物理日志，记录页的物理修改操作，用来恢复提交事务修改的页操作</p>
 <p><strong>undo log</strong> 称为回滚日志，是逻辑日志，根据每行记录进行记录。用来回滚行记录到某个特定版本</p>
-<h4 id="redo-log"><a class="markdownIt-Anchor" href="#redo-log"></a> redo log</h4>
+<h4 id="redo-log"><a class="markdownIt-Anchor" href="#redo-log"></a> Redo Log</h4>
 <p><strong>redo log</strong> 也做<strong>重做</strong>日志，日志文件由两部分组成：</p>
 <ul>
 <li>重做日志缓冲 redo log buffer</li>
@@ -639,15 +706,6 @@ var _hmt = _hmt || [];
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210625071200.png" alt="img" style="zoom:40%;" />
 <p>在事务A提交之前，事务B的插入操作只能等待，这就是间隙锁起得作用。当事务A执行<code>update user set name='风筝2号’ where age = 10;</code> 的时候，由于条件 where age = 10 ，数据库不仅在 age =10 的行上添加了行锁，而且在这条记录的两边，也就是(负无穷,10]、(10,30]这两个区间加了间隙锁，从而导致事务B插入操作无法完成，只能等待事务A提交。不仅插入 age = 10 的记录需要等待事务A提交，age&lt;10、10&lt;age&lt;30 的记录页无法完成，而大于等于30的记录则不受影响，这足以解决幻读问题了。</p>
 <p>这是有索引的情况，如果 age 不是索引列，那么数据库会为整个表加上间隙锁。所以，如果是没有索引的话，不管 age 是否大于等于30，都要等待事务A提交才可以成功插入</p>
-<h3 id="当前读"><a class="markdownIt-Anchor" href="#当前读"></a> 当前读</h3>
-<p>两个事务，对同一条数据做修改。结果应该时间靠后的结果。且更新之前要先读数据，这里所说的读和上面说到的读不一样，更新之前的读叫做“<strong>当前读</strong>”：总是当前版本的数据，多版本中最新一次提交的那版。</p>
-<p>假设事务A执行 update 操作， update 的时候要对所修改的行加行锁，这个行锁会在提交之后才释放。而在事务A提交之前，事务B也想 update 这行数据，于是申请行锁，但是由于已经被事务A占有，事务B是申请不到的，此时，事务B就会一直处于等待状态，直到事务A提交，事务B才能继续执行，如果事务A的时间太长，那么事务B很有可能出现超时异常。</p>
-<p>加锁的过程要分有索引和无索引两种情况，比如下面这条语句</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update user set age&#x3D;11 where id &#x3D; 1</span><br></pre></td></tr></table></figure>
-<p>id 是这张表的主键，是有索引的情况，那么 MySQL 直接就在索引数中找到了这行数据，然后干净利落的加上行锁就可以了</p>
-<p>而下面这条语句</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update user set age&#x3D;11 where age&#x3D;10</span><br></pre></td></tr></table></figure>
-<p>表中并没有为 age 字段设置索引，所以， MySQL 无法直接定位到这行数据。那怎么办呢，当然也不是加表锁了。MySQL 会为这张表中所有行加行锁，没错，是所有行。但是呢，在加上行锁后，MySQL 会进行一遍过滤，发现不满足的行就释放锁，最终只留下符合条件的行。虽然最终只为符合条件的行加了锁。</p>
 <h4 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h4>
 <ol>
 <li><a href="https://time.geekbang.org/column/article/68963" target="_blank" rel="noopener">https://time.geekbang.org/column/article/68963</a></li>
