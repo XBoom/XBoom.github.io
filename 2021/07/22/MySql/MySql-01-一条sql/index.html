@@ -27,23 +27,22 @@ var _hmt = _hmt || [];
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>MySql-1-一条sql | XBoom Dove</title>
-  <meta name="description" content="MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么   Server层  连接器 连接器负责跟客户端建立连接、获取权限、维持和管理连接，连接默认端口是3306，可通过修改my.cnf配置文件指定端口  连接命令：mysql -h$ip -P$port -u$user -p  如果客户端太长时间没动静，连接器会自动断开。由参数wait_timeout控制的，默认值是8小时">
+  <title>MySql-01-一条sql | XBoom Dove</title>
+  <meta name="description" content="MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么   Server层  连接器 连接器负责跟客户端建立连接、获取权限、维持和管理连接，连接默认端口是3306，可通过修改my.cnf配置文件指定端口  连接命令：mysql -h$ip -P$port -u$user -p  如何查看 MySQL 服务被多少个客户端连接了？ 12345678mysql&gt; show pr">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySql-1-一条sql">
+<meta property="og:title" content="MySql-01-一条sql">
 <meta property="og:url" content="http://xboom.github.io/2021/07/22/MySql/MySql-01-%E4%B8%80%E6%9D%A1sql/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么   Server层  连接器 连接器负责跟客户端建立连接、获取权限、维持和管理连接，连接默认端口是3306，可通过修改my.cnf配置文件指定端口  连接命令：mysql -h$ip -P$port -u$user -p  如果客户端太长时间没动静，连接器会自动断开。由参数wait_timeout控制的，默认值是8小时">
+<meta property="og:description" content="MySQL整体架构如下所示，下面将从一个SQL语句的执行来看看它经历了什么   Server层  连接器 连接器负责跟客户端建立连接、获取权限、维持和管理连接，连接默认端口是3306，可通过修改my.cnf配置文件指定端口  连接命令：mysql -h$ip -P$port -u$user -p  如何查看 MySQL 服务被多少个客户端连接了？ 12345678mysql&gt; show pr">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210718145041.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/16a7950217b3f0f4ed02db5db59562a7.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-9.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-10.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-11.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-12.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-13.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-14.png">
 <meta property="article:published_time" content="2021-07-21T23:20:02.000Z">
-<meta property="article:modified_time" content="2023-05-28T03:13:49.075Z">
+<meta property="article:modified_time" content="2023-05-31T14:38:35.508Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="MySql">
 <meta name="twitter:card" content="summary">
@@ -341,7 +340,7 @@ var _hmt = _hmt || [];
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#server层"><span class="toc-number">1.</span> <span class="toc-text"> Server层</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#连接器"><span class="toc-number">1.1.</span> <span class="toc-text"> 连接器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询缓存"><span class="toc-number">1.2.</span> <span class="toc-text"> 查询缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#分析器"><span class="toc-number">1.3.</span> <span class="toc-text"> 分析器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询优化器"><span class="toc-number">1.4.</span> <span class="toc-text"> 查询优化器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#执行器"><span class="toc-number">1.5.</span> <span class="toc-text"> 执行器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bin-log"><span class="toc-number">1.6.</span> <span class="toc-text"> bin log</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#inndb-存储引擎"><span class="toc-number">2.</span> <span class="toc-text"> Inndb 存储引擎</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#buffer-pool"><span class="toc-number">2.1.</span> <span class="toc-text"> buffer Pool</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#undo-log"><span class="toc-number">2.2.</span> <span class="toc-text"> undo log</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#redo-log"><span class="toc-number">2.3.</span> <span class="toc-text"> redo log</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">3.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#server层"><span class="toc-number">1.</span> <span class="toc-text"> Server层</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#连接器"><span class="toc-number">1.1.</span> <span class="toc-text"> 连接器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询缓存"><span class="toc-number">1.2.</span> <span class="toc-text"> 查询缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#分析器"><span class="toc-number">1.3.</span> <span class="toc-text"> 分析器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#执行sql"><span class="toc-number">1.4.</span> <span class="toc-text"> 执行SQL</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#预处理阶段"><span class="toc-number">1.4.1.</span> <span class="toc-text"> 预处理阶段</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#优化器"><span class="toc-number">1.4.2.</span> <span class="toc-text"> 优化器</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#执行器"><span class="toc-number">1.4.3.</span> <span class="toc-text"> 执行器</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#主键索引查询"><span class="toc-number">1.4.3.1.</span> <span class="toc-text"> 主键索引查询</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#全表扫描"><span class="toc-number">1.4.3.2.</span> <span class="toc-text"> 全表扫描</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#索引下推"><span class="toc-number">1.4.3.3.</span> <span class="toc-text"> 索引下推</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bin-log"><span class="toc-number">1.5.</span> <span class="toc-text"> bin log</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#内容"><span class="toc-number">1.5.1.</span> <span class="toc-text"> 内容</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#格式"><span class="toc-number">1.5.2.</span> <span class="toc-text"> 格式</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#写入时机"><span class="toc-number">1.5.3.</span> <span class="toc-text"> 写入时机</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#文件过大"><span class="toc-number">1.5.4.</span> <span class="toc-text"> 文件过大</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#inndb-存储引擎"><span class="toc-number">2.</span> <span class="toc-text"> Inndb 存储引擎</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#redo-log"><span class="toc-number">2.1.</span> <span class="toc-text"> redo log</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#buffer-pool"><span class="toc-number">2.2.</span> <span class="toc-text"> buffer Pool</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#undo-log"><span class="toc-number">2.3.</span> <span class="toc-text"> undo log</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">3.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -355,7 +354,7 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      MySql-1-一条sql
+      MySql-01-一条sql
     </h1>
   
 
@@ -384,7 +383,7 @@ var _hmt = _hmt || [];
 
 	<span class="article-read hidden-xs">
     	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2021/07/22/MySql/MySql-01-%E4%B8%80%E6%9D%A1sql/" class="leancloud_visitors"  data-flag-title="MySql-1-一条sql">0</span>
+    	<span id="/2021/07/22/MySql/MySql-01-%E4%B8%80%E6%9D%A1sql/" class="leancloud_visitors"  data-flag-title="MySql-01-一条sql">0</span>
     </span>
 
         <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/07/22/MySql/MySql-01-%E4%B8%80%E6%9D%A1sql/#comments" class="article-comment-link">Comments</a></span>
@@ -401,34 +400,237 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>连接命令：<code>mysql -h$ip -P$port -u$user -p</code></p>
 </blockquote>
-<p>如果客户端太长时间没动静，连接器会自动断开。由参数wait_timeout控制的，默认值是8小时</p>
+<p><strong>如何查看 MySQL 服务被多少个客户端连接了？</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show processlist;</span><br><span class="line">+<span class="comment">----+-----------------+-----------+------+---------+------+------------------------+------------------+</span></span><br><span class="line">| Id | User            | Host      | db   | Command | Time | State                  | Info             |</span><br><span class="line">+<span class="comment">----+-----------------+-----------+------+---------+------+------------------------+------------------+</span></span><br><span class="line">|  5 | event_scheduler | localhost | NULL | Daemon  |  121 | Waiting on empty queue | NULL             |</span><br><span class="line">|  8 | root            | localhost | NULL | Query   |    0 | init                   | <span class="keyword">show</span> <span class="keyword">processlist</span> |</span><br><span class="line">+<span class="comment">----+-----------------+-----------+------+---------+------+------------------------+------------------+</span></span><br><span class="line"><span class="number">2</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>共有两个用户连接了 MySQL 服务，其中 id 为 5 的用户的 Command 列的状态为 <code>Daemon</code> ，意味着该用户是 MySQL守护进程用户，空闲的时长是 121 秒(Time 列)，另外一个就是我登录并执行查询语句</p>
 <blockquote>
-<p>show variables like ‘wait_timeout’;</p>
+<p><code>Command</code>：连接的当前命令，可能的取值包括：</p>
+<ul>
+<li><code>Sleep</code>：连接处于空闲状态。</li>
+<li><code>Query</code>：正在执行查询操作。</li>
+<li><code>Connect</code>：连接正在建立中。</li>
+<li><code>Execute</code>：正在执行存储过程或函数。</li>
+<li><code>Binlog Dump</code>：正在读取二进制日志。</li>
+<li><code>Daemon</code>：表示当前连接是一个后台守护进程，通常是 <strong>MySQL 服务器的内部线程或任务</strong></li>
+</ul>
 </blockquote>
+<p>如果客户端太长时间没动静，连接器会自动断开。由参数<code>wait_timeout</code>控制的，默认值是8小时(28800秒)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'wait_timeout';</span><br><span class="line">+<span class="comment">---------------+-------+</span></span><br><span class="line">| Variable_name | Value |</span><br><span class="line">+<span class="comment">---------------+-------+</span></span><br><span class="line">| wait_timeout  | 28800 |</span><br><span class="line">+<span class="comment">---------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.04</span> sec)</span><br></pre></td></tr></table></figure>
 <ol>
 <li>定期断开长连接。使用一段时间，或者程序里面判断执行过一个占用内存的大查询后，断开连接，之后要查询再重连。</li>
 <li>如果你用的是 MySQL 5.7 或更新版本，可在每次执行一个比较大的操作后，通过执 <em>mysql_reset_connection</em> 来重新初始化连接资源。这个过程不需要重连和重新做权限验证，但是会将连接恢复到刚刚创建完时的状态</li>
+<li>一个处于空闲状态的连接被服务端主动断开后，<code>kill connection +6;</code> 这个客户端并不会马上知道，等到客户端在发起下一个请求的时候，才会收到这样的报错<code>ERROR 2013 (HY000): Lost connection to MySQL server during query</code></li>
 </ol>
-<p>可以使用TCP/IP套接字，命名管道和共享内存，UNIX域套接字进行连接</p>
+<p><strong>MySQL 的连接数有限制吗？</strong></p>
+<p>MySQL 服务支持的最大连接数由 <code>max_connections</code> 参数控制，比如我的 MySQL 服务默认是 151 个，超过这个值，系统就会拒绝接下来的连接请求，并报错提示<code>Too many connections</code>。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'max_connections';</span><br><span class="line">+<span class="comment">-----------------+-------+</span></span><br><span class="line">| Variable_name   | Value |</span><br><span class="line">+<span class="comment">-----------------+-------+</span></span><br><span class="line">| max_connections | 151   |</span><br><span class="line">+<span class="comment">-----------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p><strong>怎么解决长连接占用内存的问题？</strong></p>
+<p>MySQL 在执行查询过程中临时使用内存管理连接对象，这些连接对象资源只有在连接断开时才会释放。如果长连接累计很多，将导致 MySQL 服务占用内存太大，有可能会被系统强制杀掉，这样会发生 MySQL 服务异常重启的现象。</p>
+<ol>
+<li><strong>定期断开长连接</strong>。既然断开连接后就会释放连接占用的内存资源，可以定期断开长连接。
+<ul>
+<li>设置<code>wait_timeout</code>自动释放长时间空闲连接</li>
+</ul>
+</li>
+<li><strong>客户端主动重置连接</strong>。MySQL 5.7 版本实现了 <code>mysql_reset_connection()</code> 函数的接口，注意这是接口函数不是命令，那么当客户端执行了一个很大的操作后，在代码里调用 <code>mysql_reset_connection()</code> 函数来重置连接，达到释放内存的效果。这个过程不需要重连和重新做权限验证，但是会将连接恢复到刚刚创建完时的状态。</li>
+</ol>
 <h4 id="查询缓存"><a class="markdownIt-Anchor" href="#查询缓存"></a> 查询缓存</h4>
 <p>连接建立完成后，就可以执行 select 语句了，执行查询缓存。<strong>之前执行过的语句及其结果可能会以 key-value 对的形式，被直接缓存在内存中</strong>，key 是查询的语句，value 是查询的结果</p>
+<ul>
+<li>MySql8.0 之后查询缓存被删掉</li>
+<li>如果是频繁更新的表格，那么缓存基本没用</li>
+</ul>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#关闭缓存</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> query_cache_type = <span class="keyword">OFF</span>;</span><br><span class="line"><span class="comment">#查看缓存是否被禁用</span></span><br><span class="line"><span class="keyword">SHOW</span> <span class="keyword">VARIABLES</span> <span class="keyword">LIKE</span> <span class="string">'query_cache_type'</span>;</span><br></pre></td></tr></table></figure>
-<p>查询缓存默认是开启的，但是在8.0版本之后已经弃用了查询缓存功能</p>
 <h4 id="分析器"><a class="markdownIt-Anchor" href="#分析器"></a> 分析器</h4>
 <p>分析器的作用就是将 Mysql 语句解析成数据库自己认识的样子</p>
-<h4 id="查询优化器"><a class="markdownIt-Anchor" href="#查询优化器"></a> 查询优化器</h4>
+<p>第一件事情，<strong>词法分析</strong>。MySQL 会根据你输入的字符串识别出关键字出来，构建出 SQL 语法树，这样方便后面模块获取 SQL 类型、表名、字段名、 where 条件等等。</p>
+<p>第二件事情，<strong>语法分析</strong>。根据词法分析的结果，语法解析器会根据语法规则，判断你输入的这个 SQL 语句是否满足 MySQL 语法。</p>
+<p>如果我们输入的 SQL 语句语法不对，就会在解析器这个阶段报错</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables likes 'max_connections';</span><br><span class="line">ERROR 1064 (42000): You have an error in your SQL syntax; <span class="keyword">check</span> the <span class="keyword">manual</span> that corresponds <span class="keyword">to</span> your MySQL <span class="keyword">server</span> <span class="keyword">version</span> <span class="keyword">for</span> the <span class="keyword">right</span> syntax <span class="keyword">to</span> <span class="keyword">use</span> near <span class="string">'likes '</span>max_connections<span class="string">''</span> <span class="keyword">at</span> line <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>注意，表不存在或者字段不存在，并不是在分析器里做的</p>
+<h4 id="执行sql"><a class="markdownIt-Anchor" href="#执行sql"></a> 执行SQL</h4>
+<p>经过分析器后，接着就要进入执行 SQL 查询语句的流程了，每条<code>SELECT</code> 查询语句流程主要可以分为下面这三个阶段：</p>
+<ul>
+<li>prepare 阶段，也就是预处理阶段；</li>
+<li>optimize 阶段，也就是优化阶段；</li>
+<li>execute 阶段，也就是执行阶段；</li>
+</ul>
+<h5 id="预处理阶段"><a class="markdownIt-Anchor" href="#预处理阶段"></a> 预处理阶段</h5>
+<p>预处理阶段将执行</p>
+<ul>
+<li>检查 SQL 查询语句中的表或者字段是否存在；</li>
+<li>将 <code>select *</code> 中的 <code>*</code> 符号，扩展为表上的所有列；</li>
+</ul>
+<p>比如表格不存在</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from test;</span><br><span class="line">ERROR 1046 (3D000): No database selected</span><br></pre></td></tr></table></figure>
+<h5 id="优化器"><a class="markdownIt-Anchor" href="#优化器"></a> 优化器</h5>
 <p>当语句被解析成自己认识的样子之后，并不是立即就执行，而是按照自己认为效率最高的方式去执行，即<strong>最优查询路径</strong></p>
 <ol>
-<li>索引使用：如果表中存在适当的索引，则 MySQL 可以使用索引来查找需要更新的行，从而避免全表扫描，提高查询效率。</li>
-<li>优化 WHERE 子句：WHERE 子句用于指定需要更新的行。MySQL 优化器会根据 WHERE 子句的复杂度和索引情况来选择最优的查询路径。</li>
-<li>最小化日志写入：MySQL 的 InnoDB 存储引擎支持事务和回滚机制，更新操作会生成事务日志，影响性能。优化器会尝试最小化日志写入，提高性能。</li>
-<li>减少锁的使用：更新操作可能会引起表锁或行锁，锁的使用会对性能产生负面影响。优化器会尝试减少锁的使用</li>
+<li>
+<p>索引使用：如果表中存在适当的索引，则 MySQL 可以使用索引来查找需要更新的行，从而避免全表扫描，提高查询效率。</p>
+<p>要想知道使用哪个索引，可以使用 <code>explain &lt;sql&gt;</code></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select * from students where id = 1;</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+-------+---------------+---------+---------+-------+------+----------+-------+</span></span><br><span class="line">| id | select_type | table    | partitions | type  | possible_keys | key     | key_len | ref   | rows | filtered | Extra |</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+-------+---------------+---------+---------+-------+------+----------+-------+</span></span><br><span class="line">|  1 | SIMPLE      | students | NULL       | const | PRIMARY       | PRIMARY | 4       | const |    1 |   100.00 | NULL  |</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+-------+---------------+---------+---------+-------+------+----------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span>, <span class="number">1</span> <span class="keyword">warning</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>优化 WHERE 子句：WHERE 子句用于指定需要更新的行。MySQL 优化器会根据 WHERE 子句的复杂度和索引情况来选择最优的查询路径。</p>
+</li>
+<li>
+<p>最小化日志写入：MySQL 的 InnoDB 存储引擎支持事务和回滚机制，更新操作会生成事务日志，影响性能。优化器会尝试最小化日志写入，提高性能。</p>
+</li>
+<li>
+<p>减少锁的使用：更新操作可能会引起表锁或行锁，锁的使用会对性能产生负面影响。优化器会尝试减少锁的使用</p>
+</li>
 </ol>
-<h4 id="执行器"><a class="markdownIt-Anchor" href="#执行器"></a> 执行器</h4>
-<p>当优化器选出最优索引等步骤后，会去调用存储引擎接口，开始执行被MySQL解析过和优化过的SQL语句</p>
+<h5 id="执行器"><a class="markdownIt-Anchor" href="#执行器"></a> 执行器</h5>
+<p>当优化器选出最优索引等步骤后，会去调用存储引擎接口，开始执行被MySQL解析过和优化过的SQL语句，用三种方式执行过程</p>
+<ul>
+<li>主键索引查询</li>
+<li>全表扫描</li>
+<li>索引下推</li>
+</ul>
+<h6 id="主键索引查询"><a class="markdownIt-Anchor" href="#主键索引查询"></a> 主键索引查询</h6>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select * from students where id = 1;</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+-------+---------------+---------+---------+-------+------+----------+-------+</span></span><br><span class="line">| id | select_type | table    | partitions | type  | possible_keys | key     | key_len | ref   | rows | filtered | Extra |</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+-------+---------------+---------+---------+-------+------+----------+-------+</span></span><br><span class="line">|  1 | SIMPLE      | students | NULL       | const | PRIMARY       | PRIMARY | 4       | const |    1 |   100.00 | NULL  |</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+-------+---------------+---------+---------+-------+------+----------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span>, <span class="number">1</span> <span class="keyword">warning</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>查询条件用到主键索引，而且是等值查询，同时主键 id 是唯一，不会有 id 相同的记录，所以优化器决定选用访问类型为 const 进行查询，也就是使用主键索引查询一条记录，那么执行器与存储引擎的执行流程是这样的：</p>
+<ul>
+<li>执行器第一次查询，会调用 <code>read_first_record</code> 函数指针指向的函数，因为优化器选择的访问类型为 const，这个函数指针被指向为 InnoDB 引擎索引查询的接口，把条件 <code>id = 1</code> 交给存储引擎，<strong>让存储引擎定位符合条件的第一条记录</strong>。</li>
+<li>存储引擎通过主键索引的 B+ 树结构定位到 id = 1的第一条记录，如果记录是不存在的，就会向执行器上报记录找不到的错误，然后查询结束。如果记录是存在的，就会将记录返回给执行器；(符合索引的记录)</li>
+<li>执行器从存储引擎读到记录后，<strong>接着判断记录是否符合查询条件</strong>，如果符合则发送给客户端，否则跳过该记录。(符合条件的记录)</li>
+</ul>
+<h6 id="全表扫描"><a class="markdownIt-Anchor" href="#全表扫描"></a> 全表扫描</h6>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> product <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'iphone'</span>;</span><br><span class="line"></span><br><span class="line">mysql&gt; explain select * from students where name = 'iphone';</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+------+---------------+------+---------+------+------+----------+-------------+</span></span><br><span class="line">| id | select_type | table    | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+------+---------------+------+---------+------+------+----------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | students | NULL       | ALL  | NULL          | NULL | NULL    | NULL |    2 |    50.00 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+------+---------------+------+---------+------+------+----------+-------------+</span></span><br><span class="line">1 row in <span class="keyword">set</span>, <span class="number">1</span> <span class="keyword">warning</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>查询语句的查询条件没有用到索引，所以优化器决定选用访问类型为 ALL 进行查询，也就是全表扫描的方式查询，那么这时执行器与存储引擎的执行流程是这样的：</p>
+<ul>
+<li>执行器第一次查询，会调用 <code>read_first_record</code> 函数指针指向的函数，因为优化器选择的访问类型为 all，这个函数指针被指向为 InnoDB 引擎全扫描的接口，<strong>让存储引擎读取表中的第一条记录</strong>；</li>
+<li>执行器会判断读到的这条记录的 name 是不是 iphone，如果不是则跳过；如果是则将记录发给客户的（是的没错，Server 层每从存储引擎读到一条记录就会发送给客户端，之所以客户端显示的时候是直接显示所有记录的，是因为客户端是等查询语句查询完成后，才会显示出所有的记录）。</li>
+<li>执行器查询的过程是一个 while 循环，因为优化器选择的访问类型为 all，所以接着向存储引擎层要求继续读刚才那条记录的下一条记录，存储引擎把下一条记录取出后就将其返回给执行器(Server层)，执行器继续判断条件，不符合查询条件即跳过该记录，否则发送到客户端；</li>
+<li>一直重复上述过程，直到存储引擎把表中的所有记录读完，然后向执行器(Server层) 返回了读取完毕的信息；</li>
+<li>执行器收到存储引擎报告的查询完毕的信息，退出循环，停止查询。</li>
+</ul>
+<h6 id="索引下推"><a class="markdownIt-Anchor" href="#索引下推"></a> 索引下推</h6>
+<p>索引下推能够减少<strong>二级索引</strong>在查询时的回表操作，提高查询的效率，因为它将 Server 层部分负责的事情，交给存储引擎层去处理了</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from students;</span><br><span class="line">+<span class="comment">----+------------+------+------------+-------+</span></span><br><span class="line">| id | name       | age  | student_id | score |</span><br><span class="line">+<span class="comment">----+------------+------+------------+-------+</span></span><br><span class="line">|  1 | John Doe   |   20 | 2021001    |    20 |</span><br><span class="line">|  2 | Jane Smith |   22 | 2021002    |    95 |</span><br><span class="line">|  3 | Alice      |   20 | 1          |    16 |</span><br><span class="line">|  4 | Bob        |   22 | 2          |    91 |</span><br><span class="line">|  5 | Charlie    |   21 | 3          |     9 |</span><br><span class="line">|  6 | David      |   19 | 4          |    73 |</span><br><span class="line">|  7 | Emma       |   23 | 5          |    34 |</span><br><span class="line">|  8 | Frank      |   20 | 6          |    53 |</span><br><span class="line">|  9 | Grace      |   22 | 7          |    63 |</span><br><span class="line">| 10 | Henry      |   21 | 8          |    54 |</span><br><span class="line">+<span class="comment">----+------------+------+------------+-------+</span></span><br><span class="line">10 rows in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>执行如下的sql语句</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain SELECT * FROM students FORCE INDEX (idx_age_score) WHERE age &gt; 19 AND score = 53;</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+-------+---------------+---------------+---------+------+------+----------+-----------------------+</span></span><br><span class="line">| id | select_type | table    | partitions | type  | possible_keys | key           | key_len | ref  | rows | filtered | Extra                 |</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+-------+---------------+---------------+---------+------+------+----------+-----------------------+</span></span><br><span class="line">|  1 | SIMPLE      | students | NULL       | range | idx_age_score | idx_age_score | 5       | NULL |    9 |    10.00 | Using index condition |</span><br><span class="line">+<span class="comment">----+-------------+----------+------------+-------+---------------+---------------+---------+------+------+----------+-----------------------+</span></span><br><span class="line">1 row in <span class="keyword">set</span>, <span class="number">1</span> <span class="keyword">warning</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p><strong>age 字段能用到联合索引，但是 reward 字段则无法利用到索引</strong>，可以在 <a href="https://www.yuankang.top/2021/07/26/MySql/MySql-03-%E7%B4%A2%E5%BC%95/" target="_blank" rel="noopener">索引</a> 查看原因。在不使用索引下推(MySQL 5.6 之前的版本）时，执行器与存储引擎的执行流程是这样的：</p>
+<ul>
+<li>Server 层首先调用存储引擎的接口定位到满足查询条件的第一条二级索引记录，定位到 age &gt; 19 的第一条记录；</li>
+<li>存储引擎根据二级索引的 B+ 树快速定位到这条记录后，获取主键值，然后<strong>进行回表操作</strong>，将完整的记录返回给 Server 层；</li>
+<li>Server 层在判断该记录的 score 是否等于 53，如果成立则将其发送给客户端；否则跳过该记录；</li>
+<li>接着，继续向存储引擎索要下一条记录，存储引擎在二级索引定位到记录后，获取主键值，然后回表操作，将完整的记录返回给 Server 层；</li>
+<li>如此往复，直到存储引擎把表中的所有记录读完。</li>
+</ul>
+<p>没有索引下推的时候，每查询到一条二级索引记录，都要进行回表操作，然后将记录返回给 Server，接着 Server 再判断该记录的 score 是否等于 53。而使用索引下推后，判断记录的 <code>score</code> 是否等于 53 的工作交给了存储引擎层，过程如下 ：</p>
+<ul>
+<li>Server 层首先调用存储引擎的接口定位到满足查询条件的第一条二级索引记录，也就是定位到 age &gt; 19 的第一条记录；</li>
+<li>存储引擎定位到二级索引后，<strong>先不执行回表</strong>操作，而是先判断一下该索引中包含的列(<code>score列</code>）的条件（score 是否等于 53）是否成立。如果<strong>条件不成立</strong>，则直接<strong>跳过该二级索引</strong>。如果<strong>成立</strong>，则<strong>执行回表</strong>操作，将完成记录返回给 Server 层。</li>
+<li>Server 层在判断其他的查询条件（本次查询没有其他条件）是否成立，如果成立则将其发送给客户端；否则跳过该记录，然后向存储引擎索要下一条记录。</li>
+<li>如此往复，直到存储引擎把表中的所有记录读完。</li>
+</ul>
+<p>使用了索引下推后，虽然 score 列无法使用到联合索引，但因为它包含在联合索引<code>(age，score)</code>里，所以直接在存储引擎过滤出满足 <code>score = 53</code> 的记录后，才去执行回表操作获取整个记录。相比于没有使用索引下推，节省了很多回表操作。如果 <code>Extr</code> 部分显示了 “<code>Using index condition</code>”，说明使用了索引下推。</p>
+<blockquote>
+<p>这里强制使用联合索引实现索引下推，MySQL 优化器根据查询的复杂度、数据分布、索引统计信息等因素决定执行计划</p>
+</blockquote>
 <h4 id="bin-log"><a class="markdownIt-Anchor" href="#bin-log"></a> bin log</h4>
-<p><strong>记录整个操作过程</strong></p>
-<p>MySQL的二进制日志<code>bin log</code>是一种记录数据库事务的二进制文件，它可以用于数据恢复、复制和备份等操作。在MySQL中，<code>bin log</code>文件的大小是由<code>max_binlog_size</code>参数来控制的，默认值为1073741824(即1GB)</p>
+<p>MySQL的二进制日志<code>bin log</code>是服务层文件而不是存储引擎，记录数据库事务的二进制文件，它可以用于数据恢复、复制和备份等操作。在MySQL中，<code>bin log</code>文件的大小是由<code>max_binlog_size</code>参数来控制的，默认值为1073741824(即1GB)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'max_binlog_size';</span><br><span class="line">+<span class="comment">-----------------+------------+</span></span><br><span class="line">| Variable_name   | Value      |</span><br><span class="line">+<span class="comment">-----------------+------------+</span></span><br><span class="line">| max_binlog_size | 1073741824 |</span><br><span class="line">+<span class="comment">-----------------+------------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.02</span> sec)</span><br></pre></td></tr></table></figure>
+<p>既然是文件，就会有以下问题</p>
+<ol>
+<li>文件的作用</li>
+<li>文件路径与大小</li>
+<li>文件的内容</li>
+<li>文件是如何清理的</li>
+<li>文件是如何写入的</li>
+</ol>
+<p>接下来一一解答：</p>
+<h5 id="内容"><a class="markdownIt-Anchor" href="#内容"></a> 内容</h5>
+<p>MySQL 在完成一条更新操作后，Server 层还会生成一条 binlog，等之后事务提交的时候，会将该事物执行过程中产生的所有 binlog 统一写入 binlog 文件，以下是会被写入二进制日志 binlog 的一些操作：</p>
+<ol>
+<li>数据更改操作(DML)：包括插入(<code>INSERT</code>)、更新(<code>UPDATE</code>)、删除(<code>DELETE</code>)等操作。以便进行数据恢复或复制。</li>
+<li>数据定义操作(DDL)：某些数据定义语句也会被写入二进制日志，如创建表(<code>CREATE TABLE</code>)、修改表结构(<code>ALTER TABLE</code>)、删除表(<code>DROP TABLE</code>)等。记录数据库结构的更改。</li>
+<li>事务控制语句：事务的开始(<code>BEGIN</code>、<code>START TRANSACTION</code>)、提交(<code>COMMIT</code>)和回滚(<code>ROLLBACK</code>)，以便进行事务的恢复和复制。</li>
+<li>系统变量修改：一些修改数据库全局或会话级别系统变量的语句(如 <code>SET GLOBAL</code> 和 <code>SET SESSION</code>)也会被写入二进制日志。</li>
+</ol>
+<p>那么不会写入的就有</p>
+<ol>
+<li>查询语句(<code>SELECT</code>)：由于查询语句不会对数据进行修改，因此没必要将其记录到二进制日志中。</li>
+<li>系统函数调用：对于仅调用系统函数的操作，例如获取当前时间或执行数学运算等，通常不会被写入二进制日志。</li>
+<li>非事务性操作：对于没有显式或隐式事务包装的操作，例如单个的插入、更新或删除语句，如果没有事务的参与，它们可能不会被写入二进制日志。<u>暂时不太理解</u></li>
+<li>临时表的数据更改：对于临时表的数据更改，如果没有启用 binlog 的 <code>row</code> 格式，这些操作可能不会被写入二进制日志。</li>
+</ol>
+<h5 id="格式"><a class="markdownIt-Anchor" href="#格式"></a> 格式</h5>
+<p>这里说到的binlog的格式，其实就是binlog记录的内容的格式</p>
+<ol>
+<li>
+<p><strong>STATMENT</strong>：基于 SQL 语句的复制(statement-based replication, SBR)，每一条会修改数据的 SQL 语句会记录到 bin log 中</p>
+<ul>
+<li>不需要记录每一行的变化，减少了 bin log 日志量，节约了 IO , 从而提高了性能</li>
+<li>在某些情况下会导致主从数据不一致，比如执行<code>sysdate()</code>、<code>sleep()</code>等</li>
+</ul>
+</li>
+<li>
+<p><strong>ROW</strong>：基于行的复制(row-based replication, RBR)，不记录每条SQL语句的上下文信息，仅需记录哪条数据被修改了</p>
+<ul>
+<li>不会出现某些特定情况下的存储过程、或 function、或 trigger 的调用和触发无法被正确复制的问题</li>
+<li>会产生大量的日志，尤其是 alter table 的时候会让日志暴涨</li>
+</ul>
+</li>
+<li>
+<p><strong>MIXED</strong>：基于 <code>STATMENT</code> 和 <code>ROW</code> 两种模式的混合复制( mixed-based replication, MBR )，一般的复制使用 <code>STATEMENT</code> 模式保存 <code>bin log</code> ，对于 <code>STATEMENT</code> 模式无法复制的操作使用 <code>ROW</code> 模式保存 <code>bin log</code></p>
+</li>
+</ol>
+<blockquote>
+<p>修改MySQL的binlog格式步骤</p>
+<ol>
+<li>打开MySQL配置文件（my.cnf或my.ini）。</li>
+<li>定位到<code>[mysqld]</code>部分，该部分包含MySQL服务器的全局配置。</li>
+<li>添加或修改 <code>binlog_format</code></li>
+<li>保存并关闭配置文件。</li>
+<li>重启MySQL服务器，以使配置更改生效</li>
+</ol>
+</blockquote>
+<h5 id="写入时机"><a class="markdownIt-Anchor" href="#写入时机"></a> 写入时机</h5>
+<p><code>bin log</code> 的刷盘策略通过<code>sync_binlog</code>来修改，默认为 0，表示先写入 os cache，</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'sync_binlog';</span><br><span class="line">+<span class="comment">---------------+-------+</span></span><br><span class="line">| Variable_name | Value |</span><br><span class="line">+<span class="comment">---------------+-------+</span></span><br><span class="line">| sync_binlog   | 1     |</span><br><span class="line">+<span class="comment">---------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.01</span> sec)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>0 表示在提交事务的时候，数据不会直接到磁盘中。如果宕机，bin log数据仍然会丢失。</li>
+<li>1表示每次事务提交时，数据会写入磁盘并刷新到持久化存储设备。这确保了在事务提交后，二进制日志的内容已经持久化，并且可以用于数据恢复和复制。</li>
+</ul>
+<p><code>sync_binlog</code>仅控制二进制日志的刷新策略，并不影响事务的持久性。事务的持久性仍然由存储引擎和文件系统的设置决定 <a href="https://www.yuankang.top/2021/07/30/MySql/MySql-05-%E4%BA%8B%E5%8A%A1/" target="_blank" rel="noopener">事务</a></p>
+<h5 id="文件过大"><a class="markdownIt-Anchor" href="#文件过大"></a> 文件过大</h5>
+<p>当binlog文件过大时，可能会导致存储空间不足或者文件系统的限制，解决方案：</p>
+<ol>
+<li>
+<p>改变binlog文件路径：可以将binlog文件存储在具有更大空间的磁盘分区上，或者使用分布式文件系统来扩展存储容量</p>
+<ul>
+<li>
+<p><code>log_bin</code>：指定binlog文件的基本名称，不包括文件扩展名。默认情况下，它的值为<code>mysql-bin</code>。例如，如果设置为<code>mysql-bin</code>，则生成的binlog文件名为<code>mysql-bin.000001</code>、<code>mysql-bin.000002</code>等。</p>
+</li>
+<li>
+<p><code>log_bin_index</code>：指定binlog索引文件的名称。默认情况下，它的值为与<code>log_bin</code>参数相同的基本名称，附加<code>.index</code>扩展名。例如，如果<code>log_bin</code>为<code>mysql-bin</code>，则索引文件名为<code>mysql-bin.index</code>。</p>
+</li>
+<li>
+<p><code>datadir</code>：指定MySQL数据目录的路径，即数据库文件所在的目录。binlog文件默认存储在数据目录下的<code>data</code>子目录中</p>
+</li>
+</ul>
+</li>
+<li>
+<p>压缩binlog文件：使用压缩算法对binlog文件进行压缩，以减少文件的大小。通过设置<code>binlog_compression</code>参数启用压缩。</p>
+</li>
+<li>
+<p>定期删除旧的binlog文件：可以通过定期清理和删除旧的binlog文件来释放空间。可以使用<code>PURGE BINARY LOGS</code>语句删除过期的binlog文件。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#删除早于xxx时间文件</span></span><br><span class="line"><span class="keyword">PURGE</span> <span class="built_in">BINARY</span> <span class="keyword">LOGS</span> <span class="keyword">BEFORE</span> <span class="string">'2022-01-01 00:00:00'</span>;</span><br><span class="line"><span class="comment">#删除指定binlog文件</span></span><br><span class="line"><span class="keyword">PURGE</span> <span class="built_in">BINARY</span> <span class="keyword">LOGS</span> <span class="keyword">TO</span> <span class="string">'mysql-bin.000003'</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>调整binlog文件的生命周期：可以通过调整<code>expire_logs_days</code>参数来限制binlog文件的保留时间。将其设置为较短的值可以减少文件的积累。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'expire_logs_days';</span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br><span class="line">| Variable_name    | Value |</span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br><span class="line">| expire_logs_days | 0     |</span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>0 表示不会自动删除binlog日志</p>
+</li>
+<li>
+<p>启用binlog文件的循环复用：可以使用<code>log_bin_trust_function_creators</code>参数启用binlog文件的循环复用。当binlog文件达到最大大小限制时，会重新使用最旧的文件，以避免无限增长。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'log_bin_trust_function_creators';</span><br><span class="line">+<span class="comment">---------------------------------+-------+</span></span><br><span class="line">| Variable_name                   | Value |</span><br><span class="line">+<span class="comment">---------------------------------+-------+</span></span><br><span class="line">| log_bin_trust_function_creators | OFF   |</span><br><span class="line">+<span class="comment">---------------------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>说完了binlog，那么接着上面一条语句的执行，以Innodb为例来说明接下来的操作</p>
 <p><code>bin log</code> 并不属于存储引擎，与存储引擎的 <code>redo log</code> 是有区别的：</p>
 <table>
 <thead>
@@ -461,64 +663,90 @@ var _hmt = _hmt || [];
 </tr>
 </tbody>
 </table>
-<p><code>bin log</code> 的刷盘是有相关的策略的，策略可以通过<code>sync_binlog</code>来修改，默认为 0，表示先写入 os cache，也就是说在提交事务的时候，数据不会直接到磁盘中，这样如果宕机bin log数据仍然会丢失。所以建议将<code>sync_binlog</code>设置为 1 表示直接将数据写入到磁盘文件中。</p>
-<p>刷入 <code>bin log</code> 有以下几种模式</p>
-<ol>
-<li><strong>STATMENT</strong>：基于 SQL 语句的复制(statement-based replication, SBR)，每一条会修改数据的 SQL 语句会记录到 bin log 中</li>
-</ol>
-<p>【优点】:  不需要记录每一行的变化，减少了 bin log 日志量，节约了 IO , 从而提高了性能</p>
-<p>【缺点】：在某些情况下会导致主从数据不一致，比如执行sysdate()、sleep()等</p>
-<ol start="2">
-<li><strong>ROW</strong>：基于行的复制(row-based replication, RBR)，不记录每条SQL语句的上下文信息，仅需记录哪条数据被修改了</li>
-</ol>
-<p>【优点】：不会出现某些特定情况下的存储过程、或 function、或 trigger 的调用和触发无法被正确复制的问题</p>
-<p>【缺点】：会产生大量的日志，尤其是 alter table 的时候会让日志暴涨</p>
-<ol start="3">
-<li>
-<p><strong>MIXED</strong>：基于 <code>STATMENT</code> 和 <code>ROW</code> 两种模式的混合复制( mixed-based replication, MBR )，一般的复制使用 <code>STATEMENT</code> 模式保存 <code>bin log</code> ，对于 <code>STATEMENT</code> 模式无法复制的操作使用 ROW 模式保存 <code>bin log</code></p>
-<blockquote>
-<p>这些操作是无法使用 STATEMENT模式复制的:</p>
-<ol>
-<li>使用用户自定义函数(UDF)的语句。</li>
-<li>非确定性函数，如RAND()或NOW()等。</li>
-<li>存储过程或函数调用，因为复制不会在从服务器上执行它们之前检查是否存在相同的存储过程或函数。</li>
-<li>使用临时表的语句，因为临时表的定义和数据仅在当前会话中存在，而不是全局的。</li>
-<li>使用HANDLER语句的操作，如HANDLER READ或HANDLER OPEN，因为这些语句不生成可以在复制流中复制的SQL语句。</li>
-<li>执行DDL操作，如CREATE TABLE或ALTER TABLE等。这些语句不会记录在二进制日志中，而只是通过MySQL服务器在系统表中进行更改</li>
-</ol>
-</blockquote>
-</li>
-</ol>
 <h3 id="inndb-存储引擎"><a class="markdownIt-Anchor" href="#inndb-存储引擎"></a> Inndb 存储引擎</h3>
-<p>执行器调用不同的存储引擎接口执行SQL语句，以常用的 Inndb存储引擎为例，看看下面这条语句会发生</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> students <span class="keyword">SET</span> stuName = <span class="string">'小强'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure>
-<h4 id="buffer-pool"><a class="markdownIt-Anchor" href="#buffer-pool"></a> buffer Pool</h4>
-<p>如果每次操作直接在磁盘中操作，那么读写速度肯定不会高，所以每次在执行 SQL 的时候都会将其数据加载到内存中，这块内存就是 InnoDB 中一个非常重要的组件：<strong>缓冲池 Buf</strong></p>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-9.png" alt="img" style="zoom:70%;" />
-<p>按照上面的那幅图，这条 SQL 语句的执行步骤大致是这样子的</p>
+<p>到了存储引擎就到了实际与磁盘打交道的地方，如果在写入过程中出现崩溃，那么就会出现：</p>
+<ol>
+<li>未提交事务，写入后崩溃(比如修改三个数据，程序还没修改完，但数据库已经将其中一个或两个数据的变动写入磁盘，此时出现崩溃)</li>
+<li>已提交事务，写入前崩溃(程序已经修改完三个数据，但数据库还未将全部三个数据的变动都写入磁盘，此时出现崩溃）</li>
+</ol>
+<p>由于写入中间状态与崩溃都无法避免，只能在崩溃恢复后采取补救措施，于是就提出来写日志的方式。但这里又有问题，在提交事务写写日志还是在在提交之后写日志？</p>
+<p>如果所有对数据的真实修改都必须发生在事务提交之后，即成功写入日志之后。<strong>在此之前，即使磁盘IO有足够的空闲，即使某个事务修改的数据量非常庞大，占用了大量的内存缓冲区，都不允许在事务提交前写入磁盘</strong>，因此这种方式对数据库性能的提升十分不利。提出了“提前写入日志(<code>Write-Ahead Logging</code>)的日志改进方案，允许在事务提交之前写入变动数据的意思</p>
+<p>而对于提前写入磁盘，在数据库崩溃后需要回滚的数据，给出的解决办法是增加另外一种被称为<code>Undo Log</code>的日志类型，当变动数据写入磁盘前，必须先记录<code>Undo Log</code>，以便在事务回滚或者崩溃恢复时根据<code>Undo Log</code>对提前写入的数据变动进行擦除。</p>
+<h4 id="redo-log"><a class="markdownIt-Anchor" href="#redo-log"></a> redo log</h4>
+<p>知道了redo log日志，接下来来看看它是如何解决崩溃的</p>
+<p>首先了解一个东西叫 redo log buffer，也就是该文件缓存用来加快IO，既然是文件缓存就会有刷盘策略</p>
 <ul>
-<li>innodb 存储引擎会在缓冲池中查找 id=1 的这条数据是否存在</li>
-<li>发现不存在，那么就会去磁盘中加载，并将其存放在缓冲池中</li>
-<li>该条记录会被加上一个独占锁</li>
+<li>延迟写(Delayed Write): 在延迟写策略下，当事务提交时，相关的redo log记录会先写入redo log buffer，而不是立即写入磁盘的redo log文件。只有在满足一定条件时，才会将redo log buffer中的日志刷写到磁盘。这种策略可以提高事务的执行性能，减少磁盘IO操作的频率。常见的条件包括事务提交频率、日志量大小等。</li>
+<li>异步刷新（Asynchronous Flushing）：在异步刷新策略下，当事务提交时，相关的redo log记录会先写入redo log buffer，并触发一个后台线程，负责将redo log buffer中的日志异步刷新到磁盘的redo log文件中。这个刷新操作不会阻塞事务的提交，提高了事务的并发性能。异步刷新策略通常通过一定的策略控制，例如设置合适的刷新间隔、刷新量、I/O线程的数量等。</li>
 </ul>
+<p>刷盘策略配置</p>
+<ul>
+<li>innodb_flush_log_at_trx_commit默认值为1
+<ul>
+<li>0：不进行刷盘操作，性能最高，但存在数据丢失的风险，使用异步刷新。</li>
+<li>1(默认)：每次事务提交时立即刷写到磁盘，最安全，但性能较低。</li>
+<li>2：每次事务提交时将日志写入操作系统缓存，但不等待刷写到磁盘，性能较高，但存在数据丢失的风险。</li>
+</ul>
+</li>
+<li>innodb_flush_log_at_timeout：用于控制异步刷新策略的超时时间。
+<ul>
+<li>当<code>innodb_flush_log_at_trx_commit</code>设置为2时，该参数指定了多久后如果没有新的事务提交，则将日志刷写到磁盘，默认值为1秒</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>提交事务成功的标志是什么？指缓存 <code>redo log buffer</code> 刷入到了磁盘中？</p>
+<p>答：只有当 redo log 完全持久化到磁盘中之后，MySQL才会将该事务标记为以提交，这个过程称为 <code>redo log 的持久化</code></p>
+<p>如果存在多个事务，是否存在多个redo log buffer ？</p>
+<p>答：每个数据库实例，只有一个 <code>redo log buffer</code></p>
+</blockquote>
+<p><strong>redo log 是固定大小的</strong>，通常以<code>ib_logfile0</code>、<code>ib_logfile1</code>等文件名的形式存在于数据目录下。每个redo log文件的大小由MySQL配置参数<code>innodb_log_file_size</code>控制，默认大小为48MB。比如一组 4 个文件，每个文件的大小是 48MB，总共就可以记录 216MB 的操作</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW VARIABLES LIKE 'innodb_log_file_size';</span><br><span class="line">+<span class="comment">----------------------+----------+</span></span><br><span class="line">| Variable_name        | Value    |</span><br><span class="line">+<span class="comment">----------------------+----------+</span></span><br><span class="line">| innodb_log_file_size | 50331648 |</span><br><span class="line">+<span class="comment">----------------------+----------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.10</span> sec)</span><br></pre></td></tr></table></figure>
+<p>从头开始写，写到末尾就又回到开头循环写，如下面这个图所示</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/16a7950217b3f0f4ed02db5db59562a7.png" alt="img" style="zoom:50%;" />
+<ul>
+<li><strong>write pos</strong> 是当前记录的位置，一边写一边后移，写到第 3 号文件末尾后就回到 0 号文件开头。</li>
+<li><strong>checkpoint</strong> 是当前要擦除的位置，也是往后推移并且循环的，擦除记录前要把记录更新到数据文件。</li>
+</ul>
+<p>在一个类似环的地方，<strong>write pos</strong> 会不断的记录新的操作，而 <strong>checkpoint</strong> 在后面不断的追赶(将记录更新到数据文件)。有了 <strong>redo log</strong>，InnoDB 就可以保证即使数据库发生异常重启，之前提交的记录都不会丢失，这个能力称为 <strong>crash-safe</strong></p>
+<p>当 <strong>write pos</strong> 追上 <strong>checkpoint</strong>(redo log满了)怎么办? <strong>为了避免Redo Log被写满，MySQL会暂停新的写入操作，直到有足够的空间可用</strong></p>
+<p>有了 <code>redo log</code> 日志之后， <code>update</code> 的逻辑是怎样的？</p>
+<ol>
+<li>执行器先找引擎取 ID=2 这一行。ID 是主键，引擎直接用树搜索找到这一行。如果 ID=2 这一行所在的数据页本来就在内存中，就直接返回给执行器；否则，需要先从磁盘读入内存，然后再返回。</li>
+<li>执行器拿到引擎给的行数据，把这个值加上 1，比如原来是 N，现在就是 N+1，得到新的一行数据，再调用引擎接口写入这行新数据。</li>
+<li>引擎将这行新数据更新到内存中，同时将这个更新操作记录到 redo log 里面，此时 redo log 处于 prepare 状态。然后告知执行器执行完成了，随时可以提交事务。</li>
+<li>执行器生成这个操作的 binlog，并把 binlog 写入磁盘。</li>
+<li>执行器调用引擎的提交事务接口，引擎把刚刚写入的 redo log 改成提交（commit）状态，更新完成</li>
+</ol>
+<p>所以更新操作并不是把某条记录查询到内存中对其做修改就行，而是将对应记录所在页都加载到内存中，然后通过执行器(<strong>是服务层而不是直接由引擎直接更新的！！！</strong>)，这里分为了<strong>两阶段提交</strong></p>
+<ul>
+<li>如果先写 redo log 后写 binlog。假设在 redo log 写完，binlog 还没有写完的时候，MySQL 进程异常重启。这时候 binlog 里面就没有记录这个语句。如果用这个 binlog 恢复临时库的话，就会少了这一次更新</li>
+<li>如果先写 binlog 后写 redo log。如果在 binlog 写完之后 crash，由于 redo log 还没写，崩溃恢复以后这个事务无效。但是 binlog 里面已经记录了“把 c 从 0 改成 1”这个日志。</li>
+</ul>
+<p>所以，为了保证事务分为三步操作：</p>
+<ol>
+<li>redo log 的 prepare阶段</li>
+<li>写binlog 阶段</li>
+<li>redo log 的 commit 阶段</li>
+</ol>
+<p>当在第2步之前崩溃时，重启恢复后发现没有commit，回滚，备份恢复没有binlog</p>
+<p>当在第3步之前崩溃时，重启恢复后发现没有commit，但满足prepare和binlog完整，所以重启后会自动commit。备份恢复有binlog</p>
+<p>既然bin log就有所有的操作，不能解决崩溃问题，为什么还要redo log?</p>
+<ul>
+<li>假设先提交事务再写binlog，可能事务提交数据更新之后数据库崩了，还没来得及写binlog。binlog进行主从复制数据不一致</li>
+<li>假设先写binlog再提交事务更新数据库，有可能写binlog成功之后数据库崩掉而导致数据库更新失败，这样也会导致主从数据库不一致或者无法恢复数据库。</li>
+</ul>
+<p>bin log 只记录逻辑操作，并无操作状态，即无法确定该操作是否完成。redo log是有状态的，不会直接检查binlog。只有在redo log状态为prepare时，才会去检查binlog是否存在，否则只校验redo log是否是 commit 就可以了。</p>
+<h4 id="buffer-pool"><a class="markdownIt-Anchor" href="#buffer-pool"></a> buffer Pool</h4>
+<p>在上一节中提到，查询与更新都会先查询一下缓存，判断是否存在数据，如果没有则将磁盘<strong>数据页</strong>加载到内容中，而这个内存也是一个很重要的InnoDB 组件 <strong>buffer Pool</strong></p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-9.png" alt="img" style="zoom:70%;" />
+<p>查看缓冲池大小</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW VARIABLES LIKE 'innodb_buffer_pool_size';</span><br><span class="line">+<span class="comment">-------------------------+-----------+</span></span><br><span class="line">| Variable_name           | Value     |</span><br><span class="line">+<span class="comment">-------------------------+-----------+</span></span><br><span class="line">| innodb_buffer_pool_size | 134217728 |</span><br><span class="line">+<span class="comment">-------------------------+-----------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.03</span> sec)</span><br></pre></td></tr></table></figure>
 <h4 id="undo-log"><a class="markdownIt-Anchor" href="#undo-log"></a> undo log</h4>
 <p><strong>记录语句执行前的记录值</strong></p>
 <p>将数据加载到 <code>Buffer Pool</code> 的同时还会往 <code>undo log</code> 中插入一条日志，也就是将 <code>id = 1</code> 原来的值记录下来</p>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-10.png" alt="img" style="zoom:70%;" />
-<h4 id="redo-log"><a class="markdownIt-Anchor" href="#redo-log"></a> redo log</h4>
-<p><strong>记录语句执行后的记录值，不管事务是否提交都会记录下来</strong>。此时执行 <code>update students set stuName='小强' where id=1;</code> ，那么这条操作就会被记录到 <code>redo log buffer</code> 中，存储到 buffer 中很好理解，就是为了提高效率</p>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-11.png" alt="img" style="zoom:70%;" />
-<p>到目前为止一切都准备就绪，就需要提交事务。为了保证提交事务之后保证数据能够更新成功，就需要在提交前将</p>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-12.png" alt="img" style="zoom:70%;" />
-<p><code>redo Log Buffer</code> 中的数据持久化到磁盘中，所以这里一般是立即刷入磁盘。</p>
-<blockquote>
-<p>问题1：是否可以认为，提交事务成功就是指缓存 <code>redo log buffer</code> 刷入到了磁盘中？</p>
-<p>答：只有当 redo log 完全持久化到磁盘中之后，MySQL才会将该事务标记为以提交，这个过程称为 <code>redo log 的持久化</code></p>
-<p>问题2：那么不同的刷盘策略怎么保证事务的执行成功？</p>
-<p>问题3：如果存在多个事务，是否存在多个redo log buffer ？</p>
-<p>答：每个数据库实例，只有一个 <code>redo log buffer</code></p>
-</blockquote>
-<p>到目前为止，从执行器开始调用存储引擎接口的流程如下：</p>
+<p>结合<code>bin log</code>，MySQL 在提交事务的时候，不仅会将 <code>redo log buffer</code> 中的数据写入到 <code>redo log</code> 文件中，也会将本次修改的数据记录到 <code>bin log</code> 文件中，同时会<strong>将本次修改的<code>bin log</code>文件名和修改的内容在<code>bin log</code>中的位置记录到<code>redo log</code>中，最后还会在<code>redo log</code>写入 <code>commit</code> 标记，表示本次事务被成功的提交了</strong></p>
 <ol>
 <li>
 <p>准备更新一条 SQL 语句</p>
@@ -553,36 +781,14 @@ var _hmt = _hmt || [];
 <p>myslq 重启的时候会将 redo 日志恢复到缓冲池中</p>
 </li>
 </ol>
-<p>结合<code>bin log</code>，MySQL 在提交事务的时候，不仅会将 <code>redo log buffer</code> 中的数据写入到 <code>redo log</code> 文件中，也会将本次修改的数据记录到 <code>bin log</code> 文件中，同时会<strong>将本次修改的<code>bin log</code>文件名和修改的内容在<code>bin log</code>中的位置记录到<code>redo log</code>中，最后还会在<code>redo log</code>写入 <code>commit</code> 标记，表示本次事务被成功的提交了</strong></p>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-13.png" alt="img" style="zoom:67%;" />
-<p>那么这里就有几种可能</p>
-<ol>
-<li>如果在数据被写入到<code>bin log</code>文件的时候，刚写完，数据库宕机了，数据会丢失吗？
-<ul>
-<li>首先可以确定的是，只要<code>redo log</code>最后没有 <code>commit</code> 标记，说明本次的事务一定是失败的。</li>
-<li>但是数据是没有丢失了，因为已经被记录到<code>redo log</code>的磁盘文件中了。在 MySQL 重启的时候，就会将 <code>redo log</code> 中的数据恢复（加载）到<code>Buffer Pool</code>中</li>
-</ul>
-</li>
-</ol>
-<p>// TODO</p>
 <p>MySQL有一个后台线程，在某个时机将 <code>Buffer Pool</code> 中的数据刷到 MySQL 数据库中，这样就将内存和数据库的数据保持统一了。</p>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/db-mysql-sql-14.png" alt="img" style="zoom:80%;" />
-<p>从准备更新一条数据到事务的提交的流程描述</p>
-<ul>
-<li>首先执行器根据 MySQL 的执行计划来查询数据，先是从缓存池中查询数据，如果没有就会去数据库中查询，如果查询到了就将其放到缓存池中</li>
-<li>在数据被缓存到缓存池的同时，会写入 <code>undo log</code> 日志文件</li>
-<li>更新的动作是在 <code>BufferPool</code> 中完成的，同时会将更新后的数据添加到 <code>redo log buffer</code> 中</li>
-<li>完成以后就可以提交事务，在提交的同时会做以下三件事
-<ul>
-<li>将<code>redo log buffer</code>中的数据刷入到 <code>redo log</code> 文件中</li>
-<li>将本次操作记录写入到 <code>bin log</code>文件中</li>
-<li>将 <code>bin log</code> 文件名字和更新内容在 <code>bin log</code> 中的位置记录到<code>redo log</code>中，同时在 <code>redo log</code> 最后添加 <code>commit</code> 标记</li>
-</ul>
-</li>
-</ul>
 <h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
 <ol>
 <li><a href="https://pdai.tech/md/db/sql-mysql/sql-mysql-execute.html" target="_blank" rel="noopener">https://pdai.tech/md/db/sql-mysql/sql-mysql-execute.html</a></li>
+<li><a href="https://xiaolincoding.com/mysql/transaction/mvcc.html#%E8%AF%BB%E6%8F%90%E4%BA%A4%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84" target="_blank" rel="noopener">https://xiaolincoding.com/mysql/transaction/mvcc.html#读提交是如何工作的</a></li>
+<li><a href="https://time.geekbang.org/column/article/68963" target="_blank" rel="noopener">https://time.geekbang.org/column/article/68963</a></li>
 </ol>
 
       
@@ -594,7 +800,7 @@ var _hmt = _hmt || [];
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://xboom.github.io/2021/07/22/MySql/MySql-01-%E4%B8%80%E6%9D%A1sql/" title="MySql-1-一条sql" target="_blank" rel="external">http://xboom.github.io/2021/07/22/MySql/MySql-01-一条sql/</a>
+      <a href="http://xboom.github.io/2021/07/22/MySql/MySql-01-%E4%B8%80%E6%9D%A1sql/" title="MySql-01-一条sql" target="_blank" rel="external">http://xboom.github.io/2021/07/22/MySql/MySql-01-一条sql/</a>
     </li>
     
     <li class="post-copyright-license">

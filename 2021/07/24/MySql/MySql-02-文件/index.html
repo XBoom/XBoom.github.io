@@ -41,7 +41,7 @@ var _hmt = _hmt || [];
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210627140222.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210724093815.png">
 <meta property="article:published_time" content="2021-07-24T02:44:44.000Z">
-<meta property="article:modified_time" content="2023-05-28T03:25:59.584Z">
+<meta property="article:modified_time" content="2023-05-29T16:43:12.368Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="MySql">
 <meta name="twitter:card" content="summary">
@@ -339,7 +339,7 @@ var _hmt = _hmt || [];
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#参数文件"><span class="toc-number">1.</span> <span class="toc-text"> 参数文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志文件"><span class="toc-number">2.</span> <span class="toc-text"> 日志文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#慢查询日志"><span class="toc-number">2.1.</span> <span class="toc-text"> 慢查询日志</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二进制日志"><span class="toc-number">2.2.</span> <span class="toc-text"> 二进制日志</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#删除binlog"><span class="toc-number">2.2.1.</span> <span class="toc-text"> 删除binlog</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#其他文件"><span class="toc-number">2.3.</span> <span class="toc-text"> 其他文件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#innodb存储引擎文件"><span class="toc-number">3.</span> <span class="toc-text"> InnoDB存储引擎文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#表空间文件"><span class="toc-number">3.1.</span> <span class="toc-text"> 表空间文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#redo-log-文件"><span class="toc-number">3.2.</span> <span class="toc-text"> Redo Log 文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#undo-log-文件"><span class="toc-number">3.3.</span> <span class="toc-text"> Undo Log 文件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#写入过程"><span class="toc-number">4.</span> <span class="toc-text"> 写入过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#bin-log-的写入机制"><span class="toc-number">4.1.</span> <span class="toc-text"> Bin Log 的写入机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#redo-log的写入机制"><span class="toc-number">4.2.</span> <span class="toc-text"> redo log的写入机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#问题"><span class="toc-number">4.3.</span> <span class="toc-text"> 问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#参数文件"><span class="toc-number">1.</span> <span class="toc-text"> 参数文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志文件"><span class="toc-number">2.</span> <span class="toc-text"> 日志文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#慢查询日志"><span class="toc-number">2.1.</span> <span class="toc-text"> 慢查询日志</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二进制日志"><span class="toc-number">2.2.</span> <span class="toc-text"> 二进制日志</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#其他文件"><span class="toc-number">2.3.</span> <span class="toc-text"> 其他文件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#innodb存储引擎文件"><span class="toc-number">3.</span> <span class="toc-text"> InnoDB存储引擎文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#表空间文件"><span class="toc-number">3.1.</span> <span class="toc-text"> 表空间文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#redo-log-文件"><span class="toc-number">3.2.</span> <span class="toc-text"> Redo Log 文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#undo-log-文件"><span class="toc-number">3.3.</span> <span class="toc-text"> Undo Log 文件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#写入过程"><span class="toc-number">4.</span> <span class="toc-text"> 写入过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#bin-log-的写入机制"><span class="toc-number">4.1.</span> <span class="toc-text"> Bin Log 的写入机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#redo-log的写入机制"><span class="toc-number">4.2.</span> <span class="toc-text"> redo log的写入机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#问题"><span class="toc-number">4.3.</span> <span class="toc-text"> 问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -456,15 +456,6 @@ var _hmt = _hmt || [];
 <li><strong>log-slave-update</strong>：如果是slave角色，则不会将从master取得并执行的二进制日志写入自己的二进制日志文件中。如果需要写入，则设置log–slave-update。如果搭建master=&gt;slae=&gt;slave架构复制，必须设置该值</li>
 <li><strong>Binlog-format</strong>：日志存储的不同格式(STATEMENT/ROW/MIX)</li>
 </ul>
-<h5 id="删除binlog"><a class="markdownIt-Anchor" href="#删除binlog"></a> 删除binlog</h5>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看过期时间(单位day)</span></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">variable</span> <span class="keyword">like</span> <span class="string">'expire_logs_days'</span></span><br></pre></td></tr></table></figure>
-<p><code>expire_logs_days = 0</code>:  表示所有binlog日志永久都不会失效，不会自动删除</p>
-<p>触发条件：</p>
-<ul>
-<li>当 binlog大小超过max_binlog_size的时候</li>
-<li>手动<code>flush logs</code></li>
-</ul>
-<p>其他操作可参考<a href="https://www.cnblogs.com/Presley-lpc/p/9619571.html" target="_blank" rel="noopener">链接</a></p>
 <h4 id="其他文件"><a class="markdownIt-Anchor" href="#其他文件"></a> 其他文件</h4>
 <ol>
 <li>套接字文件：UNIX系统下本地连接MySql可采用UNIX域套接字方式，需要一个套接字文件，</li>
@@ -712,7 +703,7 @@ var _hmt = _hmt || [];
     
     
     <li class="next">
-      <a href="/2021/07/22/MySql/MySql-01-%E4%B8%80%E6%9D%A1sql/" title="MySql-1-一条sql"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2021/07/22/MySql/MySql-01-%E4%B8%80%E6%9D%A1sql/" title="MySql-01-一条sql"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
