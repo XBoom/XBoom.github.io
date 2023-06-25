@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>分布式任务调度系统设计 | XBoom Dove</title>
+  <meta name="description" content="看了一篇腾讯的海量任务调度系统，这里整理学习一下先 定时任务几乎无处不在，经典方案是 将任务存储在 mysql 或者 redis 队列存储待执行任务，然后定时触发操作，在分布式系统中存在以下问题：  多副本场景下需要避免重复执行问题(非分布式也存在这个问题) 缺少统一的调度平台导致各业务重复开发定时逻辑 简易版调度实现在任务吞吐、调度时效上缺少保障 业务和调度数据强耦合存储给线上稳定性引入大 ke">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式任务调度系统设计">
+<meta property="og:url" content="http://xboom.github.io/2023/06/18/DistributedSystem/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="看了一篇腾讯的海量任务调度系统，这里整理学习一下先 定时任务几乎无处不在，经典方案是 将任务存储在 mysql 或者 redis 队列存储待执行任务，然后定时触发操作，在分布式系统中存在以下问题：  多副本场景下需要避免重复执行问题(非分布式也存在这个问题) 缺少统一的调度平台导致各业务重复开发定时逻辑 简易版调度实现在任务吞吐、调度时效上缺少保障 业务和调度数据强耦合存储给线上稳定性引入大 ke">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609001605477.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609001938344.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002146112.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002231056.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002350618.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002705617.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002827284.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002929997.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609003014867.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609003048358.png">
+<meta property="article:published_time" content="2023-06-18T05:35:29.000Z">
+<meta property="article:modified_time" content="2023-06-18T05:36:07.210Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Distributed Task Scheduling">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2023/06/18/DistributedSystem/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E7%B3%BB%E7%BB%9F/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">XBoom Dove</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Linux Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-System/">Distributed System</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">23</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Task-Scheduling/" rel="tag">Distributed Task Scheduling</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Transaction/" rel="tag">Distributed Transaction</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">23</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SMB/" rel="tag">SMB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TLS/" rel="tag">TLS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.09px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.55px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 14px;">Design Patterns</a> <a href="/tags/Distributed-Task-Scheduling/" style="font-size: 13px;">Distributed Task Scheduling</a> <a href="/tags/Distributed-Transaction/" style="font-size: 13.45px;">Distributed Transaction</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 13.91px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.82px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.27px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.18px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.36px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.18px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.64px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Redis/" style="font-size: 13.82px;">Redis</a> <a href="/tags/SMB/" style="font-size: 13px;">SMB</a> <a href="/tags/TCP-IP/" style="font-size: 13.36px;">TCP/IP</a> <a href="/tags/TLS/" style="font-size: 13px;">TLS</a> <a href="/tags/go-zero/" style="font-size: 13.73px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.36px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-05-SAGA/" class="title">分布式事务-05-SAGA</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-21T15:27:38.013Z" itemprop="datePublished">2023-06-21</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-01-%E5%89%8D%E8%A8%80/" class="title">分布式事务-00-前言</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-21T15:27:38.012Z" itemprop="datePublished">2023-06-21</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Distributed-System/">Distributed System</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/18/DistributedSystem/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E7%B3%BB%E7%BB%9F/" class="title">分布式任务调度系统设计</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-18T05:35:29.000Z" itemprop="datePublished">2023-06-18</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" class="title">Go入门15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/03/05/Go/Go%E5%85%A5%E9%97%A824-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/" class="title">Go入门24-协程池问题</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-03-05T06:46:45.000Z" itemprop="datePublished">2023-03-05</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#设计目标"><span class="toc-number">1.</span> <span class="toc-text"> 设计目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设计思路"><span class="toc-number">2.</span> <span class="toc-text"> 设计思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#整体流程"><span class="toc-number">3.</span> <span class="toc-text"> 整体流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#详细设计"><span class="toc-number">4.</span> <span class="toc-text"> 详细设计</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#领域模型"><span class="toc-number">4.1.</span> <span class="toc-text"> 领域模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#分库分表"><span class="toc-number">4.2.</span> <span class="toc-text"> 分库分表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#多级调用"><span class="toc-number">4.3.</span> <span class="toc-text"> 多级调用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#线程模型"><span class="toc-number">4.4.</span> <span class="toc-text"> 线程模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ha-支持"><span class="toc-number">4.5.</span> <span class="toc-text"> HA 支持</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#db-容灾"><span class="toc-number">4.5.1.</span> <span class="toc-text"> DB 容灾</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#应用容灾"><span class="toc-number">4.5.2.</span> <span class="toc-text"> 应用容灾</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#misfire-策略"><span class="toc-number">4.6.</span> <span class="toc-text"> Misfire 策略</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#落地部署"><span class="toc-number">5.</span> <span class="toc-text"> 落地部署</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#部署架构"><span class="toc-number">5.1.</span> <span class="toc-text"> 部署架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#性能压测"><span class="toc-number">5.2.</span> <span class="toc-text"> 性能压测</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">6.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">7.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-DistributedSystem/分布式任务调度系统" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      分布式任务调度系统设计
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2023/06/18/DistributedSystem/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E7%B3%BB%E7%BB%9F/" class="article-date">
+	  <time datetime="2023-06-18T05:35:29.000Z" itemprop="datePublished">2023-06-18</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Distributed-System/">Distributed System</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Distributed-Task-Scheduling/" rel="tag">Distributed Task Scheduling</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2023/06/18/DistributedSystem/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E7%B3%BB%E7%BB%9F/" class="leancloud_visitors"  data-flag-title="分布式任务调度系统设计">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/06/18/DistributedSystem/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E7%B3%BB%E7%BB%9F/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>看了一篇腾讯的海量任务调度系统，这里整理学习一下先</p>
+<p>定时任务几乎无处不在，经典方案是 将任务存储在 <code>mysql</code> 或者 <code>redis</code> 队列存储待执行任务，然后定时触发操作，在分布式系统中存在以下问题：</p>
+<ol>
+<li>多副本场景下需要避免重复执行问题(非分布式也存在这个问题)</li>
+<li>缺少统一的调度平台导致各业务重复开发定时逻辑</li>
+<li>简易版调度实现在任务吞吐、调度时效上缺少保障</li>
+<li>业务和调度数据强耦合存储给线上稳定性引入大 key、慢 sql 风险</li>
+</ol>
+<p>目前存在多类开源解决方案如 <code>XXL-Job</code> 、 <code>Elastic-Job</code>、<code>quartz</code> 调度等，这些都属于进程级调度平台，很难满足更细粒度的业务调用。基于上述的业务诉求和司内现状，搭建一套通用的分布式任务调度平台以满足业务高可靠、低延迟的海量任务调度诉求</p>
+<h3 id="设计目标"><a class="markdownIt-Anchor" href="#设计目标"></a> 设计目标</h3>
+<p>旨在提供一个易用、可靠、高性能、低时延的海量任务管理、调度平台，并完成以下诉求</p>
+<ul>
+<li><strong>功能性诉求：</strong>
+<ul>
+<li>**任务管理：**包括任务注册、任务启停、任务更新等</li>
+<li><strong>任务查询</strong>：主要用于任务追踪、问题排查、调度统计等</li>
+<li><strong>任务回调</strong>：由业务提供 spi 回调实现，平台定时调用触发</li>
+</ul>
+</li>
+<li><strong>非功能性诉求</strong>
+<ul>
+<li>**平台化：**支持多业务接入、百亿级任务注册</li>
+<li>**易用性：**自助化接入、运维，使用成本远低自建</li>
+<li>**高可靠：**全年 3 个 9 可用性、p99(时延)&lt;1s</li>
+<li>**高性能：**支持 100w+TPM 的任务触发</li>
+<li>**多协议：**支持多协议、组播、单播多种回调方式</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>TPM：一般指的是 “Transactions Per Minute”，即每分钟事务数</p>
+</blockquote>
+<p>在此基础上满足三个 SLA：</p>
+<ol>
+<li><strong>注册\触发可用性 &gt; 99.95%</strong>：即系统能够可靠地接收注册请求或任务触发请求，并且可用性要求达到超过 99.95% 的水平。这意味着在任何给定时间段内，系统至少有 99.95% 的时间是可用的，只有极少数时间发生故障或不可用</li>
+<li><strong>任务触达率 &gt; 99.99%</strong>：即系统能够可靠地将触发的任务发送到指定的目标进行处理。任务触达率要求达到超过 99.99% 的水平，即在绝大多数情况下，系统能够成功触达任务目标，仅有极少数的触达失败</li>
+<li><strong>p99(触达延时) &lt; 1s</strong>： <code>p99</code> 表示任务触达的延迟时间的百分位数，意味着绝大多数任务的触达时间应该在 1 秒以内，只有极少数任务可能会有稍微长一点的延迟</li>
+</ol>
+<blockquote>
+<p>SLA 定义了服务的质量指标、服务水平目标、服务支持和维护的范围，以及各方的责任和义务</p>
+<p>SLA 中通常包含以下内容：</p>
+<ol>
+<li>服务水平指标：明确了衡量服务质量的具体指标和标准。这些指标可以包括可用性、响应时间、故障恢复时间、吞吐量等。</li>
+<li>服务水平目标：定义了服务提供商承诺的服务水平目标，即达到或超过特定的服务质量指标的程度。这些目标通常以百分比或时间间隔表示。</li>
+<li>服务支持和维护：描述了服务提供商提供的支持和维护范围，包括故障排除、补丁更新、备份和恢复等方面。</li>
+<li>责任和义务：明确了服务提供商和客户双方的责任和义务，包括服务交付时间、付款方式、合规要求等方面。</li>
+<li>补偿和违约责任：规定了在服务水平未达标或违约情况下的补偿机制和违约责任。这可以包括服务信用、返还部分费用或合同解除等。</li>
+</ol>
+</blockquote>
+<h3 id="设计思路"><a class="markdownIt-Anchor" href="#设计思路"></a> 设计思路</h3>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640.png" alt="图片" style="zoom:70%;" />
+<p>为达成上述任务量级和三个 SLA，需要在<code>海量数据存储</code>、<code>高并发</code>、<code>触发时效</code>以及<code>高可用</code>上做出相应的设计保障</p>
+<p>**数据存储：**重点解决两个问题<code>数据可靠</code>和<code>海量存储</code></p>
+<ol>
+<li>
+<p><strong>海量数据可靠存储</strong>：保障任务不丢、任务高触达率，鉴于 mysql 在持久化以及 master-slave 部署架构对高可用支持表现，优先选用 mysql 作为底层存储；但单 DB 在 TPS 性能、数据量上存在瓶颈，这里选用分库分表策略，通过增加数据库实例打平数据分布以提升整体性能和存储上限；</p>
+</li>
+<li>
+<p><strong>实时性：<strong>类似多级缓存的思路，为保障任务触发时效(p99&lt;1s)这里的设计思路“任务前置”，拆解任务触发步骤，将任务捞取、计算工作尽量提前完成，通过</strong>毫秒级延迟的内存时间轮</strong>最终触发，保障任务的触发时效性；</p>
+</li>
+<li>
+<p><strong>高并发：<strong>采用</strong>可伸缩架构设计</strong>，<strong>存储层尽量拆分为多个逻辑库</strong>，前期通过合并部署降低成本但保留多个逻辑库隔离能力，未来支持快速迁移独立部署以提升性能；<strong>应用层采用多级调度思路</strong>，按数据分片将大任务拆分成小粒度任务动态根据计算节点数完成分配，实现通过增加计算节点快速提升任务触发能力；</p>
+</li>
+<li>
+<p><strong>高可用：</strong><code>MTTR</code> 分段治理思路，架构层在设计阶段考虑到单点、单机房风险，不管是存储层还是应用层都采用多机多活架构，并支持 HA 自动切换大大缩短 <code>MTTF</code> 时效；立体化的监控+拨测能力，覆盖从注册到触发全流程波动、成功率、耗时、延迟多维度监控，缩短 <code>MTTI</code> 时效；</p>
+</li>
+</ol>
+<blockquote>
+<p>MTTR 是 Mean Time to Repair 的缩写，意思是修复平均时间。它是指在发生故障或中断后，从故障被发现到修复完毕的平均时间，用于衡量故障处理的效率和快速性。</p>
+<p>MTTI 是 Mean Time to Identify 的缩写，意思是故障识别平均时间。它表示从故障发生到故障被识别的平均时间。用于衡量故障处理过程中识别故障的速度和效率。它是指故障被发现并识别的平均时间，通常包括故障的检测、诊断和确认过程</p>
+</blockquote>
+<h3 id="整体流程"><a class="markdownIt-Anchor" href="#整体流程"></a> 整体流程</h3>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609001605477.png" alt="图片" style="zoom:50%;" />
+<p>一个任务执行流程和生命周期，大概分成四个阶段：</p>
+<ol>
+<li>
+<p><strong>初始化</strong>：提供任务注册接口，完成任务校验、计算并持久化到 mysql 存储，业务根据实际场景选择  不同类型的任务提交注册即可</p>
+<ol>
+<li><code>CronCycleTask</code>：在特定的时间点自动触发任务，并按照预定的时间间隔或规则进行重复执</li>
+<li><code>IntervalCycleTask</code>：在特定时间间隔内重复执行，每隔一定时间就触发一次</li>
+<li><code>FixedTimeSingleTask</code>：在预定的固定时间点执行一次，并且不会重复执行</li>
+<li><code>DelayedTimeSingleTask</code> ：任务会在设定的延迟时间之后触发，即任务会在设定的延迟时间过后执行一次，而不是立即执行</li>
+</ol>
+</li>
+<li>
+<p><strong>待执行</strong>：每隔 <code>5min</code> 执行一次，捞取未来 <code>5min</code> 内所有待执行的任务，注册到一个内存 <code>TimingWheels</code>.中，由 <code>Timewheels</code> 通过 <code>callBackFunc</code> 实现定时回调从而实现毫秒级延迟触发业务回调；</p>
+</li>
+<li>
+<p><strong>执行中</strong>：首先会产生一条 init 状态的调度流水、并根据任务类型、任务周期计算下一次调度时间，将 <code>insert flow</code> 和 <code>update task</code> 两个操作合并到一个事务中更新到 DB，通过事务保证每次任务肯定能被调度到；</p>
+</li>
+<li>
+<p><strong>已触发</strong>：根据 <code>init flow</code> 查找业务的回调配置，支持 http、trpc、videopacket-jce 多种协议，支持单播、组播多种类型的回调业务 spi，由业务完成响应的业务操作即完成了一次完整的任务调度</p>
+</li>
+</ol>
+<blockquote>
+<p>由于是定时拉取任务，可能出现任务必须<code>5min</code>之后才能被执行，这种情况下就需要直接插入任务中</p>
+</blockquote>
+<h3 id="详细设计"><a class="markdownIt-Anchor" href="#详细设计"></a> 详细设计</h3>
+<h4 id="领域模型"><a class="markdownIt-Anchor" href="#领域模型"></a> 领域模型</h4>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609001938344.png" alt="图片" style="zoom:90%;" />
+<p>为了管理管理好业务的定时任务调度，内部也需要会有一系列的跑批任务来保障调度的实时性，对两类任务分别做了抽象</p>
+<ul>
+<li>内部的跑批任务统称为 <code>job</code></li>
+<li>业务定时调度任务称为 <code>task</code></li>
+</ul>
+<p>将整个跑批任务拆分为 512 个最小的执行单元，按照当前可调度机器数打包成不同的 <code>jobGroup</code> 然后分发给 <code>svr</code>。由此衍生的几个关键模型说明：</p>
+<ul>
+<li>
+<p>**JobGroup：**内部分发调度和容灾最小单元，会根据当前 <code>svr</code> 数量动态生成</p>
+</li>
+<li>
+<p>**Job：**任务最小执行单元，<code>goroutine</code> 协程调度单位</p>
+</li>
+<li>
+<p>**JobParam：**每个 <code>job</code> 批次执行时的输入参数，批任务的执行模式类似 <code>CyclicBarrier</code>，每个周期有每个周期的执行参数</p>
+</li>
+<li>
+<p>**Task：**业务注册的定时调度任务，分周期任务、单次任务等</p>
+</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002146112.png" alt="图片" style="zoom:70%;" />
+<blockquote>
+<p>task 不应该有顺序要求</p>
+</blockquote>
+<p>跑批任务的 <code>timeline</code> 原理如下图所示，假设按照 <code>cron（0 0/5 * * ?）</code>执行，在 19:00 时发起调度会拉取 taskA-taskE 任务平均分配给当前可运行的 svr1-svr5 机器上，19.05 以此类推，当 19.10 调度时 svr4 宕机，这会将 taskN 任务和 taskO 任务分配到 svr5 上完成对 svr_4 的容灾。</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002231056.png" alt="图片" style="zoom:80%;" />
+<h4 id="分库分表"><a class="markdownIt-Anchor" href="#分库分表"></a> <strong>分库分表</strong></h4>
+<p>按照百万 TPM 触发和百亿任务存储设计要求需通过分库分表来支持横向扩展能力。</p>
+<ol>
+<li>部署 8 个 DB 实例，每个实例上部署了 4 个逻辑库(如有更高 TPS 诉求每个逻辑库单独部署即可)</li>
+<li>每个逻辑库中拆分成 16 个表（拆分多表的目的是保障百亿级任务存储时单表行数不超过 2000w）以保障索引效率和查询性能。</li>
+</ol>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002350618.png" alt="图片" style="zoom:80%;" />
+<h4 id="多级调用"><a class="markdownIt-Anchor" href="#多级调用"></a> 多级调用</h4>
+<p>解决了 DB 存储的性能问题，接下来需要解决应用层单机性能限制，这里选择“多级调度模型”，</p>
+<p>物理上充分利用多机资源通过多机并发执行突破单机并行线程的限制，最大化提升任务触发的 TPS 上限。实现原理上将一个大的跑批任务拆解成多个小跑批任务分发到多台机器上执行。可以将内部跑批任务分成两个阶段，</p>
+<ul>
+<li>阶段一为 job 任务打包和派发，多级调度主要实现阶段一</li>
+<li>阶段二为 job 任务捞取和执行。</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002705617.png" alt="图片" style="zoom:80%;" />
+<p>如上图所示，详细的执行流程分成 4 个步骤：</p>
+<ol>
+<li>基于定时调度平台，每个 5min 做一次 cron 调度通知一台 <code>tjobs</code> 机器</li>
+<li><code>tjobs</code> 通过名字服务查询当前服务下所有可用机器供后续分包、调度</li>
+<li><code>tjobs</code> 根据当前可调度的机器数(n)将 512 个 job 打包成 n 个 <code>jobGroup</code></li>
+<li>将每个 <code>jobGroup</code> 绑定到一个机器上，通过指定 ip 方式通知服务执行阶段二（线程模型）</li>
+</ol>
+<p><code>tjobs</code> 跑批任务采用 <code>CyclicBarrier 栅格模式</code>运行，这样做的目的</p>
+<ol>
+<li>期望每个周期各个 job 都能完成所有待触发任务（即 T1 周期完成 T1 时间之前所有的任务）防止任务积压；</li>
+<li>每个任务都以相同的执行周期和参数运行可以幂等，防止任务被重复调度，从平台侧尽力提供 <code>only once</code> 的触发保障。</li>
+</ol>
+<h4 id="线程模型"><a class="markdownIt-Anchor" href="#线程模型"></a> 线程模型</h4>
+<p>每个协程内单个 <code>job</code> 的详细执行流程，如下图所示会拆解 5 个步骤：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002827284.png" alt="图片" style="zoom:80%;" />
+<ol>
+<li>扫描本周期内所有待执行的任务，<code>task</code> 在注册、执行后都会更新下次待执行时间</li>
+<li>将扫描出来的任务按照待触发时间注册到 <code>timingwheels</code> 中(秒级)</li>
+<li><code>timingwheel</code> 到指定时间触发业务主要完成两个操作：<strong>生成调度流水并更新 task 下次执行状态 + 执行业务回调</strong></li>
+<li>根据业务回调配置（包括协议类型、回调方式、超时时间、重试次数等），执行业务回调通知</li>
+<li>更新调度流水状态，调度成功后或达到重试次数后推进流水到终态</li>
+</ol>
+<p><code>tjobs</code> 的跑批执行周期 5‘，业务 task 可能会按照 30’'调度，这里会生成 10 个待执行任务注册到 <code>timingwheels</code> 中。通过 mysql 事务保障，生成流水和更新 task 下次执行状态在一个事务内，保障任务肯定能被触发到。</p>
+<p><code>tjobs</code> 会有兜底协程持续扫描未到终态的调度流水持续推进，保证任务触达率&gt;99.99%。</p>
+<h4 id="ha-支持"><a class="markdownIt-Anchor" href="#ha-支持"></a> HA 支持</h4>
+<p>作为一个任务调度平台，系统的高可用性和功能的完整性同样重要，达成 SLA 就需要底层存储、外部依赖均保持高可用外，应用自身架构需要有更强鲁棒性。</p>
+<blockquote>
+<p>鲁棒性（Robustness）是指系统或算法对于输入数据的变化、扰动或异常情况的稳定性和健壮性。一个具有鲁棒性的系统或算法能够在面对各种不完美或异常的情况下继续有效地运行或产生合理的结果，而不会崩溃、失败或产生不可预测的行为</p>
+</blockquote>
+<h5 id="db-容灾"><a class="markdownIt-Anchor" href="#db-容灾"></a> DB 容灾</h5>
+<p>DB 实例按照一主两备部署，依赖 DB 持久化能力、以及主备半同步复制能力，存储层在主库故障时能自动 failover 到备库且保证数据 rpo=0（不丢数据），能应对存储层单机故障，同时两个备库分别部署到两个可用区机房，从而支持同城跨机房灾备能力（考虑成本问题暂不支持跨城容灾）。</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609002929997.png" alt="图片" style="zoom:80%;" />
+<p>从 DB 层看平台的可用性 SLA 满足&gt;99.99%，并且任务 RPO=0 满足不丢任务 SLA，主备切换分钟级 RTO 基本满足全年 P99(延迟)&lt;1s 的 SLA。</p>
+<blockquote>
+<p>RTO代表恢复时间目标(Recovery Time Objective)，是在业务连续性计划（BCP）中使用的一个指标。RTO是指在出现灾难性事件或系统故障后，恢复业务正常运行所需的时间。</p>
+<p>为了实现RTO，组织通常需要采取一系列措施，如备份和恢复策略、灾难恢复计划、冗余系统和设备、数据镜像和复制等。这些措施旨在减少故障或灾难发生后的恢复时间，并确保业务能够在RTO要求的时间内重新启动和运行。</p>
+<p>需要注意的是，RTO是一个业务相关的指标，与恢复点目标（Recovery Point Objective，RPO）不同。RPO关注的是在灾难发生前，系统中丢失的数据量。RPO定义了恢复过程中允许丢失的数据量，与RTO共同决定了业务连续性计划的策略和要求。</p>
+</blockquote>
+<h5 id="应用容灾"><a class="markdownIt-Anchor" href="#应用容灾"></a> 应用容灾</h5>
+<p>根据多机调度模型原理，每隔固定周期执行一次跑批任务，将未来待执行的任务缓存到应用内存中由 <code>timingwheels</code> 触发，其中涉及四个应用服务(定时调度、名字服务、数据库和 tjobs 应用）协作，对定时调度平台和 <code>tjobs</code> 应用两个强依赖服务做容灾能力保障。</p>
+<p>定时调度平台不可用或调度延迟直接导致任务不能被准时调度，这里应对思路有：</p>
+<ol>
+<li>依赖 linux 的 corntab 触发，存在应用单点问题，导致整体可用性无法保障</li>
+<li><strong>基于调度平台分钟级 RTO，通过增大调度周期减少对调度平台依赖度</strong></li>
+</ol>
+<p>为达成 p99 延迟&lt;1s，<code>tjobs</code> 会提前将待触发任务缓存到应用内存中，当 <code>tjobs</code> 应用服务器宕机则该服务器上本周期内任务都不能被正常调度，只能等下个执行周期被重新捞起调度，导致 p99(任务延迟)&lt;1s 不达标，这里应对思路有：</p>
+<ol>
+<li>缩短调度周期(5’-&gt;30’’)，最多影响单机上 30‘’任务的调度延迟，降低延迟概率但不能彻底解决问题，且缩短周期会和调度平台交互更强(有悖减少调度平台依赖)</li>
+<li><strong>服务器支持主备 failover，每个任务组派发到多个服务器上，通过 etcd 选主一台服务器执行，如果服务器宕机自动 failover 到备机执行，max 延迟就是选主耗时</strong></li>
+</ol>
+<p>要提升保障平台整体的 P99(延迟)、和 99.95%的可用性 SLA，最优方案是“基于调度平台+应用服务器主备 failover”，具体的实现思路（如下图所示），每个周期内待调度的 <code>jobGroup</code> 分被分配到三个不同应用 svr 上，应用层一主两备的部署运行时，然后三个应用 svr 链接 etcd，利用 etcd 的选主和自动 failover 能力，既保障了任务运行的 only once 又能保障单机故障时该机上待执行任务的准时触发</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609003014867.png" alt="图片" style="zoom:80%;" />
+<h4 id="misfire-策略"><a class="markdownIt-Anchor" href="#misfire-策略"></a> <strong>Misfire 策略</strong></h4>
+<p><code>tjobs</code> 平台会有兜底的 misfire 策略以防止任务不能被准时调度时兜底调度过期任务，以保障所有任务触达率不低于 99.99%</p>
+<p>在任务调度系统中，misfire可能会发生在多种情况下，例如系统负载过重、调度器故障、网络延迟、任务执行时间过长等。为了处理这些misfire情况，调度器可以采用不同的策略来确定任务的后续行为。</p>
+<p>以下是常见的misfire策略：</p>
+<ol>
+<li><strong>不触发(Do Nothing)</strong>：任务的misfire被忽略，不做任何处理。下一次触发时间将根据任务的设定重新计算。</li>
+<li><strong>立即触发(Fire Now)</strong>：当任务发生misfire时，立即触发任务执行，不考虑过去的错过触发时间。这意味着任务可能会在非常短的时间内多次执行。</li>
+<li><strong>延迟触发(Reschedule Now)</strong>：任务的misfire会导致任务触发时间被重新计算，以尽快执行任务。任务的下一次触发时间将基于当前时间和任务的设定重新计算。</li>
+<li><strong>下次触发时间(Next With Existing Count)</strong>：任务的misfire会导致任务触发时间被推迟，但任务的执行次数不变。下一次触发时间将基于上一次错过的触发时间和任务的设定重新计算。</li>
+<li><strong>按照原始计划触发(Next With Remaining Count)</strong>：任务的misfire会导致任务触发时间被推迟，并且任务的执行次数会减少。下一次触发时间将基于上一次错过的触发时间和任务的设定重新计算，同时任务的执行次数减少。</li>
+</ol>
+<h3 id="落地部署"><a class="markdownIt-Anchor" href="#落地部署"></a> 落地部署</h3>
+<h4 id="部署架构"><a class="markdownIt-Anchor" href="#部署架构"></a> 部署架构</h4>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/640-20230609003048358.png" alt="图片" style="zoom:80%;" />
+<p>非容灾模式线上运行快照（如上图所示），针对常见的单机宕机或者重启在 HA 章节已经介绍过，比如 svr-2 宕机或重启时 g_3 这个跑批任务组会自动 failover 到 svr-12 或者 svr-3 上继续断点执行，从而保障高可用性。</p>
+<p>针对常见的单机房故障，在任务 dispatch 环节会将一个任务 jobGroup 的主备执行机器分配到不同的 set，从而保障单机房故障时从应用到 DB 都能自动 failover 到其他可用区机房；针对日常的停机发布，由于应用支持分 set 主备 failover，因此发布时按 a、b set 依次发布即可。</p>
+<h4 id="性能压测"><a class="markdownIt-Anchor" href="#性能压测"></a> 性能压测</h4>
+<p>详细的压测执行过程不在展开，这里只同步一下压测结论</p>
+<p>压测摸高峰值：任务注册 1.5w/s、任务触发 2.2w/s</p>
+<p>应用&amp;DB 峰值：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:left">机型配置</th>
+<th style="text-align:left">机器数量</th>
+<th style="text-align:left">峰值负载</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">应用服务器</td>
+<td style="text-align:left">4C8G</td>
+<td style="text-align:left">20</td>
+<td style="text-align:left">45%</td>
+<td style="text-align:left">支持横向扩展，通过扩容保留 20 倍容量空间</td>
+</tr>
+<tr>
+<td style="text-align:left">数据库服务</td>
+<td style="text-align:left">8C32G</td>
+<td style="text-align:left">8</td>
+<td style="text-align:left">75%</td>
+<td style="text-align:left">目前合并部署，通过调整部署保留 4 倍空间通过 DB 升配保留 8 倍的容量空间</td>
+</tr>
+</tbody>
+</table>
+<p>峰值 SLA：可用性&gt;99.99%、1s 内触发占比&gt;99.95%、任务触达率~100%。</p>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<p><code>tjobs</code> 作为一个高性能、低延迟的分布式任务调度平台，在满足通用的任务注册、查询、触发等基本功能同时，也通过可伸缩的架构、HA 能力、体系化可用性建设保障系统在百亿任务量、百万 TPM 触发能力下满足系统可用性、延迟、触达率 SLA。</p>
+<p>支持将任务划分到不同的分片分配到不同的应用机器上执行，既保留了高峰时百万 TPM 的触发能力、也支持低峰时合并部署以节省成本；通过任务前置使用定时任务扫描、内存时间轮保证任务及时触发，保证了任务执行的低延迟；通过主备热活、自动 failover 能力建设保证系统整体从存储层到应用的全栈高可用。</p>
+<h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
+<ol>
+<li><a href="https://mp.weixin.qq.com/s/hv3tTOAdD-SiCq2owCdxZQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/hv3tTOAdD-SiCq2owCdxZQ</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/1876218" target="_blank" rel="noopener">https://cloud.tencent.com/developer/article/1876218</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2023/06/18/DistributedSystem/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E7%B3%BB%E7%BB%9F/" title="分布式任务调度系统设计" target="_blank" rel="external">http://xboom.github.io/2023/06/18/DistributedSystem/分布式任务调度系统/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">XBoom Dove</span><small class="ml-1x">Linux Developer</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-01-%E5%89%8D%E8%A8%80/" title="分布式事务-00-前言"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" title="Go入门15-SyncMap"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>
