@@ -27,23 +27,26 @@ var _hmt = _hmt || [];
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>分布式事务-00-前言 | XBoom Dove</title>
-  <meta name="description" content="这里开一个新坑就是分布式事务，为了学这一块内容准备这样做  学习分布式事务前的基本知识 围绕这些解决方案的实现原理是什么 不同的解决方案与不同的实现原理进行对比 看看都有哪些解决方案，以及它们的优缺点   CAP 分布式系统最多只能同时满足一致性（Consistency）、可用性（Availability）和分区容错性（Partition tolerance）这三项中的两项。这被称为CAP理论">
+  <title>分布式事务-07-通知型事务 | XBoom Dove</title>
+  <meta name="description" content="刚性事务属于 CAP 理论中的 CP 组合，会有性能上限，无法满足高并发场景的需求。基于 BASE 理论，柔性事务方案被提出用于保证事务数据的最终一致性。柔性事务本质是对 XA 协议的妥协，它通过降低强一致性要求，从而降低数据库资源锁定时间，提升可用性，允许有中间状态，要求最终一致性，也就是 AP 组合。柔性事务分为通知型和补偿型：  通知型事务都是异步的，包含有：可靠消息、最大努力通知两种 补偿">
 <meta property="og:type" content="article">
-<meta property="og:title" content="分布式事务-00-前言">
-<meta property="og:url" content="http://xboom.github.io/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-01-%E5%89%8D%E8%A8%80/index.html">
+<meta property="og:title" content="分布式事务-07-通知型事务">
+<meta property="og:url" content="http://xboom.github.io/2023/06/07/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-07-%E9%80%9A%E7%9F%A5%E5%9E%8B%E4%BA%8B%E5%8A%A1/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="这里开一个新坑就是分布式事务，为了学这一块内容准备这样做  学习分布式事务前的基本知识 围绕这些解决方案的实现原理是什么 不同的解决方案与不同的实现原理进行对比 看看都有哪些解决方案，以及它们的优缺点   CAP 分布式系统最多只能同时满足一致性（Consistency）、可用性（Availability）和分区容错性（Partition tolerance）这三项中的两项。这被称为CAP理论">
+<meta property="og:description" content="刚性事务属于 CAP 理论中的 CP 组合，会有性能上限，无法满足高并发场景的需求。基于 BASE 理论，柔性事务方案被提出用于保证事务数据的最终一致性。柔性事务本质是对 XA 协议的妥协，它通过降低强一致性要求，从而降低数据库资源锁定时间，提升可用性，允许有中间状态，要求最终一致性，也就是 AP 组合。柔性事务分为通知型和补偿型：  通知型事务都是异步的，包含有：可靠消息、最大努力通知两种 补偿">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/arch-z-transection-1.png">
-<meta property="article:published_time" content="2023-06-21T15:27:38.012Z">
-<meta property="article:modified_time" content="2023-06-25T14:26:00.190Z">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/7df25b5310d14fdbb59db28b300f3bbe~tplv-k3u1fbpfcp-zoom-1.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/c14cb3cd99e04114895723d27a2c176c~tplv-k3u1fbpfcp-zoom-1.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/70b4280f7cfe4ef79496621475c49de8~tplv-k3u1fbpfcp-zoom-1.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/6c0d5c48079649a0a9ee54f6598c95e4~tplv-k3u1fbpfcp-zoom-1.png">
+<meta property="article:published_time" content="2023-06-07T14:58:29.000Z">
+<meta property="article:modified_time" content="2023-06-25T16:03:20.614Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Distributed Transaction">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/arch-z-transection-1.png">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/7df25b5310d14fdbb59db28b300f3bbe~tplv-k3u1fbpfcp-zoom-1.png">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://xboom.github.io/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-01-%E5%89%8D%E8%A8%80/index.html">
+  <link rel="canonical" href="http://xboom.github.io/2023/06/07/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-07-%E9%80%9A%E7%9F%A5%E5%9E%8B%E4%BA%8B%E5%8A%A1/index.html">
   
   
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -233,7 +236,7 @@ var _hmt = _hmt || [];
   <div class="widget">
     <h3 class="widget-title">Archive</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -252,10 +255,10 @@ var _hmt = _hmt || [];
                 <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
               </p>
               <p class="item-title">
-                <a href="/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-05-SAGA/" class="title">分布式事务-05-SAGA</a>
+                <a href="/2023/06/07/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-07-%E9%80%9A%E7%9F%A5%E5%9E%8B%E4%BA%8B%E5%8A%A1/" class="title">分布式事务-07-通知型事务</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-06-21T15:27:38.013Z" itemprop="datePublished">2023-06-21</time>
+                <time datetime="2023-06-07T14:58:29.000Z" itemprop="datePublished">2023-06-07</time>
               </p>
             </div>
           </li>
@@ -267,10 +270,10 @@ var _hmt = _hmt || [];
                 <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
               </p>
               <p class="item-title">
-                <a href="/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-01-%E5%89%8D%E8%A8%80/" class="title">分布式事务-00-前言</a>
+                <a href="/2023/06/06/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-06-AT/" class="title">分布式事务-06-AT</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-06-21T15:27:38.012Z" itemprop="datePublished">2023-06-21</time>
+                <time datetime="2023-06-06T14:58:29.000Z" itemprop="datePublished">2023-06-06</time>
               </p>
             </div>
           </li>
@@ -279,13 +282,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Go/">Go</a>
+                <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
               </p>
               <p class="item-title">
-                <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" class="title">Go入门15-SyncMap</a>
+                <a href="/2023/06/05/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-05-SAGA/" class="title">分布式事务-05-SAGA</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+                <time datetime="2023-06-05T14:58:29.000Z" itemprop="datePublished">2023-06-05</time>
               </p>
             </div>
           </li>
@@ -294,13 +297,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Go/">Go</a>
+                <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
               </p>
               <p class="item-title">
-                <a href="/2023/03/05/Go/Go%E5%85%A5%E9%97%A824-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/" class="title">Go入门24-协程池问题</a>
+                <a href="/2023/06/04/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-04-TCC/" class="title">分布式事务-04-TCC</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-03-05T06:46:45.000Z" itemprop="datePublished">2023-03-05</time>
+                <time datetime="2023-06-04T14:58:29.000Z" itemprop="datePublished">2023-06-04</time>
               </p>
             </div>
           </li>
@@ -309,13 +312,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
+                <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
               </p>
               <p class="item-title">
-                <a href="/2023/02/02/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/" class="title">算法-E10C-最大公约数</a>
+                <a href="/2023/06/03/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-03-%E4%B8%89%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4/" class="title">分布式事务-03-三阶段提交</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-02-02T12:25:25.494Z" itemprop="datePublished">2023-02-02</time>
+                <time datetime="2023-06-03T14:58:29.000Z" itemprop="datePublished">2023-06-03</time>
               </p>
             </div>
           </li>
@@ -335,21 +338,21 @@ var _hmt = _hmt || [];
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#cap"><span class="toc-number">1.</span> <span class="toc-text"> CAP</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#base"><span class="toc-number">2.</span> <span class="toc-text"> BASE</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number"></span> <span class="toc-text"> 参考文档</span></a>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#可靠消息"><span class="toc-number">1.</span> <span class="toc-text"> 可靠消息</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#本地消息表"><span class="toc-number">1.1.</span> <span class="toc-text"> 本地消息表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#事务消息"><span class="toc-number">1.2.</span> <span class="toc-text"> 事务消息</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#最大努力通知"><span class="toc-number">2.</span> <span class="toc-text"> 最大努力通知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">4.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Distributed Transaction/分布式事务-01-前言" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Distributed Transaction/分布式事务-07-通知型事务" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      分布式事务-00-前言
+      分布式事务-07-通知型事务
     </h1>
   
 
@@ -357,8 +360,8 @@ var _hmt = _hmt || [];
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-01-%E5%89%8D%E8%A8%80/" class="article-date">
-	  <time datetime="2023-06-21T15:27:38.012Z" itemprop="datePublished">2023-06-21</time>
+	<a href="/2023/06/07/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-07-%E9%80%9A%E7%9F%A5%E5%9E%8B%E4%BA%8B%E5%8A%A1/" class="article-date">
+	  <time datetime="2023-06-07T14:58:29.000Z" itemprop="datePublished">2023-06-07</time>
 	</a>
 </span>
         
@@ -378,180 +381,90 @@ var _hmt = _hmt || [];
 
 	<span class="article-read hidden-xs">
     	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-01-%E5%89%8D%E8%A8%80/" class="leancloud_visitors"  data-flag-title="分布式事务-00-前言">0</span>
+    	<span id="/2023/06/07/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-07-%E9%80%9A%E7%9F%A5%E5%9E%8B%E4%BA%8B%E5%8A%A1/" class="leancloud_visitors"  data-flag-title="分布式事务-07-通知型事务">0</span>
     </span>
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-01-%E5%89%8D%E8%A8%80/#comments" class="article-comment-link">Comments</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/06/07/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-07-%E9%80%9A%E7%9F%A5%E5%9E%8B%E4%BA%8B%E5%8A%A1/#comments" class="article-comment-link">Comments</a></span>
         
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p>这里开一个新坑就是分布式事务，为了学这一块内容准备这样做</p>
-<ol>
-<li>学习分布式事务前的基本知识</li>
-<li>围绕这些解决方案的实现原理是什么</li>
-<li>不同的解决方案与不同的实现原理进行对比</li>
-<li>看看都有哪些解决方案，以及它们的优缺点</li>
-</ol>
-<h4 id="cap"><a class="markdownIt-Anchor" href="#cap"></a> CAP</h4>
-<p>分布式系统最多只能同时满足<strong>一致性（Consistency）</strong>、<strong>可用性（Availability）<strong>和</strong>分区容错性（Partition tolerance）<strong>这三项中的两项。这被称为</strong>CAP理论</strong></p>
+        <p>刚性事务属于 CAP 理论中的 CP 组合，会有性能上限，无法满足高并发场景的需求。基于 BASE 理论，柔性事务方案被提出用于保证事务数据的最终一致性。柔性事务本质是对 XA 协议的妥协，它通过降低强一致性要求，从而降低数据库资源锁定时间，提升可用性，允许有中间状态，要求最终一致性，也就是 AP 组合。柔性事务分为通知型和补偿型：</p>
 <ul>
-<li>
-<p><strong>C 一致性(Consistency)</strong>：要求分布式系统中的所有副本或节点在任何时刻都具有相同的数据值。当系统接收到更新请求后，所有节点必须保证在一定时间内达到一致的状态(<strong>强一致性</strong>)</p>
-</li>
-<li>
-<p><strong>A 可用性(Availability)</strong>：要求分布式系统在任何时刻都能够响应用户的请求并提供正常的服务。即使在节点故障或网络分区等情况下，系统仍然能够继续运行并提供服务</p>
-</li>
-<li>
-<p><strong>P 分区容错性(Partition tolerance)</strong>：指系统能够继续运行并保持一致性和可用性，即使在不可避免的网络分区(分布式系统中的消息丢失或延迟)发生时</p>
-</li>
+<li>通知型事务都是异步的，包含有：可靠消息、最大努力通知两种</li>
+<li>补偿型事务都是同步的，包含有：AT、TCC、Saga</li>
 </ul>
-<p>根据上面三者可以组合的情况有</p>
+<h3 id="可靠消息"><a class="markdownIt-Anchor" href="#可靠消息"></a> 可靠消息</h3>
+<p>可靠消息方案是指当事务发起方(消息发送者)执行完成本地事务后并发出一条消息，事务参与方(消息接收者)一定能够接收消息并处理事务成功</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/7df25b5310d14fdbb59db28b300f3bbe~tplv-k3u1fbpfcp-zoom-1.png" alt="img" /></p>
+<p>此方案强调的是一旦消息发给事务参与方，则最终事务要达到一致。这其中有两个关键问题：</p>
 <ol>
-<li><strong>CA(一致性和可用性)</strong>：系统追求强一致性和高可用性，但在发生网络分区时，系统会停止对外服务，直到分区问题解决。关系型数据库通常采用这种方案。</li>
-<li><strong>AP(可用性和分区容错性)</strong>：系统追求高可用性和分区容错性，即使发生网络分区，系统仍然可以继续运行，但可能导致数据的一致性问题。例如，大规模分布式系统如互联网应用中的NoSQL数据库常采用这种方案。</li>
-<li><strong>CP(一致性和分区容错性)</strong>：在这种方案中，系统追求强一致性和分区容错性，但在发生网络分区时，可能会牺牲可用性。这意味着系统可能在网络分区期间无法提供服务。例如，一些分布式数据库系统采用这种方案。</li>
-</ol>
-<blockquote>
-<ol>
-<li>CAP的一致性指的是<strong>强一致性</strong></li>
-<li>CAP中分布式事务的一致性是多个节点状态的一致性，而ACID中事务的一致性指的是DB的约束定义的前后一致性</li>
-<li>根据 CAP 各个的描述可以得出系统三者不可能同时满足，需要在系统设计时根据情况舍弃</li>
-</ol>
-</blockquote>
-<h4 id="base"><a class="markdownIt-Anchor" href="#base"></a> BASE</h4>
-<p>BASE是<strong>Basically Available（基本可用）</strong>、**Soft state（软状态）<strong>和</strong>Eventually consistent（最终一致性）**三个短语的简写，BASE是基于CAP定理逐步演化而来，对CAP中一致性和可用性权衡的结果，核心思想是即使无法做到强一致性（Strong consistency），但每个应用都可以根据自身的业务特点，采用适当的方式来使系统达到最终一致性(Eventual consistency)</p>
+<li><strong>本地事务与消息发送的原子性问题</strong>：若事务发起方在本地事务执行成功，则消息必须发出(可以是立即发送，也可以是异步发送)，否则就无消息</li>
+<li>事务参与方接收消息的可靠性问题
 <ul>
-<li><strong>Basically Available(基本可用):</strong> 指分布式系统在出现不可预知故障的时候，允许损失部分可用性(系统仍然可用)</li>
-<li><strong>Soft state(软状态):</strong> 弱状态也称为软状态，和硬状态相对，是指允许系统中的数据存在中间状态，并认为该中间状态的存在不会影响系统的整体可用性，即允许系统在不同节点的数据副本之间进行数据同步的过程存在延时。</li>
-<li><strong>Eventually consistent(最终一致性):</strong> 强调的是系统中所有的数据副本，在经过一段时间的同步后，最终能够达到一个一致的状态。因此，最终一致性的本质是需要系统保证最终数据能够达到一致，而不需要实时保证系统数据的强一致性</li>
+<li>参与方必须能够从 MQ 接收到消息，如果接收消息失败可以重复接收消息</li>
+<li>参与方要解决消息重复消费的问题(消费处理的幂等性)</li>
 </ul>
-<p>BASE理论提出通过牺牲强一致性来获得可用性，并允许数据在一段时间内是不一致的，但最终达到一致状态。</p>
-<p>分布式的理论基础是CAP，分布式系统中，P(分区容错)是必选项，所以只能在AP或者CP中选择。</p>
-<ul>
-<li>
-<p><strong>分布式理论的CP</strong> -&gt; 刚性事务，遵循ACID，对数据要求强一致性</p>
-</li>
-<li>
-<p><strong>分布式理论的AP+BASE</strong> -&gt; 柔性事务，遵循BASE，允许一定时间内不同节点的数据不一致，但要求最终一致</p>
-</li>
-</ul>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/arch-z-transection-1.png" alt="img" style="zoom:67%;" />
-<p><strong>刚性事务</strong>基于分布式理论的CP，遵循ACID，对数据要求强一致性。包括 2PC、3PC</p>
-<p><strong>柔性事务</strong>基于分布式理论的AP，遵循BASE，允许一定时间内不同节点的数据不一致，但要求最终一致。它们又可以分为两种</p>
-<ol>
-<li>基于补偿的有 TCC 与 SAGA</li>
-<li>基于最终一致性的有 本地消息、事务消息、尽最大努力通知</li>
-</ol>
-<p>整体分布式事务实现原理根据资源在分布式事务的角色可以分为：</p>
-<ol>
-<li>
-<p><strong>AP 应用程序处理器</strong>，一般是发起分布式事务的一方</p>
-</li>
-<li>
-<p><strong>RM 资源管理器</strong>，负责管理和控制分布式系统中的特定资源或数据库。资源管理器协调事务的执行，包括处理事务的提交和回滚，以及确保数据的一致性和完整性。</p>
-</li>
-<li>
-<p><strong>TM 事务管理器</strong>，负责协调和管理分布式事务的执行。事务管理器协调不同资源管理器的操作，以确保所有参与的资源在事务提交或回滚时保持一致性，并提供事务的ACID</p>
-</li>
-<li>
-<p><strong>TC 事务协调者</strong>，维护全局和分支事务的状态，驱动全局事务提交或回滚(Seata 引入)</p>
 </li>
 </ol>
-<p>根据分布式事务的组成分为</p>
-<ul>
-<li>
-<p><strong>事务分支</strong>：每个服务管理的事务组成部分，称为事务分支，<code>RM</code> 服务会在全局事务上，注册一个事务分支</p>
-</li>
-<li>
-<p><strong>分支操作</strong>：对于<code>RM</code>服务，在<code>TCC</code>事务模式下，会实现<code>Try/Confirm/Cancel</code>三个操作，多个分支操作配合完成一个分支事务</p>
-</li>
-<li>
-<p><strong>本地事务</strong>：<code>RM</code> 服务可能访问一个数据库，创建一个本地事务，也可能访问多个数据库，创建多个本地事务</p>
-</li>
-</ul>
-<p>找了一下分布式事务的实现方案，发现两种 DTM 与 SEATA</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">特性</th>
-<th style="text-align:center">DTM</th>
-<th style="text-align:center">SEATA</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">语言</td>
-<td style="text-align:center">Go、Java、python、php、c#…</td>
-<td style="text-align:center">Java、Go、Python</td>
-</tr>
-<tr>
-<td style="text-align:center">异常处理</td>
-<td style="text-align:center">子事务屏障自动处理</td>
-<td style="text-align:center">手动处理</td>
-</tr>
-<tr>
-<td style="text-align:center">TCC事务</td>
-<td style="text-align:center">✓</td>
-<td style="text-align:center">✓</td>
-</tr>
-<tr>
-<td style="text-align:center">XA事务</td>
-<td style="text-align:center">✓</td>
-<td style="text-align:center">✓</td>
-</tr>
-<tr>
-<td style="text-align:center">AT事务</td>
-<td style="text-align:center">建议使用XA</td>
-<td style="text-align:center">✓</td>
-</tr>
-<tr>
-<td style="text-align:center">SAGA事务</td>
-<td style="text-align:center">支持并发</td>
-<td style="text-align:center">状态机模式</td>
-</tr>
-<tr>
-<td style="text-align:center">二阶段消息</td>
-<td style="text-align:center">✓</td>
-<td style="text-align:center">✗</td>
-</tr>
-<tr>
-<td style="text-align:center">单服务多数据源</td>
-<td style="text-align:center">✓</td>
-<td style="text-align:center">✗</td>
-</tr>
-<tr>
-<td style="text-align:center">通信协议</td>
-<td style="text-align:center">HTTP、gRPC</td>
-<td style="text-align:center">dubbo、gRPC</td>
-</tr>
-<tr>
-<td style="text-align:center">仓库</td>
-<td style="text-align:center"><a href="https://github.com/dtm-labs/dtm.git" target="_blank" rel="noopener">https://github.com/dtm-labs/dtm.git</a></td>
-<td style="text-align:center"><a href="https://github.com/seata/seata.git" target="_blank" rel="noopener">https://github.com/seata/seata.git</a></td>
-</tr>
-</tbody>
-</table>
-<p>接下来异常介绍几种分布式事务的实现原理、优缺点以及适用场景</p>
+<p>可靠消息方案适合执行周期长且实时性要求不高的场景。引入消息机制后，原先同步的事务操作变为基于消息写/读的异步操作，避免了同步阻塞，也实现了服务间的解耦。一般有基于<strong>本地消息表</strong>和基于<strong>消息中间件</strong>这两种实现式</p>
+<h4 id="本地消息表"><a class="markdownIt-Anchor" href="#本地消息表"></a> 本地消息表</h4>
+<p>本地消息表核心思路是：将分布式事务拆分成本地事务进行处理</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/c14cb3cd99e04114895723d27a2c176c~tplv-k3u1fbpfcp-zoom-1.png" alt="img" style="zoom:67%;" />
+<p>**优点：**从应用设计开发的角度实现了消息数据的可靠性，消息数据的可靠性不依赖于消息中间件，弱化了对 MQ 中间件特性的依赖，方案轻量，容易实现。</p>
+<p>**缺点：**需设计 DB 消息表，同时还需要一个后台任务，不断扫描本地消息。导致消息的处理和业务逻辑耦合额外增加业务方的负担</p>
+<h4 id="事务消息"><a class="markdownIt-Anchor" href="#事务消息"></a> 事务消息</h4>
+<p>为了解决本地消息表与业务耦合的问题，利用消息队列的事务消息的能力，可理解为将本地消息表移动到了 MQ 内部</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/70b4280f7cfe4ef79496621475c49de8~tplv-k3u1fbpfcp-zoom-1.png" alt="img" style="zoom:80%;" />
+<p>事务消息发送步骤如下：</p>
 <ol>
-<li>二阶段提交</li>
-<li>三阶段提交</li>
-<li>TCC</li>
-<li>SAGA</li>
-<li>AT</li>
-<li>通知型事务</li>
-<li>二阶段消息(DTM)</li>
-<li>异常处理优化(DTM)</li>
-<li>Percolator</li>
+<li>发送方将半事务消息发送至 RocketMQ</li>
+<li>MQ 将消息持久化成功之后，向发送方返回 ACK 确认消息已经发送成功，此时消息为半事务消息</li>
+<li>发送方开始执行本地事务逻辑</li>
+<li>发送方根据本地事务执行结果向服务端提交二次确认（Commit 或是 Rollback），服务端收到 Commit 状态则将半事务消息标记为可投递，订阅方最终将收到该消息；服务端收到 Rollback 状态则删除半事务消息，订阅方将不会接受该消息</li>
+</ol>
+<p>事务消息回查步骤如下：</p>
+<ol>
+<li>在断网或者是应用重启的特殊情况下，上述发送步骤的步骤 4 提交的二次确认最终未到达服务端，经过固定时间后服务端将对该消息发起消息回查</li>
+<li>发送方收到消息回查后，需要检查对应消息的本地事务执行的最终结果</li>
+<li>发送方根据检查得到的本地事务的最终状态再次提交二次确认，服务端仍按照发送步骤的步骤 4 对半事务消息进行操作</li>
+</ol>
+<h3 id="最大努力通知"><a class="markdownIt-Anchor" href="#最大努力通知"></a> 最大努力通知</h3>
+<p>最大努力通知型的目标是 <strong>事务发起方尽量将业务处理结果通知到参与方</strong>。适用于一些最终一致性时间敏感度低，且参与方的处理结果不影响发起方的处理结果的这类通知类的业务场景。如短信供应商的回执通知：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/6c0d5c48079649a0a9ee54f6598c95e4~tplv-k3u1fbpfcp-zoom-1.png" alt="短信供应商回执通知(图片来自网络).png" style="zoom:80%;" />
+<p>最大努力通知型的实现方案，一般符合以下两个特点：</p>
+<ol>
+<li>消息重复通知，在业务活动发起方完成业务处理之后，向参与方发送消息，参与方可能没有接收到通知，此时要发起方有一定的机制对消息重复通知（通常是发起方调用参与方的 http 接口，而且会协商一个 N 次 通知的上限）</li>
+<li>定期校对，事务发起方提供消息校对的接口，如果事务参与方没有接收到发起方发送的消息，可以调用事务发起方提供的接口主动获取消息</li>
+</ol>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<ol>
+<li>
+<p>可靠性的保障方不同</p>
+<ul>
+<li>可靠消息方案中，发起方需要保证将消息发出去，并且将消息发到参与方，消息的可靠性关键由发起方来保证</li>
+<li>最大努力通知方案中，发起方尽最大努力将业务处理结果通知给参与方，但参与者是可能接收不到消息，此时需要接收通知方主动调用发起通知方的接口查询业务处理结果，消息通知的可靠性关键在参与方</li>
+</ul>
+</li>
+<li>
+<p>两者的业务应用场景不同</p>
+<ul>
+<li>可靠消息方案 关注的是整体业务处理的事务一致，以异步的方式完成整个业务处理，通常是内部系统之间的调用</li>
+<li>最大努力通知 关注的是业务处理后的通知事务，即将业务处理结果可靠的通知出去</li>
+</ul>
+</li>
+<li>
+<p>技术解决方向不同</p>
+<ul>
+<li>可靠消息方案 要解决消息从发出到接收的一致性，即消息发出并且被接收到</li>
+<li>最大努力通知方案 无法保证消息从发出到接收的一致性，只提供消息接收的可靠性机制。可靠机制是，尽最大努力将消息通知给参与方，当消息无法被参与方接收时，由参与方主动查询消息（业务处理结果）</li>
+</ul>
+</li>
 </ol>
 <h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
 <ol>
-<li><a href="https://dtm.pub/guide/theory.html#%E4%BA%8B%E5%8A%A1" target="_blank" rel="noopener">https://dtm.pub/guide/theory.html#事务</a></li>
-<li><a href="https://blog.csdn.net/yeyazhishang/article/details/80758354" target="_blank" rel="noopener">https://blog.csdn.net/yeyazhishang/article/details/80758354</a></li>
-<li><a href="https://xiaomi-info.github.io/2020/01/02/distributed-transaction/" target="_blank" rel="noopener">https://xiaomi-info.github.io/2020/01/02/distributed-transaction/</a></li>
-<li><a href="https://segmentfault.com/a/1190000040321750" target="_blank" rel="noopener">https://segmentfault.com/a/1190000040321750</a></li>
-<li><a href="http://seata.io/zh-cn/docs/overview/what-is-seata.html" target="_blank" rel="noopener">http://seata.io/zh-cn/docs/overview/what-is-seata.html</a></li>
+<li><a href="https://developer.aliyun.com/article/1192549#slide-22" target="_blank" rel="noopener">https://developer.aliyun.com/article/1192549#slide-22</a></li>
 </ol>
 
       
@@ -563,7 +476,7 @@ var _hmt = _hmt || [];
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://xboom.github.io/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-01-%E5%89%8D%E8%A8%80/" title="分布式事务-00-前言" target="_blank" rel="external">http://xboom.github.io/2023/06/21/Distributed Transaction/分布式事务-01-前言/</a>
+      <a href="http://xboom.github.io/2023/06/07/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-07-%E9%80%9A%E7%9F%A5%E5%9E%8B%E4%BA%8B%E5%8A%A1/" title="分布式事务-07-通知型事务" target="_blank" rel="external">http://xboom.github.io/2023/06/07/Distributed Transaction/分布式事务-07-通知型事务/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -610,13 +523,9 @@ var _hmt = _hmt || [];
   
   <ul class="pager pull-left">
     
-    <li class="prev">
-      <a href="/2023/06/21/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-05-SAGA/" title="分布式事务-05-SAGA"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
-    </li>
-    
     
     <li class="next">
-      <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" title="Go入门15-SyncMap"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2023/06/06/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-06-AT/" title="分布式事务-06-AT"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
