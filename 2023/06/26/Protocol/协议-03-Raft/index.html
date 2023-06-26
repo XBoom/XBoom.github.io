@@ -31,7 +31,7 @@ var _hmt = _hmt || [];
   <meta name="description" content="在学习分布式系统过程中，经常能碰到一致性算法，即使出现部分节点故障，网络延时等情况，也不影响整体可用性，进而提高系统的整体可用性。Raft协议是一种分布式一致性算法(共识算法)，共识就是多个节点对某一个事件达成一致的算法，常见的一致性协议有Raft、Paxos、ZAB，根据 《ETCD 技术内幕》 学习 Raft 协议  基本定义 Raft 为了实现共识，会选举出主从节点，任意节点都处于下面3类角">
 <meta property="og:type" content="article">
 <meta property="og:title" content="协议-03-Raft">
-<meta property="og:url" content="http://xboom.github.io/2022/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/index.html">
+<meta property="og:url" content="http://xboom.github.io/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/index.html">
 <meta property="og:site_name" content="XBoom Dove">
 <meta property="og:description" content="在学习分布式系统过程中，经常能碰到一致性算法，即使出现部分节点故障，网络延时等情况，也不影响整体可用性，进而提高系统的整体可用性。Raft协议是一种分布式一致性算法(共识算法)，共识就是多个节点对某一个事件达成一致的算法，常见的一致性协议有Raft、Paxos、ZAB，根据 《ETCD 技术内幕》 学习 Raft 协议  基本定义 Raft 为了实现共识，会选举出主从节点，任意节点都处于下面3类角">
 <meta property="og:locale" content="en_US">
@@ -60,8 +60,8 @@ var _hmt = _hmt || [];
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/image-20230626175732437.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/image-20230626181508973.png">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/20220313111102.png">
-<meta property="article:published_time" content="2022-06-26T02:25:38.000Z">
-<meta property="article:modified_time" content="2023-06-26T10:27:07.904Z">
+<meta property="article:published_time" content="2023-06-26T02:25:38.000Z">
+<meta property="article:modified_time" content="2023-06-26T10:29:53.701Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="ETCD">
 <meta property="article:tag" content="Distributed System">
@@ -69,7 +69,7 @@ var _hmt = _hmt || [];
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20220125000023.png">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://xboom.github.io/2022/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/index.html">
+  <link rel="canonical" href="http://xboom.github.io/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/index.html">
   
   
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -259,7 +259,7 @@ var _hmt = _hmt || [];
   <div class="widget">
     <h3 class="widget-title">Archive</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -271,6 +271,21 @@ var _hmt = _hmt || [];
     <div class="widget-body">
       <ul class="recent-post-list list-unstyled no-thumbnail">
         
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Protocol/">Protocol</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="title">协议-03-Raft</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-26T02:25:38.000Z" itemprop="datePublished">2023-06-26</time>
+              </p>
+            </div>
+          </li>
+          
           <li>
             
             <div class="item-inner">
@@ -331,21 +346,6 @@ var _hmt = _hmt || [];
             </div>
           </li>
           
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/Go/">Go</a>
-              </p>
-              <p class="item-title">
-                <a href="/2023/01/04/Go/Go%E5%85%A5%E9%97%A821-SetFinalizer/" class="title">Go入门21-SetFinalizer</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2023-01-04T13:45:13.344Z" itemprop="datePublished">2023-01-04</time>
-              </p>
-            </div>
-          </li>
-          
       </ul>
     </div>
   </div>
@@ -383,8 +383,8 @@ var _hmt = _hmt || [];
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2022/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="article-date">
-	  <time datetime="2022-06-26T02:25:38.000Z" itemprop="datePublished">2022-06-26</time>
+	<a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="article-date">
+	  <time datetime="2023-06-26T02:25:38.000Z" itemprop="datePublished">2023-06-26</time>
 	</a>
 </span>
         
@@ -404,10 +404,10 @@ var _hmt = _hmt || [];
 
 	<span class="article-read hidden-xs">
     	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2022/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="leancloud_visitors"  data-flag-title="协议-03-Raft">0</span>
+    	<span id="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="leancloud_visitors"  data-flag-title="协议-03-Raft">0</span>
     </span>
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/#comments" class="article-comment-link">Comments</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/#comments" class="article-comment-link">Comments</a></span>
         
       </div>
     </div>
@@ -720,7 +720,7 @@ var _hmt = _hmt || [];
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://xboom.github.io/2022/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" title="协议-03-Raft" target="_blank" rel="external">http://xboom.github.io/2022/06/26/Protocol/协议-03-Raft/</a>
+      <a href="http://xboom.github.io/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" title="协议-03-Raft" target="_blank" rel="external">http://xboom.github.io/2023/06/26/Protocol/协议-03-Raft/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -767,13 +767,9 @@ var _hmt = _hmt || [];
   
   <ul class="pager pull-left">
     
-    <li class="prev">
-      <a href="/2022/06/28/GoZero/GoZero1-%E6%9E%B6%E6%9E%84/" title="go-zero1-架构"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
-    </li>
-    
     
     <li class="next">
-      <a href="/2022/06/07/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-07-%E9%80%9A%E7%9F%A5%E5%9E%8B%E4%BA%8B%E5%8A%A1/" title="分布式事务-07-通知型事务"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" title="Go入门15-SyncMap"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
