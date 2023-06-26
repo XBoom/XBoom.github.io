@@ -27,26 +27,24 @@ var _hmt = _hmt || [];
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>分布式事务-06-AT | XBoom Dove</title>
-  <meta name="description" content="AT模式是Seata最主推的分布式事务且基于XA演进而来的解决方案，是一种改进的二阶段提交，主要有三个角色：TM、RM和TC，其中TM和RM作为Seata的客户端和业务集成，TC作为Seata服务器独立部署 在AT模式下，数据库资源被当做RM，访问RM时，Seata会对请求进行拦截；每个本地事务提交时，RM会向TC(Transaction Coordinator，事务协调器)注册一个分支事务，用户">
+  <title>分布式事务-04-TCC | XBoom Dove</title>
+  <meta name="description" content="TCC是Try、Confirm、Cancel三个词语的缩写，TCC分为3个阶段  Try 阶段：尝试执行，完成所有业务检查（一致性）, 预留必须业务资源（准隔离性） Confirm 阶段：如果所有分支的Try都成功了，则走到Confirm阶段。Confirm真正执行业务，不作任何业务检查，只使用 Try 阶段预留的业务资源 Cancel 阶段：如果所有分支的Try有一个失败了，则走到Cancel阶">
 <meta property="og:type" content="article">
-<meta property="og:title" content="分布式事务-06-AT">
-<meta property="og:url" content="http://xboom.github.io/2023/06/06/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-06-AT/index.html">
+<meta property="og:title" content="分布式事务-04-TCC">
+<meta property="og:url" content="http://xboom.github.io/2022/06/04/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-04-TCC/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="AT模式是Seata最主推的分布式事务且基于XA演进而来的解决方案，是一种改进的二阶段提交，主要有三个角色：TM、RM和TC，其中TM和RM作为Seata的客户端和业务集成，TC作为Seata服务器独立部署 在AT模式下，数据库资源被当做RM，访问RM时，Seata会对请求进行拦截；每个本地事务提交时，RM会向TC(Transaction Coordinator，事务协调器)注册一个分支事务，用户">
+<meta property="og:description" content="TCC是Try、Confirm、Cancel三个词语的缩写，TCC分为3个阶段  Try 阶段：尝试执行，完成所有业务检查（一致性）, 预留必须业务资源（准隔离性） Confirm 阶段：如果所有分支的Try都成功了，则走到Confirm阶段。Confirm真正执行业务，不作任何业务检查，只使用 Try 阶段预留的业务资源 Cancel 阶段：如果所有分支的Try有一个失败了，则走到Cancel阶">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/1352849-20210623235541565-1026038020.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/1352849-20210624000205985-1441189903.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/1352849-20210624001241995-2087665567.png">
-<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/1352849-20210623233710656-104557209.png">
-<meta property="article:published_time" content="2023-06-06T14:58:29.000Z">
-<meta property="article:modified_time" content="2023-06-25T16:03:15.032Z">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/tcc_normal.dea14fb3.jpg">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/tcc_rollback.f28601d7.jpg">
+<meta property="article:published_time" content="2022-06-04T14:58:29.000Z">
+<meta property="article:modified_time" content="2023-06-26T06:56:45.258Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Distributed Transaction">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/1352849-20210623235541565-1026038020.png">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/tcc_normal.dea14fb3.jpg">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://xboom.github.io/2023/06/06/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-06-AT/index.html">
+  <link rel="canonical" href="http://xboom.github.io/2022/06/04/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-04-TCC/index.html">
   
   
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -236,7 +234,7 @@ var _hmt = _hmt || [];
   <div class="widget">
     <h3 class="widget-title">Archive</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -252,13 +250,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
+                <a class="category-link" href="/categories/Go/">Go</a>
               </p>
               <p class="item-title">
-                <a href="/2023/06/07/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-07-%E9%80%9A%E7%9F%A5%E5%9E%8B%E4%BA%8B%E5%8A%A1/" class="title">分布式事务-07-通知型事务</a>
+                <a href="/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/" class="title">Go入门15-SyncMap</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-06-07T14:58:29.000Z" itemprop="datePublished">2023-06-07</time>
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
               </p>
             </div>
           </li>
@@ -267,13 +265,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
+                <a class="category-link" href="/categories/Go/">Go</a>
               </p>
               <p class="item-title">
-                <a href="/2023/06/06/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-06-AT/" class="title">分布式事务-06-AT</a>
+                <a href="/2023/03/05/Go/Go%E5%85%A5%E9%97%A824-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/" class="title">Go入门24-协程池问题</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-06-06T14:58:29.000Z" itemprop="datePublished">2023-06-06</time>
+                <time datetime="2023-03-05T06:46:45.000Z" itemprop="datePublished">2023-03-05</time>
               </p>
             </div>
           </li>
@@ -282,13 +280,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
+                <a class="category-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a>
               </p>
               <p class="item-title">
-                <a href="/2023/06/05/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-05-SAGA/" class="title">分布式事务-05-SAGA</a>
+                <a href="/2023/02/02/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/" class="title">算法-E10C-最大公约数</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-06-05T14:58:29.000Z" itemprop="datePublished">2023-06-05</time>
+                <time datetime="2023-02-02T12:25:25.494Z" itemprop="datePublished">2023-02-02</time>
               </p>
             </div>
           </li>
@@ -297,13 +295,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
+                <a class="category-link" href="/categories/Go/">Go</a>
               </p>
               <p class="item-title">
-                <a href="/2023/06/04/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-04-TCC/" class="title">分布式事务-04-TCC</a>
+                <a href="/2023/01/10/Go/Go%E5%85%A5%E9%97%A823-arena/" class="title">Go入门23-arena</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-06-04T14:58:29.000Z" itemprop="datePublished">2023-06-04</time>
+                <time datetime="2023-01-10T08:00:20.000Z" itemprop="datePublished">2023-01-10</time>
               </p>
             </div>
           </li>
@@ -312,13 +310,13 @@ var _hmt = _hmt || [];
             
             <div class="item-inner">
               <p class="item-category">
-                <a class="category-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a>
+                <a class="category-link" href="/categories/Go/">Go</a>
               </p>
               <p class="item-title">
-                <a href="/2023/06/03/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-03-%E4%B8%89%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4/" class="title">分布式事务-03-三阶段提交</a>
+                <a href="/2023/01/04/Go/Go%E5%85%A5%E9%97%A821-SetFinalizer/" class="title">Go入门21-SetFinalizer</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-06-03T14:58:29.000Z" itemprop="datePublished">2023-06-03</time>
+                <time datetime="2023-01-04T13:45:13.344Z" itemprop="datePublished">2023-01-04</time>
               </p>
             </div>
           </li>
@@ -338,21 +336,21 @@ var _hmt = _hmt || [];
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#流程"><span class="toc-number">1.</span> <span class="toc-text"> 流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一阶段"><span class="toc-number">1.1.</span> <span class="toc-text"> 第一阶段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二阶段"><span class="toc-number">1.2.</span> <span class="toc-text"> 第二阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#事务提交"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 事务提交</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#事务回滚"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 事务回滚</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#隔离性保证"><span class="toc-number">2.</span> <span class="toc-text"> 隔离性保证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">4.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#流程"><span class="toc-number">1.</span> <span class="toc-text"> 流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#成功"><span class="toc-number">1.1.</span> <span class="toc-text"> 成功</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#失败"><span class="toc-number">1.2.</span> <span class="toc-text"> 失败</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">2.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">3.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Distributed Transaction/分布式事务-06-AT" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Distributed Transaction/分布式事务-04-TCC" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      分布式事务-06-AT
+      分布式事务-04-TCC
     </h1>
   
 
@@ -360,8 +358,8 @@ var _hmt = _hmt || [];
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2023/06/06/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-06-AT/" class="article-date">
-	  <time datetime="2023-06-06T14:58:29.000Z" itemprop="datePublished">2023-06-06</time>
+	<a href="/2022/06/04/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-04-TCC/" class="article-date">
+	  <time datetime="2022-06-04T14:58:29.000Z" itemprop="datePublished">2022-06-04</time>
 	</a>
 </span>
         
@@ -381,101 +379,46 @@ var _hmt = _hmt || [];
 
 	<span class="article-read hidden-xs">
     	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2023/06/06/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-06-AT/" class="leancloud_visitors"  data-flag-title="分布式事务-06-AT">0</span>
+    	<span id="/2022/06/04/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-04-TCC/" class="leancloud_visitors"  data-flag-title="分布式事务-04-TCC">0</span>
     </span>
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/06/06/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-06-AT/#comments" class="article-comment-link">Comments</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/06/04/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-04-TCC/#comments" class="article-comment-link">Comments</a></span>
         
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p>AT模式是Seata最主推的分布式事务且基于XA演进而来的解决方案，是一种改进的二阶段提交，主要有三个角色：TM、RM和TC，<strong>其中TM和RM作为Seata的客户端和业务集成，TC作为Seata服务器独立部署</strong></p>
-<p>在AT模式下，数据库资源被当做RM，<strong>访问RM时，Seata会对请求进行拦截；每个本地事务提交时，RM会向TC(Transaction Coordinator，事务协调器)注册一个分支事务</strong>，用户只需关注自己的 <strong>业务SQL</strong> ，用户的  <strong>业务SQL</strong> 作为一阶段，Seata 框架会自动生成事务的二阶段提交和回滚操作</p>
+        <p>TCC是<strong>Try</strong>、<strong>Confirm</strong>、<strong>Cancel</strong>三个词语的缩写，TCC分为3个阶段</p>
+<ul>
+<li>Try 阶段：尝试执行，完成所有业务检查（一致性）, 预留必须业务资源（准隔离性）</li>
+<li>Confirm 阶段：如果所有分支的Try都成功了，则走到Confirm阶段。Confirm真正执行业务，不作任何业务检查，只使用 Try 阶段预留的业务资源</li>
+<li>Cancel 阶段：如果所有分支的Try有一个失败了，则走到Cancel阶段。Cancel释放 Try 阶段预留的业务资源</li>
+</ul>
 <h3 id="流程"><a class="markdownIt-Anchor" href="#流程"></a> 流程</h3>
-<h4 id="第一阶段"><a class="markdownIt-Anchor" href="#第一阶段"></a> 第一阶段</h4>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/1352849-20210623235541565-1026038020.png" alt="img" style="zoom:90%;" />
-<ol>
-<li>当访问 RM 的时候，会拦截解析 SQL 语句，保存 “before image”</li>
-<li>执行 SQL 更新业务数据</li>
-<li>接着保存操作后的 “after image”</li>
-<li>插入回滚日志 undo_log</li>
-<li>向TC注册分支事务，申请全局锁，并将其纳入到该XID对应的全局事务范围。</li>
-<li>提交本地事务</li>
-<li>向 TC 汇报本地事务结果</li>
-</ol>
-<h4 id="第二阶段"><a class="markdownIt-Anchor" href="#第二阶段"></a> 第二阶段</h4>
-<h5 id="事务提交"><a class="markdownIt-Anchor" href="#事务提交"></a> 事务提交</h5>
-<p>如果在第一阶段所有的分支事务已经提交，则TC决定全局事务提交，此时只需要清理UNDO_LOG日志即可，相比较XA模式，不需要TC触发所有分支事务的提交</p>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/1352849-20210624000205985-1441189903.png" alt="img" style="zoom:80%;" />
-<p>具体的流程为：</p>
-<ol>
-<li>
-<p>分支事务收到TC的提交请求之后放入异步队列中，马上返回提交成功的结果</p>
-<blockquote>
-<p>这里不需要同步返回的原因是：TC不需要知道分支事务的结果，因为仅仅只是一步删除<code>UNDO_LOG</code>记录的操作，即使不成功也不会结果造成影响，所以采用异步是有效的方式</p>
-</blockquote>
-</li>
-<li>
-<p>从异步队列中执行分支提交请求，清理undo_log日志，这里并不需要分支事务的提交了，因为第一阶段中已经提交过了</p>
-</li>
-</ol>
-<p>理解起来就是：<strong>AT模式下的全局事务的提交只需要清理UNDO_LOG记录就行，不需要管分支(本地)事务的提交结果！</strong></p>
-<h5 id="事务回滚"><a class="markdownIt-Anchor" href="#事务回滚"></a> 事务回滚</h5>
-<p>在第一阶段的分支事务中任何一个分支事务执行失败，都会进入全局事务回滚流程，回滚主要是依赖<code>UNDO_LOG</code>中的记录进行补偿的</p>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/1352849-20210624001241995-2087665567.png" alt="img" style="zoom:80%;" />
-<p>具体的流程如下：</p>
-<p>接收到TC的回滚请求后，开启本地事务用来执行回滚操作</p>
-<ol>
-<li>
-<p>本地事务分支开始进行对查找<code>UNDO_LOG</code>记录，通过<code>XID+branch ID</code>查到<code>UNDO_LOG</code>记录；</p>
-</li>
-<li>
-<p>数据校验(对比更新后镜像数据与当前数据)，拿到<code>rollback_for</code>中<code>afterImage</code>镜像数据与当前业务表中数据比较，不同的话，比如<code>afterImage</code>镜像数据拿出的amount理论上为99，但是实际上amount=98，则说明已经被当前全局事务外的某个操作做了修改(实际上由于全局锁的存在，并不会存在其他全局事务对业务数据进行更新)，那么事务不进行回滚。</p>
-</li>
-<li>
-<p>第二步中对比结果是相等的话，就采用<code>beforeImage</code>和SQL的相关信息进行回滚，即</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UPDATE rep SET acoumt&#x3D;100 WHERE id&#x3D;1</span><br></pre></td></tr></table></figure>
-</li>
-<li>
-<p>删除<code>UNDO_LOG</code>记录</p>
-</li>
-<li>
-<p>提交本地事务</p>
-</li>
-<li>
-<p>将本地事务的回滚执行结果报告给TC</p>
-</li>
-</ol>
-<h3 id="隔离性保证"><a class="markdownIt-Anchor" href="#隔离性保证"></a> 隔离性保证</h3>
-<p>在AT模式下，多个全局事务操作同一张表时，它的事务隔离性保证是基于全局锁来实现的</p>
-<ol>
-<li>
-<p>写隔离，<strong>在第一阶段本地事务提交之前，必须确保拿到全局锁</strong>，如果拿不到全局锁则一直等待尝试，超出最大尝试次数则放弃全局锁的获取，并回滚释放本地锁（在本地事务开始之前就获到本地锁，这里的本地锁概念是数据库锁，比如对某行记录的行锁）</p>
-</li>
-<li>
-<p>读隔离，Seata AT事务模式的默认全局隔离级别是Read Uncommit，在这种隔离级别下，所有事务都可以看到其它未提交事物的执行结果产生脏读，这在最终一致性的事务模型是被允许的，并且大部分是分布式事务是接受脏读的。</p>
-</li>
-</ol>
+<h4 id="成功"><a class="markdownIt-Anchor" href="#成功"></a> 成功</h4>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/tcc_normal.dea14fb3.jpg" alt="tcc_normal" style="zoom:50%;" />
+<h4 id="失败"><a class="markdownIt-Anchor" href="#失败"></a> 失败</h4>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/tcc_rollback.f28601d7.jpg" alt="tcc_rollback" style="zoom:50%;" />
+<p>假如<code>Confirm/Cancel</code>操作遇见失败会怎么样？按照Tcc模式的协议，<code>Confirm/Cancel</code>操作是要求最终成功的，遇见失败的情况，都是由于临时故障或者程序bug。</p>
 <h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
-<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/1352849-20210623233710656-104557209.png" alt="img" style="zoom:80%;" />
 <p>优点：</p>
 <ol>
-<li>原子性，AT协议保证了分布式事务的原子性，要么所有 RM 都成功提交事务，要么所有 RM 都回滚事务。</li>
-<li>数据一致性，AT协议确保了分布式事务的一致性，所有 RM 在提交阶段只有在所有其他 RM 也准备好提交时才会提交事务。</li>
-<li>灵活性，AT协议可以适应各种分布式环境和参与者的异构性，因为它没有对具体的数据库或资源管理器实施特定要求。</li>
+<li>TCC 只适合短事务</li>
+<li>允许开发人员根据业务需求灵活定义每个阶段的操作逻辑。可使TCC模式适用于各种复杂的分布式事务场景。</li>
+<li>TCC模式通过将事务拆分为Try、Confirm和Cancel三个阶段，避免了传统的锁机制带来的并发性能问题</li>
+<li>由于无锁设计和阶段化的执行，TCC模式具有良好的并发性能。各个参与者可以并行执行Try和Confirm阶段的操作，减少了事务冲突和等待时间。</li>
+<li>TCC模式对于 RM  的故障和系统崩溃有一定的容错性。在Confirm阶段，事务的确认操作将确保事务的最终提交；而在Cancel阶段，事务的撤销操作将恢复资源到事务之前的状态，保证了系统的可靠性和故障恢复能力。</li>
 </ol>
 <p>缺点：</p>
 <ol>
-<li>同步阻塞，AT协议在准备和提交阶段都需要等待 RM 的响应，因此可能会引入同步阻塞，影响事务的性能和吞吐量。</li>
-<li>单点故障，在AT协议中，TC 是关键的中心节点，如果 TC 发生故障，整个分布式事务的执行将受到影响。</li>
-<li>数据不一致风险，在AT协议中，即使在准备阶段所有参与者都准备就绪，但在提交阶段仍然存在参与者无法提交成功的情况，这可能导致数据的不一致。</li>
+<li>相对于传统的ACID事务模型，TCC模式的实现相对复杂。需要开发人员仔细设计和实现每个阶段的操作逻辑</li>
+<li>由于TCC模式的阶段执行方式，可能存在部分阶段执行成功而后续阶段失败的情况。这可能导致数据的不一致性，需要通过应用程序层面的补偿机制或人工干预来解决。</li>
+<li>不同 RM 之间需要进行额外的网络通信来协调事务的执行。这可能增加系统的网络开销和延迟。</li>
 </ol>
 <h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
 <ol>
-<li><a href="https://seata.io/zh-cn/blog/seata-at-tcc-saga.html" target="_blank" rel="noopener">https://seata.io/zh-cn/blog/seata-at-tcc-saga.html</a></li>
-<li><a href="https://www.cnblogs.com/jian0110/p/14925087.html" target="_blank" rel="noopener">https://www.cnblogs.com/jian0110/p/14925087.html</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/78599954" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/78599954</a></li>
+<li><a href="https://dtm.pub/guide/theory.html#%E4%BA%8B%E5%8A%A1" target="_blank" rel="noopener">https://dtm.pub/guide/theory.html#事务</a></li>
+<li><a href="https://blog.csdn.net/yeyazhishang/article/details/80758354" target="_blank" rel="noopener">https://blog.csdn.net/yeyazhishang/article/details/80758354</a></li>
 </ol>
 
       
@@ -487,7 +430,7 @@ var _hmt = _hmt || [];
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://xboom.github.io/2023/06/06/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-06-AT/" title="分布式事务-06-AT" target="_blank" rel="external">http://xboom.github.io/2023/06/06/Distributed Transaction/分布式事务-06-AT/</a>
+      <a href="http://xboom.github.io/2022/06/04/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-04-TCC/" title="分布式事务-04-TCC" target="_blank" rel="external">http://xboom.github.io/2022/06/04/Distributed Transaction/分布式事务-04-TCC/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -535,12 +478,12 @@ var _hmt = _hmt || [];
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/2023/06/07/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-07-%E9%80%9A%E7%9F%A5%E5%9E%8B%E4%BA%8B%E5%8A%A1/" title="分布式事务-07-通知型事务"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+      <a href="/2022/06/05/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-05-SAGA/" title="分布式事务-05-SAGA"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
     </li>
     
     
     <li class="next">
-      <a href="/2023/06/05/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-05-SAGA/" title="分布式事务-05-SAGA"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2022/06/03/Distributed%20Transaction/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-03-%E4%B8%89%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4/" title="分布式事务-03-三阶段提交"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
