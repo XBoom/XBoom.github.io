@@ -4,7 +4,7 @@
   <url>
     <loc>http://xboom.github.io/2023/07/01/Go/Go%E5%85%A5%E9%97%A825-PoolDequeue/</loc>
     
-    <lastmod>2023-07-01T08:51:27.063Z</lastmod>
+    <lastmod>2023-07-01T08:53:00.998Z</lastmod>
     
   </url>
   
@@ -898,14 +898,14 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2020/11/02/TCP/TCP-3-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3/</loc>
+    <loc>http://xboom.github.io/2020/07/26/TCP/TCP-1-%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2020/07/26/TCP/TCP-1-%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE/</loc>
+    <loc>http://xboom.github.io/2020/11/02/TCP/TCP-3-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
     
@@ -975,14 +975,7 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/repository/index.html</loc>
-    
-    <lastmod>2020-09-02T15:24:35.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/tags/index.html</loc>
+    <loc>http://xboom.github.io/about/index.html</loc>
     
     <lastmod>2020-09-02T15:24:35.000Z</lastmod>
     
@@ -996,7 +989,14 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/about/index.html</loc>
+    <loc>http://xboom.github.io/repository/index.html</loc>
+    
+    <lastmod>2020-09-02T15:24:35.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/tags/index.html</loc>
     
     <lastmod>2020-09-02T15:24:35.000Z</lastmod>
     
