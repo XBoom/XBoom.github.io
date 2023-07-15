@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Go-15-SyncMap | Yuan Kang</title>
+  <meta name="description" content="一开始以为 Sync.Map 仅仅是封装的了一层，后来在与同事的讨论中发现并不是这样，这里重新学习一下源码  线程安全 首先搞清楚一个问题，什么是并发安全。由于没有完整的解释，我找了一段Java中的表达  当多个线程访问某个类时，不管运行环境采用何种调度方式或者这些进程将如何交替执行，并且在主调代码中不需要任何额外的协同或者同步，这个类都能表现出正确的行为，那么这个类是线程安全的  大致抓住两点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go-15-SyncMap">
+<meta property="og:url" content="http://xboom.github.io/2023/04/04/Go/Go-15-SyncMap/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="一开始以为 Sync.Map 仅仅是封装的了一层，后来在与同事的讨论中发现并不是这样，这里重新学习一下源码  线程安全 首先搞清楚一个问题，什么是并发安全。由于没有完整的解释，我找了一段Java中的表达  当多个线程访问某个类时，不管运行环境采用何种调度方式或者这些进程将如何交替执行，并且在主调代码中不需要任何额外的协同或者同步，这个类都能表现出正确的行为，那么这个类是线程安全的  大致抓住两点">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/20200505120255.png">
+<meta property="article:published_time" content="2023-04-04T13:01:05.349Z">
+<meta property="article:modified_time" content="2023-07-15T05:37:13.807Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/20200505120255.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2023/04/04/Go/Go-15-SyncMap/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Yuan Kang</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Learn and live</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">26</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-System/" rel="tag">Distributed System</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Transaction/" rel="tag">Distributed Transaction</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">26</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Raft/" rel="tag">Raft</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.09px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.55px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 13.91px;">Design Patterns</a> <a href="/tags/Distributed-System/" style="font-size: 13px;">Distributed System</a> <a href="/tags/Distributed-Transaction/" style="font-size: 13.45px;">Distributed Transaction</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.82px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.27px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.18px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.36px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.18px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.64px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Raft/" style="font-size: 13px;">Raft</a> <a href="/tags/Redis/" style="font-size: 13.82px;">Redis</a> <a href="/tags/TCP-IP/" style="font-size: 13.36px;">TCP/IP</a> <a href="/tags/go-zero/" style="font-size: 13.73px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.36px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/15/Go/Go-27-SyncPool/" class="title">Go-27-SyncPool</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-15T05:32:45.000Z" itemprop="datePublished">2023-07-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/13/Go/Go-26-Issue/" class="title">Go-26-Issue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-13T14:59:45.000Z" itemprop="datePublished">2023-07-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/01/Go/Go-25-PoolDequeue/" class="title">Go-25-PoolDequeue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-01T08:51:45.000Z" itemprop="datePublished">2023-07-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Protocol/">Protocol</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="title">协议-03-Raft</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-26T02:25:38.000Z" itemprop="datePublished">2023-06-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go-15-SyncMap/" class="title">Go-15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#线程安全"><span class="toc-number">1.</span> <span class="toc-text"> 线程安全</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用"><span class="toc-number">2.</span> <span class="toc-text"> 使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现原理"><span class="toc-number">3.</span> <span class="toc-text"> 实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#数据结构"><span class="toc-number">3.1.</span> <span class="toc-text"> 数据结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#基本"><span class="toc-number">3.2.</span> <span class="toc-text"> 基本</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#entry"><span class="toc-number">3.2.1.</span> <span class="toc-text"> entry</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#操作"><span class="toc-number">3.3.</span> <span class="toc-text"> 操作</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#获取"><span class="toc-number">3.3.1.</span> <span class="toc-text"> 获取</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#存储"><span class="toc-number">3.3.2.</span> <span class="toc-text"> 存储</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#删除"><span class="toc-number">3.3.3.</span> <span class="toc-text"> 删除</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#遍历"><span class="toc-number">3.3.4.</span> <span class="toc-text"> 遍历</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">5.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Go/Go-15-SyncMap" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Go-15-SyncMap
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2023/04/04/Go/Go-15-SyncMap/" class="article-date">
+	  <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Go/">Go</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Go/" rel="tag">Go</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2023/04/04/Go/Go-15-SyncMap/" class="leancloud_visitors"  data-flag-title="Go-15-SyncMap">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/04/04/Go/Go-15-SyncMap/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>一开始以为 <code>Sync.Map</code> 仅仅是封装的了一层，后来在与同事的讨论中发现并不是这样，这里重新学习一下源码</p>
+<h3 id="线程安全"><a class="markdownIt-Anchor" href="#线程安全"></a> 线程安全</h3>
+<p>首先搞清楚一个问题，什么是并发安全。由于没有完整的解释，我找了一段Java中的表达</p>
+<blockquote>
+<p>当多个线程访问某个类时，不管运行环境采用何种调度方式或者这些进程将如何交替执行，并且在主调代码中不需要任何额外的协同或者同步，这个类都能表现出正确的行为，那么这个类是线程安全的</p>
+</blockquote>
+<p>大致抓住两点 <strong>无论如何交替执行</strong> <strong>表现出正确的行为</strong>，有点抽象，反过来问 <strong>什么情况会导致线程不安全</strong>？<strong>怎样才能保证线程安全？</strong></p>
+<p><u>当前的一个操作可能不是原子的，执行过程中会被打断，其他线程有能力修改共享变量的值，同时存在线程修改的值不是立即对其他线程可见的，因为线程有自己的执行空间，另外一点就是存在程序可能存在乱序执行的情况，单线程没问题，但是多个线程同时执行，线程共享的数据会出现错乱</u>。那么保证线程安全的三个特征：</p>
+<ul>
+<li><strong>原子性</strong>：提供互斥访问、同一时刻只能有一个线程在操作</li>
+<li><strong>可见性</strong>：一个线程对主内容的修改可以及时被其他线程看到</li>
+<li><strong>有序性</strong>：程序在执行的时候，程序的代码执行顺序和语句的顺序是一致的有序性
+<ul>
+<li>多个协程并发执行，那么<strong>几个协程之间是没有有序性的</strong>，但是协程里面的代码是有序的</li>
+<li>什么情况下代码的执行顺序与语句顺序不一致？比如指令重排序，将多次访问主存合并到一起执行</li>
+</ul>
+</li>
+</ul>
+<p>这样就好理解为啥普通的map会存在并发安全问题了，因为一个协程的修改对于另外一个协程可能是不可见的。另外当map并发读写时候触发的panic是map内部实现的，结构体的并发读写只会报错不会panic。</p>
+<h3 id="使用"><a class="markdownIt-Anchor" href="#使用"></a> 使用</h3>
+<p>普通的map并发处理实践</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> counter = <span class="keyword">struct</span>&#123;</span><br><span class="line">    sync.RWMutex</span><br><span class="line">    m <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span></span><br><span class="line">&#125;&#123;m: <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>)&#125;</span><br></pre></td></tr></table></figure>
+<p>使用 <code>sync.Map</code> 则可以</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> counter sync.Map</span><br></pre></td></tr></table></figure>
+<h3 id="实现原理"><a class="markdownIt-Anchor" href="#实现原理"></a> 实现原理</h3>
+<p>源码：<code>src/sync/map.go</code></p>
+<p>为了实现并发安全的Map，<code>Sync.Map</code>实现了一种读写分离的方式</p>
+<ol>
+<li>空间换时间。 通过冗余的两个数据结构(read、dirty),实现加锁对性能的影响。</li>
+<li>动态调整，miss次数多了之后，将dirty数据提升为read。</li>
+<li>double-checking，因为是判断与获取并不是原子操作，所以会出现 double-checking</li>
+<li>延迟删除。 删除一个键值只是打标记，只有在提升dirty的时候才清理删除的数据。</li>
+<li>优先从read读取、更新、删除，因为对read的读取不需要锁。</li>
+</ol>
+<p><strong>问题1</strong>：如何在并发情况下修改或删除已经存在的Key？</p>
+<p>答：通过将 key 映射到 val 的地址，然后 val 指针指向真正的值，那么只需要保证 <code>address</code> 指针的原子操作，就能解决并发安全问题</p>
+<blockquote>
+<p>key -&gt; &amp;地址 --&gt; 真正的值</p>
+</blockquote>
+<p><strong>问题2</strong>：如何在写的同时保证读的准确性</p>
+<p>答：读写指向的是同一个指针，首先在写时会通过互斥锁防止并发操作 <code>dirty</code>，其次就是用到了<code>atomic</code>原子操作<code>value</code>指针</p>
+<p><strong>问题3</strong>：如果读写分离，如何将写入的数据同步到读中</p>
+<p>答： 1. 第一种是当<code>misses == len(dirty)</code>的时候就会升级<code>dirty</code>到<code>read</code>中；第二种就是在遍历的如果<code>dirty</code>有<code>read</code>中没有的数据；</p>
+<p>第三其实也不是读写分离，而是乐观锁，因为如果<code>read</code>中已经有key/val，也会尝试去更新<code>read</code>，发现已经删除，则去dirty中更新</p>
+<p>最后的实现就变成了下面这个样子</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/20200505120255.png" alt="sync.map 整体结构" style="zoom:50%;" />
+<p><strong>问题4</strong>：指向的是同一个<code>entry</code>，不还是一样需要加锁吗？内部 的<code>mutex</code> 与 <code>atomic.pointer</code>的区别跟作用又是什么？</p>
+<p><code>mutex</code> 与 <code>atomic</code> 的区别是：<code>mutex</code> 通过阻塞其他协程起到了原子操作的功能，是用来保护 dirty 的读写的。而<code>atomic</code>是通过CPU指令，来达到值操作的原子性，所以 <code>atomic</code>与<code>mutex</code>并不是一个层面的东西，<code>atomic</code>也比<code>mutex</code>更快。</p>
+<p>所以才会出现 <code>mutex</code> 保护的是 <code>dirty</code>，而 <code>atomic</code> 保护的是 <code>entry</code> 具体值</p>
+<h4 id="数据结构"><a class="markdownIt-Anchor" href="#数据结构"></a> 数据结构</h4>
+<p>定义的 <code>Map</code> 中 除普通的map 与 互斥锁，还增加了两个字段</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Map <span class="keyword">struct</span> &#123;</span><br><span class="line">   <span class="comment">//当涉及到dirty的操作的时候，需要使用这个锁</span></span><br><span class="line">   mu Mutex</span><br><span class="line">  <span class="comment">// 一个只读结构(实际也会更新这个数据的entries，标记为未删除的unexpunger)</span></span><br><span class="line">   read atomic.Pointer[readOnly]</span><br><span class="line">  <span class="comment">// dirty包含最新的entries(包括read中未删除的数据,虽有冗余，但也提升dirty字段为read的时候非常快，不用一个一个的复制，而是直接将这个数据结构作为read字段的一部分),有些数据还可能没有移动到read字段中。</span></span><br><span class="line">	<span class="comment">// 对于dirty的操作需要加锁，因为对它的操作可能会有读写竞争。</span></span><br><span class="line">	<span class="comment">// 当dirty为空的时候， 比如初始化或者刚提升完，下一次的写操作会复制read字段中未删除的数据到这个数据中。</span></span><br><span class="line">   dirty <span class="keyword">map</span>[any]*entry</span><br><span class="line">  <span class="comment">// 当从Map中读取entry的时候，如果read中不包含这个entry,会尝试从dirty中读取，这个时候会将misses加一，</span></span><br><span class="line">	<span class="comment">// 当misses累积到 dirty的长度的时候， 就会将dirty提升为read,避免从dirty中miss太多次。因为操作dirty需要加锁</span></span><br><span class="line">   misses <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中存在两个结构</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> readOnly <span class="keyword">struct</span> &#123;</span><br><span class="line">	m       <span class="keyword">map</span>[any]*entry	</span><br><span class="line">	amended <span class="keyword">bool</span> <span class="comment">// 为true 表示dirty中存在一些新增的键值对</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="基本"><a class="markdownIt-Anchor" href="#基本"></a> 基本</h4>
+<ol>
+<li><code>read</code> 与 <code>dirty</code> 的转换</li>
+<li><code>entry</code>的操作</li>
+</ol>
+<h5 id="entry"><a class="markdownIt-Anchor" href="#entry"></a> entry</h5>
+<p><code>entry</code> 代表的是每个 key 在<code>Map</code>中对应的一个 <code>entry</code>，并且还记录了 <strong>其他信息</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> entry <span class="keyword">struct</span> &#123;</span><br><span class="line">	p atomic.Pointer[any]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> expunged = <span class="built_in">new</span>(any) <span class="comment">//</span></span><br></pre></td></tr></table></figure>
+<p><code>p</code> 一共记录林 <code>entry</code> 的三种状态</p>
+<ol>
+<li><code>nil</code>: <code>entry</code>已被删除了，并且<code>m.dirty</code>为<code>nil</code></li>
+<li><code>expunged</code>: <code>entry</code>已被删除了，并且<code>m.dirty</code>不为<code>nil</code>，而且这个<code>entry</code>不存在于<code>m.dirty</code>中</li>
+<li>其它： <code>entry</code>是一个正常的值</li>
+</ol>
+<p>构建一个 <code>entry</code> 如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newEntry</span><span class="params">(i any)</span> *<span class="title">entry</span></span> &#123;</span><br><span class="line">   e := &amp;entry&#123;&#125;</span><br><span class="line">   e.p.Store(&amp;i)</span><br><span class="line">   <span class="keyword">return</span> e</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *entry)</span> <span class="title">load</span><span class="params">()</span> <span class="params">(value any, ok <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">	p := e.p.Load()</span><br><span class="line">	<span class="keyword">if</span> p == <span class="literal">nil</span> || p == expunged &#123;	<span class="comment">//表示不存在</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">false</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> *p, <span class="literal">true</span>	<span class="comment">//表示存在</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>entry</code> 使用 <code>atomic.Pointer[n]</code> 的作用在后面才体现出来, <code>atomic.Pointer</code> 原子地读取和存储指针类型的值</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *entry)</span> <span class="title">trySwap</span><span class="params">(i *any)</span> <span class="params">(*any, <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">   <span class="keyword">for</span> &#123;</span><br><span class="line">      p := e.p.Load()</span><br><span class="line">      <span class="keyword">if</span> p == expunged &#123;	<span class="comment">//如果已经被删除则返回false</span></span><br><span class="line">         <span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> e.p.CompareAndSwap(p, i) &#123;		<span class="comment">//否则不断的CAS更新</span></span><br><span class="line">         <span class="keyword">return</span> p, <span class="literal">true</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="操作"><a class="markdownIt-Anchor" href="#操作"></a> 操作</h4>
+<p>操作与正常的map类似，包含 存储、获取、删除、遍历。除此之外还增加的 交换、比较交换、比较删除</p>
+<h5 id="获取"><a class="markdownIt-Anchor" href="#获取"></a> 获取</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Map)</span> <span class="title">Load</span><span class="params">(key any)</span> <span class="params">(value any, ok <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">  <span class="comment">// 1.首先从m.read中得到只读readOnly,从它的map中查找，不需要加锁</span></span><br><span class="line">  read := m.loadReadOnly()	</span><br><span class="line">	e, ok := read.m[key]		</span><br><span class="line">  <span class="comment">//2. 如果没找到，并且m.dirty中有新数据，需要从m.dirty查找，这个时候需要加锁</span></span><br><span class="line">	<span class="keyword">if</span> !ok &amp;&amp; read.amended &#123;	 <span class="comment">// a 操作</span></span><br><span class="line">		m.mu.Lock()	  <span class="comment">//b 操作</span></span><br><span class="line">    <span class="comment">//双检查，避免加锁的时候m.dirty提升为m.read,这个时候m.read可能被替换了。</span></span><br><span class="line">		read = m.loadReadOnly()</span><br><span class="line">		e, ok = read.m[key]</span><br><span class="line">    <span class="comment">// 如果m.read中还是不存在，并且m.dirty中有新数据</span></span><br><span class="line">		<span class="keyword">if</span> !ok &amp;&amp; read.amended &#123;</span><br><span class="line">      <span class="comment">// 从m.dirty查找</span></span><br><span class="line">			e, ok = m.dirty[key]</span><br><span class="line">      <span class="comment">// 不管m.dirty中存不存在，都将misses计数加一</span></span><br><span class="line">			<span class="comment">// missLocked()中满足条件后就会提升m.dirty</span></span><br><span class="line">			m.missLocked()</span><br><span class="line">		&#125;</span><br><span class="line">		m.mu.Unlock()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> !ok &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">false</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> e.load()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里有两个注意事项</p>
+<ol>
+<li>
+<p>出现double-check，是因为在执行 <code>if !ok &amp;&amp; read.amended</code> 的过程中，dirty可能升级为read，所以还是需要锁操作</p>
+</li>
+<li>
+<p>不管 m.dirty中是否存在，都需要misses+1，表明 read中不存在才到 dirty中获取</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Map)</span> <span class="title">missLocked</span><span class="params">()</span></span> &#123;</span><br><span class="line">	m.misses++</span><br><span class="line">	<span class="keyword">if</span> m.misses &lt; <span class="built_in">len</span>(m.dirty) &#123;	</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	m.read.Store(&amp;readOnly&#123;m: m.dirty&#125;)	<span class="comment">//直接将dirty升级到read中，然后</span></span><br><span class="line">	m.dirty = <span class="literal">nil</span></span><br><span class="line">	m.misses = <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>什么时候讲dirty提升为 read，当 <code>misses &gt;= len(m.dirty)</code></p>
+<h5 id="存储"><a class="markdownIt-Anchor" href="#存储"></a> 存储</h5>
+<p>从接口实现可以看出，存储 k/v 内部使用的其实 Swap 接口</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Map)</span> <span class="title">Store</span><span class="params">(key, value any)</span></span> &#123;</span><br><span class="line">   _, _ = m.Swap(key, value)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>直接查看 <code>Swap</code> 的实现原理</p>
+<p>根据描述，<code>Swap</code> 的作用是 将 <code>newValue</code> 更新入 <code>key</code> 所对应的 <code>value</code>中，并将 <code>oldValue</code> 返回。另外一个返回值<code>loaded</code>表示 <code>key</code> 是否存在</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Map)</span> <span class="title">Swap</span><span class="params">(key, value any)</span> <span class="params">(previous any, loaded <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">  <span class="comment">// 如果m.read存在这个键，并且这个entry没有被标记删除，尝试直接存储。</span></span><br><span class="line">	<span class="comment">// 因为m.dirty也指向这个entry,所以m.dirty也保持最新的entry。</span></span><br><span class="line">   read := m.loadReadOnly()</span><br><span class="line">   <span class="keyword">if</span> e, ok := read.m[key]; ok &#123;	<span class="comment">//如果只读存在</span></span><br><span class="line">      <span class="keyword">if</span> v, ok := e.trySwap(&amp;value); ok &#123;	<span class="comment">//尝试去更新value，如果未 标记删除</span></span><br><span class="line">         <span class="keyword">if</span> v == <span class="literal">nil</span> &#123;			<span class="comment">//value为空</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">false</span>	</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">return</span> *v, <span class="literal">true</span>	<span class="comment">//更新成功 返回 true</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   m.mu.Lock()	<span class="comment">// 加锁，如果`m.read`不存在或者已经被标记删除</span></span><br><span class="line">   read = m.loadReadOnly()</span><br><span class="line">   <span class="keyword">if</span> e, ok := read.m[key]; ok &#123; <span class="comment">//只读存在</span></span><br><span class="line">     <span class="keyword">if</span> e.unexpungeLocked() &#123;	<span class="comment">//如果未标记删除则删除read,然后存入dirty(写数据到dirty中)</span></span><br><span class="line">         m.dirty[key] = e	<span class="comment">//存入 dirty</span></span><br><span class="line">      &#125;</span><br><span class="line">     <span class="keyword">if</span> v := e.swapLocked(&amp;value); v != <span class="literal">nil</span> &#123;	<span class="comment">//未标记删除则直接更新read</span></span><br><span class="line">         loaded = <span class="literal">true</span></span><br><span class="line">         previous = *v</span><br><span class="line">      &#125;</span><br><span class="line">   &#125; <span class="keyword">else</span> <span class="keyword">if</span> e, ok := m.dirty[key]; ok &#123;	<span class="comment">//只读不存在但是dirty存在</span></span><br><span class="line">      <span class="keyword">if</span> v := e.swapLocked(&amp;value); v != <span class="literal">nil</span> &#123;	</span><br><span class="line">         loaded = <span class="literal">true</span></span><br><span class="line">         previous = *v</span><br><span class="line">      &#125;</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;	<span class="comment">//都不存在</span></span><br><span class="line">      <span class="keyword">if</span> !read.amended &#123;	<span class="comment">//dirty中没有新值</span></span><br><span class="line">         m.dirtyLocked()	<span class="comment">//如果dirty为空，从 m.read中复制未删除的数据</span></span><br><span class="line">         m.read.Store(&amp;readOnly&#123;m: read.m, amended: <span class="literal">true</span>&#125;) <span class="comment">//read中存储</span></span><br><span class="line">      &#125;</span><br><span class="line">      m.dirty[key] = newEntry(value)	<span class="comment">//dirty 存储一个新的 value地址</span></span><br><span class="line">   &#125;</span><br><span class="line">   m.mu.Unlock()</span><br><span class="line">   <span class="keyword">return</span> previous, loaded</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里 <code>dirtyLocked的</code>作用是将未删除的复制到<code>dirty</code>中</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Map)</span> <span class="title">dirtyLocked</span><span class="params">()</span></span> &#123;</span><br><span class="line">   <span class="keyword">if</span> m.dirty != <span class="literal">nil</span> &#123;	<span class="comment">//如果不为空直接返回</span></span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   read := m.loadReadOnly()</span><br><span class="line">   m.dirty = <span class="built_in">make</span>(<span class="keyword">map</span>[any]*entry, <span class="built_in">len</span>(read.m))	</span><br><span class="line">   <span class="keyword">for</span> k, e := <span class="keyword">range</span> read.m &#123;</span><br><span class="line">      <span class="keyword">if</span> !e.tryExpungeLocked() &#123;</span><br><span class="line">         m.dirty[k] = e</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *entry)</span> <span class="title">tryExpungeLocked</span><span class="params">()</span> <span class="params">(isExpunged <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">   p := e.p.Load()	<span class="comment">//加载entry中的地址</span></span><br><span class="line">   <span class="keyword">for</span> p == <span class="literal">nil</span> &#123;	<span class="comment">//如果为空</span></span><br><span class="line">      <span class="keyword">if</span> e.p.CompareAndSwap(<span class="literal">nil</span>, expunged) &#123;	<span class="comment">//尝试使用 expunged更新状态</span></span><br><span class="line">         <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">      &#125;</span><br><span class="line">      p = e.p.Load()</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> p == expunged</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="删除"><a class="markdownIt-Anchor" href="#删除"></a> 删除</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Map)</span> <span class="title">Delete</span><span class="params">(key any)</span></span> &#123;</span><br><span class="line">	m.LoadAndDelete(key)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Map)</span> <span class="title">LoadAndDelete</span><span class="params">(key any)</span> <span class="params">(value any, loaded <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">  <span class="comment">//先从read中加载</span></span><br><span class="line">	read := m.loadReadOnly()</span><br><span class="line">	e, ok := read.m[key]</span><br><span class="line">	<span class="keyword">if</span> !ok &amp;&amp; read.amended &#123;	<span class="comment">//read没有且dirty中有新数据</span></span><br><span class="line">    <span class="comment">//开启锁</span></span><br><span class="line">		m.mu.Lock()</span><br><span class="line">		read = m.loadReadOnly()</span><br><span class="line">		e, ok = read.m[key]</span><br><span class="line">		<span class="keyword">if</span> !ok &amp;&amp; read.amended &#123;	<span class="comment">//如果read没有，则dirty中有新数据</span></span><br><span class="line">			e, ok = m.dirty[key]</span><br><span class="line">			<span class="built_in">delete</span>(m.dirty, key)</span><br><span class="line">      m.missLocked()	<span class="comment">//当misses数量达到 len(m.dirty),dirty升级为read</span></span><br><span class="line">		&#125;</span><br><span class="line">		m.mu.Unlock()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> ok &#123;</span><br><span class="line">		<span class="keyword">return</span> e.<span class="built_in">delete</span>()	<span class="comment">//如果read存在则标记删除</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>如果read中存在，那么仅会标记删除</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *entry)</span> <span class="title">delete</span><span class="params">()</span> <span class="params">(value any, ok <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">   <span class="keyword">for</span> &#123;</span><br><span class="line">      p := e.p.Load()</span><br><span class="line">      <span class="keyword">if</span> p == <span class="literal">nil</span> || p == expunged &#123;	<span class="comment">//如果为空或者标记删除，返回没有数据</span></span><br><span class="line">         <span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> e.p.CompareAndSwap(p, <span class="literal">nil</span>) &#123;	<span class="comment">//标记为nil，并不会直接删除</span></span><br><span class="line">         <span class="keyword">return</span> *p, <span class="literal">true</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="遍历"><a class="markdownIt-Anchor" href="#遍历"></a> 遍历</h5>
+<p>因为是读写分离，所以在遍历的过程中</p>
+<ol>
+<li>如果dirty中没有新数据，那么就使用read遍历</li>
+<li>如果dirty中有新数据，那么就将dirty升级为read，然后遍历read</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Map)</span> <span class="title">Range</span><span class="params">(f <span class="keyword">func</span>(key, value any)</span> <span class="title">bool</span>)</span> &#123;</span><br><span class="line">   <span class="comment">//判断dirty是否有新值</span></span><br><span class="line">   read := m.loadReadOnly()</span><br><span class="line">   <span class="keyword">if</span> read.amended &#123;</span><br><span class="line">      m.mu.Lock()	<span class="comment">//开锁</span></span><br><span class="line">      read = m.loadReadOnly()</span><br><span class="line">      <span class="keyword">if</span> read.amended &#123;	<span class="comment">//dirty是否有新值</span></span><br><span class="line">         read = readOnly&#123;m: m.dirty&#125;</span><br><span class="line">         m.read.Store(&amp;read)	<span class="comment">//升级dirty为read</span></span><br><span class="line">         m.dirty = <span class="literal">nil</span></span><br><span class="line">         m.misses = <span class="number">0</span></span><br><span class="line">      &#125;</span><br><span class="line">      m.mu.Unlock()</span><br><span class="line">   &#125;</span><br><span class="line">		<span class="comment">//遍历read</span></span><br><span class="line">   <span class="keyword">for</span> k, e := <span class="keyword">range</span> read.m &#123;</span><br><span class="line">      v, ok := e.load()</span><br><span class="line">      <span class="keyword">if</span> !ok &#123;</span><br><span class="line">         <span class="keyword">continue</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> !f(k, v) &#123;</span><br><span class="line">         <span class="keyword">break</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结：</h3>
+<ol>
+<li>
+<p>该map仅针对特定的场景</p>
+<ul>
+<li>Key 读多写少的情况，例如只增长的缓存</li>
+<li>多个协程针对不同的key合集进行读写更新时候可以用</li>
+<li>sync.Map 不能在第一次使用后复制</li>
+</ul>
+</li>
+<li>
+<p>由于dirty达到一定条件就需要升级为read，所以适用读多写少的场景</p>
+</li>
+</ol>
+<h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
+<ol>
+<li><a href="https://www.cnblogs.com/qcrao-2018/p/12833787.html" target="_blank" rel="noopener">https://www.cnblogs.com/qcrao-2018/p/12833787.html</a></li>
+<li><a href="https://colobu.com/2017/07/11/dive-into-sync-Map/#sync-Map%E7%9A%84%E6%80%A7%E8%83%BD" target="_blank" rel="noopener">https://colobu.com/2017/07/11/dive-into-sync-Map/#sync-Map的性能</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2023/04/04/Go/Go-15-SyncMap/" title="Go-15-SyncMap" target="_blank" rel="external">http://xboom.github.io/2023/04/04/Go/Go-15-SyncMap/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">Yuan Kang</span><small class="ml-1x">Learn and live</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" title="协议-03-Raft"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2023/03/05/Go/Go-24-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/" title="Go-24-协程池问题"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Go-23-arena | Yuan Kang</title>
+  <meta name="description" content="最近 Go1.20 更新，中间讲到了一个特性 arena ，这里看看加入 arena 的作用  在Go的内存管理中，arena 其实就是所谓的堆区，然后将这个区域分割成 8KB 大小的页，组合起来称为 mspan，mspan就是Go中内存管理的基本单元，是由一片连续的 8KB 的页组成的大块内存。其实 mspan 是一个包含起始地址、规格、页的数量等内容的双端链表  虽然 Go 的垃圾回收机制能够">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go-23-arena">
+<meta property="og:url" content="http://xboom.github.io/2023/01/10/Go/Go-23-arena/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="最近 Go1.20 更新，中间讲到了一个特性 arena ，这里看看加入 arena 的作用  在Go的内存管理中，arena 其实就是所谓的堆区，然后将这个区域分割成 8KB 大小的页，组合起来称为 mspan，mspan就是Go中内存管理的基本单元，是由一片连续的 8KB 的页组成的大块内存。其实 mspan 是一个包含起始地址、规格、页的数量等内容的双端链表  虽然 Go 的垃圾回收机制能够">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-01-10T08:00:20.000Z">
+<meta property="article:modified_time" content="2023-07-15T05:37:56.756Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Go">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2023/01/10/Go/Go-23-arena/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Yuan Kang</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Learn and live</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">26</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-System/" rel="tag">Distributed System</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Transaction/" rel="tag">Distributed Transaction</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">26</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Raft/" rel="tag">Raft</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.09px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.55px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 13.91px;">Design Patterns</a> <a href="/tags/Distributed-System/" style="font-size: 13px;">Distributed System</a> <a href="/tags/Distributed-Transaction/" style="font-size: 13.45px;">Distributed Transaction</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.82px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.27px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.18px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.36px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.18px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.64px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Raft/" style="font-size: 13px;">Raft</a> <a href="/tags/Redis/" style="font-size: 13.82px;">Redis</a> <a href="/tags/TCP-IP/" style="font-size: 13.36px;">TCP/IP</a> <a href="/tags/go-zero/" style="font-size: 13.73px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.36px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/15/Go/Go-27-SyncPool/" class="title">Go-27-SyncPool</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-15T05:32:45.000Z" itemprop="datePublished">2023-07-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/13/Go/Go-26-Issue/" class="title">Go-26-Issue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-13T14:59:45.000Z" itemprop="datePublished">2023-07-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/01/Go/Go-25-PoolDequeue/" class="title">Go-25-PoolDequeue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-01T08:51:45.000Z" itemprop="datePublished">2023-07-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Protocol/">Protocol</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="title">协议-03-Raft</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-26T02:25:38.000Z" itemprop="datePublished">2023-06-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go-15-SyncMap/" class="title">Go-15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基础功能"><span class="toc-number">1.</span> <span class="toc-text"> 基础功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现原理"><span class="toc-number">2.</span> <span class="toc-text"> 实现原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#对比syncpool"><span class="toc-number">3.</span> <span class="toc-text"> 对比Sync.Pool</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">5.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Go/Go-23-arena" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Go-23-arena
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2023/01/10/Go/Go-23-arena/" class="article-date">
+	  <time datetime="2023-01-10T08:00:20.000Z" itemprop="datePublished">2023-01-10</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Go/">Go</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Go/" rel="tag">Go</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2023/01/10/Go/Go-23-arena/" class="leancloud_visitors"  data-flag-title="Go-23-arena">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/01/10/Go/Go-23-arena/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>最近 <code>Go1.20</code> 更新，中间讲到了一个特性 <code>arena</code> ，这里看看加入 <code>arena</code> 的作用</p>
+<blockquote>
+<p>在Go的内存管理中，<code>arena</code> 其实就是所谓的堆区，然后将这个区域分割成 <code>8KB</code> 大小的页，组合起来称为 <code>mspan</code>，<code>mspan</code>就是Go中内存管理的基本单元，是由一片连续的 8KB 的页组成的大块内存。其实 <code>mspan</code> 是一个包含起始地址、规格、页的数量等内容的双端链表</p>
+</blockquote>
+<p>虽然 Go 的垃圾回收机制能够正常的进行内存管理，但是存在以下问题</p>
+<ol>
+<li>垃圾回收机制需要花费大量CPU进行垃圾回收操作</li>
+<li>垃圾回收机制有一定的延迟性，导致花费的内存比实际的内存要大</li>
+</ol>
+<p>而 <code>arena</code> 的优势 <strong>允许从连续的内存空间中分配对象并一次性进行释放</strong></p>
+<p>注意：在 <a href="https://github.com/golang/go/issues/51317" target="_blank" rel="noopener">github arena 的话题</a>中，有一个最新的笔记提醒, 即处在测试阶段的 arena 功能随时可能被去除掉</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Note, 2023-01-17. This proposal is on hold indefinitely due to serious API concerns. The GOEXPERIMENT=arena code may be changed incompatibly or removed at any time, and we do not recommend its use in production.</span><br></pre></td></tr></table></figure>
+<p>带着问题看世界：</p>
+<ol>
+<li>它跟内存池的区别</li>
+<li>由于需要连续的内存空间，那么当需要分配的内存比较多，没有这么大的连续内存空间怎么办？</li>
+<li>如果它分配的对象有一部分存在内存逃逸，那么该如何处理？</li>
+<li>能支持并发吗</li>
+</ol>
+<h3 id="基础功能"><a class="markdownIt-Anchor" href="#基础功能"></a> 基础功能</h3>
+<p>由于是实验功能，所以需要配置环境变量 <code>GOEXPERIMENT=arenas</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">"arena"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> T <span class="keyword">struct</span>&#123;</span><br><span class="line">	Foo <span class="keyword">string</span></span><br><span class="line">	Bar [<span class="number">16</span>]<span class="keyword">byte</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">processRequest</span><span class="params">(req *http.Request)</span></span> &#123;</span><br><span class="line">	<span class="comment">// Create an arena in the beginning of the function.</span></span><br><span class="line">	mem := arena.NewArena()</span><br><span class="line">	<span class="comment">// Free the arena in the end.</span></span><br><span class="line">	<span class="keyword">defer</span> mem.Free()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Allocate a bunch of objects from the arena.</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">		obj := arena.New[T](mem)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Or a slice with length and capacity.</span></span><br><span class="line">	slice := arena.MakeSlice[T](mem, <span class="number">100</span>, <span class="number">200</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果想在arena释放时候继续使用它分配的对象，则可以通过 Clone 从堆中浅拷贝一个对象</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">obj1 := arena.New[T](mem) <span class="comment">// arena-allocated</span></span><br><span class="line">obj2 := arena.Clone(obj1) <span class="comment">// heap-allocated</span></span><br><span class="line">fmt.Println(obj2 == obj1) <span class="comment">// false</span></span><br><span class="line"></span><br><span class="line">mem.Free()</span><br></pre></td></tr></table></figure>
+<p>其他接口包括</p>
+<ul>
+<li><code>NewArena</code>：创建一个新的 arena 内存空间。</li>
+<li><code>Free</code>：释放 arena 及其关联对象。</li>
+<li><code>New</code>：基于 arena，创建新对象。</li>
+<li><code>MakeSlice</code>：基于 arena，创建新切片。</li>
+<li><code>Clone</code>：克隆一个 arena 的对象，并移动到内存堆上。<strong>只能是指针、slice或者字符串</strong></li>
+</ul>
+<h3 id="实现原理"><a class="markdownIt-Anchor" href="#实现原理"></a> 实现原理</h3>
+<p>代码路径：</p>
+<ol>
+<li><code>src/runtime/arena.go</code></li>
+<li><code>src/arena/arena.go</code></li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//arena 表示多个Go一起分配与释放的内存集合，当其中的对象不在被引用那么将会自动释放</span></span><br><span class="line"><span class="keyword">type</span> Arena <span class="keyword">struct</span> &#123;</span><br><span class="line">	a unsafe.Pointer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewArena allocates a new arena.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewArena</span><span class="params">()</span> *<span class="title">Arena</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;Arena&#123;a: runtime_arena_newArena()&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>根据描述这里注意点有两个：</p>
+<ol>
+<li>arena 分配的对象需要及时释放</li>
+<li>既然是自动释放，然后在使用中 <code>defer arena.Free()</code> 可以任务是，不用等到二次垃圾回收，直接将资源释放，并将可重复使用的mspan放入<code>reused</code>中</li>
+</ol>
+<p>查看Arena 内部结构</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> userArena <span class="keyword">struct</span> &#123;</span><br><span class="line">  <span class="comment">// 指向一个链表，表示一系列没有足够空闲内存的 mspan(内存段)。当该内存管理区域被释放时，这些 mspan 也会被释放</span></span><br><span class="line">	fullList *mspan  <span class="comment">//内存组件 mspan</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 指向一个 mspan，表示未满的内存段。这个 mspan 中还有可用的内存可以分配</span></span><br><span class="line">	active *mspan   </span><br><span class="line"></span><br><span class="line">  <span class="comment">//一个指向 unsafe.Pointer 类型的切片，用于引用当前内存管理区域的对象。这可以防止在仍然有引用对象时释放该内存管理区域</span></span><br><span class="line">	refs []unsafe.Pointer</span><br><span class="line"></span><br><span class="line">  <span class="comment">//一个原子布尔类型的变量，用于标记内存管理区域是否已经被释放。如果为 true，表示该内存管理区域已经被释放，以避免重复释放</span></span><br><span class="line">	defunct atomic.Bool</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Arena 如果重复释放也没有关系，判断释放过则直接结束</li>
+</ul>
+<p>**第一步：**分配一个 <code>Arena</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// newUserArena creates a new userArena ready to be used.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newUserArena</span><span class="params">()</span> *<span class="title">userArena</span></span> &#123;</span><br><span class="line">	a := <span class="built_in">new</span>(userArena)</span><br><span class="line">	SetFinalizer(a, <span class="function"><span class="keyword">func</span><span class="params">(a *userArena)</span></span> &#123; <span class="comment">//g</span></span><br><span class="line">		<span class="comment">// If arena handle is dropped without being freed, then call</span></span><br><span class="line">		<span class="comment">// free on the arena, so the arena chunks are never reclaimed</span></span><br><span class="line">		<span class="comment">// by the garbage collector.</span></span><br><span class="line">		a.free()</span><br><span class="line">	&#125;)</span><br><span class="line">	a.refill()</span><br><span class="line">	<span class="keyword">return</span> a</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a *userArena)</span> <span class="title">refill</span><span class="params">()</span> *<span class="title">mspan</span></span> &#123;</span><br><span class="line">	<span class="comment">// If there's an active chunk, assume it's full.</span></span><br><span class="line">	s := a.active</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	<span class="keyword">var</span> x unsafe.Pointer</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Check the partially-used list.</span></span><br><span class="line">	lock(&amp;userArenaState.lock)</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(userArenaState.reuse) &gt; <span class="number">0</span> &#123;</span><br><span class="line">		<span class="comment">//当前存在可重用的就使用重用的</span></span><br><span class="line">	&#125;</span><br><span class="line">	unlock(&amp;userArenaState.lock)</span><br><span class="line">  </span><br><span class="line">	<span class="keyword">if</span> s == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// Allocate a new one. 否则分配一个新的mspan</span></span><br><span class="line">		x, s = newUserArenaChunk()</span><br><span class="line">		<span class="keyword">if</span> s == <span class="literal">nil</span> &#123;</span><br><span class="line">			throw(<span class="string">"out of memory"</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	a.refs = <span class="built_in">append</span>(a.refs, x)	<span class="comment">//记录mspan.base()，报活mspan</span></span><br><span class="line">	a.active = s								<span class="comment">//记录当前使用的mspan</span></span><br><span class="line">	<span class="keyword">return</span> s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>SetFinalizer</code> 函数可参考<a href="https://www.yuankang.top/2023/01/04/Go/Go%E5%85%A5%E9%97%A821-SetFinalizer/" target="_blank" rel="noopener">文章</a>，当gc检测到unreachable对象有关联的SetFinalizer函数时，会执行关联的SetFinalizer函数， 同时取消关联。 这样当下一次gc的时候，对象重新处于unreachable状态并且没有SetFinalizer关联， 就会被回收。</li>
+</ul>
+<p>**第二步：**从 arena 中分配具体类型的对象</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a *userArena)</span> <span class="title">refill</span><span class="params">()</span> *<span class="title">mspan</span></span> &#123;</span><br><span class="line">	<span class="comment">// If there's an active chunk, assume it's full.</span></span><br><span class="line">	s := a.active	<span class="comment">//上次分配了mspan</span></span><br><span class="line">	<span class="keyword">if</span> s != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> s.userArenaChunkFree.size() &gt; userArenaChunkMaxAllocBytes &#123;</span><br><span class="line">			<span class="comment">// It's difficult to tell when we're actually out of memory</span></span><br><span class="line">			<span class="comment">// in a chunk because the allocation that failed may still leave</span></span><br><span class="line">			<span class="comment">// some free space available. However, that amount of free space</span></span><br><span class="line">			<span class="comment">// should never exceed the maximum allocation size.</span></span><br><span class="line">			throw(<span class="string">"wasted too much memory in an arena chunk"</span>)</span><br><span class="line">		&#125;</span><br><span class="line">		s.next = a.fullList <span class="comment">//将这个mspan放到fullList的链表头部</span></span><br><span class="line">		a.fullList = s</span><br><span class="line">		a.active = <span class="literal">nil</span>	<span class="comment">//active置为空</span></span><br><span class="line">		s = <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> x unsafe.Pointer</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Check the partially-used list.</span></span><br><span class="line">	lock(&amp;userArenaState.lock)</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(userArenaState.reuse) &gt; <span class="number">0</span> &#123;	<span class="comment">//</span></span><br><span class="line">		<span class="comment">//如果有可以重用的mspan则放到s中</span></span><br><span class="line">	&#125;</span><br><span class="line">	unlock(&amp;userArenaState.lock)</span><br><span class="line">	<span class="keyword">if</span> s == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// Allocate a new one.</span></span><br><span class="line">		x, s = newUserArenaChunk()	<span class="comment">//否则新分配一个新的</span></span><br><span class="line">		<span class="keyword">if</span> s == <span class="literal">nil</span> &#123;</span><br><span class="line">			throw(<span class="string">"out of memory"</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	a.refs = <span class="built_in">append</span>(a.refs, x)</span><br><span class="line">	a.active = s</span><br><span class="line">	<span class="keyword">return</span> s</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>**第三步：**释放的核心是这块代码</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">s := a.fullList	<span class="comment">//获取这个mspan</span></span><br><span class="line">i := <span class="built_in">len</span>(a.refs) - <span class="number">2</span></span><br><span class="line"><span class="keyword">for</span> s != <span class="literal">nil</span> &#123;	<span class="comment">//不为空</span></span><br><span class="line">  a.fullList = s.next	<span class="comment">//指向下一个节点</span></span><br><span class="line">  s.next = <span class="literal">nil</span></span><br><span class="line">  freeUserArenaChunk(s, a.refs[i])	<span class="comment">//释放这个mspan</span></span><br><span class="line">  s = a.fullList	<span class="comment">//指向下一个节点</span></span><br><span class="line">  i--</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>释放的时候仅仅是将fullList中所有的都释放掉了，而active中的则会进去到全局reuse对象中用于下次使用</li>
+</ul>
+<p>这个全局变量就是 <code>userArenaState</code> 用于存放可重复使用的mspan以及回收的mspan</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> userArenaState <span class="keyword">struct</span> &#123;</span><br><span class="line">	lock mutex</span><br><span class="line"></span><br><span class="line">  <span class="comment">//可重复使用</span></span><br><span class="line">	reuse []liveUserArenaChunk</span><br><span class="line"></span><br><span class="line">  <span class="comment">//回收释放的</span></span><br><span class="line">	fault []liveUserArenaChunk</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="对比syncpool"><a class="markdownIt-Anchor" href="#对比syncpool"></a> 对比Sync.Pool</h3>
+<p>arena 与 Sync.Pool 同样都是为了解决频繁分配对象和大量对象GC带来的开销</p>
+<p><code>Sync.Pool</code>相同类型的对象，使用完后暂时缓存不GC，下次再有相同的对象分配时直接用之前的缓存的对象，避免频繁创建大量对象。不承诺这些缓存对象的生命周期，GC时会释放之前的缓存，适合解决频繁创建相同对象带来的压力，短时间(两次GC之间)大量创建可能还是会有较大冲击，使用相对简单，但只能用于相同结构创建，不能创建slice等复杂结构</p>
+<p><code>arena</code>手动管理连续内容并统一释放，对象的生命周期完全自己控制，使用相对复杂，支持slice等复杂结构，也不是一个真正意义的连续超大空间，而是通过管理不同的mspan实现</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"arena"</span></span><br><span class="line">	<span class="string">"sync"</span></span><br><span class="line">	<span class="string">"testing"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> MyObj <span class="keyword">struct</span> &#123;</span><br><span class="line">	Index <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkCreateObj</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	b.ReportAllocs()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> p *MyObj</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">1000</span>; j++ &#123;</span><br><span class="line">			p = <span class="built_in">new</span>(MyObj)</span><br><span class="line">			p.Index = j</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	objPool = sync.Pool&#123;</span><br><span class="line">		New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">			<span class="keyword">return</span> &amp;MyObj&#123;&#125;</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkCreateObj_SyncPool</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	b.ReportAllocs()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> p *MyObj</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line">		<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">1000</span>; j++ &#123;</span><br><span class="line">			p = objPool.Get().(*MyObj)</span><br><span class="line">			p.Index = <span class="number">23</span></span><br><span class="line">			objPool.Put(p)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BenchmarkCreateObj_Arena</span><span class="params">(b *testing.B)</span></span> &#123;</span><br><span class="line">	b.ReportAllocs()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> p *MyObj</span><br><span class="line"></span><br><span class="line">	a := arena.NewArena()</span><br><span class="line">	<span class="keyword">defer</span> a.Free()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; b.N; i++ &#123;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">1000</span>; j++ &#123;</span><br><span class="line">			p = arena.New[MyObj](a)</span><br><span class="line">			p.Index = <span class="number">23</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>性能对比的结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cpu: Intel(R) Core(TM) i7-8559U CPU @ 2.70GHz</span><br><span class="line">BenchmarkCreateObj-8                      100518             11370 ns/op            8000 B/op       1000 allocs/op</span><br><span class="line">BenchmarkCreateObj_SyncPool-8             110017             11523 ns/op               0 B/op          0 allocs/op</span><br><span class="line">BenchmarkCreateObj_Arena-8                 80409             15340 ns/op            8032 B/op          0 allocs/op</span><br></pre></td></tr></table></figure>
+<p><code>Sync.Pool</code> 不需要重复分配且每次操作时间短，而<code>Arena</code>执行时间会长一点且每次还是需要分配内存的，因为需要引入新的 <code>mspan</code></p>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<ol>
+<li><code>Arena</code> 不支持并发，可以看出操作同一个 arena的时候并不存在锁操作</li>
+<li>Arena 强制 Free()之后的对象无法继续使用</li>
+<li>优点：
+<ul>
+<li>一旦被释放但仍然被访问则会显示的导致程序错误</li>
+<li>arena 地址空间除非没有指针指向，否则将不能被重用</li>
+<li>arena 永远不会被垃圾回收机制回收(如果GC不可达它会执行 <code>SetFinalizer</code> 自己释放掉，那我们手动free的意义在哪里 --&gt; 也就是构建arena的目的，提前释放内存，降低GC扫描频率)</li>
+</ul>
+</li>
+</ol>
+<h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
+<ol>
+<li><a href="https://uptrace.dev/blog/golang-memory-arena.html" target="_blank" rel="noopener">https://uptrace.dev/blog/golang-memory-arena.html</a></li>
+<li><a href="https://colobu.com/2022/10/17/a-first-look-at-arena/" target="_blank" rel="noopener">https://colobu.com/2022/10/17/a-first-look-at-arena/</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/604686258" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/604686258</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2023/01/10/Go/Go-23-arena/" title="Go-23-arena" target="_blank" rel="external">http://xboom.github.io/2023/01/10/Go/Go-23-arena/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">Yuan Kang</span><small class="ml-1x">Learn and live</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2023/02/02/Algorithms%20To%20Live%20By/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/" title="算法-E10C-最大公约数"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2023/01/04/Go/Go-21-SetFinalizer/" title="Go-21-SetFinalizer"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>

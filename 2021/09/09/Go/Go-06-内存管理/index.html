@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Go-06-内存管理 | Yuan Kang</title>
+  <meta name="description" content="带着问题看世界  内存是如何管理的 如何根据指定的大小分配内存的   基础概念 Go在程序启动的时候，会先向操作系统申请一块内存(注意这时还只是一段虚拟的地址空间，并不会真正地分配内存)，切成小块后自己进行管理。申请到的内存块被分配了三个区域，在X64上分别是512MB，16GB，512GB大小。    arena区域就是所谓的堆区，Go动态分配的内存都是在这个区域，它把内存分割成8KB大小的页，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go-06-内存管理">
+<meta property="og:url" content="http://xboom.github.io/2021/09/09/Go/Go-06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="带着问题看世界  内存是如何管理的 如何根据指定的大小分配内存的   基础概念 Go在程序启动的时候，会先向操作系统申请一块内存(注意这时还只是一段虚拟的地址空间，并不会真正地分配内存)，切成小块后自己进行管理。申请到的内存块被分配了三个区域，在X64上分别是512MB，16GB，512GB大小。    arena区域就是所谓的堆区，Go动态分配的内存都是在这个区域，它把内存分割成8KB大小的页，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711144513.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711145757.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711145650.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711172507.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150354.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150526.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150549.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/1620-20230218150525616.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711170344.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150643.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150923.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711151026.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711165639.png">
+<meta property="article:published_time" content="2021-09-08T16:08:22.000Z">
+<meta property="article:modified_time" content="2023-07-15T05:36:20.422Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711144513.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2021/09/09/Go/Go-06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Yuan Kang</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Learn and live</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">26</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-System/" rel="tag">Distributed System</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Transaction/" rel="tag">Distributed Transaction</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">26</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Raft/" rel="tag">Raft</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.09px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.55px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 13.91px;">Design Patterns</a> <a href="/tags/Distributed-System/" style="font-size: 13px;">Distributed System</a> <a href="/tags/Distributed-Transaction/" style="font-size: 13.45px;">Distributed Transaction</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.82px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.27px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.18px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.36px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.18px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.64px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Raft/" style="font-size: 13px;">Raft</a> <a href="/tags/Redis/" style="font-size: 13.82px;">Redis</a> <a href="/tags/TCP-IP/" style="font-size: 13.36px;">TCP/IP</a> <a href="/tags/go-zero/" style="font-size: 13.73px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.36px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/15/Go/Go-27-SyncPool/" class="title">Go-27-SyncPool</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-15T05:32:45.000Z" itemprop="datePublished">2023-07-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/13/Go/Go-26-Issue/" class="title">Go-26-Issue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-13T14:59:45.000Z" itemprop="datePublished">2023-07-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/01/Go/Go-25-PoolDequeue/" class="title">Go-25-PoolDequeue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-01T08:51:45.000Z" itemprop="datePublished">2023-07-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Protocol/">Protocol</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="title">协议-03-Raft</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-26T02:25:38.000Z" itemprop="datePublished">2023-06-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go-15-SyncMap/" class="title">Go-15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基础概念"><span class="toc-number">1.</span> <span class="toc-text"> 基础概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存管理单元"><span class="toc-number">2.</span> <span class="toc-text"> 内存管理单元</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存管理元件"><span class="toc-number">3.</span> <span class="toc-text"> 内存管理元件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#mcache"><span class="toc-number">3.1.</span> <span class="toc-text"> mcache</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mcentral"><span class="toc-number">3.2.</span> <span class="toc-text"> mcentral</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mheap"><span class="toc-number">3.3.</span> <span class="toc-text"> mheap</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存分配流程"><span class="toc-number">4.</span> <span class="toc-text"> 内存分配流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#地址空间"><span class="toc-number">5.</span> <span class="toc-text"> 地址空间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">6.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Go/Go-06-内存管理" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Go-06-内存管理
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/09/09/Go/Go-06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="article-date">
+	  <time datetime="2021-09-08T16:08:22.000Z" itemprop="datePublished">2021-09-09</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Go/">Go</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Go/" rel="tag">Go</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2021/09/09/Go/Go-06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="leancloud_visitors"  data-flag-title="Go-06-内存管理">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/09/09/Go/Go-06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>带着问题看世界</p>
+<ol>
+<li>内存是如何管理的</li>
+<li>如何根据指定的大小分配内存的</li>
+</ol>
+<h3 id="基础概念"><a class="markdownIt-Anchor" href="#基础概念"></a> 基础概念</h3>
+<p>Go在程序启动的时候，会先向操作系统申请一块内存(注意这时还只是一段虚拟的地址空间，并不会真正地分配内存)，切成小块后自己进行管理。申请到的内存块被分配了三个区域，在X64上分别是512MB，16GB，512GB大小。</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711144513.png" alt="堆区总览" style="zoom:80%;" />
+<ul>
+<li>
+<p><strong>arena</strong>区域就是所谓的堆区，Go动态分配的内存都是在这个区域，它把内存分割成<code>8KB</code>大小的页，一些页组合起来称为<code>mspan</code>。</p>
+</li>
+<li>
+<p><strong>bitmap</strong>区标识arena区域哪些地址保存了对象，并且用<code>4bit</code>标志位表示对象是否包含指针、<code>GC</code>标记信息。<code>bitmap</code>中一个<code>byte</code>大小的内存对应<code>arena</code>区域中4个指针大小(指针大小为 8B)的内存，所以<code>bitmap</code>区域的大小是<code>512GB/(4*8B)=16GB</code></p>
+</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711145757.png" alt="bitmap arena" style="zoom:60%;" />
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711145650.png" alt="堆区总览" style="zoom:60%;" />
+<blockquote>
+<p>从上图其实还可以看到bitmap的高地址部分指向arena区域的低地址部分，也就是说bitmap的地址是由高地址向低地址增长的。</p>
+</blockquote>
+<ul>
+<li><strong>spans</strong>区域存放<code>mspan</code>(也就是一些<code>arena</code>分割的页组合起来的内存管理基本单元)的指针，每个指针对应一页，所以<code>spans</code>区域的大小就是<code>512GB/8KB*8B=512MB</code>。除以8KB是计算<code>arena</code>区域的页数，而最后乘以8是计算<code>spans</code>区域所有指针的大小。创建<code>mspan</code>的时候，按页填充对应的<code>spans</code>区域，在回收<code>object</code>时，根据地址很容易就能找到它所属的<code>mspan</code></li>
+</ul>
+<h3 id="内存管理单元"><a class="markdownIt-Anchor" href="#内存管理单元"></a> 内存管理单元</h3>
+<p><code>mspan</code>：Go中内存管理的基本单元，是由一片连续的<code>8KB</code>的页组成的大块内存。它是一个包含起始地址、<code>mspan</code>规格、页的数量等内容的<strong>双端链表</strong>。</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711172507.png" alt="mspan-and-linked-list" style="zoom:50%;" />
+<p>每个<code>mspan</code>按照它自身的属性<code>Size Class</code>的大小分割成若干个<code>object</code>，每个<code>object</code>可存储一个对象。并且会使用一个位图来标记其尚未使用的<code>object</code>，属性<code>Size Class</code>决定<code>object</code>大小，而<code>mspan</code>只会分配给和<code>object</code>尺寸大小接近的对象，当然，对象的大小要小于<code>object</code>大小。还有一个概念：<code>Span Class</code>，它和<code>Size Class</code>的含义差不多，<code>Size_Class = Span_Class / 2</code>。</p>
+<p>为什么乘以2，因为每个 <code>Size Class</code>有两个<code>mspan</code>，也就是有两个<code>Span Class</code>。其中一个分配给含有指针的对象，另一个分配给不含有指针的对象。如何寻找为对象寻span，寻找span的流程如下：</p>
+<ul>
+<li>计算对象所需内存大小size。</li>
+<li>根据size到size class映射，计算出所需的size class。</li>
+<li>根据size class和对象是否包含指针计算出span class。</li>
+<li>获取该span class指向的span。</li>
+</ul>
+<p>如下图，<code>mspan</code>由一组连续的页组成，按照一定大小划分成<code>object</code>。</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150354.png" alt="page mspan" /></p>
+<p><code>mspan</code>的<code>Size Class</code>共有67种，每种<code>mspan</code>分割的object大小是8*2n的倍数，这个是写死在代码里的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// path: /usr/local/go/src/runtime/sizeclasses.go</span></span><br><span class="line"><span class="keyword">const</span> _NumSizeClasses = <span class="number">67</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> class_to_size = [_NumSizeClasses]<span class="keyword">uint16</span>&#123;<span class="number">0</span>, <span class="number">8</span>, <span class="number">16</span>, <span class="number">32</span>, <span class="number">48</span>, <span class="number">64</span>, <span class="number">80</span>, <span class="number">96</span>, <span class="number">112</span>, <span class="number">128</span>, <span class="number">144</span>, <span class="number">160</span>, <span class="number">176</span>, <span class="number">192</span>, <span class="number">208</span>, <span class="number">224</span>, <span class="number">240</span>, <span class="number">256</span>, <span class="number">288</span>, <span class="number">320</span>, <span class="number">352</span>, <span class="number">384</span>, <span class="number">416</span>, <span class="number">448</span>, <span class="number">480</span>, <span class="number">512</span>, <span class="number">576</span>, <span class="number">640</span>, <span class="number">704</span>, <span class="number">768</span>, <span class="number">896</span>, <span class="number">1024</span>, <span class="number">1152</span>, <span class="number">1280</span>, <span class="number">1408</span>, <span class="number">1536</span>,<span class="number">1792</span>, <span class="number">2048</span>, <span class="number">2304</span>, <span class="number">2688</span>, <span class="number">3072</span>, <span class="number">3200</span>, <span class="number">3456</span>, <span class="number">4096</span>, <span class="number">4864</span>, <span class="number">5376</span>, <span class="number">6144</span>, <span class="number">6528</span>, <span class="number">6784</span>, <span class="number">6912</span>, <span class="number">8192</span>, <span class="number">9472</span>, <span class="number">9728</span>, <span class="number">10240</span>, <span class="number">10880</span>, <span class="number">12288</span>, <span class="number">13568</span>, <span class="number">14336</span>, <span class="number">16384</span>, <span class="number">18432</span>, <span class="number">19072</span>, <span class="number">20480</span>, <span class="number">21760</span>, <span class="number">24576</span>, <span class="number">27264</span>, <span class="number">28672</span>, <span class="number">32768</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>数组里最大的数是32768，也就是32KB，超过此大小就是大对象；类型<code>Size Class</code>为0表示大对象，它实际上直接由堆内存分配，而小对象都要通过<code>mspan</code>来分配。</p>
+<p>对于mspan来说，它的<code>Size Class</code>会决定它所能分到的页数，这也是写死在代码里的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// path: /usr/local/go/src/runtime/sizeclasses.go</span></span><br><span class="line"><span class="keyword">const</span> _NumSizeClasses = <span class="number">67</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> class_to_allocnpages = [_NumSizeClasses]<span class="keyword">uint8</span>&#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">9</span>, <span class="number">7</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">3</span>, <span class="number">10</span>, <span class="number">7</span>, <span class="number">4</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>比如要申请一个<code>object</code>大小为<code>32B</code>的<code>mspan</code>的时候，在class_to_size里对应的索引是3，而索引3在<code>class_to_allocnpages</code>数组里对应的页数就是1。</p>
+<p><code>mspan</code>结构体定义</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> mspan <span class="keyword">struct</span> &#123;</span><br><span class="line">    <span class="comment">//链表前向指针，用于将span链接起来</span></span><br><span class="line">	next *mspan	</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//链表前向指针，用于将span链接起来</span></span><br><span class="line">	prev *mspan	</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 起始地址，也即所管理页的地址</span></span><br><span class="line">	startAddr <span class="keyword">uintptr</span> </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 管理的页数</span></span><br><span class="line">	npages <span class="keyword">uintptr</span> </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 块个数，表示有多少个块可供分配</span></span><br><span class="line">	nelems <span class="keyword">uintptr</span> </span><br><span class="line"></span><br><span class="line">    <span class="comment">//分配位图，每一位代表一个块是否已分配</span></span><br><span class="line">	allocBits *gcBits </span><br><span class="line"></span><br><span class="line">    <span class="comment">// 已分配块的个数</span></span><br><span class="line">	allocCount <span class="keyword">uint16</span> </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// class表中的class ID，和Size Classs相关</span></span><br><span class="line">	spanclass spanClass  </span><br><span class="line"></span><br><span class="line">    <span class="comment">// class表中的对象大小，也即块大小</span></span><br><span class="line">	elemsize <span class="keyword">uintptr</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将<code>mspan</code>放到更大的视角来看：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150526.png" alt="mspan更大视角" style="zoom:80%;" />
+<p>上图可以看到有两个<code>S</code>指向了同一个<code>mspan</code>，因为这两个<code>S</code>指向的<code>P</code>是同属一个<code>mspan</code>的。所以，通过<code>arena</code>上的地址可以快速找到指向它的<code>S</code>，通过<code>S</code>就能找到<code>mspan</code>，回忆一下前面我们说的<code>mspan</code>区域的每个指针对应一页。</p>
+<p>假设最左边第一个<code>mspan</code>的<code>Size Class</code>等于10，根据前面的<code>class_to_size</code>数组，得出这个<code>msapn</code>分割的<code>object</code>大小是144B，算出可分配的对象个数是<code>8KB/144B=56.89</code>个，取整56个，所以会有一些内存浪费掉了，Go的源码里有所有<code>Size Class</code>的<code>mspan</code>浪费的内存的大小；再根据<code>class_to_allocnpages</code>数组，得到这个<code>mspan</code>只由1个<code>page</code>组成；假设这个<code>mspan</code>是分配给无指针对象的，那么<code>spanClass</code>等于20。</p>
+<p><code>startAddr</code>直接指向<code>arena</code>区域的某个位置，表示这个<code>mspan</code>的起始地址，<code>allocBits</code>指向一个位图，每位代表一个块是否被分配了对象；<code>allocCount</code>则表示总共已分配的对象个数。</p>
+<p>这样，左起第一个<code>mspan</code>的各个字段参数就如下图所示：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150549.png" alt="左起第一个mspan具体值" style="zoom:80%;" />
+<h3 id="内存管理元件"><a class="markdownIt-Anchor" href="#内存管理元件"></a> 内存管理元件</h3>
+<p>内存分配由内存分配器完成。分配器由3种组件构成：<code>mcache</code>, <code>mcentral</code>, <code>mheap</code></p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/1620-20230218150525616.png" alt="img" style="zoom:60%;" />
+<ul>
+<li>
+<p><strong>Span 是 Go 内存管理的基本单位，代码中为 mspan，由一组连续的 page 组成</strong></p>
+</li>
+<li>
+<p>mcache 与TCMalloc中的ThreadCache类似，mcache保存的是各种大小的Span，并按Span class分类，小对象直接从mcache分配内存，它起到了缓存的作用，并且可以无锁访问。</p>
+<p><strong>Go中是每个P拥有1个mcache</strong>，最多需要 GOMAXPROCS 个mcache就可以保证各线程对mcache的无锁访问</p>
+</li>
+<li>
+<p>mcentral 与TCMalloc中的CentralCache不同的是CentralCache 是每个级别的Span有1个链表，mcache是每个级别的Span有2个链表。<strong>为什么有两个？</strong></p>
+</li>
+<li>
+<p>mheap 与TCMalloc中的PageHeap不同点的是 mheap把Span组织成了树结构，而不是链表，并且还是2棵树，然后把Span分配到heapArena进行管理，它包含地址映射和span是否包含指针等位图，这样做的主要原因是为了更高效的利用内存：分配、回收和再利用</p>
+</li>
+<li>
+<p>Go的内存管理基本单位是span，每个span通过spanclass标识属于哪种规格的span，golang的span规格一共有67种，详细可查看 <code>src/runtime/sizeclasses.go</code></p>
+</li>
+</ul>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711170344.png" alt="go-memory-layout" style="zoom:60%;" />
+<h4 id="mcache"><a class="markdownIt-Anchor" href="#mcache"></a> mcache</h4>
+<p><code>mcache</code>：每个工作线程都会绑定一个mcache，本地缓存可用的<code>mspan</code>资源，这样就可以直接给Goroutine分配，因为不存在多个Goroutine竞争的情况，所以不会消耗锁资源。</p>
+<p><code>mcache</code>的结构体定义：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> mcache <span class="keyword">struct</span> &#123;</span><br><span class="line">  alloc [numSpanClasses]*mspan</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">numSpanClasses = _NumSizeClasses &lt;&lt; <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p><code>mcache</code>用<code>Span Classes</code>作为索引管理多个用于分配的<code>mspan</code>，它包含所有规格的<code>mspan</code>。它是<code>_NumSizeClasses</code>的2倍，也就是<code>67*2=134</code></p>
+<blockquote>
+<p>为什么有一个两倍的关系：为了加速之后内存回收的速度，数组里一半的<code>mspan</code>中分配的对象不包含指针，另一半则包含指针。而无指针的mspan在进行垃圾回收的时候是不需要扫描它是否引用了其他活跃对象的。</p>
+</blockquote>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150643.png" alt="mcache" style="zoom:50%;" />
+<p><code>mcache</code>在初始化的时候是没有任何<code>mspan</code>资源的，在使用过程中会动态地从<code>mcentral</code>申请，之后会缓存下来。<strong>当对象小于等于32KB大小时，使用<code>mcache</code>的相应规格的<code>mspan</code>进行分配</strong></p>
+<h4 id="mcentral"><a class="markdownIt-Anchor" href="#mcentral"></a> mcentral</h4>
+<p><code>mcentral</code>：为所有<code>mcache</code>提供切分好的<code>mspan</code>资源。每个<code>central</code>保存一种特定大小的全局<code>mspan</code>列表，包括已分配出去的和未分配出去的。 <strong>每个<code>mcentral</code>对应一种<code>mspan</code></strong>，而<code>mspan</code>的种类导致它分割的<code>object</code>大小不同。当工作线程的<code>mcache</code>中没有合适（也就是特定大小的）的<code>mspan</code>时就会从<code>mcentral</code>获取。</p>
+<p><code>mcentral</code>被所有的工作线程共同享有，存在多个Goroutine竞争的情况，因此会消耗锁资源。结构体定义：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//path: /usr/local/go/src/runtime/mcentral.go</span></span><br><span class="line"><span class="keyword">type</span> mcentral <span class="keyword">struct</span> &#123;</span><br><span class="line">    <span class="comment">// 互斥锁</span></span><br><span class="line">    lock mutex </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 规格</span></span><br><span class="line">    sizeclass <span class="keyword">int32</span> </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 尚有空闲object的mspan链表</span></span><br><span class="line">    nonempty mSpanList </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 没有空闲object的mspan链表，或者是已被mcache取走的msapn链表</span></span><br><span class="line">    empty mSpanList </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 已累计分配的对象个数</span></span><br><span class="line">    nmalloc <span class="keyword">uint64</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711150923.png" alt="mcentral" style="zoom:50%;" />
+<p><code>empty</code>表示这条链表里的<code>mspan</code>都被分配了<code>object</code>，或者是已经被<code>cache</code>取走了的<code>mspan</code>，这个<code>mspan</code>就被那个工作线程独占了。而<code>nonempty</code>则表示有空闲对象的<code>mspan</code>列表。每个<code>central</code>结构体都在<code>mheap</code>中维护。</p>
+<p><code>mcache</code>从<code>mcentral</code>获取和归还<code>mspan</code>的流程：</p>
+<ul>
+<li>
+<p>获取</p>
+<ul>
+<li>加锁；</li>
+<li>从<code>nonempty</code>链表找到一个可用的<code>mspan</code>；</li>
+<li>并将其从<code>nonempty</code>链表删除；</li>
+<li>将取出的<code>mspan</code>加入到<code>empty</code>链表；</li>
+<li>将<code>mspan</code>返回给工作线程；</li>
+<li>解锁。</li>
+</ul>
+</li>
+<li>
+<p>归还</p>
+<ul>
+<li>加锁；</li>
+<li>将<code>mspan</code>从<code>empty</code>链表删除；</li>
+<li>将<code>mspan</code>加入到<code>nonempty</code>链表；</li>
+<li>解锁。</li>
+</ul>
+</li>
+</ul>
+<h4 id="mheap"><a class="markdownIt-Anchor" href="#mheap"></a> mheap</h4>
+<p><code>mheap</code>：代表Go程序持有的所有堆空间，Go程序使用一个<code>mheap</code>的全局对象<code>_mheap</code>来管理堆内存。</p>
+<ul>
+<li>
+<p>当<code>mcentral</code>没有空闲的<code>mspan</code>时，会向<code>mheap</code>申请。</p>
+</li>
+<li>
+<p>而<code>mheap</code>没有资源时，会向操作系统申请新内存。</p>
+</li>
+</ul>
+<p><strong><code>mheap</code>主要用于大对象的内存分配，以及管理未切割的<code>mspan</code>，用于给<code>mcentral</code>切割成小对象</strong>。</p>
+<p><code>mheap</code>中含有所有规格的<code>mcentral</code>，所以，当一个<code>mcache</code>从<code>mcentral</code>申请<code>mspan</code>时，只需要在独立的<code>mcentral</code>中使用锁，并不会影响申请其他规格的<code>mspan</code>。</p>
+<p><code>mheap</code>结构体定义：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//path: /usr/local/go/src/runtime/mheap.go</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> mheap <span class="keyword">struct</span> &#123;</span><br><span class="line">	lock mutex</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// spans: 指向mspans区域，用于映射mspan和page的关系</span></span><br><span class="line">	spans []*mspan </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 指向bitmap首地址，bitmap是从高地址向低地址增长的</span></span><br><span class="line">	bitmap <span class="keyword">uintptr</span> </span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指示arena区首地址</span></span><br><span class="line">	arena_start <span class="keyword">uintptr</span> </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 指示arena区已使用地址位置</span></span><br><span class="line">	arena_used  <span class="keyword">uintptr</span> </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 指示arena区末地址</span></span><br><span class="line">	arena_end   <span class="keyword">uintptr</span> </span><br><span class="line"></span><br><span class="line">	central [<span class="number">67</span>*<span class="number">2</span>]<span class="keyword">struct</span> &#123;</span><br><span class="line">		mcentral mcentral</span><br><span class="line">		pad [sys.CacheLineSize - unsafe.Sizeof(mcentral&#123;&#125;)%sys.CacheLineSize]<span class="keyword">byte</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711151026.png" alt="mheap" style="zoom:50%;" />
+<h3 id="内存分配流程"><a class="markdownIt-Anchor" href="#内存分配流程"></a> 内存分配流程</h3>
+<p>Go的内存分配器在分配对象时，根据对象的大小，分成三类：小对象（小于等于16B）、一般对象（大于16B，小于等于32KB）、大对象（大于32KB）。</p>
+<p>大体上的分配流程：</p>
+<ul>
+<li>
+<p>大于 32KB 的对象，直接从mheap上分配；</p>
+</li>
+<li>
+<p>小于等于 16B 的对象使用mcache的tiny分配器分配；</p>
+</li>
+<li>
+<p>(16B,32KB] 的对象，首先计算对象的规格大小，然后使用mcache中相应规格大小的mspan分配；</p>
+<ul>
+<li>如果mcache没有相应规格大小的mspan，则向mcentral申请</li>
+<li>如果mcentral没有相应规格大小的mspan，则向mheap申请</li>
+<li>如果mheap中也没有合适大小的mspan，则向操作系统申请</li>
+</ul>
+</li>
+</ul>
+<h3 id="地址空间"><a class="markdownIt-Anchor" href="#地址空间"></a> 地址空间</h3>
+<p>Go 语言的运行时构建了操作系统的内存管理抽象层，将运行时管理的地址空间分成以下四种状态</p>
+<ul>
+<li>None: 内存没有被保留或者映射，是地址空间的默认状态</li>
+<li>Reserved: 运行时持有该地址空间，但是访问该内存会导致错误</li>
+<li>Prepared: 内存被保留，一般没有对应的物理内存访问该片内存的行为是未定义的可以快速转换到 <code>Ready</code> 状态</li>
+<li>Ready: 可以被安全访问</li>
+</ul>
+<p>不同状态之间的转换过程：</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_Images/20210711165639.png" alt="memory-regions-states-and-transitions" style="zoom:50%;" />
+<p>运行时中包含多个操作系统实现的状态转换方法，所有的实现都包含在以 <code>mem_</code> 开头的文件中，本节将介绍 Linux 操作系统对上图中方法的实现：</p>
+<ul>
+<li><code>runtime.sysAlloc</code>: 会从操作系统中获取一大块可用的内存空间，可能为几百 KB 或者几 MB；</li>
+<li><code>runtime.sysFree</code>: 会在程序发生内存不足（Out-of Memory，OOM）时调用并无条件地返回内存；</li>
+<li><code>runtime.sysReserve</code> 会保留操作系统中的一片内存区域，访问这片内存会触发异常；</li>
+<li><code>runtime.sysMap</code> 保证内存区域可以快速转换至就绪状态；</li>
+<li><code>runtime.sysUsed</code> 通知操作系统应用程序需要使用该内存区域，保证内存区域可以安全访问；</li>
+<li><code>runtime.sysUnused</code> 通知操作系统虚拟内存对应的物理内存已经不再需要，可以重用物理内存；</li>
+<li><code>runtime.sysFault</code> 将内存区域转换成保留状态，主要用于运行时的调试；</li>
+</ul>
+<p>运行时使用 Linux 提供的 <code>mmap</code>、<code>munmap</code> 和 <code>madvise</code> 等系统调用实现了操作系统的内存管理抽象层</p>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://qcrao.com/2019/03/13/graphic-go-memory-allocation/" target="_blank" rel="noopener">https://qcrao.com/2019/03/13/graphic-go-memory-allocation/</a></li>
+<li><a href="https://www.infoq.cn/article/IEhRLwmmIM7-11RYaLHR" target="_blank" rel="noopener">https://www.infoq.cn/article/IEhRLwmmIM7-11RYaLHR</a></li>
+<li><a href="https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/" target="_blank" rel="noopener">https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2021/09/09/Go/Go-06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" title="Go-06-内存管理" target="_blank" rel="external">http://xboom.github.io/2021/09/09/Go/Go-06-内存管理/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">Yuan Kang</span><small class="ml-1x">Learn and live</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/09/09/Go/Go-03-Groutine/" title="Go-03-Groutine"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/09/09/Go/Go-04-Select/" title="Go-04-Select"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>

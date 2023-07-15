@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Go-27-SyncPool | Yuan Kang</title>
+  <meta name="description" content="前面一篇讲解了Sync.Pool的底层数据结构 poolDequeue，接着看看Sync.Pool的具体实现原理。如果想看看 Sync.Pool 的使用 可以看看我的 Go 入门 26-Issue，使用的时候最好分配固定大小的对象否则注意清理 带着问题看世界  Sync.Pool 与  Goroutine  的关系 Sync.Pool 是如何释放的(并没有主动释放接口)  代码：src&#x2F;sync&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go-27-SyncPool">
+<meta property="og:url" content="http://xboom.github.io/2023/07/15/Go/Go-27-SyncPool/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="前面一篇讲解了Sync.Pool的底层数据结构 poolDequeue，接着看看Sync.Pool的具体实现原理。如果想看看 Sync.Pool 的使用 可以看看我的 Go 入门 26-Issue，使用的时候最好分配固定大小的对象否则注意清理 带着问题看世界  Sync.Pool 与  Goroutine  的关系 Sync.Pool 是如何释放的(并没有主动释放接口)  代码：src&#x2F;sync&#x2F;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/syncpools1.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/syncpool4.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/syncpool5.png">
+<meta property="article:published_time" content="2023-07-15T05:32:45.000Z">
+<meta property="article:modified_time" content="2023-07-15T05:38:19.201Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/syncpools1.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2023/07/15/Go/Go-27-SyncPool/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Yuan Kang</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Learn and live</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">26</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-System/" rel="tag">Distributed System</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Transaction/" rel="tag">Distributed Transaction</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">26</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Raft/" rel="tag">Raft</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.09px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.55px;">Algorithms To Live By</a> <a href="/tags/Design-Patterns/" style="font-size: 13.91px;">Design Patterns</a> <a href="/tags/Distributed-System/" style="font-size: 13px;">Distributed System</a> <a href="/tags/Distributed-Transaction/" style="font-size: 13.45px;">Distributed Transaction</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.82px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.27px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.18px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.36px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.18px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.64px;">MySql</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Raft/" style="font-size: 13px;">Raft</a> <a href="/tags/Redis/" style="font-size: 13.82px;">Redis</a> <a href="/tags/TCP-IP/" style="font-size: 13.36px;">TCP/IP</a> <a href="/tags/go-zero/" style="font-size: 13.73px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.36px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/15/Go/Go-27-SyncPool/" class="title">Go-27-SyncPool</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-15T05:32:45.000Z" itemprop="datePublished">2023-07-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/13/Go/Go-26-Issue/" class="title">Go-26-Issue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-13T14:59:45.000Z" itemprop="datePublished">2023-07-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/01/Go/Go-25-PoolDequeue/" class="title">Go-25-PoolDequeue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-01T08:51:45.000Z" itemprop="datePublished">2023-07-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Protocol/">Protocol</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="title">协议-03-Raft</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-26T02:25:38.000Z" itemprop="datePublished">2023-06-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go-15-SyncMap/" class="title">Go-15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#全局变量"><span class="toc-number">1.</span> <span class="toc-text"> 全局变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本结构"><span class="toc-number">2.</span> <span class="toc-text"> 基本结构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#nocopy"><span class="toc-number">2.1.</span> <span class="toc-text"> noCopy</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#poollocal"><span class="toc-number">2.2.</span> <span class="toc-text"> poolLocal</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#runtime_procpin"><span class="toc-number">2.3.</span> <span class="toc-text"> runtime_procPin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pinslow"><span class="toc-number">2.4.</span> <span class="toc-text"> pinSlow</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pin"><span class="toc-number">2.5.</span> <span class="toc-text"> pin</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存池清理"><span class="toc-number">3.</span> <span class="toc-text"> 内存池清理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#get"><span class="toc-number">4.</span> <span class="toc-text"> Get</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#put"><span class="toc-number">5.</span> <span class="toc-text"> Put</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">6.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">7.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Go/Go-27-SyncPool" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Go-27-SyncPool
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2023/07/15/Go/Go-27-SyncPool/" class="article-date">
+	  <time datetime="2023-07-15T05:32:45.000Z" itemprop="datePublished">2023-07-15</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Go/">Go</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Go/" rel="tag">Go</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2023/07/15/Go/Go-27-SyncPool/" class="leancloud_visitors"  data-flag-title="Go-27-SyncPool">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/07/15/Go/Go-27-SyncPool/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>前面一篇讲解了<strong>Sync.Pool</strong>的底层数据结构 <a href="https://www.yuankang.top/2023/07/01/Go/Go%E5%85%A5%E9%97%A825-PoolDequeue/" target="_blank" rel="noopener">poolDequeue</a>，接着看看<code>Sync.Pool</code>的具体实现原理。如果想看看 <code>Sync.Pool</code> 的使用 可以看看我的 <a href="https://www.yuankang.top/2023/07/13/Go/Go%E5%85%A5%E9%97%A826-Issue/" target="_blank" rel="noopener">Go 入门 26-Issue</a>，使用的时候最好分配固定大小的对象否则注意清理</p>
+<p>带着问题看世界</p>
+<ol>
+<li><code>Sync.Pool</code> 与  <code>Goroutine</code>  的关系</li>
+<li><code>Sync.Pool</code> 是如何释放的(并没有主动释放接口)</li>
+</ol>
+<p>代码：<code>src/sync/pool.go</code>，1.20版本</p>
+<p>首先来看内存池的说明，翻译过来就是就是：</p>
+<ol>
+<li>存放在<code>Pool</code> 中的元素任何时候都有可能在没有被其他引用的情况下释放掉</li>
+<li><code>Pool</code> 是并发安全的</li>
+<li>使用 <code>Pool</code> 之后不能再复制它。<em>假设缓存池对象 A 被对象 B 拷贝了，如果 A 被清空，B 的缓存对象指针指向的对象将会不可控</em></li>
+</ol>
+<p>先来看看整体的结构图</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/syncpools1.png" alt="syncpools1" /></p>
+<h3 id="全局变量"><a class="markdownIt-Anchor" href="#全局变量"></a> 全局变量</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> poolRaceHash [<span class="number">128</span>]<span class="keyword">uint64</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	allPoolsMu Mutex	<span class="comment">//互斥锁，用于更新 allPools，因为所有的 sync.pool 都存放在里面 </span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// allPools is the set of pools that have non-empty primary</span></span><br><span class="line">	<span class="comment">// caches. Protected by either 1) allPoolsMu and pinning or 2)</span></span><br><span class="line">	<span class="comment">// STW.</span></span><br><span class="line">	allPools []*Pool</span><br><span class="line"></span><br><span class="line">	<span class="comment">// oldPools is the set of pools that may have non-empty victim</span></span><br><span class="line">	<span class="comment">// caches. Protected by STW.</span></span><br><span class="line">	oldPools []*Pool</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>allPoolsMu</code>：用于对<code>allPools</code>的更新进行保护</li>
+<li><code>allPools</code>: <code>[]*Pool</code>切片，存储具有非空私有缓存的对象池。可以被多个 <code>goroutine</code> 访问</li>
+<li><code>oldPools</code>：<code>[]*Pool</code>类型的切片，用于存储可能具有非空受害者缓存的对象池，由于只有在 <code>STW</code> 时候才会更新，不会被并发访问</li>
+</ul>
+<h3 id="基本结构"><a class="markdownIt-Anchor" href="#基本结构"></a> 基本结构</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Pool <span class="keyword">struct</span> &#123;</span><br><span class="line">  noCopy noCopy						 <span class="comment">// 提示不要复制</span></span><br><span class="line">  </span><br><span class="line">  local     unsafe.Pointer <span class="comment">// 指向每个 P(处理器) 的本地池的指针。它的类型是 [P]poolLocal，其中P是处理器数量</span></span><br><span class="line">  localSize <span class="keyword">uintptr</span>        <span class="comment">// 本地数组的大小</span></span><br><span class="line"></span><br><span class="line">  victim     unsafe.Pointer <span class="comment">// GC上一个周期中的本地池的指针。在当前周期中，这个本地池变成了受害者。它的类型是 unsafe.Pointer</span></span><br><span class="line">  victimSize <span class="keyword">uintptr</span>        <span class="comment">// 受害者缓存数组的大小，以字节为单位</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">//可选地指定一个函数，当 Get 方法本来会返回 nil 时，可以用于生成一个值。</span></span><br><span class="line">  New <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">any</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>
+<p><code>noCopy</code> 用于提示不要进行对象复制</p>
+</li>
+<li>
+<p><code>local</code> 与 <code>victim</code> 的关系在后面 <strong>内存池清理</strong> 中说明</p>
+</li>
+<li>
+<p><code>New</code> 则是自定义的分配对象函数</p>
+</li>
+</ul>
+<h4 id="nocopy"><a class="markdownIt-Anchor" href="#nocopy"></a> noCopy</h4>
+<p><code>noCopy</code> 支持 使用 <code>go vet</code> 检查对象是否被复制，它是一个内置的空结构体类型，当然也可以自行实现类似功能</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> noCopy <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(n noCopy)</span> <span class="title">Lock</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">//TODO implement me</span></span><br><span class="line">	<span class="built_in">panic</span>(<span class="string">"implement me"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(n noCopy)</span> <span class="title">Unlock</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">//TODO implement me</span></span><br><span class="line">	<span class="built_in">panic</span>(<span class="string">"implement me"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> _ sync.Locker = (*noCopy)()</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">	noCopy</span><br><span class="line">	age    <span class="keyword">int</span></span><br><span class="line">	height <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它第一次使用后不能被复制，其实代码是能够编译通过运行的，只是在 <code>go vet</code> 或者 <code>部分编辑器</code>会提示而已。可以看看没有成为标准的原因 <a href="https://golang.org/issues/8005#issuecomment-190753527" target="_blank" rel="noopener">https://golang.org/issues/8005#issuecomment-190753527</a></p>
+<h4 id="poollocal"><a class="markdownIt-Anchor" href="#poollocal"></a> poolLocal</h4>
+<p>每个处理器 <code>P</code> 都有一个 <code>poolLocal</code> 的本地池对象</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 每个 P 的本地对象池</span></span><br><span class="line"><span class="keyword">type</span> poolLocalInternal <span class="keyword">struct</span> &#123;</span><br><span class="line">	private any       <span class="comment">// 仅能被当前 P 进行读写</span></span><br><span class="line">	shared  poolChain <span class="comment">// 共享，当前 P 能对其进行 pushHead/popHead; 任何 P 都能执行popTail</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> poolLocal <span class="keyword">struct</span> &#123;</span><br><span class="line">	poolLocalInternal</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Prevents false sharing on widespread platforms with</span></span><br><span class="line">	<span class="comment">// 128 mod (cache line size) = 0 .</span></span><br><span class="line">	pad [<span class="number">128</span> - unsafe.Sizeof(poolLocalInternal&#123;&#125;)%<span class="number">128</span>]<span class="keyword">byte</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>private</code> 是一个仅用于当前 P 进行读写的字段(即没有并发读写的问题)</li>
+<li><code>shared</code> 可以在多个 P 之间进行共享读写，是一个 <code>poolChain</code> 链式队列结构， 当前 P 上可以进行 <code>pushHead</code> 和 <code>popHead</code> 操作(队头读写)， 在所有 P 上都可以进行 <code>popTail</code> (队尾出队)操作</li>
+<li><code>pad</code>  用于 <strong>伪共享</strong> 保证 <code>poolLocal</code> 的大小是 128 字节的倍数</li>
+</ul>
+<h4 id="runtime_procpin"><a class="markdownIt-Anchor" href="#runtime_procpin"></a> runtime_procPin</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//go:nosplit</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">procPin</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	gp := getg()	<span class="comment">//获取当前goroutine的指针</span></span><br><span class="line">	mp := gp.m		<span class="comment">//当前goroutine 对应的 协程代表</span></span><br><span class="line"></span><br><span class="line">  mp.locks++		<span class="comment">//这个变量用于跟踪当前线程(m)持有的锁的数量</span></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">int</span>(mp.p.ptr().id)	<span class="comment">//代表当前线程(m)执行的处理器(p)的唯一标识符</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">procUnpin</span><span class="params">()</span></span> &#123;</span><br><span class="line">	gp := getg()</span><br><span class="line">	gp.m.locks--</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>locks</code>:通过增加锁的计数，表明当前线程被固定（pinned）在处理器上</li>
+<li><code>mp.p</code>表示当前线程所绑定的处理器，<code>.ptr()</code>方法返回处理器的指针，<code>.id</code>表示处理器的唯一标识符</li>
+</ul>
+<h4 id="pinslow"><a class="markdownIt-Anchor" href="#pinslow"></a> pinSlow</h4>
+<p>将当前的<code>goroutine</code>绑定到<code>Pool</code>中的一个<code>poolLocal</code>上，并返回该<code>poolLocal</code>及其索引</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">pinSlow</span><span class="params">()</span> <span class="params">(*poolLocal, <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">  <span class="comment">//1. 解除当前goroutine与之前绑定的poolLocal的绑定关系，使当前goroutine可以进行重新绑定</span></span><br><span class="line">  <span class="comment">//使用 mutex 时候 P 必须可抢占</span></span><br><span class="line">  runtime_procUnpin()</span><br><span class="line">    </span><br><span class="line">  <span class="comment">//2. 获取池的全局锁 </span></span><br><span class="line">  allPoolsMu.Lock()			</span><br><span class="line">  <span class="keyword">defer</span> allPoolsMu.Unlock()</span><br><span class="line">    </span><br><span class="line">  <span class="comment">//3. 将当前的goroutine绑定到一个poolLocal上，并返回其索引pid。</span></span><br><span class="line">	<span class="comment">//再次固定 P 时 poolCleanup 不会被调用</span></span><br><span class="line">  pid := runtime_procPin()	</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//获取未越界返回poolLocal</span></span><br><span class="line">  s := p.localSize  </span><br><span class="line">  l := p.local</span><br><span class="line">  <span class="keyword">if</span> <span class="keyword">uintptr</span>(pid) &lt; s &#123;</span><br><span class="line">    <span class="keyword">return</span> indexLocal(l, pid), pid</span><br><span class="line">  &#125;</span><br><span class="line">    </span><br><span class="line">  <span class="comment">// 如果数组为空，将其添加到 allPools，垃圾回收器从这里获取所有 Pool 实例</span></span><br><span class="line">  <span class="keyword">if</span> p.local == <span class="literal">nil</span> &#123;</span><br><span class="line">    allPools = <span class="built_in">append</span>(allPools, p)</span><br><span class="line">  &#125;</span><br><span class="line">    </span><br><span class="line">	<span class="comment">// 根据 P 数量创建 slice，如果 GOMAXPROCS 在 GC 间发生变化</span></span><br><span class="line">	<span class="comment">// 我们重新分配此数组并丢弃旧的</span></span><br><span class="line">	size := runtime.GOMAXPROCS(<span class="number">0</span>)  <span class="comment">// 获取当前的GOMAXPROCS值，即当前系统的最大并发数</span></span><br><span class="line">	local := <span class="built_in">make</span>([]poolLocal, size)    <span class="comment">//创建本地池</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 将底层数组起始指针保存到 p.local，并设置 p.localSize</span></span><br><span class="line">	atomic.StorePointer(&amp;p.local, unsafe.Pointer(&amp;local[<span class="number">0</span>]))</span><br><span class="line">	runtime_StoreReluintptr(&amp;p.localSize, <span class="keyword">uintptr</span>(size))  </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 返回所需的 pollLocal</span></span><br><span class="line">	<span class="keyword">return</span> &amp;local[pid], pid</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个逻辑的前提是当前 P 已经发生了动态调整，需要重新计算<code>localPool</code></p>
+<ul>
+<li>首先解除 <code>goroutine</code> 与 <code>Process</code> 的绑定，让 <code>goroutine</code> 可以重新绑定</li>
+<li>获取 <code>allPools</code>的全局锁</li>
+<li>将当前  <code>goroutine</code> 与 <code>Process</code> 重新绑定</li>
+<li>如果<code>Process</code> 未发生变化，返回 <code>Process</code> 的 <code>localPool</code></li>
+<li>如果没有变化则
+<ul>
+<li>如果 <code>Pool.local</code>为空，则需要将 <code>Pool</code> 加入到 <code>allPools</code> 中，用于 GC 扫描回收</li>
+<li>重新创建 <code>[p]poolLocal</code></li>
+<li>重新将 <code>Pool.local</code> 指向 <code>[p]poolLocal</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="pin"><a class="markdownIt-Anchor" href="#pin"></a> pin</h4>
+<p>获取当前 <code>Process</code> 中的 <code>poolLocal</code>，将当前的<code>goroutine</code>绑定到一个特定的<code>Process</code>上，禁用抢占并返回<code>Process</code>的<code>poolLocal</code>本地池和<code>P</code>的标识</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">pin</span><span class="params">()</span> <span class="params">(*poolLocal, <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">  <span class="comment">// 1. 将当前的goroutine绑定到一个P上，并返回P的标识pid。</span></span><br><span class="line">	pid := runtime_procPin()</span><br><span class="line">  </span><br><span class="line">	s := runtime_LoadAcquintptr(&amp;p.localSize) <span class="comment">// load-acquire</span></span><br><span class="line">	l := p.local    							<span class="comment">// load-consume</span></span><br><span class="line">  <span class="comment">//可能存在动态的 P（运行时调整 P 的个数）procresize/GOMAXPROCS，如果 P.id 没有越界，则直接返回</span></span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">uintptr</span>(pid) &lt; s &#123;</span><br><span class="line">		<span class="keyword">return</span> indexLocal(l, pid), pid</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> p.pinSlow()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>尝试通过加载<code>local</code>和<code>localSize</code>字段的方式来判断是否可以直接返回一个可用的<code>poolLocal</code>，如果不满足条件，则调用<code>pinSlow</code>方法来重新分配并返回一个新的<code>poolLocal</code>。调用者在使用完<code>poolLocal</code>之后，必须调用<code>runtime_procUnpin()</code>来解除与<code>P</code>的绑定关系。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">indexLocal</span><span class="params">(l unsafe.Pointer, i <span class="keyword">int</span>)</span> *<span class="title">poolLocal</span></span> &#123;</span><br><span class="line">	lp := unsafe.Pointer(<span class="keyword">uintptr</span>(l) + <span class="keyword">uintptr</span>(i)*unsafe.Sizeof(poolLocal&#123;&#125;))</span><br><span class="line">	<span class="keyword">return</span> (*poolLocal)(lp)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="内存池清理"><a class="markdownIt-Anchor" href="#内存池清理"></a> 内存池清理</h3>
+<p>在使用 init 仅执行了一个逻辑，就是注册内存池回收机制</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	runtime_registerPoolCleanup(poolCleanup)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>poolCleanup</code> 用于实现内存池的清理</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">poolCleanup</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// Because the world is stopped, no pool user can be in a</span></span><br><span class="line">	<span class="comment">// pinned section (in effect, this has all Ps pinned).</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Drop victim caches from all pools.</span></span><br><span class="line">	<span class="keyword">for</span> _, p := <span class="keyword">range</span> oldPools &#123;</span><br><span class="line">		p.victim = <span class="literal">nil</span></span><br><span class="line">		p.victimSize = <span class="number">0</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Move primary cache to victim cache.</span></span><br><span class="line">	<span class="keyword">for</span> _, p := <span class="keyword">range</span> allPools &#123;</span><br><span class="line">		p.victim = p.local</span><br><span class="line">		p.victimSize = p.localSize</span><br><span class="line">		p.local = <span class="literal">nil</span></span><br><span class="line">		p.localSize = <span class="number">0</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// The pools with non-empty primary caches now have non-empty</span></span><br><span class="line">	<span class="comment">// victim caches and no pools have primary caches.</span></span><br><span class="line">	oldPools, allPools = allPools, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>垃圾回收的策略就是</p>
+<ul>
+<li>将 <code>oldPools</code> 中也就是所有<code>localPool</code>的 <code>victim</code> 对象丢弃</li>
+<li>将 <code>allPools</code> 的 <code>local</code> 复制给<code>victim</code>，并 <code>local</code> 重置</li>
+<li>最后将 <code>allPools</code> 复制给 <code>oldPools</code>，<code>allPools</code> 置空</li>
+</ul>
+<h3 id="get"><a class="markdownIt-Anchor" href="#get"></a> Get</h3>
+<p>整体流程如下</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/syncpool4.png" alt="syncpool4" style="zoom:50%;" />
+<ol>
+<li>首先获取当前 <code>Process</code> 的 <code>poolLocal</code>，<strong>也就是说当 Goroutine 在哪个 Process 运行的时候就会从哪个 Process 的 localPool中获取对象</strong></li>
+<li>优先从 <code>private</code> 中选择对象，并将 <code>private = nil</code></li>
+<li>若取不到，则尝试从 <code>shared</code> 队列的队头进行读取</li>
+<li>若取不到，则尝试从其他的 <code>Process</code> 中进行偷取 <code>getSlow</code><strong>（跨 Process 读写）</strong></li>
+<li>若还是取不到，则使用自定义的 <code>New</code> 方法新建对象</li>
+</ol>
+<p>获取对象代码如下操作</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Get</span><span class="params">()</span> <span class="title">any</span></span> &#123;</span><br><span class="line">  <span class="comment">//...race</span></span><br><span class="line">  <span class="comment">//1. 获取一个poolLocal</span></span><br><span class="line">  l, pid := p.pin()</span><br><span class="line">  <span class="comment">//2. 先从private获取对象</span></span><br><span class="line">	x := l.private</span><br><span class="line">	l.private = <span class="literal">nil</span></span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// 尝试从 localPool 的 shared 队列队头读取</span></span><br><span class="line">		x, _ = l.shared.popHead()</span><br><span class="line">		<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="comment">// 如果取不到，则获取新的缓存对象</span></span><br><span class="line">			x = p.getSlow(pid)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	runtime_procUnpin()</span><br><span class="line">	<span class="comment">//...race</span></span><br><span class="line">  <span class="comment">// 如果 getSlow 还是获取不到，则 New 一个</span></span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &amp;&amp; p.New != <span class="literal">nil</span> &#123;</span><br><span class="line">		x = p.New()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> x</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中的 <code>getSlow</code> 就是从 其他 <code>Process</code> 或者 <code>victim</code> 中获取</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">getSlow</span><span class="params">(pid <span class="keyword">int</span>)</span> <span class="title">any</span></span> &#123;</span><br><span class="line">	<span class="comment">//1. 加载本地池</span></span><br><span class="line">	size := runtime_LoadAcquintptr(&amp;p.localSize) <span class="comment">// load-acquire</span></span><br><span class="line">	locals := p.local                            <span class="comment">// load-consume</span></span><br><span class="line">	<span class="comment">// Try to steal one element from other procs.</span></span><br><span class="line">  <span class="comment">//2. 尝试从其他 process 偷取元素</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="keyword">int</span>(size); i++ &#123;</span><br><span class="line">		l := indexLocal(locals, (pid+i+<span class="number">1</span>)%<span class="keyword">int</span>(size))</span><br><span class="line">		<span class="keyword">if</span> x, _ := l.shared.popTail(); x != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> x</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//3. 从其他 process 也没有偷到</span></span><br><span class="line">  <span class="comment">//那么判断是否 process数量发生了变化</span></span><br><span class="line">	size = atomic.LoadUintptr(&amp;p.victimSize)</span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">uintptr</span>(pid) &gt;= size &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">  <span class="comment">//4. 从 victim 中获取</span></span><br><span class="line">	locals = p.victim</span><br><span class="line">	l := indexLocal(locals, pid)</span><br><span class="line">	<span class="keyword">if</span> x := l.private; x != <span class="literal">nil</span> &#123;</span><br><span class="line">		l.private = <span class="literal">nil</span></span><br><span class="line">		<span class="keyword">return</span> x</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="keyword">int</span>(size); i++ &#123;</span><br><span class="line">		l := indexLocal(locals, (pid+i)%<span class="keyword">int</span>(size))</span><br><span class="line">		<span class="keyword">if</span> x, _ := l.shared.popTail(); x != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> x</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//到这里说明没有了，那么就将 victimSize 设置为 0后续不会访问</span></span><br><span class="line">	atomic.StoreUintptr(&amp;p.victimSize, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="put"><a class="markdownIt-Anchor" href="#put"></a> Put</h3>
+<p>Put 的操作如下</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/syncpool5.png" alt="syncpool5" style="zoom:50%;" />
+<p>存放策略是：</p>
+<ol>
+<li>如果存放 <code>nil</code> 直接返回</li>
+<li>获取当前 <code>Process</code> 的 <code>poolLocal</code></li>
+<li>如果 <code>private == nil</code> 则放到 <code>private</code> 中</li>
+<li>如果<code>private != nil</code> 则将起放入到 链表头部</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Put</span><span class="params">(x any)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//...race</span></span><br><span class="line">  <span class="comment">// 获得一个 localPool</span></span><br><span class="line">	l, _ := p.pin()</span><br><span class="line">  <span class="comment">// 优先放入private</span></span><br><span class="line">	<span class="keyword">if</span> l.private == <span class="literal">nil</span> &#123;</span><br><span class="line">		l.private = x</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		l.shared.pushHead(x)</span><br><span class="line">	&#125;</span><br><span class="line">	runtime_procUnpin()</span><br><span class="line">	<span class="comment">//...race</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<ol>
+<li>Pool 本质是为了提高<strong>临时对象的复用率</strong>；</li>
+<li>Pool 使用两层回收策略（local + victim）避免性能波动；</li>
+<li>Pool 本质是一个杂货铺属性，啥都可以放，Pool 池本身不做限制；</li>
+<li>Pool 池里面 cache 对象也是分层的，一层层的 cache，取用方式从最热的数据到最冷的数据递进；</li>
+<li>Pool 是并发安全的，但是内部是无锁结构，原理是对每个 P 都分配 cache 数组（ <code>poolLocalInternal</code>  数组），这样 cache 结构就不会导致并发；</li>
+<li>永远不要 copy 一个 Pool，明确禁止，不然会导致内存泄露和程序并发逻辑错误；</li>
+<li>代码编译之前用 <code>go vet</code>  做静态检查，能减少非常多的问题；</li>
+<li>每轮 GC 开始都会清理一把 Pool 里面 cache 的对象，注意流程是分两步，当前 Pool 池 local 数组里的元素交给 victim 数组句柄，victim 里面 cache 的元素全部清理。换句话说，引入 victim 机制之后，对象的缓存时间变成两个 GC 周期；</li>
+<li>不要对 Pool 里面的对象做任何假定，有两种方案：要么就归还的时候 memset 对象之后，再调用 <code>Pool.Put</code> ，要么就 <code>Pool.Get</code> 取出来的时候 memset 之后再使用；</li>
+</ol>
+<h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3>
+<ol>
+<li><a href="https://mp.weixin.qq.com/s/dLzWAqM9lCln83jhkvmtMw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/dLzWAqM9lCln83jhkvmtMw</a></li>
+<li><a href="https://geektutu.com/post/hpg-sync-pool.html" target="_blank" rel="noopener">https://geektutu.com/post/hpg-sync-pool.html</a></li>
+<li><a href="https://golang.design/under-the-hood/zh-cn/part1basic/ch05sync/pool/" target="_blank" rel="noopener">https://golang.design/under-the-hood/zh-cn/part1basic/ch05sync/pool/</a></li>
+<li><a href="https://xie.infoq.cn/article/55f28d278cccf0d8195459263" target="_blank" rel="noopener">https://xie.infoq.cn/article/55f28d278cccf0d8195459263</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2023/07/15/Go/Go-27-SyncPool/" title="Go-27-SyncPool" target="_blank" rel="external">http://xboom.github.io/2023/07/15/Go/Go-27-SyncPool/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">Yuan Kang</span><small class="ml-1x">Learn and live</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2023/07/13/Go/Go-26-Issue/" title="Go-26-Issue"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>

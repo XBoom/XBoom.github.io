@@ -2,9 +2,184 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://xboom.github.io/2023/07/13/Go/Go%E5%85%A5%E9%97%A826-Issue/</loc>
+    <loc>http://xboom.github.io/2023/07/15/Go/Go-27-SyncPool/</loc>
     
-    <lastmod>2023-07-13T14:59:25.698Z</lastmod>
+    <lastmod>2023-07-15T05:38:19.201Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2023/07/13/Go/Go-26-Issue/</loc>
+    
+    <lastmod>2023-07-15T05:38:12.322Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2023/07/01/Go/Go-25-PoolDequeue/</loc>
+    
+    <lastmod>2023-07-15T05:38:08.054Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2023/03/05/Go/Go-24-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/</loc>
+    
+    <lastmod>2023-07-15T05:38:02.316Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2023/01/10/Go/Go-23-arena/</loc>
+    
+    <lastmod>2023-07-15T05:37:56.756Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/12/09/Go/Go-22-Goland%E6%BF%80%E6%B4%BB/</loc>
+    
+    <lastmod>2023-07-15T05:37:52.316Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2023/01/04/Go/Go-21-SetFinalizer/</loc>
+    
+    <lastmod>2023-07-15T05:37:47.256Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2021/06/19/Go/Go-20-%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%BC%8F/</loc>
+    
+    <lastmod>2023-07-15T05:37:41.013Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/10/14/Go/Go-19-Fuzzing/</loc>
+    
+    <lastmod>2023-07-15T05:37:34.497Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/09/12/Go/Go-18-init/</loc>
+    
+    <lastmod>2023-07-15T05:37:28.802Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/09/12/Go/Go-17-%E5%B7%A5%E4%BD%9C%E5%8C%BA/</loc>
+    
+    <lastmod>2023-07-15T05:37:25.267Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/09/10/Go/Go-16-Sync/</loc>
+    
+    <lastmod>2023-07-15T05:37:18.023Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2023/04/04/Go/Go-15-SyncMap/</loc>
+    
+    <lastmod>2023-07-15T05:37:13.807Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/09/17/Go/Go-14-%E6%B3%9B%E5%9E%8B/</loc>
+    
+    <lastmod>2023-07-15T05:37:03.692Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/09/10/Go/Go-13-style/</loc>
+    
+    <lastmod>2023-07-15T05:36:54.976Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2021/09/05/Go/Go-12-Interface/</loc>
+    
+    <lastmod>2023-07-15T05:36:47.099Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2021/09/12/Go/Go-11-%E5%9F%BA%E7%A1%80%E7%B1%BB%E5%9E%8B/</loc>
+    
+    <lastmod>2023-07-15T05:36:42.705Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2021/07/03/Go/Go-10-defer/</loc>
+    
+    <lastmod>2023-07-15T05:36:37.180Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2021/07/03/Go/Go-08-Channel/</loc>
+    
+    <lastmod>2023-07-15T05:36:31.782Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2021/09/03/Go/Go-07-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/</loc>
+    
+    <lastmod>2023-07-15T05:36:24.976Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2021/09/09/Go/Go-06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</loc>
+    
+    <lastmod>2023-07-15T05:36:20.422Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2021/07/11/Go/Go-05-Map/</loc>
+    
+    <lastmod>2023-07-15T05:36:15.048Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2021/09/09/Go/Go-04-Select/</loc>
+    
+    <lastmod>2023-07-15T05:36:09.358Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2021/09/09/Go/Go-03-Groutine/</loc>
+    
+    <lastmod>2023-07-15T05:36:04.104Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2020/12/12/Go/Go-02-Slice/</loc>
+    
+    <lastmod>2023-07-15T05:33:03.191Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2020/12/08/Go/Go-01-%E9%97%AD%E5%8C%85/</loc>
+    
+    <lastmod>2023-07-15T05:32:50.730Z</lastmod>
     
   </url>
   
@@ -61,13 +236,6 @@
     <loc>http://xboom.github.io/2022/08/15/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-02-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</loc>
     
     <lastmod>2023-07-06T16:52:43.063Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2023/07/01/Go/Go%E5%85%A5%E9%97%A825-PoolDequeue/</loc>
-    
-    <lastmod>2023-07-01T09:03:09.648Z</lastmod>
     
   </url>
   
@@ -163,13 +331,6 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2021/07/11/Go/Go%E5%85%A5%E9%97%A85-Map/</loc>
-    
-    <lastmod>2023-06-02T11:27:01.515Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://xboom.github.io/2021/09/12/Redis/Redis%E5%85%A5%E9%97%A82-%E5%BA%95%E5%B1%82%E7%BB%93%E6%9E%84/</loc>
     
     <lastmod>2023-06-02T11:18:46.711Z</lastmod>
@@ -187,27 +348,6 @@
     <loc>http://xboom.github.io/2021/07/04/Linux/Linux%E6%B7%B1%E5%85%A52-%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9E%8B/</loc>
     
     <lastmod>2023-06-02T10:15:31.404Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2023/01/04/Go/Go%E5%85%A5%E9%97%A821-SetFinalizer/</loc>
-    
-    <lastmod>2023-06-02T08:49:46.059Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2023/01/10/Go/Go%E5%85%A5%E9%97%A823-arena/</loc>
-    
-    <lastmod>2023-06-02T08:42:51.246Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2023/04/04/Go/Go%E5%85%A5%E9%97%A815-SyncMap/</loc>
-    
-    <lastmod>2023-05-31T16:01:10.769Z</lastmod>
     
   </url>
   
@@ -243,13 +383,6 @@
     <loc>http://xboom.github.io/2021/07/26/MySql/MySql-03-%E7%B4%A2%E5%BC%95/</loc>
     
     <lastmod>2023-05-28T09:03:58.122Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/12/09/Go/Go%E5%85%A5%E9%97%A822-Goland%E6%BF%80%E6%B4%BB/</loc>
-    
-    <lastmod>2023-05-28T01:52:00.096Z</lastmod>
     
   </url>
   
@@ -485,48 +618,6 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2023/03/05/Go/Go%E5%85%A5%E9%97%A824-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/</loc>
-    
-    <lastmod>2023-04-05T04:17:47.389Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2021/06/19/Go/Go%E5%85%A5%E9%97%A820-%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%BC%8F/</loc>
-    
-    <lastmod>2023-04-05T04:17:33.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/10/14/Go/Go%E5%85%A5%E9%97%A819-Fuzzing/</loc>
-    
-    <lastmod>2023-04-05T04:17:29.273Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/09/12/Go/Go%E5%85%A5%E9%97%A818-init/</loc>
-    
-    <lastmod>2023-04-05T04:17:25.618Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/09/12/Go/Go%E5%85%A5%E9%97%A817-%E5%B7%A5%E4%BD%9C%E5%8C%BA/</loc>
-    
-    <lastmod>2023-04-05T04:16:09.603Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/09/10/Go/Go%E5%85%A5%E9%97%A816-Sync/</loc>
-    
-    <lastmod>2023-04-05T03:33:38.389Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://xboom.github.io/2021/10/20/Redis/Redis%E5%85%A5%E9%97%A89-%E7%BC%93%E5%AD%98/</loc>
     
     <lastmod>2023-03-26T11:54:13.505Z</lastmod>
@@ -618,27 +709,6 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2021/09/03/Go/Go%E5%85%A5%E9%97%A87-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/</loc>
-    
-    <lastmod>2023-03-12T02:18:37.959Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2020/12/12/Go/Go%E5%85%A5%E9%97%A82-Slice/</loc>
-    
-    <lastmod>2023-03-12T02:09:38.431Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2021/09/09/Go/Go%E5%85%A5%E9%97%A86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</loc>
-    
-    <lastmod>2023-03-09T11:53:41.985Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://xboom.github.io/2022/07/06/GoZero/GoZero4-%E5%8D%8F%E7%A8%8B%E6%B1%A01/</loc>
     
     <lastmod>2023-03-03T15:38:13.085Z</lastmod>
@@ -663,20 +733,6 @@
     <loc>http://xboom.github.io/2021/07/31/Linux/Linux%E6%B7%B1%E5%85%A53-malloc/</loc>
     
     <lastmod>2022-10-03T09:10:30.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/09/17/Go/Go%E5%85%A5%E9%97%A814-%E6%B3%9B%E5%9E%8B/</loc>
-    
-    <lastmod>2022-09-17T07:45:35.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/09/10/Go/Go%E5%85%A5%E9%97%A813-style/</loc>
-    
-    <lastmod>2022-09-10T15:05:52.000Z</lastmod>
     
   </url>
   
@@ -807,70 +863,14 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2021/09/05/Go/Go%E5%85%A5%E9%97%A812-Interface/</loc>
-    
-    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2021/09/09/Go/Go%E5%85%A5%E9%97%A83-Groutine/</loc>
-    
-    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2021/09/09/Go/Go%E5%85%A5%E9%97%A84-Select/</loc>
-    
-    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2021/07/03/Go/Go%E5%85%A5%E9%97%A88-Channel/</loc>
-    
-    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/01/06/MQ/MQ-Kafka1-%E5%88%9D%E8%AF%86Kafka/</loc>
-    
-    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/01/06/MQ/MQ-Kafka3-%E4%B8%BB%E9%A2%98%E4%B8%8E%E5%88%86%E5%8C%BA/</loc>
-    
-    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/01/06/MQ/MQ-Kafka2-%E7%94%9F%E4%BA%A7%E8%80%85%E4%B8%8E%E6%B6%88%E8%B4%B9%E8%80%85/</loc>
-    
-    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/01/06/MQ/MQ-Kafka4-%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/</loc>
-    
-    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2022/01/05/MQ/MQ-Redis/</loc>
-    
-    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://xboom.github.io/2022/02/21/K8S/k8s%E5%85%A5%E9%97%A85-%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C/</loc>
+    
+    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2020/10/25/Linux/Linux%E6%96%B0%E6%89%8B1-%E5%86%85%E6%A0%B8%E5%85%A5%E9%97%A8/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
     
@@ -891,7 +891,42 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2020/10/25/Linux/Linux%E6%96%B0%E6%89%8B1-%E5%86%85%E6%A0%B8%E5%85%A5%E9%97%A8/</loc>
+    <loc>http://xboom.github.io/2022/01/06/MQ/MQ-Kafka2-%E7%94%9F%E4%BA%A7%E8%80%85%E4%B8%8E%E6%B6%88%E8%B4%B9%E8%80%85/</loc>
+    
+    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/01/06/MQ/MQ-Kafka3-%E4%B8%BB%E9%A2%98%E4%B8%8E%E5%88%86%E5%8C%BA/</loc>
+    
+    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/01/06/MQ/MQ-Kafka1-%E5%88%9D%E8%AF%86Kafka/</loc>
+    
+    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/01/05/MQ/MQ-Redis/</loc>
+    
+    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/01/06/MQ/MQ-Kafka4-%E6%97%A5%E5%BF%97%E5%AD%98%E5%82%A8/</loc>
+    
+    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2020/11/01/TCP/TCP-2-%E8%B6%85%E6%97%B6%E4%B8%8E%E9%87%8D%E4%BC%A0/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
     
@@ -906,13 +941,6 @@
   
   <url>
     <loc>http://xboom.github.io/2020/11/02/TCP/TCP-3-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3/</loc>
-    
-    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2020/11/01/TCP/TCP-2-%E8%B6%85%E6%97%B6%E4%B8%8E%E9%87%8D%E4%BC%A0/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
     
@@ -961,28 +989,14 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2021/09/12/Go/Go%E5%85%A5%E9%97%A811-%E5%9F%BA%E7%A1%80%E7%B1%BB%E5%9E%8B/</loc>
-    
-    <lastmod>2021-09-12T05:16:12.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2021/07/03/Go/Go%E5%85%A5%E9%97%A810-defer/</loc>
-    
-    <lastmod>2021-07-03T15:07:43.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/2020/12/08/Go/Go%E5%85%A5%E9%97%A81-%E9%97%AD%E5%8C%85/</loc>
-    
-    <lastmod>2021-07-03T07:43:50.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://xboom.github.io/about/index.html</loc>
+    
+    <lastmod>2020-09-02T15:24:35.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/categories/index.html</loc>
     
     <lastmod>2020-09-02T15:24:35.000Z</lastmod>
     
@@ -997,13 +1011,6 @@
   
   <url>
     <loc>http://xboom.github.io/tags/index.html</loc>
-    
-    <lastmod>2020-09-02T15:24:35.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/categories/index.html</loc>
     
     <lastmod>2020-09-02T15:24:35.000Z</lastmod>
     
