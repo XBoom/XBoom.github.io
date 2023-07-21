@@ -28,18 +28,20 @@ var _hmt = _hmt || [];
   
   
   <title>设计模式-25-中介者模式 | Yuan Kang</title>
-  <meta name="description" content="中介者模式是一种行为设计模式， 能让你减少对象之间混乱无序的依赖关系。 该模式会限制对象之间的直接交互， 迫使它们通过一个中介者对象进行合作。 在中介者模式中，有以下几个关键角色：  中介者（Mediator）：中介者定义了对象之间通信的接口，它负责协调对象之间的交互，并封装了对象之间的具体通信细节。 具体中介者（Concrete Mediator）：具体中介者实现了中介者接口，它具体实现了对象之">
+  <meta name="description" content="**中介模式(Mediator Pattern)**通过创建一个中介者对象，用于处理各个对象之间的交互。中介者对象负责解耦其他对象之间的通信，从而减少对象之间的直接依赖关系  逻辑结构 在中介者模式中，有以下几个关键角色：  中介者（Mediator）：中介者定义了对象之间通信的接口，它负责协调对象之间的交互，并封装了对象之间的具体通信细节。 具体中介者（Concrete Mediator）：具体">
 <meta property="og:type" content="article">
 <meta property="og:title" content="设计模式-25-中介者模式">
 <meta property="og:url" content="http://xboom.github.io/2022/09/07/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-25-%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="中介者模式是一种行为设计模式， 能让你减少对象之间混乱无序的依赖关系。 该模式会限制对象之间的直接交互， 迫使它们通过一个中介者对象进行合作。 在中介者模式中，有以下几个关键角色：  中介者（Mediator）：中介者定义了对象之间通信的接口，它负责协调对象之间的交互，并封装了对象之间的具体通信细节。 具体中介者（Concrete Mediator）：具体中介者实现了中介者接口，它具体实现了对象之">
+<meta property="og:description" content="**中介模式(Mediator Pattern)**通过创建一个中介者对象，用于处理各个对象之间的交互。中介者对象负责解耦其他对象之间的通信，从而减少对象之间的直接依赖关系  逻辑结构 在中介者模式中，有以下几个关键角色：  中介者（Mediator）：中介者定义了对象之间通信的接口，它负责协调对象之间的交互，并封装了对象之间的具体通信细节。 具体中介者（Concrete Mediator）：具体">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/image-20230721215630514.png">
 <meta property="article:published_time" content="2022-09-07T14:58:29.000Z">
-<meta property="article:modified_time" content="2023-05-27T10:21:38.363Z">
+<meta property="article:modified_time" content="2023-07-21T15:39:06.074Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Design Patterns">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/image-20230721215630514.png">
   <!-- Canonical links -->
   <link rel="canonical" href="http://xboom.github.io/2022/09/07/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-25-%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/index.html">
   
@@ -333,7 +335,7 @@ var _hmt = _hmt || [];
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">1.</span> <span class="toc-text"> 代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#适用场景"><span class="toc-number">2.</span> <span class="toc-text"> 适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">4.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#逻辑结构"><span class="toc-number">1.</span> <span class="toc-text"> 逻辑结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">2.</span> <span class="toc-text"> 代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#适用场景"><span class="toc-number">3.</span> <span class="toc-text"> 适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -385,16 +387,42 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p><strong>中介者模式</strong>是一种行为设计模式， 能让你减少对象之间混乱无序的依赖关系。 该模式会限制对象之间的直接交互， 迫使它们通过一个中介者对象进行合作。</p>
+        <p>**中介模式(Mediator Pattern)**通过创建一个中介者对象，用于处理各个对象之间的交互。中介者对象负责解耦其他对象之间的通信，从而减少对象之间的直接依赖关系</p>
+<h3 id="逻辑结构"><a class="markdownIt-Anchor" href="#逻辑结构"></a> 逻辑结构</h3>
 <p>在中介者模式中，有以下几个关键角色：</p>
 <ol>
 <li><strong>中介者（Mediator）</strong>：中介者定义了对象之间通信的接口，它负责协调对象之间的交互，并封装了对象之间的具体通信细节。</li>
 <li><strong>具体中介者（Concrete Mediator）</strong>：具体中介者实现了中介者接口，它具体实现了对象之间的通信逻辑，包括接收和发送消息等。</li>
-<li><strong>同事类（Colleague）</strong>：同事类是指参与中介者模式的对象，它们之间通过中介者进行通信。每个同事类都需要持有一个中介者对象的引用。</li>
-<li><strong>具体同事类（Concrete Colleague）</strong>：具体同事类实现了同事类接口，它包含自身的一些业务逻辑，同时在需要与其他同事类通信时，通过中介者进行消息的发送和接收</li>
+<li><strong>同伴类（Colleague）</strong>：同伴类是指参与中介者模式的对象，它们之间通过中介者进行通信。每个同伴类都需要持有一个中介者对象的引用。</li>
+<li><strong>具体同伴类（Concrete Colleague）</strong>：具体同伴类实现了同伴类接口，它包含自身的一些业务逻辑，同时在需要与其他同伴类通信时，通过中介者进行消息的发送和接收</li>
 </ol>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/image-20230721215630514.png" alt="image-20230721215630514" style="zoom:50%;" />
 <h3 id="代码实现"><a class="markdownIt-Anchor" href="#代码实现"></a> 代码实现</h3>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Colleague 同事类接口</span></span><br><span class="line"><span class="keyword">type</span> Colleague <span class="keyword">interface</span> &#123;</span><br><span class="line">	SendMessage(message <span class="keyword">string</span>)</span><br><span class="line">	ReceiveMessage(message <span class="keyword">string</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Mediator 中介者接口</span></span><br><span class="line"><span class="keyword">type</span> Mediator <span class="keyword">interface</span> &#123;</span><br><span class="line">	SendMessage(message <span class="keyword">string</span>, colleague Colleague)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ConcreteMediator 具体中介者</span></span><br><span class="line"><span class="keyword">type</span> ConcreteMediator <span class="keyword">struct</span> &#123;</span><br><span class="line">	colleague1 Colleague</span><br><span class="line">	colleague2 Colleague</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *ConcreteMediator)</span> <span class="title">SendMessage</span><span class="params">(message <span class="keyword">string</span>, colleague Colleague)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> colleague == c.colleague1 &#123;</span><br><span class="line">		c.colleague2.ReceiveMessage(message)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		c.colleague1.ReceiveMessage(message)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ConcreteColleague 具体同事类</span></span><br><span class="line"><span class="keyword">type</span> ConcreteColleague <span class="keyword">struct</span> &#123;</span><br><span class="line">	mediator Mediator</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *ConcreteColleague)</span> <span class="title">SendMessage</span><span class="params">(message <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	c.mediator.SendMessage(message, c)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *ConcreteColleague)</span> <span class="title">ReceiveMessage</span><span class="params">(message <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">"收到消息:"</span>, message)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Client 客户端代码</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Client</span><span class="params">()</span></span> &#123;</span><br><span class="line">	mediator := &amp;ConcreteMediator&#123;&#125;</span><br><span class="line">	colleague1 := &amp;ConcreteColleague&#123;mediator: mediator&#125;</span><br><span class="line">	colleague2 := &amp;ConcreteColleague&#123;mediator: mediator&#125;</span><br><span class="line">	mediator.colleague1 = colleague1</span><br><span class="line">	mediator.colleague2 = colleague2</span><br><span class="line"></span><br><span class="line">	colleague1.SendMessage(<span class="string">"Hello, colleague2!"</span>)</span><br><span class="line">	colleague2.SendMessage(<span class="string">"Hi, colleague1!"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>
+<p>首先，定义同伴接口，表示同伴相互收发消息</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Colleague 同伴类接口</span></span><br><span class="line"><span class="keyword">type</span> Colleague <span class="keyword">interface</span> &#123;</span><br><span class="line">	SendMessage(message <span class="keyword">string</span>)</span><br><span class="line">	ReceiveMessage(message <span class="keyword">string</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>其次，定义中介者接口，表示同伴之间发送消息都需要通过中介</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Mediator 中介者接口</span></span><br><span class="line"><span class="keyword">type</span> Mediator <span class="keyword">interface</span> &#123;</span><br><span class="line">	SendMessage(message <span class="keyword">string</span>, colleague Colleague)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>接着，实现具体的中介逻辑，中介实现同伴的通信</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ConcreteMediator 具体中介者</span></span><br><span class="line"><span class="keyword">type</span> ConcreteMediator <span class="keyword">struct</span> &#123;</span><br><span class="line">	colleague1 Colleague</span><br><span class="line">	colleague2 Colleague</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *ConcreteMediator)</span> <span class="title">SendMessage</span><span class="params">(message <span class="keyword">string</span>, colleague Colleague)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> colleague == c.colleague1 &#123;</span><br><span class="line">		c.colleague2.ReceiveMessage(message)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		c.colleague1.ReceiveMessage(message)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>最后，定义同伴</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ConcreteColleague 具体同伴类</span></span><br><span class="line"><span class="keyword">type</span> ConcreteColleague <span class="keyword">struct</span> &#123;</span><br><span class="line">	name     <span class="keyword">string</span></span><br><span class="line">	mediator Mediator</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//发送消息</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *ConcreteColleague)</span> <span class="title">SendMessage</span><span class="params">(message <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	c.mediator.SendMessage(message, c)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *ConcreteColleague)</span> <span class="title">ReceiveMessage</span><span class="params">(message <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">"%s 收到消息：%s\n"</span>, c.name, message)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>运行</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1. 中介对象包含具体对象</span></span><br><span class="line">mediator := &amp;ConcreteMediator&#123;&#125;</span><br><span class="line">colleague1 := &amp;ConcreteColleague&#123;name: <span class="string">"Colleague1"</span>, mediator: mediator&#125;</span><br><span class="line">colleague2 := &amp;ConcreteColleague&#123;name: <span class="string">"Colleague2"</span>, mediator: mediator&#125;</span><br><span class="line"><span class="comment">//2. 中介双方</span></span><br><span class="line">mediator.colleague1 = colleague1</span><br><span class="line">mediator.colleague2 = colleague2</span><br><span class="line"><span class="comment">//3. 发送消息</span></span><br><span class="line">colleague1.SendMessage(<span class="string">"Hello, colleague2!"</span>)</span><br><span class="line">colleague2.SendMessage(<span class="string">"Hi, colleague1!"</span>)</span><br></pre></td></tr></table></figure>
+<p>结果</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Colleague2 收到消息：Hello, colleague2!</span><br><span class="line">Colleague1 收到消息：Hi, colleague1!</span><br></pre></td></tr></table></figure>
+<p><strong>中介者模式与观察者模式的区别？</strong></p>
+<p>在观察者模式中，尽管一个参与者既可以是观察者，同时也可以是被观察者，但大部分情况下，交互关系往往都是单向的，一个参与者要么是观察者，要么是被观察者，不会兼具两种身份。</p>
+<p>而中介模式正好相反。只有当参与者之间的交互关系错综复杂，维护成本很高的时候，才考虑使用中介模式。而且，如果一个参与者状态的改变，其他参与者执行的操作有一定先后顺序的要求，这个时候，中介模式就可以利用中介类，通过先后调用不同参与者的方法，来实现顺序的控制，而观察者模式是无法实现这样的顺序要求的</p>
 <h3 id="适用场景"><a class="markdownIt-Anchor" href="#适用场景"></a> 适用场景</h3>
 <ol>
 <li>当一些对象和其他对象紧密耦合以致难以对其进行修改时</li>
@@ -405,8 +433,9 @@ var _hmt = _hmt || [];
 <ol>
 <li><em>单一职责原则</em>。 可以将多个组件间的交流抽取到同一位置， 使其更易于理解和维护。</li>
 <li><em>开闭原则</em>。 无需修改实际组件就能增加新的中介者</li>
-<li>可以减轻应用中多个组件间的耦合情况。</li>
-<li>可以更方便地复用各个组件。</li>
+<li>可以减轻应用中多个组件间的耦合情况</li>
+<li>可以更方便地复用各个组件</li>
+<li>中介模式会产生大而复杂的上帝类</li>
 </ol>
 <h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
 <ol>
