@@ -28,18 +28,20 @@ var _hmt = _hmt || [];
   
   
   <title>设计模式-08-代理模式 | Yuan Kang</title>
-  <meta name="description" content="代理模式 在不改变原始类(或叫被代理类)代码的情况下，通过引入代理类来给原始类附加功能，常用在业务系统中开发一些非功能性需求，比如：监控、统计、鉴权、限流、事务、幂等、 日志 代码路径：https:&#x2F;&#x2F;github.com&#x2F;XBoom&#x2F;DesignPatterns&#x2F;tree&#x2F;main&#x2F;07_Proxy  代码实现   需要被代理的行为是卖票 1234&#x2F;&#x2F; Seller 售票type Seller">
+  <meta name="description" content="代理模式 在不改变原始类(或叫被代理类)代码的情况下，通过引入代理类来给原始类附加功能，常用在业务系统中开发一些非功能性需求，比如：监控、统计、鉴权、限流、事务、幂等、 日志  逻辑结构   代码实现 代码路径：https:&#x2F;&#x2F;github.com&#x2F;XBoom&#x2F;DesignPatterns&#x2F;tree&#x2F;main&#x2F;07_Proxy   需要被代理的行为是卖票 1234&#x2F;&#x2F; Seller 售票type">
 <meta property="og:type" content="article">
 <meta property="og:title" content="设计模式-08-代理模式">
 <meta property="og:url" content="http://xboom.github.io/2022/08/21/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-08-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="代理模式 在不改变原始类(或叫被代理类)代码的情况下，通过引入代理类来给原始类附加功能，常用在业务系统中开发一些非功能性需求，比如：监控、统计、鉴权、限流、事务、幂等、 日志 代码路径：https:&#x2F;&#x2F;github.com&#x2F;XBoom&#x2F;DesignPatterns&#x2F;tree&#x2F;main&#x2F;07_Proxy  代码实现   需要被代理的行为是卖票 1234&#x2F;&#x2F; Seller 售票type Seller">
+<meta property="og:description" content="代理模式 在不改变原始类(或叫被代理类)代码的情况下，通过引入代理类来给原始类附加功能，常用在业务系统中开发一些非功能性需求，比如：监控、统计、鉴权、限流、事务、幂等、 日志  逻辑结构   代码实现 代码路径：https:&#x2F;&#x2F;github.com&#x2F;XBoom&#x2F;DesignPatterns&#x2F;tree&#x2F;main&#x2F;07_Proxy   需要被代理的行为是卖票 1234&#x2F;&#x2F; Seller 售票type">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Proxy.png">
 <meta property="article:published_time" content="2022-08-21T14:58:29.000Z">
-<meta property="article:modified_time" content="2023-07-20T14:46:26.129Z">
+<meta property="article:modified_time" content="2023-07-23T07:27:32.063Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Design Patterns">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Proxy.png">
   <!-- Canonical links -->
   <link rel="canonical" href="http://xboom.github.io/2022/08/21/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-08-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/index.html">
   
@@ -333,7 +335,7 @@ var _hmt = _hmt || [];
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">1.</span> <span class="toc-text"> 代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#单元测试"><span class="toc-number">2.</span> <span class="toc-text"> 单元测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">4.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#逻辑结构"><span class="toc-number">1.</span> <span class="toc-text"> 逻辑结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">2.</span> <span class="toc-text"> 代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#单元测试"><span class="toc-number">3.</span> <span class="toc-text"> 单元测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -386,8 +388,10 @@ var _hmt = _hmt || [];
     <div class="article-entry marked-body" itemprop="articleBody">
       
         <p><strong>代理模式</strong> 在不改变原始类(或叫被代理类)代码的情况下，通过引入代理类来给原始类附加功能，常用在业务系统中开发一些非功能性需求，比如：监控、统计、鉴权、限流、事务、幂等、 日志</p>
-<p>代码路径：<a href="https://github.com/XBoom/DesignPatterns/tree/main/07_Proxy" target="_blank" rel="noopener">https://github.com/XBoom/DesignPatterns/tree/main/07_Proxy</a></p>
+<h3 id="逻辑结构"><a class="markdownIt-Anchor" href="#逻辑结构"></a> 逻辑结构</h3>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Proxy.png" alt="Proxy" style="zoom:50%;" />
 <h3 id="代码实现"><a class="markdownIt-Anchor" href="#代码实现"></a> 代码实现</h3>
+<p>代码路径：<a href="https://github.com/XBoom/DesignPatterns/tree/main/07_Proxy" target="_blank" rel="noopener">https://github.com/XBoom/DesignPatterns/tree/main/07_Proxy</a></p>
 <ol>
 <li>
 <p>需要被代理的行为是卖票</p>

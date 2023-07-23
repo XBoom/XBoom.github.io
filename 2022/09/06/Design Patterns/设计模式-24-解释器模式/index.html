@@ -28,16 +28,16 @@ var _hmt = _hmt || [];
   
   
   <title>设计模式-24-解释器模式 | Yuan Kang</title>
-  <meta name="description" content="解释器模式定义一套语言文法，并设计该语言解释器，使用户能使用特定文法控制解释器行为。解释器模式的意义在于，它分离多种复杂功能的实现，每个功能只需关注自身的解释。对于调用者不用关心内部的解释器的工作，只需要用简单的方式组合命令就可以  逻辑结构   代码实现   首先，定义了解释器接口 1234&#x2F;&#x2F; Expression 表达式接口type Expression interface &amp;#123;	I">
+  <meta name="description" content="解释器模式定义一套语言文法，并设计该语言解释器，使用户能使用特定文法控制解释器行为。解释器模式的意义在于，它分离多种复杂功能的实现，每个功能只需关注自身的解释。对于调用者不用关心内部的解释器的工作，只需要用简单的方式组合命令就可以  逻辑结构   代码实现 代码路径：https:&#x2F;&#x2F;github.com&#x2F;XBoom&#x2F;DesignPatterns&#x2F;tree&#x2F;main&#x2F;23_Expression">
 <meta property="og:type" content="article">
 <meta property="og:title" content="设计模式-24-解释器模式">
 <meta property="og:url" content="http://xboom.github.io/2022/09/06/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-24-%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="解释器模式定义一套语言文法，并设计该语言解释器，使用户能使用特定文法控制解释器行为。解释器模式的意义在于，它分离多种复杂功能的实现，每个功能只需关注自身的解释。对于调用者不用关心内部的解释器的工作，只需要用简单的方式组合命令就可以  逻辑结构   代码实现   首先，定义了解释器接口 1234&#x2F;&#x2F; Expression 表达式接口type Expression interface &amp;#123;	I">
+<meta property="og:description" content="解释器模式定义一套语言文法，并设计该语言解释器，使用户能使用特定文法控制解释器行为。解释器模式的意义在于，它分离多种复杂功能的实现，每个功能只需关注自身的解释。对于调用者不用关心内部的解释器的工作，只需要用简单的方式组合命令就可以  逻辑结构   代码实现 代码路径：https:&#x2F;&#x2F;github.com&#x2F;XBoom&#x2F;DesignPatterns&#x2F;tree&#x2F;main&#x2F;23_Expression">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Expression.png">
 <meta property="article:published_time" content="2022-09-06T14:58:29.000Z">
-<meta property="article:modified_time" content="2023-07-21T15:38:51.638Z">
+<meta property="article:modified_time" content="2023-07-23T07:31:57.783Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Design Patterns">
 <meta name="twitter:card" content="summary">
@@ -391,6 +391,7 @@ var _hmt = _hmt || [];
 <h3 id="逻辑结构"><a class="markdownIt-Anchor" href="#逻辑结构"></a> 逻辑结构</h3>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Expression.png" alt="Expression" style="zoom:50%;" />
 <h3 id="代码实现"><a class="markdownIt-Anchor" href="#代码实现"></a> 代码实现</h3>
+<p>代码路径：<a href="https://github.com/XBoom/DesignPatterns/tree/main/23_Expression" target="_blank" rel="noopener">https://github.com/XBoom/DesignPatterns/tree/main/23_Expression</a></p>
 <ol>
 <li>
 <p>首先，定义了解释器接口</p>

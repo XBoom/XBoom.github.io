@@ -28,16 +28,16 @@ var _hmt = _hmt || [];
   
   
   <title>设计模式-18-职责链模式 | Yuan Kang</title>
-  <meta name="description" content="责任链模式是一种行为设计模式， 允许你将请求沿着处理者链进行发送。 收到请求后， 每个处理者均可对请求进行处理， 或将其传递给链上的下个处理者  逻辑结构   代码实现   首先，定义一个请求接口 12345&#x2F;&#x2F; Request 请求接口type Request interface &amp;#123;	GetLevel() int	GetContent() string&amp;#125;   定义一个处理者接">
+  <meta name="description" content="责任链模式是一种行为设计模式， 允许你将请求沿着处理者链进行发送。 收到请求后， 每个处理者均可对请求进行处理， 或将其传递给链上的下个处理者  逻辑结构   代码实现 代码路径：https:&#x2F;&#x2F;github.com&#x2F;XBoom&#x2F;DesignPatterns&#x2F;tree&#x2F;main&#x2F;17_Chain   首先，定义一个请求接口 12345&#x2F;&#x2F; Request 请求接口type Request inte">
 <meta property="og:type" content="article">
 <meta property="og:title" content="设计模式-18-职责链模式">
 <meta property="og:url" content="http://xboom.github.io/2022/08/31/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-18-%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F/index.html">
 <meta property="og:site_name" content="XBoom Dove">
-<meta property="og:description" content="责任链模式是一种行为设计模式， 允许你将请求沿着处理者链进行发送。 收到请求后， 每个处理者均可对请求进行处理， 或将其传递给链上的下个处理者  逻辑结构   代码实现   首先，定义一个请求接口 12345&#x2F;&#x2F; Request 请求接口type Request interface &amp;#123;	GetLevel() int	GetContent() string&amp;#125;   定义一个处理者接">
+<meta property="og:description" content="责任链模式是一种行为设计模式， 允许你将请求沿着处理者链进行发送。 收到请求后， 每个处理者均可对请求进行处理， 或将其传递给链上的下个处理者  逻辑结构   代码实现 代码路径：https:&#x2F;&#x2F;github.com&#x2F;XBoom&#x2F;DesignPatterns&#x2F;tree&#x2F;main&#x2F;17_Chain   首先，定义一个请求接口 12345&#x2F;&#x2F; Request 请求接口type Request inte">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Chain.png">
 <meta property="article:published_time" content="2022-08-31T14:58:29.000Z">
-<meta property="article:modified_time" content="2023-07-22T09:48:31.111Z">
+<meta property="article:modified_time" content="2023-07-23T07:30:49.831Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Design Patterns">
 <meta name="twitter:card" content="summary">
@@ -391,6 +391,7 @@ var _hmt = _hmt || [];
 <h3 id="逻辑结构"><a class="markdownIt-Anchor" href="#逻辑结构"></a> 逻辑结构</h3>
 <img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Chain.png" alt="Chain" style="zoom:50%;" />
 <h3 id="代码实现"><a class="markdownIt-Anchor" href="#代码实现"></a> 代码实现</h3>
+<p>代码路径：<a href="https://github.com/XBoom/DesignPatterns/tree/main/17_Chain" target="_blank" rel="noopener">https://github.com/XBoom/DesignPatterns/tree/main/17_Chain</a></p>
 <ol>
 <li>
 <p>首先，定义一个请求接口</p>

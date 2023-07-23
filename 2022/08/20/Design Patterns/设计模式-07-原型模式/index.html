@@ -35,11 +35,13 @@ var _hmt = _hmt || [];
 <meta property="og:site_name" content="XBoom Dove">
 <meta property="og:description" content="原型模式是一种创建型设计模式， 使你能够复制已有对象， 而又无需使代码依赖它们所属的类(亦称： 克隆、Clone、Prototype) 如果你有一个对象， 并希望生成与其完全相同的一个复制品， 你该如何实现呢？ 首先， 你必须新建一个属于相同类的对象。 然后， 你必须遍历原始对象的所有成员变量， 并将成员变量值复制到新对象中。 可能存在的问题  并非所有对象都能通过这种方式进行复制， 因为有些对象">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Prototype.png">
 <meta property="article:published_time" content="2022-08-20T14:58:29.000Z">
-<meta property="article:modified_time" content="2023-07-09T06:32:59.772Z">
+<meta property="article:modified_time" content="2023-07-23T07:27:19.799Z">
 <meta property="article:author" content="XBoom Dove">
 <meta property="article:tag" content="Design Patterns">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Prototype.png">
   <!-- Canonical links -->
   <link rel="canonical" href="http://xboom.github.io/2022/08/20/Design%20Patterns/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-07-%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/index.html">
   
@@ -333,7 +335,7 @@ var _hmt = _hmt || [];
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">1.</span> <span class="toc-text"> 代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#单元测试"><span class="toc-number">2.</span> <span class="toc-text"> 单元测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">4.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#逻辑结构"><span class="toc-number">1.</span> <span class="toc-text"> 逻辑结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">2.</span> <span class="toc-text"> 代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#单元测试"><span class="toc-number">3.</span> <span class="toc-text"> 单元测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">5.</span> <span class="toc-text"> 参考文档</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -392,8 +394,10 @@ var _hmt = _hmt || [];
 <li>并非所有对象都能通过这种方式进行复制， 因为有些<strong>对象可能拥有私有成员变量</strong>， 它们在对象本身以外是不可见的</li>
 <li><strong>有时只知道对象所实现的接口， 而不知道其所属的具体类</strong>， 比如可向方法的某个参数传入实现了某个接口的任何对象</li>
 </ol>
-<p>源码路径：<a href="https://github.com/XBoom/DesignPatterns/tree/main/06_Prototype" target="_blank" rel="noopener">https://github.com/XBoom/DesignPatterns/tree/main/06_Prototype</a></p>
+<h3 id="逻辑结构"><a class="markdownIt-Anchor" href="#逻辑结构"></a> 逻辑结构</h3>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/Prototype.png" alt="Prototype" style="zoom:50%;" />
 <h3 id="代码实现"><a class="markdownIt-Anchor" href="#代码实现"></a> 代码实现</h3>
+<p>代码路径：<a href="https://github.com/XBoom/DesignPatterns/tree/main/06_Prototype" target="_blank" rel="noopener">https://github.com/XBoom/DesignPatterns/tree/main/06_Prototype</a></p>
 <ol>
 <li>
 <p>具体需要被复制的对象</p>
