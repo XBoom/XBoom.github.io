@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://xboom.github.io/2023/07/29/C++/CPP-07-%E5%87%BD%E6%95%B0/</loc>
+    
+    <lastmod>2023-07-29T14:35:53.206Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2023/07/29/C++/CPP-08-%E5%87%BD%E6%95%B0%E6%8E%A2%E5%B9%BD/</loc>
+    
+    <lastmod>2023-07-29T14:35:49.745Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://xboom.github.io/2023/07/29/C++/CPP-06-%E6%8C%87%E9%92%88/</loc>
     
     <lastmod>2023-07-29T07:17:28.850Z</lastmod>
@@ -905,14 +919,14 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2021/07/26/Linux/Linux%E5%9F%BA%E7%A1%804-%E8%BF%9B%E7%A8%8B/</loc>
+    <loc>http://xboom.github.io/2022/02/21/K8S/k8s%E5%85%A5%E9%97%A85-%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2022/02/21/K8S/k8s%E5%85%A5%E9%97%A85-%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C/</loc>
+    <loc>http://xboom.github.io/2021/07/26/Linux/Linux%E5%9F%BA%E7%A1%804-%E8%BF%9B%E7%A8%8B/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
     
