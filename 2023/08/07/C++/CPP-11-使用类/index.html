@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>CPP-11-使用类 | Yuan Kang</title>
+  <meta name="description" content="运算符重载 运算符重载是一种形式的 C++ 多态 用户能够定义多个名称相同但特征标(参数列表)不同的函数的。称为函数重载或函数多态，旨在能够用同名的函数来完成相同的基本操作，即使这种操作被用于不同的数据类型 首先实现时间操作 file1: mytime0.h，实现类的声明 1234567891011121314151617#ifndef MYTIME0_H_#define MYTIME0_H_c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP-11-使用类">
+<meta property="og:url" content="http://xboom.github.io/2023/08/07/C++/CPP-11-%E4%BD%BF%E7%94%A8%E7%B1%BB/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="运算符重载 运算符重载是一种形式的 C++ 多态 用户能够定义多个名称相同但特征标(参数列表)不同的函数的。称为函数重载或函数多态，旨在能够用同名的函数来完成相同的基本操作，即使这种操作被用于不同的数据类型 首先实现时间操作 file1: mytime0.h，实现类的声明 1234567891011121314151617#ifndef MYTIME0_H_#define MYTIME0_H_c">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-08-07T13:39:29.000Z">
+<meta property="article:modified_time" content="2023-08-07T13:38:48.131Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="PrimerPlus">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2023/08/07/C++/CPP-11-%E4%BD%BF%E7%94%A8%E7%B1%BB/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Yuan Kang</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Learn and live</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">26</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-System/" rel="tag">Distributed System</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Transaction/" rel="tag">Distributed Transaction</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">26</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PrimerPlus/" rel="tag">PrimerPlus</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Raft/" rel="tag">Raft</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.08px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/C/" style="font-size: 13.75px;">C++</a> <a href="/tags/Design-Patterns/" style="font-size: 13.92px;">Design Patterns</a> <a href="/tags/Distributed-System/" style="font-size: 13px;">Distributed System</a> <a href="/tags/Distributed-Transaction/" style="font-size: 13.42px;">Distributed Transaction</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.83px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.25px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.17px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.33px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.17px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.58px;">MySql</a> <a href="/tags/PrimerPlus/" style="font-size: 13.75px;">PrimerPlus</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Raft/" style="font-size: 13px;">Raft</a> <a href="/tags/Redis/" style="font-size: 13.83px;">Redis</a> <a href="/tags/TCP-IP/" style="font-size: 13.33px;">TCP/IP</a> <a href="/tags/go-zero/" style="font-size: 13.67px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.33px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">21</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/C/">C++</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/08/07/C++/CPP-11-%E4%BD%BF%E7%94%A8%E7%B1%BB/" class="title">CPP-11-使用类</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-08-07T13:39:29.000Z" itemprop="datePublished">2023-08-07</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/C/">C++</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/08/07/C++/CPP-10-%E5%AF%B9%E8%B1%A1%E5%92%8C%E7%B1%BB/" class="title">CPP-10-对象和类</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-08-06T16:00:29.000Z" itemprop="datePublished">2023-08-07</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/C/">C++</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/31/C++/CPP-09-%E7%BC%96%E8%AF%91%E8%AE%BF%E9%97%AE/" class="title">CPP-09-编译访问</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-31T14:07:29.000Z" itemprop="datePublished">2023-07-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/C/">C++</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/29/C++/CPP-08-%E5%87%BD%E6%95%B0%E6%8E%A2%E5%B9%BD/" class="title">CPP-08-函数探幽</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-29T14:35:29.000Z" itemprop="datePublished">2023-07-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/C/">C++</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/29/C++/CPP-07-%E5%87%BD%E6%95%B0/" class="title">CPP-07-函数</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-29T12:17:29.000Z" itemprop="datePublished">2023-07-29</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#运算符重载"><span class="toc-number">1.</span> <span class="toc-text"> 运算符重载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#友元"><span class="toc-number">2.</span> <span class="toc-text"> 友元</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">3.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-C++/CPP-11-使用类" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CPP-11-使用类
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2023/08/07/C++/CPP-11-%E4%BD%BF%E7%94%A8%E7%B1%BB/" class="article-date">
+	  <time datetime="2023-08-07T13:39:29.000Z" itemprop="datePublished">2023-08-07</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/C/">C++</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/C/" rel="tag">C++</a>, <a class="article-tag-link" href="/tags/PrimerPlus/" rel="tag">PrimerPlus</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2023/08/07/C++/CPP-11-%E4%BD%BF%E7%94%A8%E7%B1%BB/" class="leancloud_visitors"  data-flag-title="CPP-11-使用类">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/08/07/C++/CPP-11-%E4%BD%BF%E7%94%A8%E7%B1%BB/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="运算符重载"><a class="markdownIt-Anchor" href="#运算符重载"></a> 运算符重载</h3>
+<p>运算符重载是一种形式的 C++ 多态</p>
+<p>用户能够定义多个名称相同但特征标(参数列表)不同的函数的。称为函数重载或函数多态，旨在能够用同名的函数来完成相同的基本操作，即使这种操作被用于不同的数据类型</p>
+<p>首先实现时间操作</p>
+<p><code>file1: mytime0.h</code>，实现类的声明</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> MYTIME0_H_</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MYTIME0_H_</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Time</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> hours;</span><br><span class="line">    <span class="keyword">int</span> minutes;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">    Time();</span><br><span class="line">    Time(<span class="keyword">int</span> h, <span class="keyword">int</span> m = <span class="number">0</span>);</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">AddMin</span><span class="params">(<span class="keyword">int</span> m)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">AddHr</span><span class="params">(<span class="keyword">int</span> h)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Reset</span><span class="params">(<span class="keyword">int</span> h = <span class="number">0</span>, <span class="keyword">int</span> m = <span class="number">0</span>)</span></span>;</span><br><span class="line">    <span class="function">Time <span class="title">Sum</span><span class="params">(<span class="keyword">const</span> Time &amp; t)</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Show</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p><code>file2: usetime0.cpp</code> 实现类的成员函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"mytime0.h"</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line">Time::Time()</span><br><span class="line">&#123;</span><br><span class="line">    hours = minutes = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Time::Time(<span class="keyword">int</span> h, <span class="keyword">int</span> m)</span><br><span class="line">&#123;</span><br><span class="line">    hours = h;</span><br><span class="line">    minutes = m;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Time::AddMin</span><span class="params">(<span class="keyword">int</span> m)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    minutes += m;</span><br><span class="line">    hours += minutes / <span class="number">60</span>;</span><br><span class="line">    minutes %= <span class="number">60</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Time::AddHr</span><span class="params">(<span class="keyword">int</span> h)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    hours += h;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Time::Reset</span><span class="params">(<span class="keyword">int</span> h, <span class="keyword">int</span> m)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    hours = h;</span><br><span class="line">    minutes = m;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Time <span class="title">Time::Sum</span><span class="params">(<span class="keyword">const</span> Time &amp; t)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Time sum;</span><br><span class="line">    sum.minutes = minutes + t.minutes;</span><br><span class="line">    sum.hours = hours + t.hours + sum.minutes / <span class="number">60</span>;</span><br><span class="line">    sum.minutes %= <span class="number">60</span>;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Time::Show</span><span class="params">()</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; hours &lt;&lt; <span class="string">" hours, "</span> &lt;&lt; minutes &lt;&lt; <span class="string">" minutes"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>file3:usertime0.cpp</code> 使用类</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"mytime0.h"</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Time planning;</span><br><span class="line">    <span class="function">Time <span class="title">coding</span><span class="params">(<span class="number">2</span>, <span class="number">40</span>)</span></span>;</span><br><span class="line">    <span class="function">Time <span class="title">fixing</span><span class="params">(<span class="number">5</span>, <span class="number">55</span>)</span></span>;</span><br><span class="line">    Time total;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"planning time = "</span>;</span><br><span class="line">    planning.Show();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"coding time = "</span>;</span><br><span class="line">    coding.Show();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"fixing time = "</span>;</span><br><span class="line">    fixing.Show();</span><br><span class="line"></span><br><span class="line">    total = coding.Sum(fixing);</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"coding.Sum(fixing) = "</span>;</span><br><span class="line">    total.Show();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译运行如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">g++ -Wall -Werror -std=c++11 -c src/mytime0.cpp -o build/mytime0.o</span></span><br><span class="line"><span class="comment">g++ -Wall -Werror -std=c++11 -c src/usetime0.cpp -o build/usetime0.o</span></span><br><span class="line"><span class="comment">g++  build/mytime0.o build/usetime0.o -o demo</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">planning time = <span class="number">0</span> hours, <span class="number">0</span> minutes</span><br><span class="line">coding time = <span class="number">2</span> hours, <span class="number">40</span> minutes</span><br><span class="line">fixing time = <span class="number">5</span> hours, <span class="number">55</span> minutes</span><br><span class="line">coding.Sum(fixing) = <span class="number">8</span> hours, <span class="number">35</span> minutes</span><br></pre></td></tr></table></figure>
+<p>添加一个加法运算符</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Time <span class="keyword">operator</span>+(<span class="keyword">const</span> Time &amp; t) <span class="keyword">const</span>;</span><br><span class="line"></span><br><span class="line">Time Time::<span class="keyword">operator</span>+(<span class="keyword">const</span> Time &amp; t) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    Time sum;</span><br><span class="line">    sum.minutes = minutes + t.minutes;</span><br><span class="line">    sum.hours = hours + t.hours + sum.minutes / <span class="number">60</span>;</span><br><span class="line">    sum.minutes %= <span class="number">60</span>;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">total = coding + fixing;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"coding + fixing = "</span>;</span><br><span class="line">total.Show();</span><br></pre></td></tr></table></figure>
+<p>运行结果与 <code>sum</code> 函数一样</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">coding.Sum(fixing) = <span class="number">8</span> hours, <span class="number">35</span> minutes</span><br><span class="line">coding + fixing = <span class="number">8</span> hours, <span class="number">35</span> minutes</span><br></pre></td></tr></table></figure>
+<p>对象连续相加也是允许的</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">total = coding + fixing + coding + planning;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"all + ="</span>;</span><br><span class="line">total.Show();</span><br><span class="line"></span><br><span class="line"><span class="comment">//输出结果 all + =11 hours, 15 minutes</span></span><br></pre></td></tr></table></figure>
+<p>重载的限制也是有的</p>
+<ol>
+<li>重载后的运算符必须至少有一个操作数是用户定义的类型，将防止用户为标准类型重载运算符</li>
+<li>使用运算符时不能违反运算符原来的句法规则。例如，不能将求模运算符(%)重载成使用一个操作数</li>
+<li>不能创建新运算符。例如，不能定义<code>operator **( )</code>函数来表示求幂</li>
+<li>不能重载下面的运算符
+<ul>
+<li><code>sizeof：sizeof</code>运算符</li>
+<li><code>.</code>：成员运算符。</li>
+<li><code>. *</code>：成员指针运算符。</li>
+<li><code>::</code>：作用域解析运算符。</li>
+<li><code>?:</code>：条件运算符。</li>
+<li><code>typeid</code>：一个RTTI运算符。</li>
+<li><code>const_cast</code>：强制类型转换运算符。</li>
+<li><code>dynamic_cast</code>：强制类型转换运算符。</li>
+<li><code>reinterpret_cast</code>：强制类型转换运算符。</li>
+<li><code>static_cast</code>：强制类型转换运算符。</li>
+</ul>
+</li>
+</ol>
+<h3 id="友元"><a class="markdownIt-Anchor" href="#友元"></a> 友元</h3>
+<p>C<ins>控制对类对象私有部分的访问。通常，公有类方法提供唯一的访问途径，但是有时候这种限制太严格，C</ins>提供了另外一种形式的访问权限：<code>友元</code></p>
+<p>友元有3种：</p>
+<ul>
+<li>友元函数</li>
+<li>友元类</li>
+<li>友元成员函数</li>
+</ul>
+<p><strong>为何需要友元</strong>？为类重载二元运算符时(带两个参数的运算符)常常需要友元，通过让函数成为类的友元，可以赋予该函数与类的成员函数相同的访问权限</p>
+<p>比如<code>Time</code> 类重载操作符号<code>*</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Time <span class="keyword">operator</span>+(<span class="keyword">double</span> n) <span class="keyword">const</span>;</span><br><span class="line"></span><br><span class="line">Time Time::<span class="keyword">operator</span>+(<span class="keyword">double</span> n) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    Time sum;</span><br><span class="line">    sum.minutes = minutes * n % <span class="number">60</span>;</span><br><span class="line">    sum.hours =  hours + minutes * n / <span class="number">60</span>;	</span><br><span class="line">  	sum.hours = sum.hours % <span class="number">24</span>;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述可以 使用 <code>A = B * 0.75</code> 但是无法用来实现 <code>A = 0.75 * B</code>，这样不就和普通的 <code>*</code> 不一样了吗</p>
+<p>友元就是为了解决这个问题，步骤如下</p>
+<ol>
+<li>将其原型放在类声明中，并在原型声明前加上关键字 friend</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">friend</span> Time <span class="keyword">operator</span>*(<span class="keyword">double</span> m, <span class="keyword">const</span> Time &amp; t); 	<span class="comment">//gose in class declaration</span></span><br><span class="line"><span class="comment">//friend Time operator*(double n, const Time &amp; t) const; //x 非成员函数上不允许使用类型限定符</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>虽然<code>operator *( )</code>函数是在类声明中声明的，但它不是成员函数，因此不能使用成员运算符来调用；</li>
+<li>虽然<code>operator *( )</code>函数不是成员函数，但它与成员函数的访问权限相同</li>
+<li>注意，不能使用 类型限定符，因为 此时的 <code>opeartor*</code> 不是成员函数</li>
+</ul>
+<ol start="2">
+<li>
+<p>是编写函数定义。因为它不是成员函数，所以不要使用 <code>Time::</code>限定符。另外，不要在定义中使用关键字<code>friend</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Time <span class="keyword">operator</span>*(<span class="keyword">double</span> m, <span class="keyword">const</span> Time &amp; t)	<span class="comment">//friend not used in definition</span></span><br><span class="line">&#123;</span><br><span class="line">	 	Time sum;</span><br><span class="line">    sum.minutes = minutes * m % <span class="number">60</span>;</span><br><span class="line">    sum.hours =  hours + minutes * m / <span class="number">60</span>;	</span><br><span class="line">  	sum.hours = sum.hours % <span class="number">24</span>;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>有了上述声明和定义后，就可以使用 <code>A = 2.75 * B</code> 了</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Time <span class="keyword">operator</span>*(<span class="keyword">double</span> m, <span class="keyword">const</span> Time &amp; t)	<span class="comment">//friend not used in definition</span></span><br><span class="line">&#123;</span><br><span class="line">	  Time sum;</span><br><span class="line">    sum.minutes = t.minutes % <span class="number">60</span>;</span><br><span class="line">    sum.hours =  t.hours + t.minutes * m / <span class="number">60</span>;	</span><br><span class="line">  	sum.hours = sum.hours % <span class="number">24</span>;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于不是成员函数，所以不能直接使用  <code>sum.minutes = minutes % 60;</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">total = coding * <span class="number">0.75</span>;	<span class="comment">//错误，没有与这些操作数匹配的 "*" 运算符</span></span><br><span class="line">total = <span class="number">0.25</span> * coding;</span><br></pre></td></tr></table></figure>
+<p>所以，上述的友元函数并不能两者都支持，还是需要一个重载的成员函数</p>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li>《C++ Primer Plus》</li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2023/08/07/C++/CPP-11-%E4%BD%BF%E7%94%A8%E7%B1%BB/" title="CPP-11-使用类" target="_blank" rel="external">http://xboom.github.io/2023/08/07/C++/CPP-11-使用类/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">Yuan Kang</span><small class="ml-1x">Learn and live</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2023/08/07/C++/CPP-10-%E5%AF%B9%E8%B1%A1%E5%92%8C%E7%B1%BB/" title="CPP-10-对象和类"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>
