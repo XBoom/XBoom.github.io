@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>CPP-10-对象和类 | Yuan Kang</title>
+  <meta name="description" content="声明一个类 123456789101112131415161718class Stock&amp;#123;private:    string company;    long shares;    double share_val;    double total_val;    void set_tot() &amp;#123;        total_val &#x3D; shares * share_val;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP-10-对象和类">
+<meta property="og:url" content="http://xboom.github.io/2022/08/07/C++/CPP-10-%E5%AF%B9%E8%B1%A1%E5%92%8C%E7%B1%BB/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="声明一个类 123456789101112131415161718class Stock&amp;#123;private:    string company;    long shares;    double share_val;    double total_val;    void set_tot() &amp;#123;        total_val &#x3D; shares * share_val;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/cpp_class_0729_2253.png">
+<meta property="article:published_time" content="2022-08-06T16:00:29.000Z">
+<meta property="article:modified_time" content="2023-08-10T04:04:36.792Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="PrimerPlus">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/cpp_class_0729_2253.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/08/07/C++/CPP-10-%E5%AF%B9%E8%B1%A1%E5%92%8C%E7%B1%BB/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Yuan Kang</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Learn and live</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">26</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-System/" rel="tag">Distributed System</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Transaction/" rel="tag">Distributed Transaction</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">26</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PrimerPlus/" rel="tag">PrimerPlus</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Raft/" rel="tag">Raft</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.08px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/C/" style="font-size: 13.75px;">C++</a> <a href="/tags/Design-Patterns/" style="font-size: 13.92px;">Design Patterns</a> <a href="/tags/Distributed-System/" style="font-size: 13px;">Distributed System</a> <a href="/tags/Distributed-Transaction/" style="font-size: 13.42px;">Distributed Transaction</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.83px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.25px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.17px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.33px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.17px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.58px;">MySql</a> <a href="/tags/PrimerPlus/" style="font-size: 13.75px;">PrimerPlus</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Raft/" style="font-size: 13px;">Raft</a> <a href="/tags/Redis/" style="font-size: 13.83px;">Redis</a> <a href="/tags/TCP-IP/" style="font-size: 13.33px;">TCP/IP</a> <a href="/tags/go-zero/" style="font-size: 13.67px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.33px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">19</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/15/Go/Go-27-SyncPool/" class="title">Go-27-SyncPool</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-15T05:32:45.000Z" itemprop="datePublished">2023-07-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/13/Go/Go-26-Issue/" class="title">Go-26-Issue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-13T14:59:45.000Z" itemprop="datePublished">2023-07-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/01/Go/Go-25-PoolDequeue/" class="title">Go-25-PoolDequeue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-01T08:51:45.000Z" itemprop="datePublished">2023-07-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Protocol/">Protocol</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="title">协议-03-Raft</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-26T02:25:38.000Z" itemprop="datePublished">2023-06-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go-15-SyncMap/" class="title">Go-15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#构造与析构"><span class="toc-number">1.</span> <span class="toc-text"> 构造与析构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#const-成员函数"><span class="toc-number">2.</span> <span class="toc-text"> const 成员函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#this指针"><span class="toc-number">3.</span> <span class="toc-text"> this指针</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">4.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-C++/CPP-10-对象和类" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CPP-10-对象和类
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/08/07/C++/CPP-10-%E5%AF%B9%E8%B1%A1%E5%92%8C%E7%B1%BB/" class="article-date">
+	  <time datetime="2022-08-06T16:00:29.000Z" itemprop="datePublished">2022-08-07</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/C/">C++</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/C/" rel="tag">C++</a>, <a class="article-tag-link" href="/tags/PrimerPlus/" rel="tag">PrimerPlus</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/08/07/C++/CPP-10-%E5%AF%B9%E8%B1%A1%E5%92%8C%E7%B1%BB/" class="leancloud_visitors"  data-flag-title="CPP-10-对象和类">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/08/07/C++/CPP-10-%E5%AF%B9%E8%B1%A1%E5%92%8C%E7%B1%BB/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>声明一个类</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Stock</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">string</span> company;</span><br><span class="line">    <span class="keyword">long</span> shares;</span><br><span class="line">    <span class="keyword">double</span> share_val;</span><br><span class="line">    <span class="keyword">double</span> total_val;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">set_tot</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        total_val = shares * share_val;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">acquire</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span> &amp;co, <span class="keyword">long</span> n, <span class="keyword">double</span> pr)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">buy</span><span class="params">(<span class="keyword">long</span> num, <span class="keyword">double</span> price)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">sell</span><span class="params">(<span class="keyword">long</span> num, <span class="keyword">double</span> price)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">update</span><span class="params">(<span class="keyword">double</span> price)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">show</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>关键字<code>private</code>和<code>public</code>描述了对类成员的访问控制。使用类对象的程序都可以直接访问公有部分，但只能通过公有成员函数来访问对象的私有成员，默认是<code>private</code>私有成员</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/cpp_class_0729_2253.png" alt="cpp_class_0729_2253" style="zoom:50%;" />
+<p>成员函数的函数头使用作用域运算符解析（::）来指出函数所属的类。例如，<code>update()</code> 成员函数的函数头如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stock::update</span><span class="params">(<span class="keyword">double</span> price)</span></span>;</span><br></pre></td></tr></table></figure>
+<h3 id="构造与析构"><a class="markdownIt-Anchor" href="#构造与析构"></a> 构造与析构</h3>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> year = <span class="number">2001</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">thing</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        <span class="keyword">char</span> *pn;</span><br><span class="line">        <span class="keyword">int</span> m;</span><br><span class="line">    &#125;;</span><br><span class="line">    thing amabob = &#123;<span class="string">"wodget"</span>, <span class="number">-23</span>&#125;;</span><br><span class="line">    <span class="comment">//Stock hot = &#123;"stock host", 200, 50.23&#125;;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码中 <code>thing</code> 结构体可以直接声明对象，但是 <code>Stock</code> 无法实例化对象，会提示 没<code>有与参数列表匹配的构造函数 &quot;Stock::Stock&quot; 实例</code>，原因是数据的访问状态是私有的，程序不能直接访问。这个时候就可以用构造函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Stock(<span class="keyword">const</span> <span class="built_in">string</span> &amp;co, <span class="keyword">long</span> n, <span class="keyword">double</span> pr)</span><br><span class="line">&#123;</span><br><span class="line">    company = co;</span><br><span class="line">    <span class="keyword">if</span>(n &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        shares = <span class="number">0</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        shares = n;</span><br><span class="line">    &#125;</span><br><span class="line">    share_val = pr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Stock hot = &#123;<span class="string">"stock host"</span>, <span class="number">200</span>, <span class="number">50.23</span>&#125;;</span><br><span class="line">Stock niu = Stock&#123;<span class="string">"stock host"</span>, <span class="number">200</span>, <span class="number">50.23</span>&#125;;</span><br><span class="line">Stock *nnm = <span class="keyword">new</span> Stock&#123;<span class="string">"stock host"</span>, <span class="number">200</span>, <span class="number">50.23</span>&#125;;</span><br></pre></td></tr></table></figure>
+<p>上述三种方式使用构造函数，但是需要一个特殊的地方</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//类 "Stock" 不存在默认构造函数</span></span><br><span class="line">Stock st;</span><br></pre></td></tr></table></figure>
+<p>也就是说 <code>Stock st;</code>其实是使用的默认构造函数，如果不编写构造函数的时候是可以的，但是如果声明了构造函数，那么就不能直接声明类实例。为了解决这个问题可以将已有构造函数使用默认值</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Stock(<span class="keyword">const</span> <span class="built_in">string</span> &amp;co = <span class="string">"Error"</span>, <span class="keyword">long</span> n = <span class="number">2</span>, <span class="keyword">double</span> pr = <span class="number">3.145</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也可以使用一个默认构造函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Stock();</span><br></pre></td></tr></table></figure>
+<p>由于只能有一个默认构造函数，所以上述两种方法只能用一种</p>
+<p>当程序过期的时候，程序将自动调用一个特殊的成员函数–<strong>析构函数</strong>，<strong>与构造函数不同的是，析构函数没有参数</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//~Stock();</span></span><br><span class="line">~Stock()</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">"Bye, "</span> &lt;&lt; company &lt;&lt; <span class="string">"!\n"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用析构函数时机由编译器决定，通常不显示地调用析构函数</p>
+<ul>
+<li>如果创建的是静态存储类对象，则其析构函数将在程序结束时被调用</li>
+<li>如果创建的是自动存储类对象，则其析构函数将在程序执行完代码块自动被调用</li>
+<li>如果对象是通过 new 创建时，则它将驻留在栈内存或自由存储区中，当使用 delete 来释放内存时，其析构函数将自动被调用</li>
+</ul>
+<p>由于在类过期时析构函数将自动被调用，因此必须有一个析构函数。如果没有提供析构函数，编译器将隐式地声明一个默认析构函数</p>
+<p>可以使用对象数组声明多个对象</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> STKS = <span class="number">4</span>;</span><br><span class="line">Stock stocks[STKS] = &#123;</span><br><span class="line">    Stock&#123;<span class="string">"boject 1"</span>, <span class="number">12</span>, <span class="number">111</span>&#125;,</span><br><span class="line">    Stock&#123;<span class="string">"boject 2"</span>, <span class="number">12</span>, <span class="number">111</span>&#125;,</span><br><span class="line">    Stock&#123;<span class="string">"boject 3"</span>, <span class="number">12</span>, <span class="number">111</span>&#125;,</span><br><span class="line">    Stock&#123;<span class="string">"boject 4"</span>, <span class="number">12</span>, <span class="number">111</span>&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="const-成员函数"><a class="markdownIt-Anchor" href="#const-成员函数"></a> const 成员函数</h3>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Stock land = Stock&#123;<span class="string">"Kluudgehorn Properties"</span>&#125;;</span><br><span class="line">land.show();</span><br></pre></td></tr></table></figure>
+<p>提示 <code>对象含有与成员 函数 &quot;Stock::show&quot; 不兼容的类型限定符C/C++(1086)，stock11.cpp(8, 5): 对象类型是: const Stock</code>，因为  代码无法确保调用对象不被修改——调用对象和const一样， 不应被修改。</p>
+<p>为了保证不会修改调用对象，C++的解决方法是将const关键字 放在函数的括号后面</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">show</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stock::show</span><span class="params">()</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"Number of shares purchased"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="this指针"><a class="markdownIt-Anchor" href="#this指针"></a> this指针</h3>
+<p>有时候方法可能涉及到两个对象，在这种情况下需要使用C++的this指针</p>
+<p>例如：该函数隐式地访问一个对象，而显式地访问另一个对象，比较之后返回其中一个对象的引用</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">const</span> Stock &amp; <span class="title">topval</span><span class="params">(<span class="keyword">const</span> Stock &amp; s)</span> <span class="keyword">const</span></span>;</span><br></pre></td></tr></table></figure>
+<p>括号中的const表明，该函数不会修改被显式地访问的对象；而括号后的const表明，该函数不会修改被隐式地访问的对象。 由于该函数返回了两个const对象之一的引用，因此返回类型也应为 const 引用</p>
+<p>假设要对Stock对象stock1和stock2进行比较，并返回其中一个则</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">top = stock1.topval(stock2);</span><br><span class="line">top = stock2.topval(stock1);</span><br></pre></td></tr></table></figure>
+<p>第一种格式隐式地访问<code>stock1</code>，而显式地访问<code>stock2</code>；第二种格式显式地访问<code>stock1</code>，而隐式地访问无论使用哪一 种方式，都将对这两个对象进行比较，并返回其中一个对象</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Stock &amp; Stock:topval(<span class="keyword">const</span> Stock &amp; s) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span>(s.total_val &gt; total_val) <span class="keyword">return</span> s;	<span class="comment">//return argument object</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">return</span> *<span class="keyword">this</span>;											<span class="comment">//invoking object</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用被称为<code>this</code>的特殊指针。<strong><code>this</code>指针指向用来调用成员函数的对象</strong>(<code>this</code>被作为隐藏参数传递给方法)。</p>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li>《C++ Primer Plus》</li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/08/07/C++/CPP-10-%E5%AF%B9%E8%B1%A1%E5%92%8C%E7%B1%BB/" title="CPP-10-对象和类" target="_blank" rel="external">http://xboom.github.io/2022/08/07/C++/CPP-10-对象和类/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">Yuan Kang</span><small class="ml-1x">Learn and live</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/08/07/C++/CPP-11-%E4%BD%BF%E7%94%A8%E7%B1%BB/" title="CPP-11-使用类"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/08/01/GoZero/GoZero9-%E8%87%AA%E9%80%82%E5%BA%94%E7%86%94%E6%96%AD/" title="go-zero9-自适应熔断"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>

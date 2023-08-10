@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>CPP-02-数据处理 | Yuan Kang</title>
+  <meta name="description" content="简单变量 12int num;num &#x3D; 5; 程序将找到一块能够存储整数的内存，将该内存单元标记为num，并将5复制到该内存单元中；然后，可在程序中使用num来访问该内存单元 C++还有另一种C语言没有的初始化语法 1int num(5); 这些变量都是声明了类型了，计算机如何知道没有声明类型的常量，比如 1cout &lt;&lt; &quot;Year &#x3D; &quot; &lt;&lt; 1492 &lt;&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP-02-数据处理">
+<meta property="og:url" content="http://xboom.github.io/2022/07/26/C++/CPP-02-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="简单变量 12int num;num &#x3D; 5; 程序将找到一块能够存储整数的内存，将该内存单元标记为num，并将5复制到该内存单元中；然后，可在程序中使用num来访问该内存单元 C++还有另一种C语言没有的初始化语法 1int num(5); 这些变量都是声明了类型了，计算机如何知道没有声明类型的常量，比如 1cout &lt;&lt; &quot;Year &#x3D; &quot; &lt;&lt; 1492 &lt;&amp;">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-07-26T15:58:29.000Z">
+<meta property="article:modified_time" content="2023-08-10T04:04:08.528Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="PrimerPlus">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2022/07/26/C++/CPP-02-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Yuan Kang</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Learn and live</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">26</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/go-zero/">go-zero</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-System/" rel="tag">Distributed System</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Transaction/" rel="tag">Distributed Transaction</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">26</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PrimerPlus/" rel="tag">PrimerPlus</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Raft/" rel="tag">Raft</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go-zero/" rel="tag">go-zero</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.08px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/C/" style="font-size: 13.75px;">C++</a> <a href="/tags/Design-Patterns/" style="font-size: 13.92px;">Design Patterns</a> <a href="/tags/Distributed-System/" style="font-size: 13px;">Distributed System</a> <a href="/tags/Distributed-Transaction/" style="font-size: 13.42px;">Distributed Transaction</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.83px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.25px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.17px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.33px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.17px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.58px;">MySql</a> <a href="/tags/PrimerPlus/" style="font-size: 13.75px;">PrimerPlus</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Raft/" style="font-size: 13px;">Raft</a> <a href="/tags/Redis/" style="font-size: 13.83px;">Redis</a> <a href="/tags/TCP-IP/" style="font-size: 13.33px;">TCP/IP</a> <a href="/tags/go-zero/" style="font-size: 13.67px;">go-zero</a> <a href="/tags/k8s/" style="font-size: 13.33px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">25</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">19</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/15/Go/Go-27-SyncPool/" class="title">Go-27-SyncPool</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-15T05:32:45.000Z" itemprop="datePublished">2023-07-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/13/Go/Go-26-Issue/" class="title">Go-26-Issue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-13T14:59:45.000Z" itemprop="datePublished">2023-07-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/01/Go/Go-25-PoolDequeue/" class="title">Go-25-PoolDequeue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-01T08:51:45.000Z" itemprop="datePublished">2023-07-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Protocol/">Protocol</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="title">协议-03-Raft</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-26T02:25:38.000Z" itemprop="datePublished">2023-06-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go-15-SyncMap/" class="title">Go-15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#简单变量"><span class="toc-number">1.</span> <span class="toc-text"> 简单变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#const"><span class="toc-number">2.</span> <span class="toc-text"> const</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#类型转换"><span class="toc-number">3.</span> <span class="toc-text"> 类型转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#auto"><span class="toc-number">4.</span> <span class="toc-text"> auto</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text"> 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">6.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-C++/CPP-02-数据处理" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CPP-02-数据处理
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/07/26/C++/CPP-02-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/" class="article-date">
+	  <time datetime="2022-07-26T15:58:29.000Z" itemprop="datePublished">2022-07-26</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/C/">C++</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/C/" rel="tag">C++</a>, <a class="article-tag-link" href="/tags/PrimerPlus/" rel="tag">PrimerPlus</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/07/26/C++/CPP-02-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/" class="leancloud_visitors"  data-flag-title="CPP-02-数据处理">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/07/26/C++/CPP-02-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="简单变量"><a class="markdownIt-Anchor" href="#简单变量"></a> 简单变量</h3>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> num;</span><br><span class="line">num = <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+<p>程序将找到一块能够存储整数的内存，将该内存单元标记为<code>num</code>，并将5复制到该内存单元中；然后，可在程序中使用<code>num</code>来访问该内存单元</p>
+<p>C++还有另一种C语言没有的初始化语法</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">num</span><span class="params">(<span class="number">5</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>这些变量都是声明了类型了，计算机如何知道没有声明类型的常量，比如</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">"Year = "</span> &lt;&lt; <span class="number">1492</span> &lt;&lt; <span class="string">"\n"</span>;</span><br></pre></td></tr></table></figure>
+<p>除非有理由存储为其他类型，否则 C++ 将整型常量存储为 int 类型，这里的其他理由是指</p>
+<ul>
+<li>使用了特殊的后缀来表示特定的类型</li>
+<li>太大，不能存储为 <code>int</code></li>
+</ul>
+<h3 id="const"><a class="markdownIt-Anchor" href="#const"></a> const</h3>
+<p>首先来看 <code>#define</code> 符号常量–预处理方式</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> INT_MAX 32767</span></span><br></pre></td></tr></table></figure>
+<p>在C++编译过程中，首先将源代码传递给预处理器。在这里，<code>#define</code>和<code>#include</code>一样，是一个预处理器编译指令。告诉预处理器：在程序中查找<code>INT_MAX</code>，并将所有的 <code>INT_MAX</code>都替换为<code>32767</code></p>
+<p><code>const</code>比 <code>#define</code> 好。</p>
+<ol>
+<li><code>const</code> 能够明确指定类型。</li>
+<li>可以使用C++的作用域规则将定义限制在特定的函数或文件中</li>
+<li>可以将<code>const</code>用于更复杂的类型，比如数组或者结构</li>
+</ol>
+<p><code>d.dddE+n</code>指的是将小数点向右移n位</p>
+<p><code>d.dddE～n</code>指的是将小数点向左移n位，<code>8.33E～4</code> 表示<code>8.33/10^4</code>，即<code>0.000833</code></p>
+<h3 id="类型转换"><a class="markdownIt-Anchor" href="#类型转换"></a> 类型转换</h3>
+<table>
+<thead>
+<tr>
+<th>转换</th>
+<th>潜在的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>将较大的浮点类型转换为娇小的浮点类型，如将 <code>double</code> 转换为 <code>float</code></td>
+<td>精度(有效数位)降低，值可能超出目标类型的 取值范围，在这种情况下，结果将是不确定的</td>
+</tr>
+<tr>
+<td>将浮点类型转换为整型</td>
+<td>小数部分丢失，原来的值可能超出目标类型的取 值范围，在这种情况下，结果将是不确定的</td>
+</tr>
+<tr>
+<td>将较大的整型转换为较小的整 型，如将<code>long</code>转换为<code>short</code></td>
+<td>原来的值可能超出目标类型的取值范围，通常只 复制右边的字节</td>
+</tr>
+</tbody>
+</table>
+<p>将 0 赋给<code>bool</code>变量时，将被转换为<code>false</code>；而非零值将被转换为<code>true</code>。</p>
+<p>C++11制定了校验关系</p>
+<ul>
+<li>如果有一个操作数的类型是<code>long double</code>，则将另一个操作数转换为<code>long double</code></li>
+<li>如果有一个操作数的类型是<code>long double</code>，则将另一个操作数转换为<code>long double</code></li>
+<li>否则，如果有一个操作数的类型是<code>float</code>，则将另一个操作数转换为<code>float</code></li>
+<li>否则，说明操作数都是整型，因此执行整型提升</li>
+<li>在这种情况下，如果两个操作数都是有符号或无符号的，且其中一个操作数的级别比另一个低，则转换为级别高的类型。</li>
+<li>如果一个操作数为有符号的，另一个操作数为无符号的，且 无符号操作数的级别比有符号操作数高，则将有符号操作数转换为无符 号操作数所属的类型</li>
+<li>否则，如果有符号类型可表示无符号类型的所有可能取值， 则将无符号操作数转换为有符号操作数所属的类型。</li>
+<li>否则，将两个操作数都转换为有符号类型的无符号版本。</li>
+</ul>
+<p>也可以<code>{ }</code>方式初始化时进行的转换</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ch</span><span class="params">(<span class="number">77</span>)</span></span>;</span><br><span class="line"><span class="keyword">int</span> cm = &#123;<span class="number">78</span>&#125;;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; ch &lt;&lt; <span class="string">" "</span>&lt;&lt; cm;	<span class="comment">//77 78</span></span><br></pre></td></tr></table></figure>
+<p>强制类型转换不会修改变量本身，而是创建一个新的、指定类型的值，可以在表达式中使用这个值，常见的转换表达式如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(typeName) var</span><br><span class="line">typeName (var)</span><br></pre></td></tr></table></figure>
+<p>C++还引入了4个强制类型转换运算符</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ch</span><span class="params">(<span class="number">77</span>)</span></span>;</span><br><span class="line"><span class="keyword">char</span> cm = (<span class="keyword">char</span>)ch;</span><br><span class="line"><span class="keyword">bool</span> flag = <span class="keyword">bool</span>(ch);</span><br><span class="line"><span class="keyword">bool</span> cf = <span class="keyword">static_cast</span>&lt;<span class="keyword">bool</span>&gt;(ch);</span><br><span class="line">   </span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; ch &lt;&lt; <span class="string">" "</span>&lt;&lt; cm &lt;&lt; <span class="string">" "</span> &lt;&lt; flag &lt;&lt; <span class="string">" "</span> &lt;&lt; cf; <span class="comment">//77 M 1 1</span></span><br></pre></td></tr></table></figure>
+<h3 id="auto"><a class="markdownIt-Anchor" href="#auto"></a> auto</h3>
+<p>C++11新增了一个工具，让编译器能够根据初始值的类型推断变量的类型。为此，它重新定义了auto的含义</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;typeinfo&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line">  <span class="function"><span class="built_in">string</span> <span class="title">type_name</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">string</span> name = <span class="keyword">typeid</span>(T).name();</span><br><span class="line">    <span class="keyword">return</span> name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> num = <span class="number">42</span>;</span><br><span class="line">  <span class="keyword">double</span> pi = <span class="number">3.14159</span>;</span><br><span class="line">  <span class="keyword">char</span> letter = <span class="string">'A'</span>;</span><br><span class="line">  <span class="keyword">bool</span> is_true = <span class="literal">true</span>;</span><br><span class="line">  <span class="keyword">auto</span> name = <span class="number">1e6</span>+<span class="number">7</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">"Type of num: "</span> &lt;&lt; type_name&lt;<span class="keyword">decltype</span>(num)&gt;() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">"Type of pi: "</span> &lt;&lt; type_name&lt;<span class="keyword">decltype</span>(pi)&gt;() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">"Type of letter: "</span> &lt;&lt; type_name&lt;<span class="keyword">decltype</span>(letter)&gt;() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">"Type of is_true: "</span> &lt;&lt; type_name&lt;<span class="keyword">decltype</span>(is_true)&gt;() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">"Type of name: "</span> &lt;&lt; type_name&lt;<span class="keyword">decltype</span>(name)&gt;() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Type of num: i</span><br><span class="line">Type of pi: d</span><br><span class="line">Type of letter: c</span><br><span class="line">Type of is_true: b</span><br><span class="line">Type of name: d</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h3>
+<p>C++的基本类型分为两组：</p>
+<ol>
+<li>
+<p>由存储为整数的值组成，整型之间通过存储值时使用的内存量及有无符号来区分，从最小到最大依次是：<code>bool</code>、<code>char</code>、<code>signed char</code>、 <code>unsigned char</code>、<code>short</code>、<code>unsigned short</code>、<code>int</code>、<code>unsigned int</code>、<code>long</code>、<code>unsigned long</code>以及</p>
+</li>
+<li>
+<p>由存储为浮点格式的值组成。分别是<code>float</code>、<code>double</code>和<code>long double</code>。</p>
+</li>
+</ol>
+<blockquote>
+<p>C<ins>11新增了<code>long long</code>和<code>unsigned long long</code>，还有一种<code>wchar_t</code> 类型，它在这个序列中的位置取决于实现。C</ins>11新增了类型<code>char16_t</code> 和<code>char32_t</code>，分别存储16和32位的字符编码</p>
+</blockquote>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li>《C++ Primer Plus》</li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2022/07/26/C++/CPP-02-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/" title="CPP-02-数据处理" target="_blank" rel="external">http://xboom.github.io/2022/07/26/C++/CPP-02-数据处理/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">Yuan Kang</span><small class="ml-1x">Learn and live</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/07/27/C++/CPP-03-%E6%95%B0%E7%BB%84/" title="CPP-03-数组"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/07/26/C++/CPP-01-HelloWorld/" title="CPP-01-HelloWorld"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>
