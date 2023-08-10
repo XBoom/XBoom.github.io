@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>微服务-05-MapReduce | Yuan Kang</title>
+  <meta name="description" content="什么是MapReduce? MapReduce是Google提出了一个软件架构，用于大规模数据集的并行运算。 MapReduce通过把对数据集的大规模操作分发给网络上的每个节点实现可靠性；每个节点会周期性的把完成的工作和状态的更新报告回来。如果一个节点保持沉默超过一个预设的时间间隔，主节点记录下这个节点状态为死亡，并把分配给这个节点的数据发到别的节点。 go-zero的MapReduce则借鉴其中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="微服务-05-MapReduce">
+<meta property="og:url" content="http://xboom.github.io/2021/07/31/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-05-MapReduce/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="什么是MapReduce? MapReduce是Google提出了一个软件架构，用于大规模数据集的并行运算。 MapReduce通过把对数据集的大规模操作分发给网络上的每个节点实现可靠性；每个节点会周期性的把完成的工作和状态的更新报告回来。如果一个节点保持沉默超过一个预设的时间间隔，主节点记录下这个节点状态为死亡，并把分配给这个节点的数据发到别的节点。 go-zero的MapReduce则借鉴其中">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/mapReduce-1.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/mapreduce_finish.png">
+<meta property="article:published_time" content="2021-07-31T14:29:14.000Z">
+<meta property="article:modified_time" content="2023-08-10T04:19:40.195Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Microservices">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/mapReduce-1.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2021/07/31/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-05-MapReduce/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Yuan Kang</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Learn and live</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">26</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-System/" rel="tag">Distributed System</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Transaction/" rel="tag">Distributed Transaction</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">26</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PrimerPlus/" rel="tag">PrimerPlus</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Raft/" rel="tag">Raft</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.08px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/C/" style="font-size: 13.75px;">C++</a> <a href="/tags/Design-Patterns/" style="font-size: 13.92px;">Design Patterns</a> <a href="/tags/Distributed-System/" style="font-size: 13px;">Distributed System</a> <a href="/tags/Distributed-Transaction/" style="font-size: 13.42px;">Distributed Transaction</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.83px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.25px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.17px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.33px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.67px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.58px;">MySql</a> <a href="/tags/PrimerPlus/" style="font-size: 13.75px;">PrimerPlus</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Raft/" style="font-size: 13px;">Raft</a> <a href="/tags/Redis/" style="font-size: 13.83px;">Redis</a> <a href="/tags/TCP-IP/" style="font-size: 13.33px;">TCP/IP</a> <a href="/tags/k8s/" style="font-size: 13.33px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">23</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/15/Go/Go-27-SyncPool/" class="title">Go-27-SyncPool</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-15T05:32:45.000Z" itemprop="datePublished">2023-07-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/13/Go/Go-26-Issue/" class="title">Go-26-Issue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-13T14:59:45.000Z" itemprop="datePublished">2023-07-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/01/Go/Go-25-PoolDequeue/" class="title">Go-25-PoolDequeue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-01T08:51:45.000Z" itemprop="datePublished">2023-07-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Protocol/">Protocol</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="title">协议-03-Raft</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-26T02:25:38.000Z" itemprop="datePublished">2023-06-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go-15-SyncMap/" class="title">Go-15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题背景"><span class="toc-number">1.</span> <span class="toc-text"> 问题背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#应用场景"><span class="toc-number">2.</span> <span class="toc-text"> 应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#场景1"><span class="toc-number">2.1.</span> <span class="toc-text"> 场景1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#场景2"><span class="toc-number">2.2.</span> <span class="toc-text"> 场景2</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#技术内幕"><span class="toc-number">3.</span> <span class="toc-text"> 技术内幕</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#数据生产阶段"><span class="toc-number">3.1.</span> <span class="toc-text"> 数据生产阶段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据处理阶段"><span class="toc-number">3.2.</span> <span class="toc-text"> 数据处理阶段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据聚合阶段"><span class="toc-number">3.3.</span> <span class="toc-text"> 数据聚合阶段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#finish"><span class="toc-number">3.4.</span> <span class="toc-text"> Finish</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text"> 总结：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Microservices/微服务-05-MapReduce" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      微服务-05-MapReduce
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/07/31/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-05-MapReduce/" class="article-date">
+	  <time datetime="2021-07-31T14:29:14.000Z" itemprop="datePublished">2021-07-31</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Microservices/">Microservices</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Microservices/" rel="tag">Microservices</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2021/07/31/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-05-MapReduce/" class="leancloud_visitors"  data-flag-title="微服务-05-MapReduce">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/07/31/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-05-MapReduce/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>什么是<code>MapReduce</code>?</p>
+<p><code>MapReduce</code>是Google提出了一个软件架构，用于大规模数据集的并行运算。</p>
+<p><code>MapReduce</code>通过把对数据集的大规模操作分发给网络上的每个节点实现可靠性；每个节点会周期性的把完成的工作和状态的更新报告回来。如果一个节点保持沉默超过一个预设的时间间隔，主节点记录下这个节点状态为死亡，并把分配给这个节点的数据发到别的节点。</p>
+<p><code>go-zero</code>的<code>MapReduce</code>则借鉴其中的思想，接下来一起看下<code>go-zero</code>是如何应用这一思想的</p>
+<h3 id="问题背景"><a class="markdownIt-Anchor" href="#问题背景"></a> 问题背景</h3>
+<p>在微服务中开发中，如果多个服务串行依赖的话那么整个<code>API</code>的耗时将会大大增加。通过什么手段来优化？</p>
+<ol>
+<li>传输层面通过<code>MQ</code>的解耦特性来降低<code>API</code>的耗时
+<ul>
+<li><code>MQ</code>通信效率没有<code>grpc</code>高(消息通过<code>MQ</code>服务器进行中转)</li>
+</ul>
+</li>
+<li>业务层面通过Go语言的<code>WaitGroup</code>工具来进行并发控制
+<ul>
+<li>自行封装<code>Add</code>与<code>Done</code></li>
+</ul>
+</li>
+</ol>
+<p>实际业务场景中：</p>
+<ul>
+<li>如果接口的多个依赖有一个出错，则期望能立即返回且不必等待所有依赖都执行完毕。已经完成的接口调用也应该回滚</li>
+<li>多个依赖可能有部分依赖之间也存在着相互依赖，或者上下关系</li>
+</ul>
+<p>go-zero的主要应用场景为：需要从不同的<code>rpc</code>服务中获取相应属性组装成复杂对象，比如要查询商品详情：</p>
+<ol>
+<li>商品服务-查询商品属性</li>
+<li>库存服务-查询库存属性</li>
+<li>价格服务-查询价格属性</li>
+<li>营销服务-查询营销属性</li>
+</ol>
+<p>如果是串行调用的话响应时间会随着 <code>rpc</code> 调用次数呈线性增长，简单场景下使用 <code>WaitGroup</code> 也能够满足需求，但如果要对 <code>rpc</code> 调用返回的数据进行校验、数据加工转换、数据汇总呢？</p>
+<p><code>go-zero</code>通过<code>mapreduce</code>来处理这种对输入数据进行处理最后输出清洗数据的问题。是一种经典的模式：<strong>生产者消费者模式</strong>。将数据处理分为三个阶段：</p>
+<ol>
+<li>数据生产 generate(查询，必选)</li>
+<li>数据加工 mapper(加工，可选)</li>
+<li>数据聚合 reducer(聚合，可选)</li>
+</ol>
+<p>利用协程处理以及管道通信，实现数据的加速处理</p>
+<h3 id="应用场景"><a class="markdownIt-Anchor" href="#应用场景"></a> 应用场景</h3>
+<h4 id="场景1"><a class="markdownIt-Anchor" href="#场景1"></a> 场景1</h4>
+<p>对数据批处理，比如对一批用户id，效验每个用户的合法性并且效验过程中有一个出错就认为效验失败，返回的结果为效验合法的用户id</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> mapreduce</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"errors"</span></span><br><span class="line">	<span class="string">"log"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"github.com/zeromicro/go-zero/core/mr"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Run</span><span class="params">(uids []<span class="keyword">int</span>)</span> <span class="params">([]<span class="keyword">int</span>, error)</span></span> &#123;</span><br><span class="line">	r, err := mr.MapReduce(<span class="function"><span class="keyword">func</span><span class="params">(source <span class="keyword">chan</span>&lt;- <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">		<span class="keyword">for</span> _, uid := <span class="keyword">range</span> uids &#123;</span><br><span class="line">			source &lt;- uid</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;, <span class="function"><span class="keyword">func</span><span class="params">(item <span class="keyword">interface</span>&#123;&#125;, writer mr.Writer, cancel <span class="keyword">func</span>(error)</span>)</span> &#123;</span><br><span class="line">		uid := item.(<span class="keyword">int</span>)</span><br><span class="line">		ok, err := check(uid)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;	<span class="comment">//如果校验逻辑有问题，这里执行cancel整个校验过程停止</span></span><br><span class="line">			cancel(err)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> ok &#123;			<span class="comment">//如果校验失败，那么不返回该uid</span></span><br><span class="line">			writer.Write(uid)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;, <span class="function"><span class="keyword">func</span><span class="params">(pipe &lt;-<span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;, writer mr.Writer, cancel <span class="keyword">func</span>(error)</span>)</span> &#123;</span><br><span class="line">		<span class="keyword">var</span> uids []<span class="keyword">int</span></span><br><span class="line">		<span class="keyword">for</span> p := <span class="keyword">range</span> pipe &#123;</span><br><span class="line">			uids = <span class="built_in">append</span>(uids, p.(<span class="keyword">int</span>))</span><br><span class="line">		&#125;</span><br><span class="line">		writer.Write(uids)</span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Printf(<span class="string">"check error: %v"</span>, err)</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> r.([]<span class="keyword">int</span>), <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">check</span><span class="params">(uid <span class="keyword">int</span>)</span> <span class="params">(<span class="keyword">bool</span>, error)</span></span> &#123;</span><br><span class="line">	<span class="comment">// do something check user legal</span></span><br><span class="line">	<span class="keyword">if</span> uid == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>, errors.New(<span class="string">"uid wrong"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span>, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实是利用N个协程等待数据生产者的数据传输然后转交给聚合逻辑处理</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/mapReduce-1.png" alt="mapReduce-1" /></p>
+<h4 id="场景2"><a class="markdownIt-Anchor" href="#场景2"></a> 场景2</h4>
+<p>某些功能的结果往往需要依赖多个服务，比如商品详情的结果往往会依赖用户服务、库存服务、订单服务等等，一般被依赖的服务都是以rpc的形式对外提供，为了降低依赖的耗时我们往往需要对依赖做并行处理</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">productDetail</span><span class="params">(uid, pid <span class="keyword">int64</span>)</span> <span class="params">(*ProductDetail, error)</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> pd ProductDetail</span><br><span class="line">	err := mr.Finish(<span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="params">(err error)</span></span> &#123;</span><br><span class="line">		pd.User, err = userRpc.User(uid)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;, <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="params">(err error)</span></span> &#123;</span><br><span class="line">		pd.Store, err = storeRpc.Store(pid)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;, <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="params">(err error)</span></span> &#123;</span><br><span class="line">		pd.Order, err = orderRpc.Order(pid)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Printf(<span class="string">"product detail error: %v"</span>, err)</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> &amp;pd, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="技术内幕"><a class="markdownIt-Anchor" href="#技术内幕"></a> 技术内幕</h3>
+<p>源码目录：<code>core/mr/mapreduce.go</code></p>
+<p>其中利用到的对外函数有</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MapReduce 包含数据生产、数据处理以及数据聚合阶段并返回结果</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MapReduce</span><span class="params">(generate GenerateFunc, mapper MapperFunc, reducer ReducerFunc,</span></span></span><br><span class="line"><span class="function"><span class="params">               opts ...Option)</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, error)</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MapReduceChan 包含数据生产、数据处理以及数据聚合阶段并返回结果。其中利用chan代替数据生产</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MapReduceChan</span><span class="params">(source &lt;-<span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;, mapper MapperFunc, reducer ReducerFunc,</span></span></span><br><span class="line"><span class="function"><span class="params">	opts ...Option)</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, error)</span></span> &#123;</span><br><span class="line">	panicChan := &amp;onceChan&#123;channel: <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;)&#125;</span><br><span class="line">	<span class="keyword">return</span> mapReduceWithPanicChan(source, panicChan, mapper, reducer, opts...)</span><br><span class="line">&#125;</span><br><span class="line">  </span><br><span class="line"><span class="comment">// ForEach 只包含数据生产和数据处理阶段，但没有任何输出</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ForEach</span><span class="params">(generate GenerateFunc, mapper ForEachFunc, opts ...Option)</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// FinishVoid 并行运行 fns</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">FinishVoid</span><span class="params">(fns ...<span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">  </span><br><span class="line"><span class="comment">// Finish 并行运行 fns，在任何错误时取消</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Finish</span><span class="params">(fns ...<span class="keyword">func</span>()</span> <span class="title">error</span>) <span class="title">error</span></span> &#123;&#125;</span><br><span class="line">  </span><br><span class="line"><span class="comment">//WithWorkers 定义一个 mapreduce 有几个协程</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithWorkers</span><span class="params">(workers <span class="keyword">int</span>)</span> <span class="title">Option</span></span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="数据生产阶段"><a class="markdownIt-Anchor" href="#数据生产阶段"></a> 数据生产阶段</h4>
+<p>首先定义 <code>buildSource</code>使用协程进行数据生产</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//buildSource 使用协程执行generate 并将协程的参数一个非缓冲的channel返回。如果generate发生panic，则将错误写入 onceChan</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">buildSource</span><span class="params">(generate GenerateFunc, panicChan *onceChan)</span> <span class="title">chan</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">	source := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;</span><br><span class="line">				panicChan.write(r)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="built_in">close</span>(source)</span><br><span class="line">		&#125;()</span><br><span class="line"></span><br><span class="line">		generate(source) <span class="comment">//返回的非缓冲隧道也是数据生产的入口</span></span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> source</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中的 <code>onceChan</code>则是一个非阻塞会缓冲的channel，当channel中还有数据没有处理完，则直接返回</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> onceChan <span class="keyword">struct</span> &#123;</span><br><span class="line">	channel <span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">	wrote   <span class="keyword">int32</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(oc *onceChan)</span> <span class="title">write</span><span class="params">(val <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> atomic.AddInt32(&amp;oc.wrote, <span class="number">1</span>) &gt; <span class="number">1</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	oc.channel &lt;- val</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="数据处理阶段"><a class="markdownIt-Anchor" href="#数据处理阶段"></a> 数据处理阶段</h4>
+<p>接着利用<code>mapReduceWithPanicChan</code>进行数据处理<code>mapper</code>和数据聚合<code>reducer</code></p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MapReduce</span><span class="params">(generate GenerateFunc, mapper MapperFunc, reducer ReducerFunc,</span></span></span><br><span class="line"><span class="function"><span class="params">	opts ...Option)</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, error)</span></span> &#123;</span><br><span class="line">	panicChan := &amp;onceChan&#123;channel: <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;)&#125;</span><br><span class="line">	source := buildSource(generate, panicChan) <span class="comment">//使用协程执行generate并返回数据生产无缓冲隧道source</span></span><br><span class="line">	<span class="keyword">return</span> mapReduceWithPanicChan(source, panicChan, mapper, reducer, opts...) <span class="comment">//将隧道和处理函数传入</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//source就是数据来源隧道</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">mapReduceWithPanicChan</span><span class="params">(source &lt;-<span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;, panicChan *onceChan, mapper MapperFunc,</span></span></span><br><span class="line"><span class="function"><span class="params">	reducer ReducerFunc, opts ...Option)</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, error)</span></span> &#123;</span><br><span class="line">	options := buildOptions(opts...)</span><br><span class="line">	<span class="comment">// output is used to write the final result</span></span><br><span class="line">	output := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;)</span><br><span class="line">	<span class="comment">//...defer</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">//collector 用于从mapper收集数据，消费者是数据聚合</span></span><br><span class="line">	collector := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;, options.workers)	</span><br><span class="line">	</span><br><span class="line">  <span class="comment">//done表示结束，所有的mappers和reducer都要结束</span></span><br><span class="line">	done := <span class="built_in">make</span>(<span class="keyword">chan</span> lang.PlaceholderType)</span><br><span class="line">	writer := newGuardedWriter(options.ctx, output, done)</span><br><span class="line">	<span class="keyword">var</span> closeOnce sync.Once</span><br><span class="line">	<span class="comment">// use atomic.Value to avoid data race</span></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;		<span class="comment">//起一个协程进行 数据聚合</span></span><br><span class="line">    <span class="comment">//panic.wirte()</span></span><br><span class="line">		reducer(collector, writer, cancel)</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> executeMappers(mapperContext&#123; <span class="comment">//进行 数据处理</span></span><br><span class="line">		ctx: options.ctx,</span><br><span class="line">		mapper: <span class="function"><span class="keyword">func</span><span class="params">(item <span class="keyword">interface</span>&#123;&#125;, w Writer)</span></span> &#123;</span><br><span class="line">			mapper(item, w, cancel)</span><br><span class="line">		&#125;,</span><br><span class="line">		source:    source,</span><br><span class="line">		panicChan: panicChan,</span><br><span class="line">		collector: collector,</span><br><span class="line">		doneChan:  done,</span><br><span class="line">		workers:   options.workers,</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">select</span> &#123; 			<span class="comment">//等待结果</span></span><br><span class="line">	<span class="keyword">case</span> &lt;-options.ctx.Done():</span><br><span class="line">		cancel(context.DeadlineExceeded)</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, context.DeadlineExceeded</span><br><span class="line">	<span class="keyword">case</span> v := &lt;-panicChan.channel:</span><br><span class="line">		<span class="built_in">panic</span>(v)</span><br><span class="line">	<span class="keyword">case</span> v, ok := &lt;-output:	</span><br><span class="line">		<span class="keyword">if</span> err := retErr.Load(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">		&#125; <span class="keyword">else</span> <span class="keyword">if</span> ok &#123;</span><br><span class="line">			<span class="keyword">return</span> v, <span class="literal">nil</span></span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">nil</span>, ErrReduceNoOutput</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中数据处理阶段又定义了一个协程进行处理</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">executeMappers</span><span class="params">(mCtx mapperContext)</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		wg.Wait()</span><br><span class="line">		<span class="built_in">close</span>(mCtx.collector)</span><br><span class="line">		drain(mCtx.source)</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> failed <span class="keyword">int32</span></span><br><span class="line">	pool := <span class="built_in">make</span>(<span class="keyword">chan</span> lang.PlaceholderType, mCtx.workers) <span class="comment">//协程池</span></span><br><span class="line">	writer := newGuardedWriter(mCtx.ctx, mCtx.collector, mCtx.doneChan)</span><br><span class="line">	<span class="keyword">for</span> atomic.LoadInt32(&amp;failed) == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-mCtx.ctx.Done():</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		<span class="keyword">case</span> &lt;-mCtx.doneChan:</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		<span class="keyword">case</span> pool &lt;- lang.Placeholder:	<span class="comment">//这里是定义的N个works的chan，也就是会在下面创建n个协程</span></span><br><span class="line">			item, ok := &lt;-mCtx.source</span><br><span class="line">			<span class="keyword">if</span> !ok &#123; <span class="comment">//如果来源关闭，那么将pool数据释放</span></span><br><span class="line">				&lt;-pool</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			wg.Add(<span class="number">1</span>)</span><br><span class="line">			<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">				<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">					<span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;</span><br><span class="line">						atomic.AddInt32(&amp;failed, <span class="number">1</span>)	</span><br><span class="line">						mCtx.panicChan.write(r)</span><br><span class="line">					&#125;</span><br><span class="line">					wg.Done()</span><br><span class="line">					&lt;-pool</span><br><span class="line">				&#125;()</span><br><span class="line"></span><br><span class="line">        <span class="comment">//item:生产的数据</span></span><br><span class="line">        <span class="comment">//writer: 数据处理对象</span></span><br><span class="line">				mCtx.mapper(item, writer)	 <span class="comment">//执行map</span></span><br><span class="line">			&#125;()</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="数据聚合阶段"><a class="markdownIt-Anchor" href="#数据聚合阶段"></a> 数据聚合阶段</h4>
+<p>最后来看一下是数据处理</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> guardedWriter <span class="keyword">struct</span> &#123;	<span class="comment">//写入接口</span></span><br><span class="line">	ctx     context.Context		<span class="comment">//保证超时退出</span></span><br><span class="line">	channel <span class="keyword">chan</span>&lt;- <span class="keyword">interface</span>&#123;&#125;	<span class="comment">//接收数据，这里传输的就是 长度为 N 的 collect channel</span></span><br><span class="line">	done    &lt;-<span class="keyword">chan</span> lang.PlaceholderType	<span class="comment">//主动结束退出</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newGuardedWriter</span><span class="params">(ctx context.Context, channel <span class="keyword">chan</span>&lt;- <span class="keyword">interface</span>&#123;&#125;,</span></span></span><br><span class="line"><span class="function"><span class="params">	done &lt;-<span class="keyword">chan</span> lang.PlaceholderType)</span> <span class="title">guardedWriter</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> guardedWriter&#123;</span><br><span class="line">		ctx:     ctx,</span><br><span class="line">		channel: channel,</span><br><span class="line">		done:    done,</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="finish"><a class="markdownIt-Anchor" href="#finish"></a> Finish</h4>
+<p><code>Finish</code>逻辑只进行并发处理，其实内部是将执行函数做为数据生产的生产的数据，然后又数据处理逻辑进行处理</p>
+<p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/mapreduce_finish.png" alt="mapreduce_finish" /></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Finish</span><span class="params">(fns ...<span class="keyword">func</span>()</span> <span class="title">error</span>) <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(fns) == <span class="number">0</span> &#123;	<span class="comment">//n个外部调用</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> MapReduceVoid(<span class="function"><span class="keyword">func</span><span class="params">(source <span class="keyword">chan</span>&lt;- <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">		<span class="keyword">for</span> _, fn := <span class="keyword">range</span> fns &#123;</span><br><span class="line">			source &lt;- fn	<span class="comment">//数据生产者将函数传入</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;, <span class="function"><span class="keyword">func</span><span class="params">(item <span class="keyword">interface</span>&#123;&#125;, writer Writer, cancel <span class="keyword">func</span>(error)</span>)</span> &#123;</span><br><span class="line">		fn := item.(<span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">error</span>)</span></span><br><span class="line">		<span class="keyword">if</span> err := fn(); err != <span class="literal">nil</span> &#123;	<span class="comment">//数据处理逻辑执行函数</span></span><br><span class="line">			cancel(err)									<span class="comment">//这里并没有写入，所以第三个函数其实并没有执行</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;, <span class="function"><span class="keyword">func</span><span class="params">(pipe &lt;-<span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;, cancel <span class="keyword">func</span>(error)</span>)</span> &#123;</span><br><span class="line">	&#125;, WithWorkers(<span class="built_in">len</span>(fns)))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//底层还是执行的MapReduce逻辑</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MapReduceVoid</span><span class="params">(generate GenerateFunc, mapper MapperFunc, reducer VoidReducerFunc, opts ...Option)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	_, err := MapReduce(generate, mapper, <span class="function"><span class="keyword">func</span><span class="params">(input &lt;-<span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;, writer Writer, cancel <span class="keyword">func</span>(error)</span>)</span> &#123;</span><br><span class="line">		reducer(input, cancel)</span><br><span class="line">	&#125;, opts...)</span><br><span class="line">	<span class="keyword">if</span> errors.Is(err, ErrReduceNoOutput) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结：</h3>
+<ol>
+<li>适用于并发无顺序依赖的并发调用，如果是多个调用具有前后依赖关系，依然需要有先后调用顺序(废话)</li>
+<li>也不存在回滚的操作，内部只是将不在等待处理结果直接退出 <code>select</code></li>
+</ol>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://talkgo.org/t/topic/1452" target="_blank" rel="noopener">https://talkgo.org/t/topic/1452</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/MapReduce" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/MapReduce</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2021/07/31/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-05-MapReduce/" title="微服务-05-MapReduce" target="_blank" rel="external">http://xboom.github.io/2021/07/31/Microservices/微服务-05-MapReduce/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">Yuan Kang</span><small class="ml-1x">Learn and live</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/08/01/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-06-%E5%8D%8F%E7%A8%8B%E6%B1%A0/" title="微服务-06-协程池"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/07/31/Linux/Linux%E6%B7%B1%E5%85%A53-malloc/" title="Linux深入3-malloc"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>

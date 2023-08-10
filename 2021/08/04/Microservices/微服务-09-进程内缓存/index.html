@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>微服务-09-进程内缓存 | Yuan Kang</title>
+  <meta name="description" content="问题背景 缓存，目的是减少繁重的IO操作，增加系统并发能力。之前做的内存方案  同一类数据，设计一个双链表，然后添加一个定时器，动态删除过期内存。 实现一个简单的LRU缓存淘汰算法。  设计内进程内缓存主要需要考虑的是  可拓展性(缓存不同类型的数据) 过期处理，怎样才能友好的删除过期数据，不能无限存储  定时删除，不断循环所有key。缺点：需要遍历所有key，空耗CPU 惰性删除，访问的时候判">
+<meta property="og:type" content="article">
+<meta property="og:title" content="微服务-09-进程内缓存">
+<meta property="og:url" content="http://xboom.github.io/2021/08/04/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-09-%E8%BF%9B%E7%A8%8B%E5%86%85%E7%BC%93%E5%AD%98/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="问题背景 缓存，目的是减少繁重的IO操作，增加系统并发能力。之前做的内存方案  同一类数据，设计一个双链表，然后添加一个定时器，动态删除过期内存。 实现一个简单的LRU缓存淘汰算法。  设计内进程内缓存主要需要考虑的是  可拓展性(缓存不同类型的数据) 过期处理，怎样才能友好的删除过期数据，不能无限存储  定时删除，不断循环所有key。缺点：需要遍历所有key，空耗CPU 惰性删除，访问的时候判">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache15.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache16.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache18.png">
+<meta property="og:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache17.png">
+<meta property="article:published_time" content="2021-08-04T14:29:14.000Z">
+<meta property="article:modified_time" content="2023-08-10T04:17:57.787Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Microservices">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2021/08/04/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-09-%E8%BF%9B%E7%A8%8B%E5%86%85%E7%BC%93%E5%AD%98/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Yuan Kang</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Learn and live</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">26</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux-Depth/">Linux Depth</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-System/" rel="tag">Distributed System</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Transaction/" rel="tag">Distributed Transaction</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Event/" rel="tag">Event</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">26</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PrimerPlus/" rel="tag">PrimerPlus</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Raft/" rel="tag">Raft</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.08px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.5px;">Algorithms To Live By</a> <a href="/tags/C/" style="font-size: 13.75px;">C++</a> <a href="/tags/Design-Patterns/" style="font-size: 13.92px;">Design Patterns</a> <a href="/tags/Distributed-System/" style="font-size: 13px;">Distributed System</a> <a href="/tags/Distributed-Transaction/" style="font-size: 13.42px;">Distributed Transaction</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13px;">ETCD</a> <a href="/tags/Event/" style="font-size: 13px;">Event</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.83px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Kafka/" style="font-size: 13.25px;">Kafka</a> <a href="/tags/Linux/" style="font-size: 13.17px;">Linux</a> <a href="/tags/MQ/" style="font-size: 13.33px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.67px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.58px;">MySql</a> <a href="/tags/PrimerPlus/" style="font-size: 13.75px;">PrimerPlus</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Raft/" style="font-size: 13px;">Raft</a> <a href="/tags/Redis/" style="font-size: 13.83px;">Redis</a> <a href="/tags/TCP-IP/" style="font-size: 13.33px;">TCP/IP</a> <a href="/tags/k8s/" style="font-size: 13.33px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">23</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/15/Go/Go-27-SyncPool/" class="title">Go-27-SyncPool</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-15T05:32:45.000Z" itemprop="datePublished">2023-07-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/13/Go/Go-26-Issue/" class="title">Go-26-Issue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-13T14:59:45.000Z" itemprop="datePublished">2023-07-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/01/Go/Go-25-PoolDequeue/" class="title">Go-25-PoolDequeue</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-01T08:51:45.000Z" itemprop="datePublished">2023-07-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Protocol/">Protocol</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/26/Protocol/%E5%8D%8F%E8%AE%AE-03-Raft/" class="title">协议-03-Raft</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-26T02:25:38.000Z" itemprop="datePublished">2023-06-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/04/04/Go/Go-15-SyncMap/" class="title">Go-15-SyncMap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-04-04T13:01:05.349Z" itemprop="datePublished">2023-04-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题背景"><span class="toc-number">1.</span> <span class="toc-text"> 问题背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现原理"><span class="toc-number">2.</span> <span class="toc-text"> 实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#更新缓存"><span class="toc-number">2.1.</span> <span class="toc-text"> 更新缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询缓存"><span class="toc-number">2.2.</span> <span class="toc-text"> 查询缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#获取缓存"><span class="toc-number">2.3.</span> <span class="toc-text"> 获取缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#删除缓存"><span class="toc-number">2.4.</span> <span class="toc-text"> 删除缓存</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#技术内幕"><span class="toc-number">3.</span> <span class="toc-text"> 技术内幕</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#初始化缓存"><span class="toc-number">3.1.</span> <span class="toc-text"> 初始化缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查询缓存-2"><span class="toc-number">3.2.</span> <span class="toc-text"> 查询缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#设置缓存"><span class="toc-number">3.3.</span> <span class="toc-text"> 设置缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#获取缓存-2"><span class="toc-number">3.4.</span> <span class="toc-text"> 获取缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#删除缓存-2"><span class="toc-number">3.5.</span> <span class="toc-text"> 删除缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#总结"><span class="toc-number">3.6.</span> <span class="toc-text"> 总结</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">4.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Microservices/微服务-09-进程内缓存" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      微服务-09-进程内缓存
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/08/04/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-09-%E8%BF%9B%E7%A8%8B%E5%86%85%E7%BC%93%E5%AD%98/" class="article-date">
+	  <time datetime="2021-08-04T14:29:14.000Z" itemprop="datePublished">2021-08-04</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Microservices/">Microservices</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Microservices/" rel="tag">Microservices</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2021/08/04/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-09-%E8%BF%9B%E7%A8%8B%E5%86%85%E7%BC%93%E5%AD%98/" class="leancloud_visitors"  data-flag-title="微服务-09-进程内缓存">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/08/04/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-09-%E8%BF%9B%E7%A8%8B%E5%86%85%E7%BC%93%E5%AD%98/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="问题背景"><a class="markdownIt-Anchor" href="#问题背景"></a> 问题背景</h3>
+<p>缓存，目的是减少繁重的IO操作，增加系统并发能力。之前做的内存方案</p>
+<ol>
+<li>同一类数据，设计一个双链表，然后添加一个定时器，动态删除过期内存。</li>
+<li>实现一个简单的<code>LRU</code>缓存淘汰算法。</li>
+</ol>
+<p>设计内进程内缓存主要需要考虑的是</p>
+<ol>
+<li>可拓展性(缓存不同类型的数据)</li>
+<li>过期处理，怎样才能友好的删除过期数据，不能无限存储
+<ul>
+<li>定时删除，不断循环所有key。缺点：需要遍历所有key，空耗CPU</li>
+<li>惰性删除，访问的时候判断该键是否。缺点：如果不在访问，那么就会一直存在</li>
+</ul>
+</li>
+<li>如果保障进程内缓存一致性
+<ul>
+<li>单节点通知：一个节点完成修改，通知其他节点(类似raft，但raft有主)。缺点：时效性、可靠性</li>
+<li><code>MQ</code>订阅通知：一个节点完成修改，通知其他节点进行修改。缺点：缓存维护更复杂</li>
+<li>定时更新：单个节点定时器，定时拉去新数据，更新内存数据。缺点：时效性</li>
+</ul>
+</li>
+</ol>
+<h3 id="实现原理"><a class="markdownIt-Anchor" href="#实现原理"></a> 实现原理</h3>
+<p>这里看看<code>go-zero</code>是如何实现进程缓存设计的</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache.png" alt="go-zero-cache" style="zoom: 33%;" />
+<p>从图中可以看出</p>
+<ol>
+<li>缓存被存放在map</li>
+<li><code>LRU</code>(使用<code>双向链表+Map</code>实现)用于对缓存的过期删除</li>
+<li><code>limit</code> 进行缓存数量限制</li>
+<li>定时逻辑则是通过<a href="https://xboom.github.io/2022/07/08/GoZero/GoZero5-%E6%97%B6%E9%97%B4%E8%BD%AE/">时间轮</a>进行管理</li>
+<li>还包含一个统计逻辑，进行缓存命中情况的上报</li>
+</ol>
+<p>接下来看看它们是如何运转起来的</p>
+<h4 id="更新缓存"><a class="markdownIt-Anchor" href="#更新缓存"></a> 更新缓存</h4>
+<p>设置缓存要做三件事情</p>
+<ol>
+<li>更新缓存</li>
+<li>将<code>Key</code>到LRU管理中</li>
+<li>添加或更新定时器</li>
+</ol>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache15.png" alt="go-zero-cache15" style="zoom: 33%;" />
+<p><strong>问题1</strong>：图中还有一个获取过期时间的过程，设置缓存的时候不是应该已经设置了过期时间了吗，为什么这个地方还要再次获取？</p>
+<p>其实这里获取的与过期时间近似的时间，目的是防止缓存雪崩</p>
+<p><code>deviation</code>:表示一个正负差值</p>
+<p><code>base</code>:给定的过期时间</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>v</mi><mo>=</mo><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mi>d</mi><mi>e</mi><mi>v</mi><mi>i</mi><mi>a</mi><mi>t</mi><mi>i</mi><mi>o</mi><mi>n</mi><mo>−</mo><mn>2</mn><mo>∗</mo><mi>d</mi><mi>e</mi><mi>v</mi><mi>i</mi><mi>a</mi><mi>t</mi><mi>i</mi><mi>o</mi><mi>n</mi><mo>∗</mo><mi>r</mi><mi>a</mi><mi>n</mi><mi>d</mi><mi>o</mi><mi>m</mi><mo stretchy="false">)</mo><mo>∗</mo><mi>b</mi><mi>a</mi><mi>s</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">v =  (1 + deviation - 2 * deviation * random) * base
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.77777em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">d</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">i</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault">o</span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">d</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">i</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault">o</span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">a</span><span class="mord mathdefault">n</span><span class="mord mathdefault">d</span><span class="mord mathdefault">o</span><span class="mord mathdefault">m</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">b</span><span class="mord mathdefault">a</span><span class="mord mathdefault">s</span><span class="mord mathdefault">e</span></span></span></span></span></p>
+<p><strong>问题2</strong>：原理图中还有一个设置<code>limit</code>的过程，为什么在添加的过程中没有体现？</p>
+<p>其实这是<code>LRU</code>内部实现的时候使用的，当<code>LRU</code>双向链表长度大于<code>limit</code>的时候，会直接删除尾部节点</p>
+<h4 id="查询缓存"><a class="markdownIt-Anchor" href="#查询缓存"></a> 查询缓存</h4>
+<p>当缓存存在的时候，需要更新<code>LRU</code>。这里还添加了一个命中的逻辑</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache16.png" alt="go-zero-cache16" style="zoom: 33%;" />
+<h4 id="获取缓存"><a class="markdownIt-Anchor" href="#获取缓存"></a> 获取缓存</h4>
+<p>获取缓存与查询缓存不同的是，如果缓存中不存在，那么需要从DB获取数据并插入到缓存中</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache18.png" alt="go-zero-cache18" style="zoom:33%;" />
+<p>注意：</p>
+<ol>
+<li>使用共享调用防止缓存穿透</li>
+<li>查询DB操作其实是自定义操作(所以缓存不关心数据来源)</li>
+<li>当缓存不存在，启动共享调用逻辑的时候它再次查询了一次缓存。因为DB操作是IO操作，而查询缓存是 O(1)的<code>map</code>内存操作</li>
+</ol>
+<h4 id="删除缓存"><a class="markdownIt-Anchor" href="#删除缓存"></a> 删除缓存</h4>
+<p>删除分为定时删除以及主动删除，当未更新定时器的时候，那么到期就会主动删除 <code>K/V</code></p>
+<p>如果是主动删除，则直接删除缓存，LRU 和 定时器</p>
+<img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/go-zero-cache17.png" alt="go-zero-cache17" style="zoom:50%;" />
+<h3 id="技术内幕"><a class="markdownIt-Anchor" href="#技术内幕"></a> 技术内幕</h3>
+<p>代码路径：<code>core/collection/cache.go</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 自定义缓存可选参数</span></span><br><span class="line">CacheOption <span class="function"><span class="keyword">func</span><span class="params">(cache *Cache)</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 进程内缓存对象</span></span><br><span class="line">Cache <span class="keyword">struct</span> &#123;</span><br><span class="line">	name           <span class="keyword">string</span>									<span class="comment">//缓存名称，默认为 defaultCacheName="proc"</span></span><br><span class="line">	lock           sync.Mutex             <span class="comment">//map锁</span></span><br><span class="line">	data           <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125; <span class="comment">//存储缓存</span></span><br><span class="line">	expire         time.Duration				 <span class="comment">//过期时间</span></span><br><span class="line">	timingWheel    *TimingWheel					 <span class="comment">//时间轮</span></span><br><span class="line">	lruCache       lru									 <span class="comment">//LRU 缓存淘汰机制</span></span><br><span class="line">	barrier        syncx.SingleFlight		 <span class="comment">//共享调用</span></span><br><span class="line">  unstableExpiry mathx.Unstable				 <span class="comment">//随机过期时间差值(防止雪崩)</span></span><br><span class="line">	stats          *cacheStat            <span class="comment">//缓存统计</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="初始化缓存"><a class="markdownIt-Anchor" href="#初始化缓存"></a> 初始化缓存</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewCache</span><span class="params">(expire time.Duration, opts ...CacheOption)</span> <span class="params">(*Cache, error)</span></span> &#123;</span><br><span class="line">	cache := &amp;Cache&#123;</span><br><span class="line">		data:           <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;),</span><br><span class="line">		expire:         expire,</span><br><span class="line">		lruCache:       emptyLruCache,</span><br><span class="line">		barrier:        syncx.NewSingleFlight(),	<span class="comment">//共享调用</span></span><br><span class="line">		unstableExpiry: mathx.NewUnstable(expiryDeviation),</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//自定义操作包含 limit设置、缓存过期时间范围 expiryDeviation</span></span><br><span class="line">	<span class="keyword">for</span> _, opt := <span class="keyword">range</span> opts &#123;</span><br><span class="line">		opt(cache)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(cache.name) == <span class="number">0</span> &#123;</span><br><span class="line">		cache.name = defaultCacheName	<span class="comment">//默认名称可以忽略</span></span><br><span class="line">	&#125;</span><br><span class="line">	cache.stats = newCacheStat(cache.name, cache.size)</span><br><span class="line"></span><br><span class="line">  <span class="comment">//时间轮已经订好了1s时间间隔</span></span><br><span class="line">	timingWheel, err := NewTimingWheel(time.Second, slots, <span class="function"><span class="keyword">func</span><span class="params">(k, v <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">		key, ok := k.(<span class="keyword">string</span>)</span><br><span class="line">		<span class="keyword">if</span> !ok &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		cache.Del(key)	<span class="comment">//到期删除缓存</span></span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	cache.timingWheel = timingWheel</span><br><span class="line">	<span class="keyword">return</span> cache, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="查询缓存-2"><a class="markdownIt-Anchor" href="#查询缓存-2"></a> 查询缓存</h4>
+<p>查询缓存很简单</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Get returns the item with the given key from c.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Cache)</span> <span class="title">Get</span><span class="params">(key <span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">	value, ok := c.doGet(key)</span><br><span class="line">	<span class="keyword">if</span> ok &#123;</span><br><span class="line">		c.stats.IncrementHit()</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		c.stats.IncrementMiss()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> value, ok</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Cache)</span> <span class="title">doGet</span><span class="params">(key <span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">	c.lock.Lock()</span><br><span class="line">	<span class="keyword">defer</span> c.lock.Unlock()</span><br><span class="line"></span><br><span class="line">	value, ok := c.data[key]</span><br><span class="line">	<span class="keyword">if</span> ok &#123;</span><br><span class="line">		c.lruCache.add(key)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> value, ok</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="设置缓存"><a class="markdownIt-Anchor" href="#设置缓存"></a> 设置缓存</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Set 设置缓存，默认使用缓存过期时间</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Cache)</span> <span class="title">Set</span><span class="params">(key <span class="keyword">string</span>, value <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	c.SetWithExpire(key, value, c.expire)	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// SetWithExpire 设置缓存 自定义过期时间</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Cache)</span> <span class="title">SetWithExpire</span><span class="params">(key <span class="keyword">string</span>, value <span class="keyword">interface</span>&#123;&#125;, expire time.Duration)</span></span> &#123;</span><br><span class="line">	c.lock.Lock()</span><br><span class="line">	_, ok := c.data[key]</span><br><span class="line">	c.data[key] = value</span><br><span class="line">	c.lruCache.add(key)</span><br><span class="line">	c.lock.Unlock()</span><br><span class="line"></span><br><span class="line">	expiry := c.unstableExpiry.AroundDuration(expire)	<span class="comment">//获取过期时间</span></span><br><span class="line">	<span class="keyword">if</span> ok &#123;</span><br><span class="line">		c.timingWheel.MoveTimer(key, expiry)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		c.timingWheel.SetTimer(key, value, expiry)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="获取缓存-2"><a class="markdownIt-Anchor" href="#获取缓存-2"></a> 获取缓存</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Cache)</span> <span class="title">Take</span><span class="params">(key <span class="keyword">string</span>, fetch <span class="keyword">func</span>()</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, error)</span>) <span class="params">(<span class="keyword">interface</span>&#123;&#125;, error)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> val, ok := c.doGet(key); ok &#123;	<span class="comment">//查询缓存</span></span><br><span class="line">		c.stats.IncrementHit()</span><br><span class="line">		<span class="keyword">return</span> val, <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> fresh <span class="keyword">bool</span></span><br><span class="line">	val, err := c.barrier.Do(key, <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, error)</span></span> &#123;</span><br><span class="line">		<span class="comment">// because O(1) on map search in memory, and fetch is an IO query</span></span><br><span class="line">		<span class="comment">// so we do double check, cache might be taken by another call</span></span><br><span class="line">    <span class="comment">// 再进行一次缓存操作</span></span><br><span class="line">		<span class="keyword">if</span> val, ok := c.doGet(key); ok &#123;</span><br><span class="line">			<span class="keyword">return</span> val, <span class="literal">nil</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		v, e := fetch()</span><br><span class="line">		<span class="keyword">if</span> e != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">nil</span>, e</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		fresh = <span class="literal">true</span></span><br><span class="line">		c.Set(key, v)</span><br><span class="line">		<span class="keyword">return</span> v, <span class="literal">nil</span></span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> fresh &#123;</span><br><span class="line">		c.stats.IncrementMiss()</span><br><span class="line">		<span class="keyword">return</span> val, <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// got the result from previous ongoing query</span></span><br><span class="line">	c.stats.IncrementHit()</span><br><span class="line">	<span class="keyword">return</span> val, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="删除缓存-2"><a class="markdownIt-Anchor" href="#删除缓存-2"></a> 删除缓存</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Cache)</span> <span class="title">Del</span><span class="params">(key <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	c.lock.Lock()</span><br><span class="line">	<span class="built_in">delete</span>(c.data, key)			<span class="comment">//删除k/v</span></span><br><span class="line">	c.lruCache.remove(key)	<span class="comment">//删除LRU</span></span><br><span class="line">	c.lock.Unlock()</span><br><span class="line">	c.timingWheel.RemoveTimer(key) <span class="comment">//删除定时器</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h4>
+<ol>
+<li>设置缓存过期时间的时候，设置一个范围时间防止缓存雪崩</li>
+<li>使用共享调用去请求数据防止缓存击穿</li>
+<li>通过LRU进行缓存淘汰，当多副本存在可能存在缓存一致性问题</li>
+<li>统计逻辑用于上报，并没有一个开关(可能存在性能问题)</li>
+</ol>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://talkgo.org/t/topic/2263" target="_blank" rel="noopener">https://talkgo.org/t/topic/2263</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2021/08/04/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-09-%E8%BF%9B%E7%A8%8B%E5%86%85%E7%BC%93%E5%AD%98/" title="微服务-09-进程内缓存" target="_blank" rel="external">http://xboom.github.io/2021/08/04/Microservices/微服务-09-进程内缓存/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">Yuan Kang</span><small class="ml-1x">Learn and live</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/08/05/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-10-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BC%93%E5%AD%98/" title="微服务-10-数据库缓存"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/08/03/Microservices/%E5%BE%AE%E6%9C%8D%E5%8A%A1-08-%E6%9C%8D%E5%8A%A1%E7%AE%A1%E7%90%86/" title="微服务-08-服务管理"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>
