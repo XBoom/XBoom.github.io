@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://xboom.github.io/2023/07/27/C++/CPP-14-11%E6%96%B0%E7%89%B9%E6%80%A7/</loc>
+    <loc>http://xboom.github.io/2022/08/12/C++/CPP-14-11%E6%96%B0%E7%89%B9%E6%80%A7/</loc>
     
-    <lastmod>2023-08-13T16:11:49.968Z</lastmod>
+    <lastmod>2023-08-13T16:39:18.178Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2022/08/14/C++/CPP-15-14%E6%96%B0%E7%89%B9%E6%80%A7/</loc>
+    
+    <lastmod>2023-08-13T16:39:16.414Z</lastmod>
     
   </url>
   
@@ -982,13 +989,6 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2022/01/06/MQ/MQ-Kafka1-%E5%88%9D%E8%AF%86Kafka/</loc>
-    
-    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://xboom.github.io/2022/01/06/MQ/MQ-Kafka2-%E7%94%9F%E4%BA%A7%E8%80%85%E4%B8%8E%E6%B6%88%E8%B4%B9%E8%80%85/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
@@ -1003,7 +1003,7 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2022/01/05/MQ/MQ-Redis/</loc>
+    <loc>http://xboom.github.io/2022/01/06/MQ/MQ-Kafka1-%E5%88%9D%E8%AF%86Kafka/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
     
@@ -1017,7 +1017,7 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2020/11/02/TCP/TCP-3-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3/</loc>
+    <loc>http://xboom.github.io/2022/01/05/MQ/MQ-Redis/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
     
@@ -1031,14 +1031,21 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2020/11/06/TCP/TCP-4-%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/</loc>
+    <loc>http://xboom.github.io/2020/11/01/TCP/TCP-2-%E8%B6%85%E6%97%B6%E4%B8%8E%E9%87%8D%E4%BC%A0/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://xboom.github.io/2020/11/01/TCP/TCP-2-%E8%B6%85%E6%97%B6%E4%B8%8E%E9%87%8D%E4%BC%A0/</loc>
+    <loc>http://xboom.github.io/2020/11/02/TCP/TCP-3-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3/</loc>
+    
+    <lastmod>2022-06-25T07:00:00.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/2020/11/06/TCP/TCP-4-%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/</loc>
     
     <lastmod>2022-06-25T07:00:00.000Z</lastmod>
     
@@ -1080,20 +1087,6 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/about/index.html</loc>
-    
-    <lastmod>2020-09-02T15:24:35.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://xboom.github.io/repository/index.html</loc>
-    
-    <lastmod>2020-09-02T15:24:35.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://xboom.github.io/categories/index.html</loc>
     
     <lastmod>2020-09-02T15:24:35.000Z</lastmod>
@@ -1101,7 +1094,21 @@
   </url>
   
   <url>
+    <loc>http://xboom.github.io/about/index.html</loc>
+    
+    <lastmod>2020-09-02T15:24:35.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://xboom.github.io/tags/index.html</loc>
+    
+    <lastmod>2020-09-02T15:24:35.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/repository/index.html</loc>
     
     <lastmod>2020-09-02T15:24:35.000Z</lastmod>
     
