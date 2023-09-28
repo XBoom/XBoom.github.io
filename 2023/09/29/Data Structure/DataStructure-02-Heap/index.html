@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>DataStructure-02-Heap | Yuan Kang</title>
+  <meta name="description" content="在阅读 libevent 库中另外一个用来存储事件的第二个结构就是小根堆，这里重新学习一下它的实现 代码路径:minheap-internal.h 12345typedef struct min_heap&amp;#123;	struct event** p;	size_t n, a;	&#x2F;&#x2F; n 表示堆的元素数目，a 表示当前分配的内存空间大小&amp;#125; min_heap_t; struct event">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DataStructure-02-Heap">
+<meta property="og:url" content="http://xboom.github.io/2023/09/29/Data%20Structure/DataStructure-02-Heap/index.html">
+<meta property="og:site_name" content="XBoom Dove">
+<meta property="og:description" content="在阅读 libevent 库中另外一个用来存储事件的第二个结构就是小根堆，这里重新学习一下它的实现 代码路径:minheap-internal.h 12345typedef struct min_heap&amp;#123;	struct event** p;	size_t n, a;	&#x2F;&#x2F; n 表示堆的元素数目，a 表示当前分配的内存空间大小&amp;#125; min_heap_t; struct event">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-09-28T16:16:00.000Z">
+<meta property="article:modified_time" content="2023-09-28T16:16:39.340Z">
+<meta property="article:author" content="XBoom Dove">
+<meta property="article:tag" content="Heap">
+<meta property="article:tag" content="Data Structure">
+<meta property="article:tag" content="Libevent">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://xboom.github.io/2023/09/29/Data%20Structure/DataStructure-02-Heap/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="XBoom Dove" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/XBoom" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Yuan Kang</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Learn and live</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Keep on going never give up!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithms-To-Live-By/">Algorithms To Live By</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C++</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Data-Structure/">Data Structure</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Design-Patterns/">Design Patterns</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Distributed-Transaction/">Distributed Transaction</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a><span class="category-list-count">26</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Grpc/">Grpc</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Interesting-Algorithm/">Interesting Algorithm</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MQ/">MQ</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Microservices/">Microservices</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySql/">MySql</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Protocol/">Protocol</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Redis/">Redis</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/k8s/">k8s</a><span class="category-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Algorithms-To-Live-By/" rel="tag">Algorithms To Live By</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Concurrency/" rel="tag">Concurrency</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DHCP/" rel="tag">DHCP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Data-Structure/" rel="tag">Data Structure</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Design-Patterns/" rel="tag">Design Patterns</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-System/" rel="tag">Distributed System</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Distributed-Transaction/" rel="tag">Distributed Transaction</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ETCD/" rel="tag">ETCD</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Go/" rel="tag">Go</a><span class="tag-list-count">26</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Grpc/" rel="tag">Grpc</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Heap/" rel="tag">Heap</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Libevent/" rel="tag">Libevent</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/List/" rel="tag">List</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/" rel="tag">MQ</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Memory/" rel="tag">Memory</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Microservices/" rel="tag">Microservices</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySql/" rel="tag">MySql</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PrimerPlus/" rel="tag">PrimerPlus</a><span class="tag-list-count">15</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Protocol/" rel="tag">Protocol</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Quic/" rel="tag">Quic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Raft/" rel="tag">Raft</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/" rel="tag">TCP/IP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Algorithm/" style="font-size: 13.15px;">Algorithm</a> <a href="/tags/Algorithms-To-Live-By/" style="font-size: 13.46px;">Algorithms To Live By</a> <a href="/tags/C/" style="font-size: 13.85px;">C++</a> <a href="/tags/Concurrency/" style="font-size: 13px;">Concurrency</a> <a href="/tags/DHCP/" style="font-size: 13px;">DHCP</a> <a href="/tags/Data-Structure/" style="font-size: 13.08px;">Data Structure</a> <a href="/tags/Design-Patterns/" style="font-size: 13.92px;">Design Patterns</a> <a href="/tags/Distributed-System/" style="font-size: 13px;">Distributed System</a> <a href="/tags/Distributed-Transaction/" style="font-size: 13.38px;">Distributed Transaction</a> <a href="/tags/Docker/" style="font-size: 13px;">Docker</a> <a href="/tags/ETCD/" style="font-size: 13px;">ETCD</a> <a href="/tags/Go/" style="font-size: 14px;">Go</a> <a href="/tags/Grpc/" style="font-size: 13.69px;">Grpc</a> <a href="/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="/tags/Heap/" style="font-size: 13.08px;">Heap</a> <a href="/tags/Kafka/" style="font-size: 13.23px;">Kafka</a> <a href="/tags/Libevent/" style="font-size: 13.08px;">Libevent</a> <a href="/tags/Linux/" style="font-size: 13.23px;">Linux</a> <a href="/tags/List/" style="font-size: 13px;">List</a> <a href="/tags/MQ/" style="font-size: 13.31px;">MQ</a> <a href="/tags/Memory/" style="font-size: 13px;">Memory</a> <a href="/tags/Microservices/" style="font-size: 13.62px;">Microservices</a> <a href="/tags/MySql/" style="font-size: 13.54px;">MySql</a> <a href="/tags/PrimerPlus/" style="font-size: 13.77px;">PrimerPlus</a> <a href="/tags/Protocol/" style="font-size: 13px;">Protocol</a> <a href="/tags/Quic/" style="font-size: 13px;">Quic</a> <a href="/tags/Raft/" style="font-size: 13px;">Raft</a> <a href="/tags/Redis/" style="font-size: 13.69px;">Redis</a> <a href="/tags/TCP-IP/" style="font-size: 13.31px;">TCP/IP</a> <a href="/tags/k8s/" style="font-size: 13.31px;">k8s</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">26</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Data-Structure/">Data Structure</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/09/29/Data%20Structure/DataStructure-02-Heap/" class="title">DataStructure-02-Heap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-09-28T16:16:00.000Z" itemprop="datePublished">2023-09-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithm/">Algorithm</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/09/29/Algorithm/Algorithm-01-Heap/" class="title">Algorithm-01-Heap</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-09-28T16:15:00.000Z" itemprop="datePublished">2023-09-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Data-Structure/">Data Structure</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/09/18/Data%20Structure/DataStructure-01-List/" class="title">Data Structure-01-List</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-09-18T14:58:29.000Z" itemprop="datePublished">2023-09-18</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Protocol/">Protocol</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/09/07/Protocol/Protocol-04-DHCP/" class="title">Protocol-04-DHCP</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-09-07T02:25:38.000Z" itemprop="datePublished">2023-09-07</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Go/">Go</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/15/Go/Go-27-SyncPool/" class="title">Go-27-SyncPool</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-15T05:32:45.000Z" itemprop="datePublished">2023-07-15</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#堆初始化"><span class="toc-number">1.</span> <span class="toc-text"> 堆初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#添加节点"><span class="toc-number">2.</span> <span class="toc-text"> 添加节点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#扩容"><span class="toc-number">2.1.</span> <span class="toc-text"> 扩容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#向上调整"><span class="toc-number">2.2.</span> <span class="toc-text"> 向上调整</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#弹出节点"><span class="toc-number">3.</span> <span class="toc-text"> 弹出节点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#向下调整"><span class="toc-number">3.1.</span> <span class="toc-text"> 向下调整</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除元素"><span class="toc-number">4.</span> <span class="toc-text"> 删除元素</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#向上调整2"><span class="toc-number">4.1.</span> <span class="toc-text"> 向上调整2</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.</span> <span class="toc-text"> 参考链接</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Data Structure/DataStructure-02-Heap" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      DataStructure-02-Heap
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2023/09/29/Data%20Structure/DataStructure-02-Heap/" class="article-date">
+	  <time datetime="2023-09-28T16:16:00.000Z" itemprop="datePublished">2023-09-29</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Data-Structure/">Data Structure</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Data-Structure/" rel="tag">Data Structure</a>, <a class="article-tag-link" href="/tags/Heap/" rel="tag">Heap</a>, <a class="article-tag-link" href="/tags/Libevent/" rel="tag">Libevent</a>
+  </span>
+
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2023/09/29/Data%20Structure/DataStructure-02-Heap/" class="leancloud_visitors"  data-flag-title="DataStructure-02-Heap">0</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/09/29/Data%20Structure/DataStructure-02-Heap/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>在阅读 libevent 库中另外一个用来存储事件的第二个结构就是小根堆，这里重新学习一下它的实现</p>
+<p>代码路径:<code>minheap-internal.h</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">min_heap</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">event</span>** <span class="title">p</span>;</span></span><br><span class="line">	<span class="keyword">size_t</span> n, a;	<span class="comment">// n 表示堆的元素数目，a 表示当前分配的内存空间大小</span></span><br><span class="line">&#125; <span class="keyword">min_heap_t</span>;</span><br></pre></td></tr></table></figure>
+<p><code>struct event** p</code> 区别与使用数组进行存储，这样就可以实现动态扩容</p>
+<h3 id="堆初始化"><a class="markdownIt-Anchor" href="#堆初始化"></a> 堆初始化</h3>
+<p>一开始没有元素，而要做的就是初始化一个最小堆对象 <code>min_heap_t</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//event.c:650 event_base_new_with_config</span></span><br><span class="line">min_heap_ctor_(&amp;base-&gt;timeheap);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">min_heap_ctor_</span><span class="params">(<span class="keyword">min_heap_t</span>* s)</span> </span>&#123; s-&gt;p = <span class="number">0</span>; s-&gt;n = <span class="number">0</span>; s-&gt;a = <span class="number">0</span>; &#125;</span><br></pre></td></tr></table></figure>
+<p>初始化堆，这里有一个小技巧就是将 <code>s-&gt;p= 0</code> , <strong>就是不指向任何对象，相当于 NULL</strong>，<code>min_heap_t* a = 0;</code>，同时堆的分配内容大小 a 一开始并没指定**(懒加载形式)**</p>
+<p>其他辅助函数包括</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">min_heap_empty_</span><span class="params">(<span class="keyword">min_heap_t</span>* s)</span> </span>&#123; <span class="keyword">return</span> <span class="number">0</span> == s-&gt;n; &#125;	<span class="comment">//堆是否为空</span></span><br><span class="line"><span class="function"><span class="keyword">size_t</span> <span class="title">min_heap_size_</span><span class="params">(<span class="keyword">min_heap_t</span>* s)</span> </span>&#123; <span class="keyword">return</span> s-&gt;n; &#125;			<span class="comment">//堆的节点数量</span></span><br><span class="line"><span class="function">struct event* <span class="title">min_heap_top_</span><span class="params">(<span class="keyword">min_heap_t</span>* s)</span> </span>&#123; <span class="keyword">return</span> s-&gt;n ? *s-&gt;p : <span class="number">0</span>; &#125;	<span class="comment">//堆顶节点</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">min_heap_dtor_</span><span class="params">(<span class="keyword">min_heap_t</span>* s)</span> </span>&#123; <span class="keyword">if</span> (s-&gt;p) mm_free(s-&gt;p); &#125;				<span class="comment">//释放堆</span></span><br><span class="line"><span class="comment">//节点为堆中最大索引(最后一个节点)</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">min_heap_elem_init_</span><span class="params">(struct event* e)</span> </span>&#123; e-&gt;ev_timeout_pos.min_heap_idx = EV_SIZE_MAX; &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="添加节点"><a class="markdownIt-Anchor" href="#添加节点"></a> 添加节点</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//event.c:2217 event_assign</span></span><br><span class="line"></span><br><span class="line">min_heap_elem_init_(ev);</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">min_heap_elem_init_</span><span class="params">(struct event* e)</span> </span>&#123; e-&gt;ev_timeout_pos.min_heap_idx = EV_SIZE_MAX; &#125;</span><br></pre></td></tr></table></figure>
+<p>在添加节点的时候，首先指定节点在堆中的索引是 <code>EV_SIZE_MAX</code>，表示并没有加入到堆中，接着加入到堆中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">min_heap_push_</span><span class="params">(<span class="keyword">min_heap_t</span>* s, struct event* e)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (min_heap_reserve_(s, s-&gt;n + <span class="number">1</span>))</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	min_heap_shift_up_(s, s-&gt;n++, e);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里就发生了两步操作</p>
+<ol>
+<li>因为可能堆已经满了，所以需要将堆进行扩容 <code>min_heap_reserve_</code></li>
+<li>堆化，需要调整成小顶堆</li>
+</ol>
+<h4 id="扩容"><a class="markdownIt-Anchor" href="#扩容"></a> 扩容</h4>
+<p>首次分配的容量大小是8，后续依次加倍</p>
+<blockquote>
+<p>问题1：如果节点新增很多，会不会导致内存分配暴涨？</p>
+<p>golang 的 map 有一个 2倍增长到了一定数量再1.25倍增长的过程</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">min_heap_reserve_</span><span class="params">(<span class="keyword">min_heap_t</span>* s, <span class="keyword">size_t</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (s-&gt;a &lt; n)	<span class="comment">//判断容量是否不够</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">event</span>** <span class="title">p</span>;</span></span><br><span class="line">		<span class="keyword">size_t</span> a = s-&gt;a ? s-&gt;a * <span class="number">2</span> : <span class="number">8</span>;	<span class="comment">// 小于8则使用8，否则加倍增长</span></span><br><span class="line">		<span class="keyword">if</span> (a &lt; n)	<span class="comment">//如果仍然小于n, 则直接使用 n </span></span><br><span class="line">			a = n;</span><br><span class="line">		<span class="keyword">if</span> (!(p = (struct event**)mm_realloc(s-&gt;p, a * <span class="keyword">sizeof</span> *p)))</span><br><span class="line">			<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">		s-&gt;p = p;</span><br><span class="line">		s-&gt;a = a;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>当容量不够的时候，需要进行扩容操作，不需要考虑 golang map 那种因为装载量过大而影响查询效率的情况</li>
+<li>容量首先是8，然后依次递增，当等待事件比较多，注意内存占用(一大块内存)</li>
+<li>使用 <code>realloc</code> 操作，直接保留了原来的内容(<strong>realloc 的底层并不一定在原有的基础上，因为无法保证内存后面是否仍然有足够的空闲空间</strong>）</li>
+</ol>
+<h4 id="向上调整"><a class="markdownIt-Anchor" href="#向上调整"></a> 向上调整</h4>
+<p>元素入堆的基本流程是：</p>
+<ol>
+<li>
+<p>将元素添加到堆尾(堆最后一个元素)</p>
+</li>
+<li>
+<p>将元素与父节点进行比较</p>
+<p>a. 如果比父节点大则与父节点交换位置 然后重复 1～2 操作</p>
+<p>b. 如果不比父节点大则停止入堆，完成元素添加</p>
+</li>
+</ol>
+<p>接着看它的实际操作</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//min_heap_shift_up_(s, s-&gt;n++, e);</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">min_heap_shift_up_</span><span class="params">(<span class="keyword">min_heap_t</span>* s, <span class="keyword">size_t</span> hole_index, struct event* e)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//找到节点的父节点</span></span><br><span class="line">    <span class="keyword">size_t</span> parent = (hole_index - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">while</span> (hole_index &amp;&amp; min_heap_elem_greater(s-&gt;p[parent], e))</span><br><span class="line">    &#123;</span><br><span class="line">        (s-&gt;p[hole_index] = s-&gt;p[parent])-&gt;ev_timeout_pos.min_heap_idx = hole_index;</span><br><span class="line">        hole_index = parent;</span><br><span class="line">        parent = (hole_index - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    (s-&gt;p[hole_index] = e)-&gt;ev_timeout_pos.min_heap_idx = hole_index;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li><code>hole_index</code> 一开始为堆的最后一个元素的索引，即当前事件 e 的位置</li>
+<li>找到最后一个节点的父节点 <code>(hole_index - 1) / 2;</code></li>
+<li>如果当前位置 <code>hole_index</code> 还不是堆顶(<code>hole_index != 0</code> )且 父节点超时时间比自己大
+<ul>
+<li>当前元素等于父节点，索引位置更新为 <code>hole_index</code></li>
+<li>当前索引 <code>hole_index</code> 为父节点索引，<code>hole_index = parent;</code></li>
+<li>找到父节点位置</li>
+<li>重复操作 3</li>
+</ul>
+</li>
+<li>更新当前节点为e，设置索引为 <code>hole_index</code></li>
+</ol>
+<p>比较逻辑则是使用超时时间进行对比</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> min_heap_elem_greater(a, b) \</span></span><br><span class="line">	(evutil_timercmp(&amp;(a)-&gt;ev_timeout, &amp;(b)-&gt;ev_timeout, &gt;))</span><br><span class="line"></span><br><span class="line"><span class="comment">//如果秒相同就是用毫秒</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>	evutil_timercmp(tvp, uvp, cmp)					\</span></span><br><span class="line">	(((tvp)-&gt;tv_sec == (uvp)-&gt;tv_sec) ?				\</span><br><span class="line">	 ((tvp)-&gt;tv_usec cmp (uvp)-&gt;tv_usec) :				\</span><br><span class="line">	 ((tvp)-&gt;tv_sec cmp (uvp)-&gt;tv_sec))</span><br></pre></td></tr></table></figure>
+<h3 id="弹出节点"><a class="markdownIt-Anchor" href="#弹出节点"></a> 弹出节点</h3>
+<p>有增加就有删除，出堆常规操作是</p>
+<ol>
+<li>将堆顶与堆尾元素进行交换</li>
+<li>将堆尾元素出堆</li>
+<li>从对顶元素开始从上到下，与子节点比较交换</li>
+</ol>
+<p>看看它是如何做到的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct event* <span class="title">min_heap_pop_</span><span class="params">(<span class="keyword">min_heap_t</span>* s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (s-&gt;n)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">event</span>* <span class="title">e</span> = *<span class="title">s</span>-&gt;<span class="title">p</span>;</span></span><br><span class="line">		min_heap_shift_down_(s, <span class="number">0</span>, s-&gt;p[--s-&gt;n]);</span><br><span class="line">		e-&gt;ev_timeout_pos.min_heap_idx = EV_SIZE_MAX;</span><br><span class="line">		<span class="keyword">return</span> e;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li><code>--s-&gt;n</code> 因为要弹出，所以 数量减 1，<code>s-&gt;p[--s-&gt;n]</code> 指向堆尾</li>
+<li>如果堆元素数量大于 0，记录堆顶事件。否则返回 0(与前面一样，0 指向指针表示 NULL)</li>
+<li>向下调整，注意最后一个节点指向的是最后一个节点</li>
+<li>更新出堆事件的索引(表示不在堆里面)</li>
+</ol>
+<h4 id="向下调整"><a class="markdownIt-Anchor" href="#向下调整"></a> 向下调整</h4>
+<p>将 <code>hole_index</code>  与 <code>struct event* e 进行交换</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">min_heap_shift_down_</span><span class="params">(<span class="keyword">min_heap_t</span>* s, <span class="keyword">size_t</span> hole_index, struct event* e)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">		<span class="keyword">size_t</span> min_child = <span class="number">2</span> * (hole_index + <span class="number">1</span>);</span><br><span class="line">		<span class="keyword">while</span> (min_child &lt;= s-&gt;n)</span><br><span class="line">		&#123;</span><br><span class="line">			min_child -= min_child == s-&gt;n || min_heap_elem_greater(s-&gt;p[min_child], s-&gt;p[min_child - <span class="number">1</span>]);</span><br><span class="line">			<span class="keyword">if</span> (!(min_heap_elem_greater(e, s-&gt;p[min_child])))</span><br><span class="line">	    	<span class="keyword">break</span>;</span><br><span class="line">			(s-&gt;p[hole_index] = s-&gt;p[min_child])-&gt;ev_timeout_pos.min_heap_idx = hole_index;</span><br><span class="line">			hole_index = min_child;</span><br><span class="line">			min_child = <span class="number">2</span> * (hole_index + <span class="number">1</span>);</span><br><span class="line">		&#125;</span><br><span class="line">    (s-&gt;p[hole_index] = e)-&gt;ev_timeout_pos.min_heap_idx = hole_index;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>
+<p>找到节点的右子节点 <code>min_child</code></p>
+</li>
+<li>
+<p>如果右节点存在(不应该超过数目上线)</p>
+<ul>
+<li>
+<p>找到左右节点种较大的</p>
+</li>
+<li>
+<p>如果当前超时时间比子节点小则停止</p>
+<blockquote>
+<p>为什么有 <code>min_child == s-&gt;n</code> 的比较操作，感觉没有必要！！因为 <code>while (min_child &lt;= s-&gt;n)</code> 已经判断了</p>
+</blockquote>
+</li>
+<li>
+<p>当前节点为子节点，并更新索引</p>
+</li>
+<li>
+<p>更新当前节点位置</p>
+</li>
+<li>
+<p>找到当前节点的右子节点</p>
+</li>
+</ul>
+</li>
+<li>
+<p>当前位置设置为 e，并更新事件的索引</p>
+</li>
+</ol>
+<h3 id="删除元素"><a class="markdownIt-Anchor" href="#删除元素"></a> 删除元素</h3>
+<p>删除元素常用于事件发生异常，需要从堆中直接删除而不是从堆顶，这个时候就会出现堆空洞的情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">min_heap_erase_</span><span class="params">(<span class="keyword">min_heap_t</span>* s, struct event* e)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (EV_SIZE_MAX != e-&gt;ev_timeout_pos.min_heap_idx)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">event</span> *<span class="title">last</span> = <span class="title">s</span>-&gt;<span class="title">p</span>[--<span class="title">s</span>-&gt;<span class="title">n</span>];</span></span><br><span class="line">		<span class="keyword">size_t</span> parent = (e-&gt;ev_timeout_pos.min_heap_idx - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">		<span class="keyword">if</span> (e-&gt;ev_timeout_pos.min_heap_idx &gt; <span class="number">0</span> &amp;&amp; min_heap_elem_greater(s-&gt;p[parent], last))</span><br><span class="line">			min_heap_shift_up_unconditional_(s, e-&gt;ev_timeout_pos.min_heap_idx, last);</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			min_heap_shift_down_(s, e-&gt;ev_timeout_pos.min_heap_idx, last);</span><br><span class="line">		e-&gt;ev_timeout_pos.min_heap_idx = EV_SIZE_MAX;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果  <code>e-&gt;ev_timeout_pos.min_heap_idx != EV_SIZE_MAX</code> 表示已经不在堆中了，添加和弹出的时候都会更新这个索引</li>
+<li>获取堆尾元素</li>
+<li>获取事件的父节点</li>
+<li>如果事件不在堆顶而且父结点大于最后一个节点
+<ul>
+<li>向上调整</li>
+</ul>
+</li>
+<li>如果事件在堆顶，类似 <code>min_heap_pop_</code>
+<ul>
+<li>向下调整</li>
+</ul>
+</li>
+</ul>
+<h4 id="向上调整2"><a class="markdownIt-Anchor" href="#向上调整2"></a> 向上调整2</h4>
+<p>这里为了防止空洞，出现了一个不一样的操作 <code>min_heap_shift_up_unconditional_</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">min_heap_shift_up_unconditional_</span><span class="params">(<span class="keyword">min_heap_t</span>* s, <span class="keyword">size_t</span> hole_index, struct event* e)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">size_t</span> parent = (hole_index - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">do</span></span><br><span class="line">    &#123;</span><br><span class="line">	(s-&gt;p[hole_index] = s-&gt;p[parent])-&gt;ev_timeout_pos.min_heap_idx = hole_index;</span><br><span class="line">	hole_index = parent;</span><br><span class="line">	parent = (hole_index - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">    &#125; <span class="keyword">while</span> (hole_index &amp;&amp; min_heap_elem_greater(s-&gt;p[parent], e));</span><br><span class="line">    (s-&gt;p[hole_index] = e)-&gt;ev_timeout_pos.min_heap_idx = hole_index;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>首先找到当前元素的父节点</li>
+<li>将父节点更新到当前位置，并跟新索引</li>
+<li>设置当前位置为父节点，找到父节点的父节点 <code>parent2</code></li>
+<li>如果 <code>parent2</code> 不是堆顶，而且 <code>parent2</code> 大于 last，那么重复 2~3操作（感觉不会，因为是小根堆）</li>
+<li>更新 last 到合适的位置</li>
+</ol>
+<p>也就是说通过 将 last 填补到要删除元素的位置，解决空洞问题。</p>
+<p>问题1：<code>min_heap_shift_up_unconditional_</code> 与 <code>min_heap_shift_up_</code> 不同的是，后者先判断了 当前位置以及 当前位置事件与 e 的大小，为什么要做这个区别？</p>
+<p>答：是因为前者的位置肯定不是堆顶(走乡下条)</p>
+<p>问题2：<code>min_heap_erase_</code> 删除元素中为什么会出现向下调整与向上调整</p>
+<p>答：首先需要明白向上调整与向下调整的作用分别是什么，</p>
+<blockquote>
+<p>向下调整：被用于在删除堆顶元素后，将最后一个元素移到堆顶并逐步将其“下沉”至合适的位置，以保持堆的有序性质。</p>
+<p>向上调整：被用于在向堆中插入新元素后，将其逐步“上浮”至合适的位置，以保持堆的有序性质</p>
+</blockquote>
+<p>如果删除位置不是堆顶元素，且父节点大于 last 。那么根据小根堆的性质，last 应该从这个位置开始向上调整</p>
+<p>如果删除位置是堆顶元素或者父节点小于last。那么根据小根堆的性质，last应该在删除位置的下发（或不变）</p>
+<h3 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h3>
+<ol>
+<li><a href="https://www.hello-algo.com/chapter_heap/heap/" target="_blank" rel="noopener">https://www.hello-algo.com/chapter_heap/heap/</a></li>
+<li><a href="https://www.hello-algo.com/chapter_sorting/heap_sort/" target="_blank" rel="noopener">https://www.hello-algo.com/chapter_sorting/heap_sort/</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <!--
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://xboom.github.io/2023/09/29/Data%20Structure/DataStructure-02-Heap/" title="DataStructure-02-Heap" target="_blank" rel="external">http://xboom.github.io/2023/09/29/Data Structure/DataStructure-02-Heap/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/XBoom" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/XBoom" target="_blank"><span class="text-dark">Yuan Kang</span><small class="ml-1x">Learn and live</small></a></h3>
+        <div>Talk is cheap, Show me your code</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+      -->
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2023/09/29/Algorithm/Algorithm-01-Heap/" title="Algorithm-01-Heap"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/XBoom" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=728081687@qq.com" target="_blank" title="Email" data-toggle=tooltip data-placement=top><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <!--
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+        -->
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+<!-- custom analytics part create by xiamo -->
+<script defer src="https://cdn1.lncld.net/static/js/av-min-1.2.1.js"></script>
+<script defer>
+AV.init({
+  appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+  appKey: 'Yjv3BxtjwA5IStDccnVj1eQr'
+});
+
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+		var visitors= $('.leancloud_visitors');
+		query.greaterThanOrEqualTo("time", 0);		
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {				
+					return;
+				}
+				var data = results;
+				visitors.each(function(){
+					var url = $(this).attr('id').trim();					
+					for (var i = 0; i < data.length; i++) {
+						var object = data[i];
+						var content = object.get('time');
+						var _url = object.get('url')
+						if(url == _url){
+							$(this).text(content);
+						}
+					}
+				})
+				
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content = counter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time');
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else {
+		showTime(Counter);
+	}
+}); 
+</script>
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'SbGHqy6xigse8A1P9rctla9N-gzGzoHsz',
+    appKey: 'Yjv3BxtjwA5IStDccnVj1eQr',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?35ec0b872cf5aada9525fd9f0487c238";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+</body>
+</html>
