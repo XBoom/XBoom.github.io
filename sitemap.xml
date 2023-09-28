@@ -1122,13 +1122,6 @@
   </url>
   
   <url>
-    <loc>http://xboom.github.io/repository/index.html</loc>
-    
-    <lastmod>2020-09-02T15:24:35.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://xboom.github.io/categories/index.html</loc>
     
     <lastmod>2020-09-02T15:24:35.000Z</lastmod>
@@ -1137,6 +1130,13 @@
   
   <url>
     <loc>http://xboom.github.io/tags/index.html</loc>
+    
+    <lastmod>2020-09-02T15:24:35.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xboom.github.io/repository/index.html</loc>
     
     <lastmod>2020-09-02T15:24:35.000Z</lastmod>
     
