@@ -5,9 +5,9 @@
   
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://xboom.github.io/"/>
+  <link href="https://www.yuankang.top/"/>
   <updated>2024-01-24T15:03:29.685Z</updated>
-  <id>http://xboom.github.io/</id>
+  <id>https://www.yuankang.top/</id>
   
   <author>
     <name>XBoom Dove</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>TCPIP 网络编程-08-套接字选项</title>
-    <link href="http://xboom.github.io/2024/01/19/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-08-%E5%A5%97%E6%8E%A5%E5%AD%97%E9%80%89%E9%A1%B9/"/>
-    <id>http://xboom.github.io/2024/01/19/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-08-%E5%A5%97%E6%8E%A5%E5%AD%97%E9%80%89%E9%A1%B9/</id>
+    <link href="2024/01/19/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-08-%E5%A5%97%E6%8E%A5%E5%AD%97%E9%80%89%E9%A1%B9/"/>
+    <id>2024/01/19/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-08-%E5%A5%97%E6%8E%A5%E5%AD%97%E9%80%89%E9%A1%B9/</id>
     <published>2024-01-19T15:00:00.000Z</published>
     <updated>2024-01-24T15:03:29.685Z</updated>
     
@@ -36,19 +36,19 @@
     </summary>
     
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/categories/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/categories/Unix-NetWrok/"/>
     
     
-      <category term="Unix" scheme="http://xboom.github.io/tags/Unix/"/>
+      <category term="Unix" scheme="https:/www.yuankang.top/tags/Unix/"/>
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/tags/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/tags/Unix-NetWrok/"/>
     
   </entry>
   
   <entry>
     <title>TCPIP 网络编程-07-域名地址转换</title>
-    <link href="http://xboom.github.io/2024/01/14/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-07-%E5%9F%9F%E5%90%8D%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2/"/>
-    <id>http://xboom.github.io/2024/01/14/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-07-%E5%9F%9F%E5%90%8D%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2/</id>
+    <link href="2024/01/14/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-07-%E5%9F%9F%E5%90%8D%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2/"/>
+    <id>2024/01/14/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-07-%E5%9F%9F%E5%90%8D%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2/</id>
     <published>2024-01-14T15:00:00.000Z</published>
     <updated>2024-01-24T15:04:02.604Z</updated>
     
@@ -65,19 +65,19 @@
     </summary>
     
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/categories/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/categories/Unix-NetWrok/"/>
     
     
-      <category term="Unix" scheme="http://xboom.github.io/tags/Unix/"/>
+      <category term="Unix" scheme="https:/www.yuankang.top/tags/Unix/"/>
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/tags/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/tags/Unix-NetWrok/"/>
     
   </entry>
   
   <entry>
     <title>TCPIP 网络编程-06-套接字断开</title>
-    <link href="http://xboom.github.io/2024/01/08/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-06-%E5%A5%97%E6%8E%A5%E5%AD%97%E6%96%AD%E5%BC%80/"/>
-    <id>http://xboom.github.io/2024/01/08/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-06-%E5%A5%97%E6%8E%A5%E5%AD%97%E6%96%AD%E5%BC%80/</id>
+    <link href="2024/01/08/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-06-%E5%A5%97%E6%8E%A5%E5%AD%97%E6%96%AD%E5%BC%80/"/>
+    <id>2024/01/08/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-06-%E5%A5%97%E6%8E%A5%E5%AD%97%E6%96%AD%E5%BC%80/</id>
     <published>2024-01-08T15:00:00.000Z</published>
     <updated>2024-01-24T15:04:09.388Z</updated>
     
@@ -94,19 +94,19 @@
     </summary>
     
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/categories/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/categories/Unix-NetWrok/"/>
     
     
-      <category term="Unix" scheme="http://xboom.github.io/tags/Unix/"/>
+      <category term="Unix" scheme="https:/www.yuankang.top/tags/Unix/"/>
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/tags/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/tags/Unix-NetWrok/"/>
     
   </entry>
   
   <entry>
     <title>TCPIP 网络编程-05-基于UDP的CS</title>
-    <link href="http://xboom.github.io/2024/01/02/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-05-%E5%9F%BA%E4%BA%8EUDP%E7%9A%84CS/"/>
-    <id>http://xboom.github.io/2024/01/02/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-05-%E5%9F%BA%E4%BA%8EUDP%E7%9A%84CS/</id>
+    <link href="2024/01/02/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-05-%E5%9F%BA%E4%BA%8EUDP%E7%9A%84CS/"/>
+    <id>2024/01/02/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-05-%E5%9F%BA%E4%BA%8EUDP%E7%9A%84CS/</id>
     <published>2024-01-02T15:00:00.000Z</published>
     <updated>2024-01-24T15:04:18.804Z</updated>
     
@@ -122,19 +122,19 @@
     </summary>
     
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/categories/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/categories/Unix-NetWrok/"/>
     
     
-      <category term="Unix" scheme="http://xboom.github.io/tags/Unix/"/>
+      <category term="Unix" scheme="https:/www.yuankang.top/tags/Unix/"/>
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/tags/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/tags/Unix-NetWrok/"/>
     
   </entry>
   
   <entry>
     <title>TCPIP 网络编程-04-基于TCP的CS</title>
-    <link href="http://xboom.github.io/2023/12/27/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-04-%E5%9F%BA%E4%BA%8ETCP%E7%9A%84CS/"/>
-    <id>http://xboom.github.io/2023/12/27/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-04-%E5%9F%BA%E4%BA%8ETCP%E7%9A%84CS/</id>
+    <link href="2023/12/27/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-04-%E5%9F%BA%E4%BA%8ETCP%E7%9A%84CS/"/>
+    <id>2023/12/27/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-04-%E5%9F%BA%E4%BA%8ETCP%E7%9A%84CS/</id>
     <published>2023-12-27T15:00:00.000Z</published>
     <updated>2024-01-24T15:04:30.498Z</updated>
     
@@ -152,19 +152,19 @@
     </summary>
     
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/categories/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/categories/Unix-NetWrok/"/>
     
     
-      <category term="Unix" scheme="http://xboom.github.io/tags/Unix/"/>
+      <category term="Unix" scheme="https:/www.yuankang.top/tags/Unix/"/>
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/tags/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/tags/Unix-NetWrok/"/>
     
   </entry>
   
   <entry>
     <title>TCPIP 网络编程-03-地址族与数据序列</title>
-    <link href="http://xboom.github.io/2023/12/22/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-03-%E5%9C%B0%E5%9D%80%E6%97%8F%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%8F%E5%88%97/"/>
-    <id>http://xboom.github.io/2023/12/22/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-03-%E5%9C%B0%E5%9D%80%E6%97%8F%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%8F%E5%88%97/</id>
+    <link href="2023/12/22/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-03-%E5%9C%B0%E5%9D%80%E6%97%8F%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%8F%E5%88%97/"/>
+    <id>2023/12/22/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-03-%E5%9C%B0%E5%9D%80%E6%97%8F%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%8F%E5%88%97/</id>
     <published>2023-12-22T15:00:00.000Z</published>
     <updated>2024-01-24T15:04:38.465Z</updated>
     
@@ -182,19 +182,19 @@
     </summary>
     
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/categories/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/categories/Unix-NetWrok/"/>
     
     
-      <category term="Unix" scheme="http://xboom.github.io/tags/Unix/"/>
+      <category term="Unix" scheme="https:/www.yuankang.top/tags/Unix/"/>
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/tags/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/tags/Unix-NetWrok/"/>
     
   </entry>
   
   <entry>
     <title>TCPIP 网络编程-02-套接字类型与协议设置</title>
-    <link href="http://xboom.github.io/2023/12/13/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-02-%E5%A5%97%E6%8E%A5%E5%AD%97%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%8D%8F%E8%AE%AE%E8%AE%BE%E7%BD%AE/"/>
-    <id>http://xboom.github.io/2023/12/13/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-02-%E5%A5%97%E6%8E%A5%E5%AD%97%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%8D%8F%E8%AE%AE%E8%AE%BE%E7%BD%AE/</id>
+    <link href="2023/12/13/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-02-%E5%A5%97%E6%8E%A5%E5%AD%97%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%8D%8F%E8%AE%AE%E8%AE%BE%E7%BD%AE/"/>
+    <id>2023/12/13/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-02-%E5%A5%97%E6%8E%A5%E5%AD%97%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%8D%8F%E8%AE%AE%E8%AE%BE%E7%BD%AE/</id>
     <published>2023-12-13T15:00:00.000Z</published>
     <updated>2024-01-24T15:04:50.121Z</updated>
     
@@ -211,19 +211,19 @@
     </summary>
     
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/categories/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/categories/Unix-NetWrok/"/>
     
     
-      <category term="Unix" scheme="http://xboom.github.io/tags/Unix/"/>
+      <category term="Unix" scheme="https:/www.yuankang.top/tags/Unix/"/>
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/tags/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/tags/Unix-NetWrok/"/>
     
   </entry>
   
   <entry>
     <title>TCPIP 网络编程-01-入门</title>
-    <link href="http://xboom.github.io/2023/12/07/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-01-%E5%85%A5%E9%97%A8/"/>
-    <id>http://xboom.github.io/2023/12/07/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-01-%E5%85%A5%E9%97%A8/</id>
+    <link href="2023/12/07/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-01-%E5%85%A5%E9%97%A8/"/>
+    <id>2023/12/07/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-01-%E5%85%A5%E9%97%A8/</id>
     <published>2023-12-07T15:00:00.000Z</published>
     <updated>2024-01-24T15:04:57.569Z</updated>
     
@@ -244,19 +244,19 @@
     </summary>
     
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/categories/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/categories/Unix-NetWrok/"/>
     
     
-      <category term="Unix" scheme="http://xboom.github.io/tags/Unix/"/>
+      <category term="Unix" scheme="https:/www.yuankang.top/tags/Unix/"/>
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/tags/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/tags/Unix-NetWrok/"/>
     
   </entry>
   
   <entry>
     <title>TCPIP 网络编程-00-简介</title>
-    <link href="http://xboom.github.io/2023/12/06/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-00%20%E7%AE%80%E4%BB%8B/"/>
-    <id>http://xboom.github.io/2023/12/06/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-00%20%E7%AE%80%E4%BB%8B/</id>
+    <link href="2023/12/06/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-00%20%E7%AE%80%E4%BB%8B/"/>
+    <id>2023/12/06/Unix%20NetWrok/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-00%20%E7%AE%80%E4%BB%8B/</id>
     <published>2023-12-06T15:00:00.000Z</published>
     <updated>2024-01-24T15:52:34.711Z</updated>
     
@@ -273,19 +273,19 @@
     </summary>
     
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/categories/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/categories/Unix-NetWrok/"/>
     
     
-      <category term="Unix" scheme="http://xboom.github.io/tags/Unix/"/>
+      <category term="Unix" scheme="https:/www.yuankang.top/tags/Unix/"/>
     
-      <category term="Unix NetWrok" scheme="http://xboom.github.io/tags/Unix-NetWrok/"/>
+      <category term="Unix NetWrok" scheme="https:/www.yuankang.top/tags/Unix-NetWrok/"/>
     
   </entry>
   
   <entry>
     <title>数据结构-02-Heap</title>
-    <link href="http://xboom.github.io/2023/09/29/Data%20Structure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-02-Heap/"/>
-    <id>http://xboom.github.io/2023/09/29/Data%20Structure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-02-Heap/</id>
+    <link href="2023/09/29/Data%20Structure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-02-Heap/"/>
+    <id>2023/09/29/Data%20Structure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-02-Heap/</id>
     <published>2023-09-28T16:16:00.000Z</published>
     <updated>2023-09-28T16:22:33.072Z</updated>
     
@@ -303,21 +303,21 @@
     </summary>
     
     
-      <category term="Data Structure" scheme="http://xboom.github.io/categories/Data-Structure/"/>
+      <category term="Data Structure" scheme="https:/www.yuankang.top/categories/Data-Structure/"/>
     
     
-      <category term="Heap" scheme="http://xboom.github.io/tags/Heap/"/>
+      <category term="Heap" scheme="https:/www.yuankang.top/tags/Heap/"/>
     
-      <category term="Data Structure" scheme="http://xboom.github.io/tags/Data-Structure/"/>
+      <category term="Data Structure" scheme="https:/www.yuankang.top/tags/Data-Structure/"/>
     
-      <category term="Libevent" scheme="http://xboom.github.io/tags/Libevent/"/>
+      <category term="Libevent" scheme="https:/www.yuankang.top/tags/Libevent/"/>
     
   </entry>
   
   <entry>
     <title>算法-01-Heap</title>
-    <link href="http://xboom.github.io/2023/09/29/Algorithm/%E7%AE%97%E6%B3%95-01-Heap/"/>
-    <id>http://xboom.github.io/2023/09/29/Algorithm/%E7%AE%97%E6%B3%95-01-Heap/</id>
+    <link href="2023/09/29/Algorithm/%E7%AE%97%E6%B3%95-01-Heap/"/>
+    <id>2023/09/29/Algorithm/%E7%AE%97%E6%B3%95-01-Heap/</id>
     <published>2023-09-28T16:15:00.000Z</published>
     <updated>2023-09-28T16:21:25.689Z</updated>
     
@@ -337,19 +337,19 @@
     </summary>
     
     
-      <category term="Algorithms" scheme="http://xboom.github.io/categories/Algorithms/"/>
+      <category term="Algorithms" scheme="https:/www.yuankang.top/categories/Algorithms/"/>
     
     
-      <category term="Algorithms" scheme="http://xboom.github.io/tags/Algorithms/"/>
+      <category term="Algorithms" scheme="https:/www.yuankang.top/tags/Algorithms/"/>
     
-      <category term="Heap" scheme="http://xboom.github.io/tags/Heap/"/>
+      <category term="Heap" scheme="https:/www.yuankang.top/tags/Heap/"/>
     
   </entry>
   
   <entry>
     <title>数据结构-01-List</title>
-    <link href="http://xboom.github.io/2023/09/18/Data%20Structure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-01-List/"/>
-    <id>http://xboom.github.io/2023/09/18/Data%20Structure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-01-List/</id>
+    <link href="2023/09/18/Data%20Structure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-01-List/"/>
+    <id>2023/09/18/Data%20Structure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-01-List/</id>
     <published>2023-09-18T14:58:29.000Z</published>
     <updated>2023-09-28T16:22:28.149Z</updated>
     
@@ -367,21 +367,21 @@
     </summary>
     
     
-      <category term="Data Structure" scheme="http://xboom.github.io/categories/Data-Structure/"/>
+      <category term="Data Structure" scheme="https:/www.yuankang.top/categories/Data-Structure/"/>
     
     
-      <category term="Data Structure" scheme="http://xboom.github.io/tags/Data-Structure/"/>
+      <category term="Data Structure" scheme="https:/www.yuankang.top/tags/Data-Structure/"/>
     
-      <category term="List" scheme="http://xboom.github.io/tags/List/"/>
+      <category term="List" scheme="https:/www.yuankang.top/tags/List/"/>
     
-      <category term="Libevent" scheme="http://xboom.github.io/tags/Libevent/"/>
+      <category term="Libevent" scheme="https:/www.yuankang.top/tags/Libevent/"/>
     
   </entry>
   
   <entry>
     <title>Protocol-04-DHCP</title>
-    <link href="http://xboom.github.io/2023/09/07/Protocol/Protocol-04-DHCP/"/>
-    <id>http://xboom.github.io/2023/09/07/Protocol/Protocol-04-DHCP/</id>
+    <link href="2023/09/07/Protocol/Protocol-04-DHCP/"/>
+    <id>2023/09/07/Protocol/Protocol-04-DHCP/</id>
     <published>2023-09-07T02:25:38.000Z</published>
     <updated>2023-09-08T15:38:23.323Z</updated>
     
@@ -398,19 +398,19 @@
     </summary>
     
     
-      <category term="Protocol" scheme="http://xboom.github.io/categories/Protocol/"/>
+      <category term="Protocol" scheme="https:/www.yuankang.top/categories/Protocol/"/>
     
     
-      <category term="DHCP" scheme="http://xboom.github.io/tags/DHCP/"/>
+      <category term="DHCP" scheme="https:/www.yuankang.top/tags/DHCP/"/>
     
-      <category term="Protocol" scheme="http://xboom.github.io/tags/Protocol/"/>
+      <category term="Protocol" scheme="https:/www.yuankang.top/tags/Protocol/"/>
     
   </entry>
   
   <entry>
     <title>Go-27-SyncPool</title>
-    <link href="http://xboom.github.io/2023/07/15/Go/Go-27-SyncPool/"/>
-    <id>http://xboom.github.io/2023/07/15/Go/Go-27-SyncPool/</id>
+    <link href="2023/07/15/Go/Go-27-SyncPool/"/>
+    <id>2023/07/15/Go/Go-27-SyncPool/</id>
     <published>2023-07-15T05:32:45.000Z</published>
     <updated>2023-07-15T05:38:19.201Z</updated>
     
@@ -426,17 +426,17 @@
     </summary>
     
     
-      <category term="Go" scheme="http://xboom.github.io/categories/Go/"/>
+      <category term="Go" scheme="https:/www.yuankang.top/categories/Go/"/>
     
     
-      <category term="Go" scheme="http://xboom.github.io/tags/Go/"/>
+      <category term="Go" scheme="https:/www.yuankang.top/tags/Go/"/>
     
   </entry>
   
   <entry>
     <title>Go-26-Issue</title>
-    <link href="http://xboom.github.io/2023/07/13/Go/Go-26-Issue/"/>
-    <id>http://xboom.github.io/2023/07/13/Go/Go-26-Issue/</id>
+    <link href="2023/07/13/Go/Go-26-Issue/"/>
+    <id>2023/07/13/Go/Go-26-Issue/</id>
     <published>2023-07-13T14:59:45.000Z</published>
     <updated>2023-07-19T15:34:46.967Z</updated>
     
@@ -453,17 +453,17 @@
     </summary>
     
     
-      <category term="Go" scheme="http://xboom.github.io/categories/Go/"/>
+      <category term="Go" scheme="https:/www.yuankang.top/categories/Go/"/>
     
     
-      <category term="Go" scheme="http://xboom.github.io/tags/Go/"/>
+      <category term="Go" scheme="https:/www.yuankang.top/tags/Go/"/>
     
   </entry>
   
   <entry>
     <title>Go-25-PoolDequeue</title>
-    <link href="http://xboom.github.io/2023/07/01/Go/Go-25-PoolDequeue/"/>
-    <id>http://xboom.github.io/2023/07/01/Go/Go-25-PoolDequeue/</id>
+    <link href="2023/07/01/Go/Go-25-PoolDequeue/"/>
+    <id>2023/07/01/Go/Go-25-PoolDequeue/</id>
     <published>2023-07-01T08:51:45.000Z</published>
     <updated>2023-07-15T05:38:08.054Z</updated>
     
@@ -479,17 +479,17 @@
     </summary>
     
     
-      <category term="Go" scheme="http://xboom.github.io/categories/Go/"/>
+      <category term="Go" scheme="https:/www.yuankang.top/categories/Go/"/>
     
     
-      <category term="Go" scheme="http://xboom.github.io/tags/Go/"/>
+      <category term="Go" scheme="https:/www.yuankang.top/tags/Go/"/>
     
   </entry>
   
   <entry>
     <title>Protocol-03-Raft</title>
-    <link href="http://xboom.github.io/2023/06/26/Protocol/Protocol-03-Raft/"/>
-    <id>http://xboom.github.io/2023/06/26/Protocol/Protocol-03-Raft/</id>
+    <link href="2023/06/26/Protocol/Protocol-03-Raft/"/>
+    <id>2023/06/26/Protocol/Protocol-03-Raft/</id>
     <published>2023-06-26T02:25:38.000Z</published>
     <updated>2023-09-08T15:38:09.211Z</updated>
     
@@ -505,21 +505,21 @@
     </summary>
     
     
-      <category term="Protocol" scheme="http://xboom.github.io/categories/Protocol/"/>
+      <category term="Protocol" scheme="https:/www.yuankang.top/categories/Protocol/"/>
     
     
-      <category term="ETCD" scheme="http://xboom.github.io/tags/ETCD/"/>
+      <category term="ETCD" scheme="https:/www.yuankang.top/tags/ETCD/"/>
     
-      <category term="Distributed System" scheme="http://xboom.github.io/tags/Distributed-System/"/>
+      <category term="Distributed System" scheme="https:/www.yuankang.top/tags/Distributed-System/"/>
     
-      <category term="Raft" scheme="http://xboom.github.io/tags/Raft/"/>
+      <category term="Raft" scheme="https:/www.yuankang.top/tags/Raft/"/>
     
   </entry>
   
   <entry>
     <title>Go-15-SyncMap</title>
-    <link href="http://xboom.github.io/2023/04/04/Go/Go-15-SyncMap/"/>
-    <id>http://xboom.github.io/2023/04/04/Go/Go-15-SyncMap/</id>
+    <link href="2023/04/04/Go/Go-15-SyncMap/"/>
+    <id>2023/04/04/Go/Go-15-SyncMap/</id>
     <published>2023-04-04T13:01:05.349Z</published>
     <updated>2023-07-15T05:37:13.807Z</updated>
     
@@ -536,17 +536,17 @@
     </summary>
     
     
-      <category term="Go" scheme="http://xboom.github.io/categories/Go/"/>
+      <category term="Go" scheme="https:/www.yuankang.top/categories/Go/"/>
     
     
-      <category term="Go" scheme="http://xboom.github.io/tags/Go/"/>
+      <category term="Go" scheme="https:/www.yuankang.top/tags/Go/"/>
     
   </entry>
   
   <entry>
     <title>Go-24-协程池问题</title>
-    <link href="http://xboom.github.io/2023/03/05/Go/Go-24-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/"/>
-    <id>http://xboom.github.io/2023/03/05/Go/Go-24-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/</id>
+    <link href="2023/03/05/Go/Go-24-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/"/>
+    <id>2023/03/05/Go/Go-24-%E5%8D%8F%E7%A8%8B%E6%B1%A0%E9%97%AE%E9%A2%98/</id>
     <published>2023-03-05T06:46:45.000Z</published>
     <updated>2023-07-15T05:38:02.316Z</updated>
     
@@ -562,17 +562,17 @@
     </summary>
     
     
-      <category term="Go" scheme="http://xboom.github.io/categories/Go/"/>
+      <category term="Go" scheme="https:/www.yuankang.top/categories/Go/"/>
     
     
-      <category term="Go" scheme="http://xboom.github.io/tags/Go/"/>
+      <category term="Go" scheme="https:/www.yuankang.top/tags/Go/"/>
     
   </entry>
   
   <entry>
     <title>算法-E10C-最大公约数</title>
-    <link href="http://xboom.github.io/2023/02/02/Algorithm/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/"/>
-    <id>http://xboom.github.io/2023/02/02/Algorithm/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/</id>
+    <link href="2023/02/02/Algorithm/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/"/>
+    <id>2023/02/02/Algorithm/%E7%AE%97%E6%B3%95-E10C-%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0/</id>
     <published>2023-02-02T12:25:25.494Z</published>
     <updated>2023-09-28T16:21:03.132Z</updated>
     
@@ -589,10 +589,10 @@
     </summary>
     
     
-      <category term="Algorithms" scheme="http://xboom.github.io/categories/Algorithms/"/>
+      <category term="Algorithms" scheme="https:/www.yuankang.top/categories/Algorithms/"/>
     
     
-      <category term="Algorithms" scheme="http://xboom.github.io/tags/Algorithms/"/>
+      <category term="Algorithms" scheme="https:/www.yuankang.top/tags/Algorithms/"/>
     
   </entry>
   
