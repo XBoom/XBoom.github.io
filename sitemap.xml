@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.yuankang.top/2024/05/23/Kernel/Kernel-14-kfifo/</loc>
+    
+    <lastmod>2024-05-25</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://www.yuankang.top/2024/01/31/Unix%20NetWork/TCPIP%20%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-11-IPC-%E7%AE%A1%E9%81%93/</loc>
     
     <lastmod>2024-05-18</lastmod>
@@ -1579,239 +1588,253 @@
 
   <url>
     <loc>https://www.yuankang.top/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   
   <url>
+    <loc>https://www.yuankang.top/tags/Algorithms-To-Live-By/</loc>
+    <lastmod>2024-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://www.yuankang.top/tags/Algorithms/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Heap/</loc>
-    <lastmod>2024-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.yuankang.top/tags/Algorithms-To-Live-By/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/C/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/PrimerPlus/</loc>
-    <lastmod>2024-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.yuankang.top/tags/Concurrency/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Data-Structure/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/List/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Libevent/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Design-Patterns/</loc>
-    <lastmod>2024-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.yuankang.top/tags/Distributed-Transaction/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Docker/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.yuankang.top/tags/Concurrency/</loc>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Go/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.yuankang.top/tags/Distributed-Transaction/</loc>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Grpc/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Algorithm/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/k8s/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Linux/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Memory/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/MQ/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Kafka/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.yuankang.top/tags/Microservices/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <loc>https://www.yuankang.top/tags/kfifo/</loc>
+    <lastmod>2024-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.yuankang.top/tags/Kernel/</loc>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Redis/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/MySql/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.yuankang.top/tags/Microservices/</loc>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/HTTP/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Quic/</loc>
-    <lastmod>2024-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.yuankang.top/tags/ETCD/</loc>
-    <lastmod>2024-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.yuankang.top/tags/Distributed-System/</loc>
-    <lastmod>2024-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.yuankang.top/tags/Raft/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/DHCP/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Protocol/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.yuankang.top/tags/ETCD/</loc>
+    <lastmod>2024-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.yuankang.top/tags/Distributed-System/</loc>
+    <lastmod>2024-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.yuankang.top/tags/Raft/</loc>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/TCP-IP/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Unix/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/tags/Unix-NetWork/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -1819,134 +1842,141 @@
 
   
   <url>
-    <loc>https://www.yuankang.top/categories/Algorithms/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <loc>https://www.yuankang.top/categories/Algorithms-To-Live-By/</loc>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.yuankang.top/categories/Algorithms-To-Live-By/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <loc>https://www.yuankang.top/categories/Algorithms/</loc>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/C/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/Data-Structure/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/Design-Patterns/</loc>
-    <lastmod>2024-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.yuankang.top/categories/Distributed-Transaction/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/Docker/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/Go/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.yuankang.top/categories/Distributed-Transaction/</loc>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/Grpc/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/Interesting-Algorithm/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/k8s/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/Linux/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/MQ/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.yuankang.top/categories/Microservices/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <loc>https://www.yuankang.top/categories/Kernel/</loc>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/MySql/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.yuankang.top/categories/Microservices/</loc>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/Protocol/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/Redis/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/TCP-IP/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://www.yuankang.top/categories/Unix-NetWork/</loc>
-    <lastmod>2024-05-18</lastmod>
+    <lastmod>2024-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
