@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://www.yuankang.top/"/>
-  <updated>2024-06-14T13:14:17.341Z</updated>
+  <updated>2024-06-14T13:18:48.919Z</updated>
   <id>https://www.yuankang.top/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://www.yuankang.top/2024/06/14/Protocol/Protocol-05-RFC/"/>
     <id>https://www.yuankang.top/2024/06/14/Protocol/Protocol-05-RFC/</id>
     <published>2024-06-14T02:25:38.000Z</published>
-    <updated>2024-06-14T13:14:17.341Z</updated>
+    <updated>2024-06-14T13:18:48.919Z</updated>
     
     <content type="html"><![CDATA[<p>最近开发<code>IPv6</code>需要查看<code>rfc</code>文档，简单记录一下如何查找相关标准文档</p><p>通过该<a href="https://www.rfc-editor.org/search/rfc_search_detail.php" target="_blank" rel="noopener">页面</a>，搜索领居发现协议  Neighbor Discovery 会等到如下的结果</p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/202406121447240.png" alt="image-20240612144705604" style="zoom:60%;" /><p>这里主要关注的是 <code>Title</code> 以及 <code>Status</code>，通过 Additional Criteria 也能进一步详细的搜索，页面很清晰，不做过多介绍，它的状态一共包括一下几种</p><table><thead><tr><th>状态</th><th>解释</th></tr></thead><tbody><tr><td><strong>Internet-Draft</strong></td><td>是IETF标准制定过程的起点，是一种工作文档，有效期最长为六个月，并且可能被更新、替换或作废</td></tr><tr><td><strong>Proposed Standard</strong></td><td>技术规范已经完成所有必要的技术审查，并且正在被互联网社区广泛测试和验证</td></tr><tr><td><strong>Draft Standard</strong></td><td>技术规范在Proposed Standard阶段经过一段时间的社区实践和审查后，如果继续被证明是稳定和成熟的，并且满足所有必要的要求，它可能被提升为Draft Standard</td></tr><tr><td><strong>(Internet) Standard</strong></td><td>这是IETF的最高级别标准，技术规范被认为是稳定、普遍接受的，并且适用于互联网操作</td></tr><tr><td><strong>BCP (Best Current Practice)</strong></td><td>BCP文档提供建议，但不一定描述协议规范。它们通常涉及推荐的做法或配置建议</td></tr><tr><td><strong>Historic</strong></td><td>这些文档包含了不再推荐使用的技术或实践，但由于历史价值而保留</td></tr><tr><td><strong>Experimental</strong></td><td>用于那些正在开发中，尚未准备好进行更广泛测试或部署的技术规范</td></tr><tr><td><strong>Informational</strong></td><td>这类文档提供信息和讨论，但并不包含技术规范或标准</td></tr><tr><td><strong>Not Recommended</strong></td><td>这些文档包含的建议或规范不再被推荐使用，但可能仍然有参考价值</td></tr><tr><td><strong>Obsolete</strong></td><td>这些文档已经被新的标准或实践所取代，不再具有实际应用价值</td></tr></tbody></table><p>所以一般查看 <code>Standards</code> 的文档</p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/202406121458049.png" alt="image-20240612145845983" style="zoom:80%;" /><p>然后就可以找到对于 IPv6 邻居协议的最新的 Draft Standard 版本</p><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/202406121501818.png" alt="image-20240612150113766" /></p><p>在 <strong>More Info</strong> 这一栏有补充信息</p><ul><li><strong>Errata</strong>: 指的是对已发布RFC文档的更正。这些更正通常涉及文档中的错误或遗漏，不改变技术规范的实质内容</li><li><strong>Obsoletes</strong>: 当一个RFC文档被新的RFC替代时，新的RFC会列出它所取代的旧RFC编号。例如，如果RFC 4861被标记为&quot;Obsoletes RFC 2461&quot;，这意味着RFC 2461已经被RFC 4861所替代，不再推荐使用</li><li><strong>Updated by</strong>: 当一个RFC文档需要更新或修正，但这些更新不足以构成一个全新的版本时，会使用这个术语。更新的RFC会列出它所更新的原始RFC编号。例如，如果RFC 5942被标记为&quot;Updated by RFC 6980&quot;，这意味着RFC 6980提供了对RFC 5942的更新或补充信息</li></ul><p>注意：</p><ol><li><p>更新的文档是当前文档的拓展修正，在后续的开发过程中可能有相关问题，所以也需要关注！</p></li><li><p>搜索展示的时候可能不全，别忘了查看是否已经显示了全部</p><p><img src="https://images-1307117474.cos.ap-guangzhou.myqcloud.com/blogs/Blog_3/202406130951608.png" alt="image-20240613095159529" /></p></li></ol><h3 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h3><ol><li><a href="https://www.rfc-editor.org/search/rfc_search_detail.php" target="_blank" rel="noopener">https://www.rfc-editor.org/search/rfc_search_detail.php</a></li></ol>]]></content>
     
@@ -39,9 +39,9 @@
       <category term="Protocol" scheme="https://www.yuankang.top/categories/Protocol/"/>
     
     
-      <category term="Protocol" scheme="https://www.yuankang.top/tags/Protocol/"/>
-    
       <category term="RFC" scheme="https://www.yuankang.top/tags/RFC/"/>
+    
+      <category term="Protocol" scheme="https://www.yuankang.top/tags/Protocol/"/>
     
   </entry>
   
@@ -68,9 +68,9 @@
       <category term="Kernel" scheme="https://www.yuankang.top/categories/Kernel/"/>
     
     
-      <category term="kfifo" scheme="https://www.yuankang.top/tags/kfifo/"/>
-    
       <category term="Linux" scheme="https://www.yuankang.top/tags/Linux/"/>
+    
+      <category term="kfifo" scheme="https://www.yuankang.top/tags/kfifo/"/>
     
       <category term="Kernel" scheme="https://www.yuankang.top/tags/Kernel/"/>
     
@@ -552,9 +552,9 @@
       <category term="Protocol" scheme="https://www.yuankang.top/categories/Protocol/"/>
     
     
-      <category term="DHCP" scheme="https://www.yuankang.top/tags/DHCP/"/>
-    
       <category term="Protocol" scheme="https://www.yuankang.top/tags/Protocol/"/>
+    
+      <category term="DHCP" scheme="https://www.yuankang.top/tags/DHCP/"/>
     
   </entry>
   
