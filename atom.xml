@@ -68,9 +68,9 @@
       <category term="Kernel" scheme="https://www.yuankang.top/categories/Kernel/"/>
     
     
-      <category term="kfifo" scheme="https://www.yuankang.top/tags/kfifo/"/>
-    
       <category term="Linux" scheme="https://www.yuankang.top/tags/Linux/"/>
+    
+      <category term="kfifo" scheme="https://www.yuankang.top/tags/kfifo/"/>
     
       <category term="Kernel" scheme="https://www.yuankang.top/tags/Kernel/"/>
     
@@ -523,9 +523,9 @@
     
       <category term="Data Structure" scheme="https://www.yuankang.top/tags/Data-Structure/"/>
     
-      <category term="Libevent" scheme="https://www.yuankang.top/tags/Libevent/"/>
-    
       <category term="List" scheme="https://www.yuankang.top/tags/List/"/>
+    
+      <category term="Libevent" scheme="https://www.yuankang.top/tags/Libevent/"/>
     
   </entry>
   
